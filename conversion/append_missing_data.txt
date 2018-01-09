@@ -1,3 +1,7 @@
+Am einfachsten machen wir das Ganz auf ZAME
+und verändern nur die post_table und thread_table
+=================================================
+
 Neuen Dump vorbereiten:
 
  gunzip 20180108_1898admin.sql.gz
@@ -31,7 +35,9 @@ im entsprechenden SQL-Statement.
 EnsureUserId im Importer verändern, so dass eine Exception geworfen wird wenn
 ein User nicht existiert.
 
+Vor dem laufen lassen noch die Parameter in DataImporter.php anpassen.
 
+ php -d zend.assertions=1 ImportThreads.php
 
 
 
