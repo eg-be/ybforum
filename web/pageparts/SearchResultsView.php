@@ -55,6 +55,13 @@ class SearchResultsView
                 . SearchHandler::PARAM_SORT_ORDER . '" value="'
                 . $sortOrder
                 . '"/>';
+        if($this->m_sh->GetNoReplies())
+        {
+            $html.= '<input type="hidden" name="'
+                    . SearchHandler::PARAM_NO_REPLIES . '" value="'
+                    . SearchHandler::PARAM_NO_REPLIES
+                    . '"/>';
+        }        
         $html.= '</form>';
         return $html;
     }
