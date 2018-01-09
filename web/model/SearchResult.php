@@ -48,7 +48,8 @@ class SearchResult
     public static function SearchPosts(ForumDb $db, 
             string $searchString, string $nick, 
             int $limit, int $offset, 
-            string $sortField, $sortOrder)
+            string $sortField, string $sortOrder,
+            bool $noReplies)
     {
         // check that we have a valid sort field
         if(!array_key_exists($sortField, self::SORT_FIELDS))
@@ -108,6 +109,11 @@ class SearchResult
             {
                 $sortField = self::SORT_FIELD_DATE;
             }
+        }
+        // add an optinal no replies clause
+        if($noReplies === true)
+        {
+            $query.= 'AND p.parent_idpost IS NULL ';
         }
         // add the order by clause
         $query.= 'ORDER BY ' . $sortField . ' ' .$sortOrder;
