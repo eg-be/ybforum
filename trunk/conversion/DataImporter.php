@@ -16,11 +16,11 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
  *
  * @author eli
  */
-class DataImporter 
+class DataImporter
 {
-    
-    function __construct() 
-    {        
+
+    function __construct()
+    {
         $this->m_sourceDb = $this->CreateDb(
             ImporterConfig::SERVERNAME,
             ImporterConfig::USERNAME,
@@ -35,7 +35,7 @@ class DataImporter
             ImporterConfig::DEST_CHARSET,
             ImporterConfig::DEST_DB);
     }
-    
+
     function CreateDb(string $server, string $user, string $pass, 
             string $charset, string $defaultDb)
     {
