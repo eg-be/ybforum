@@ -1,0 +1,38 @@
+Neuen Dump vorbereiten:
+
+ gunzip 20180108_1898admin.sql.gz
+
+Und diesen Dump in die alte DB einspielen:
+
+  mysql -p -u ybforum old1898 < 20180108_1898admin.sql
+
+Feststellen ab wo neu importiert werden soll.
+
+Ein Startupunkt ist z.Bsp. der Thread mit dem TitelOT: Zahnarzt:
+ idpost: 669685
+ ithread: 78589
+ old_no: 1080532
+ 
+ 
+Ab dort alle Daten löschen:
+
+ DELETE FROM post_table WHERE idpost >= 669685
+ DELETE FROM thread_table WHERE idthread >= 78589
+
+Und die Auto-Inc Werte zurück setzen:
+
+ ALTER TABLE post_table AUTO_INCREMENT = 669685
+ ALTER TABLE thread_table AUTO_INCREMENT = 78589
+ 
+Jetzt den Importer neu laufen lassen, aber erst ab dem Post mit 
+old_no 1080532. Dazu den Code entsprechend editieren, in ImportThreads,
+im entsprechenden SQL-Statement.
+
+EnsureUserId im Importer verändern, so dass eine Exception geworfen wird wenn
+ein User nicht existiert.
+
+
+
+
+
+
