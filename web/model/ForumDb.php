@@ -53,23 +53,16 @@ class ForumDb extends PDO
     public function __construct() 
     {
         $this->m_connected = false;
-        try
-        {
-            $dsn = 'mysql:host=' . DbConfig::SERVERNAME .
-                    ';dbname=' . DbConfig::DEFAULT_DB .
-                    ';charset=' . DbConfig::CHARSET;
-            $options = array(
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_EMULATE_PREPARES => false,
-                PDO::ATTR_STRINGIFY_FETCHES => false
-            );
-            parent::__construct($dsn, DbConfig::USERNAME, DbConfig::PASSWORD, $options);
-            $this->m_connected = true;
-        }
-        catch(PDOException $e)
-        {
-            ErrorHandler::OnException($e);
-        }
+        $dsn = 'mysql:host=' . DbConfig::SERVERNAME .
+                ';dbname=' . DbConfig::DEFAULT_DB .
+                ';charset=' . DbConfig::CHARSET;
+        $options = array(
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::ATTR_STRINGIFY_FETCHES => false
+        );
+        parent::__construct($dsn, DbConfig::USERNAME, DbConfig::PASSWORD, $options);
+        $this->m_connected = true;
     }
   
     /**
