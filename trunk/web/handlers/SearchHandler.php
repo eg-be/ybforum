@@ -34,6 +34,7 @@ class SearchHandler extends BaseHandler
     const PARAM_RESULT_OFFSET = 'search_result_offset';
     const PARAM_SORT_FIELD = 'search_sort_field';
     const PARAM_SORT_ORDER = 'search_sort_order';
+    const PARAM_NO_REPLIES = 'search_no_replies';
     
     const MSG_NO_SEARCH_PARAMS_GIVEN = 'Es muss ein Suchbegriff und/oder ein '
             . 'Stammpostername angegeben werden';
@@ -53,6 +54,7 @@ class SearchHandler extends BaseHandler
         $this->m_moreRecordsAvailable = false;
         $this->m_sortField = null;
         $this->m_sortOrder = null;
+        $this->m_noReplies = false;
     }
     
     protected function ReadParams()
@@ -62,6 +64,15 @@ class SearchHandler extends BaseHandler
         $this->m_resultOffset = $this->ReadIntParam(self::PARAM_RESULT_OFFSET);
         $this->m_sortField = $this->ReadStringParam(self::PARAM_SORT_FIELD);
         $this->m_sortOrder = $this->ReadStringParam(self::PARAM_SORT_ORDER);
+        $noRepliesValue = $this->ReadStringParam(self::PARAM_NO_REPLIES);
+        if($noRepliesValue && $noRepliesValue === self::PARAM_NO_REPLIES)
+        {
+            $this->m_noReplies = true;
+        }
+        else
+        {
+            $this->m_noReplies = false;
+        }
     }
     
     protected function ValidateParams()
@@ -134,7 +145,8 @@ class SearchHandler extends BaseHandler
                     $this->GetLimit() + 1, 
                     $this->m_resultOffset,
                     $this->m_sortField, 
-                    $this->m_sortOrder);
+                    $this->m_sortOrder,
+                    $this->m_noReplies);
         }
         catch(PDOException $ex)
         {
@@ -222,11 +234,17 @@ class SearchHandler extends BaseHandler
         return $this->m_sortOrder;
     }
     
+    public function GetNoReplies()
+    {
+        return $this->m_noReplies;
+    }
+    
     private $m_searchNick;
     private $m_searchString;
     private $m_resultOffset;
     private $m_sortField;
     private $m_sortOrder;
+    private $m_noReplies;
     
     private $m_results;
     private $m_moreRecordsAvailable;

@@ -41,6 +41,13 @@ class SearchForm {
             <table style="margin: auto;">
                 <tr><td class="fbold">Suchbegriff:</td><td><input type="text" value="' . ($this->m_sh ? $this->m_sh->GetSearchString() : '') .'" name="' . SearchHandler::PARAM_SEARCH_STRING . '" size="50" maxlength="100"/></td></tr>
                 <tr><td class="fbold">Stammposter:</td><td><input type="text" value="' . ($this->m_sh ? $this->m_sh->GetSearchNick() : '') .'" name="' . SearchHandler::PARAM_NICK . '" size="20" maxlength="60"/></td></tr>
+                <tr><td class="fbold">Keine Antworten:</td>';
+        $html.= '<td><input type="checkbox" value="' . SearchHandler::PARAM_NO_REPLIES .'" name="' . SearchHandler::PARAM_NO_REPLIES . '"';
+        if($this->m_sh && $this->m_sh->GetNoReplies() === true)
+        {
+            $html.= ' checked';
+        }
+        $html.= '/></td></tr>
                 <tr><td colspan="2">
                         <input type="submit" value="Suchen"/>
                     </td></tr>
