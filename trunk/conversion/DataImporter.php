@@ -353,6 +353,7 @@ class DataImporter
         $userId = $this->GetUserId($authorDecoded);
         if($userId === 0)
         {
+            throw new Exception('Missing user Id ' . $userId . ' but we need all users when appending');
             $userId = $this->CreateMissingUser($authorDecoded);
         }
         return $userId;
@@ -366,7 +367,7 @@ class DataImporter
         // the entry of a thread is a post that hat no parent
         $query = 'SELECT no, thread '
                 . 'FROM forum_forum '
-                . 'WHERE preno = 0 ORDER BY no ASC';
+                . 'WHERE preno = 0 AND no >= 1080532 ORDER BY no ASC';
         $stmt = $this->m_sourceDb->prepare($query);
         $stmt->execute();
         $stmt->store_result();
