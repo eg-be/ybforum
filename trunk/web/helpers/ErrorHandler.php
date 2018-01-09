@@ -31,7 +31,7 @@ class ErrorHandler
     /**
      * @var int Set to 1 if a stacktrace shall be included in the error message.
      */
-    const PRINT_STACKTRACE_ON_ERROR = 1;
+    const PRINT_STACKTRACE_ON_ERROR = 0;
     
     /**
      * Error logs the exception and calls die().
