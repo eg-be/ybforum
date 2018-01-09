@@ -1,0 +1,212 @@
+Neue Datenbanken erstellen
+==========================
+Zwei Datenbanken und ein User für die Datenbanken 
+werden benötigt:
+Datenbanken zu erstellen:
+ old1898
+    Importieren der alten Daten in diese Datenbank
+ ybforum 
+    Neue Datenbank
+
+Der User soll ybforum heissen.
+Prozedere ist Hoster / Serverabhängig.
+
+Wichtig: Default Collation muss utf8mb4 sein.
+
+Create Scripts ablaufen lassen um Strukturen zu erstellen.
+
+data Scripts ablaufen lassen um initiale Daten einzufügen.
+
+Dump des alten Forums in die old1898 Datenbank einspielen
+=========================================================
+Aus dem Verzeichnis in welchem der entsprechende Dump liegt:
+
+ mysql -p -u ybforum old1898 < 1898admin.sql
+
+[DEBUG] Alles aus der neuen Datenbank ybforum löschen
+=====================================================
+truncate post_table;
+delete from thread_table where idthread > 0;
+delete from user_table where iduser > 0;
+truncate confirm_user_table;
+truncate reset_password_table;
+truncate update_email_table;
+
+(Man sollte noch die IDs rückstellen)
+
+Converter ausführen um die Daten zu von alt zu neu zu transformieren
+====================================================================
+
+Verbindungsparameter zu alter und neuer DB festlegen in:
+ ImportConfig.php
+
+
+Aus dem Verzeichnis 'conversion':
+Benutzer importieren:
+
+ php -d zend.assertions=1 ImportUsers.php > importUsers.log
+
+Das Feld user_table.email hat eine UNIQUE constraint. Duplikate werden 
+eingefügt indem ein '_duplicate_X' angehängt wird. Diese Duplikate müssen
+manuell bereinigt werden: Entscheiden welcher der beiden Acccounts (oder beide
+deaktiviert werden sollen).
+
+Threads importieren:
+
+ php -d zend.assertions=1 ImportThreads.php > importThreads.log
+
+
+Duplikate zu Dummies (kein Mail, kein Passwort) transformieren
+==============================================================
+Alle Duplikate die im Mail den Wert 'sperre' enthalten sind früher blockiert
+worden:
+ Robby
+ schwarzgelber Stern
+ jungebueb
+
+ UPDATE user_table SET email = NULL, old_passwd = NULL WHERE email LIKE '%sperre%'
+
+Einträge die auf Duplikate verweisen finden:
+ 
+ SELECT * FROM user_table WHERE email LIKE '%duplicate%'
+
+
+Nicht verwendete Stammposter in die unused_user_table kopieren
+==============================================================
+INSERT into unused_user_table 
+SELECT iduser, nick, email, admin, active, registration_ts, registration_msg, old_passwd FROM ybforum.user_table where iduser not in (select iduser from post_table)
+
+
+Nicht verwendete Stammposter aus der normalen user_table löschen
+================================================================
+DELETE FROM ybforum.user_table where iduser not in (select iduser from post_table)
+
+Collation der nick Spalte ändern
+================================
+
+ALTER TABLE `user_table` CHANGE `nick` `nick` VARCHAR(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL;
+
+
+Gibt auch wieder Dupplikate:
+
+42 9iSchöggu => 66 Post, neuster Post von '2013-01-03 10:00:23', keine Email.
+1829 9iSchoeggu => 9 Post, neuster Post von '2015-01-19 23:17:30'
+
+ UPDATE user_table SET nick = '9iSchöggu_' WHERE nick = '9iSchöggu'
+
+Alle Dummies mit einem '_' am Ende markieren:
+ UPDATE ybforum.user_table SET nick = CONCAT(nick, '_') WHERE password is null AND email is null AND old_passwd is null
+
+2598 aldo giovi_ => dummy
+2614 ALDO giovi_ => dummy
+
+ UPDATE user_table SET nick = 'aldo giovi__' WHERE nick = 'aldo giovi_'
+
+2587 Original Daiwa_ => dummy
+2622 ORiginal Daiwa_ => dummy
+
+ UPDATE user_table SET nick = 'ORiginal Daiwa__' WHERE nick = 'ORiginal Daiwa_'
+
+ Gstaader Daiwa_ => dummy
+ gstaader Daiwa_ => dummy
+ 
+ UPDATE user_table SET nick = 'gstaader Daiwa__' WHERE nick = 'gstaader Daiwa_'
+ 
+==> OK.
+
+
+Händische Korrekturen der Duplikate
+-----------------------------------
+
+email: 1898forum@gmx.ch
+ Tippmaster
+    letztes Post von '2015-11-27 16:35:36'
+ www.1898.ch
+    letztes Post von '2013-07-12 10:23:34'
+
+=> Scheinen beide unbenutzt, beide deaktivieren
+
+ UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'Tippmaster' OR nick = 'www.1898.ch'
+
+email: sandro.reinhard@bluemail.ch
+ Schiri
+    letztes Post von '2017-06-19 17:55:55'
+ Harry Potter
+    letztes Post von '2016-08-23 14:13:04'
+    
+=> 'Harry Potter' länger nicht mehr verwendet, deaktivieren
+
+ UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'Harry Potter'
+
+email: joncavegn@yahoo.com
+ pro hosenträger für
+    Genau ein Post von '2008-04-09 21:18:21 'mit Inhalt 'Test'
+ hosenträger
+    letztes Post von '2017-11-08 16:26:28'
+
+=> 'pro hosenträger für ' deaktivieren
+
+ UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'pro hosenträger für '
+ UPDATE user_table SET email = 'joncavegn@yahoo.com' WHERE nick = 'hosenträger'
+
+email: ybluke@hotmail.com
+ Tequila
+    letztes Post von '2017-09-20 22:10:51'
+ Tequlia
+    Keine Posts vorhanden
+
+=> 'Tequlia' deaktivieren
+
+ UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'Tequlia'
+
+email: c_aufenast@msn.com
+ Hennes
+    letztes Post von '2008-10-26 18:23:51'
+ Kulaksizoglu
+    letztes Post von '2017-11-05 00:12:10'
+
+=> 'Kulaksizoglu' deaktivieren
+
+ UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'Kulaksizoglu'
+
+email: ndkamp@gmail.com
+ kowalski
+    letztes Post von '2015-11-29 14:14:16'
+ kowalsky
+    Keine Posts vorhanden
+
+=> 'kowalsky' deaktivieren
+
+ UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'kowalsky'
+
+email: yb.fans@bluewin.ch
+ Hene52
+    letztes Post von '2012-04-16 22:41:42'
+ 9iHene53
+    letztes Post von '2017-10-12 14:09:48'
+
+=> 'Hene52' deaktivieren
+
+ UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'Hene52'
+ UPDATE user_table SET email = 'yb.fans@bluewin.ch' WHERE nick = '9iHene53'
+
+email: yu_tom@bluemail.ch
+ 9iPiotr
+    letztes Post von '2017-11-22 22:41:05'
+ 9i Piotr
+    letztes Post von '2009-03-26 22:54:16'
+
+=> '9i Piotr' deaktivieren
+
+ UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = '9i Piotr'
+
+email: d.buehlmann@bscyb.ch
+ FAVE_Dänu
+    Keine Posts vorhanden
+ FAVE Dänu
+    letztes Post von '2017-11-17 10:39:07'
+
+=> 'FAVE_Dänu' deaktivieren
+
+ UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'FAVE_Dänu'
+ UPDATE user_table SET email = 'd.buehlmann@bscyb.ch' WHERE nick = 'FAVE Dänu'

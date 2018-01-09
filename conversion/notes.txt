@@ -1,0 +1,14 @@
+Folgende Schritte ausführen um die alten Daten zu importieren:
+
+In ImporterConfig.php die Paramter für die DB anpassen
+
+Alle bekannten Users importieren:
+
+ php -d zend.assertions=1 ImportUsers.php
+
+Alle Threads importieren:
+ 
+ php -d zend.assertions=1 ImportThreads.php
+
+
+

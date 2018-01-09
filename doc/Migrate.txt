@@ -1,0 +1,38 @@
+Als erstes von zame auf 1898test wechseln
+=========================================
+
+Auf zame Dump erstellen:
+
+ mysqldump --routines -u ybforum -p ybforum > 20180108_ybforum.dump.sql
+
+Die DEFINER Befehle müssen vor dem zurück importieren noch raus:
+
+ eg@zame:~$ grep PROCEDURE 20180108_ybforum.dump.sql
+ /*!50003 DROP PROCEDURE IF EXISTS `insert_reply` */;
+ CREATE DEFINER=`ybforum`@`localhost` PROCEDURE `insert_reply`(IN idparentpost BIGINT,
+
+Mit sed durch leeren String ersetzen:
+ 
+ sed -i.bak s/DEFINER=\`ybforum\`@\`localhost\`//g 20180108_ybforum.dump.sql
+
+Prüfen:
+
+ eg@zame:~$ grep PROCEDURE 20180108_ybforum.dump.sql
+ /*!50003 DROP PROCEDURE IF EXISTS `insert_reply` */;
+ CREATE  PROCEDURE `insert_reply`(IN idparentpost BIGINT,
+
+Zip für den Transfer erstellen:
+
+ gzip 20180108_ybforum.dump.sql
+
+Transferieren auf die neue Umgebung..
+
+Mit SSH auf die Umgebung bei hostfactory verbinden.
+Dump extrahieren:
+
+ gunzip 20180108_ybforum.dump.sql.gz
+ 
+Verbindung mit MySQL herstellen und alte DB aus DUMP überschreiben;
+
+  mysql --host=server09.hostfactory.ch --port=3306 -u ybforum_usr -pPASSWORT ybforum < 20180108_ybforum.dump.sql
+

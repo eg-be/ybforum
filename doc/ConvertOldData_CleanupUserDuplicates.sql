@@ -1,0 +1,13 @@
+UPDATE user_table SET email = NULL, old_passwd = NULL WHERE email LIKE '%sperre%';
+UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'Tippmaster' OR nick = 'www.1898.ch';
+UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'Harry Potter';
+UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'pro hosenträger für ';
+UPDATE user_table SET email = 'joncavegn@yahoo.com' WHERE nick = 'hosenträger';
+UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'Tequlia';
+UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'Kulaksizoglu';
+UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'kowalsky';
+UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'Hene52';
+UPDATE user_table SET email = 'yb.fans@bluewin.ch' WHERE nick = '9iHene53';
+UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = '9i Piotr';
+UPDATE user_table SET email = NULL, old_passwd = NULL WHERE nick = 'FAVE_Dänu';
+UPDATE user_table SET email = 'd.buehlmann@bscyb.ch' WHERE nick = 'FAVE Dänu';
