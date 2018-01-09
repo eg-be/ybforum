@@ -40,5 +40,26 @@ Vor dem laufen lassen noch die Parameter in DataImporter.php anpassen.
  php -d zend.assertions=1 ImportThreads.php
 
 
+Jetzt einen neuen Dump erstellen, aber nur die Tabllen
+post_table und thread_table dumpen:
 
+ mysqldump -u ybforum -p ybforum thread_table post_table > 20180109_ybforum_thread_post.dump.sql
 
+Zip für den Transfer erstellen:
+
+ gzip 20180109_ybforum_thread_post.dump.sql
+ 
+Transferieren auf die neue Umgebung..
+
+Mit SSH auf die Umgebung bei hostfactory verbinden.
+Dump extrahieren:
+
+ gunzip 20180109_ybforum_thread_post.dump.sql.gz
+
+Verbindung mit MySQL herstellen und alte Tabellen thread und post mit Daten aus DUMP überschreiben.
+Vorher die Seite auf read-only setzen (am einfachsten den Benutzer in model/DbConfig.php auf
+etwas ungültiges setzen)
+
+  mysql --host=server09.hostfactory.ch --port=3306 -u ybforum_usr -pgE9YMa%AJUna ybforum < 20180109_ybforum_thread_post.dump.sql
+  
+Und die DB wieder aktivieren.
