@@ -290,8 +290,9 @@ class ForumDb extends PDO
      * @param string $clientIpAddress Client IP address writing the post.
      * @return int The Value of the field idpost of the post_table for the
      * post just created.
-     * @throws Exception If a database operation fails, or if $user is not 
-     * active.
+     * @throws InvalidArgumentException If passed user is not active, or
+     * if passed user is a dummy.
+     * @throws Exception If a database operation fails.
      */
     public function CreateThread(User $user, string $title, $content, $email, 
             $linkUrl, $linkText, $imgUrl, string $clientIpAddress)
@@ -306,7 +307,11 @@ class ForumDb extends PDO
         
         if(!$user->IsActive())
         {
-            throw new Exception('User ' . $user->GetId() . ' is not active');
+            throw new InvalidArgumentException('User ' . $user->GetNick() . ' is not active');
+        }
+        if($user->IsDummyUser())
+        {
+            throw new InvalidArgumentException('User ' . $user->GetNick() . ' is a dummy');            
         }
         
         // Start a transaction, insert the thread first
@@ -359,8 +364,7 @@ class ForumDb extends PDO
      * post just created.
      * @throws InvalidArgumentException If passed user is not active, or
      * if passed user is a dummy, or if no post matching $parentPostId exists.
-     * @throws Exception If a database operation fails or if the passed
-     * $user is not active.
+     * @throws Exception If a database operation fails.
      */
     public function CreateReplay(int $parentPostId, User $user, string $title, 
             $content, $email, 
