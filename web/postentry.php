@@ -133,6 +133,8 @@ catch(Exception $ex)
         </div>
         <hr>
         <?php
+        try
+        {
             if($postEntryHandler && $postEntryHandler->HasException())
             {
                 $postException = $postEntryHandler->GetLastException();
@@ -141,13 +143,25 @@ catch(Exception $ex)
                     . $postException->GetMessage()
                     . '</div>';
             }
+        }
+        catch(Exception $ex)
+        {
+            ErrorHandler::OnException($ex);
+        }
         ?>
         <div id="postformcontainer" class="fullwidth">
-            <?php 
-                $pef = new PostEntryForm($parentPost, $postEntryHandler);
-                echo $pef->renderHtmlForm();
-                echo $pef->renderUsageTable();
-            ?>
+        <?php 
+        try
+        {
+            $pef = new PostEntryForm($parentPost, $postEntryHandler);
+            echo $pef->renderHtmlForm();
+            echo $pef->renderUsageTable();
+        }
+        catch(Exception $ex)
+        {
+            ErrorHandler::OnException($ex);
+        }
+        ?>
         </div>
     </body>
 </html>
