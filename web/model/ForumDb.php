@@ -357,6 +357,8 @@ class ForumDb extends PDO
      * @param string $clientIpAddress Client IP address writing the post.
      * @return int The Value of the field idpost of the post_table for the
      * post just created.
+     * @throws InvalidArgumentException If passed user is not active, or
+     * if passed user is a dummy, or if no post matching $parentPostId exists.
      * @throws Exception If a database operation fails or if the passed
      * $user is not active.
      */
@@ -375,7 +377,16 @@ class ForumDb extends PDO
         
         if(!$user->IsActive())
         {
-            throw new Exception('User ' . $user->GetId() . ' is not active');
+            throw new InvalidArgumentException('User ' . $user->GetNick() . ' is not active');
+        }
+        if($user->IsDummyUser())
+        {
+            throw new InvalidArgumentException('User ' . $user->GetNick() . ' is a dummy');            
+        }
+        $parentPost = Post::LoadPost($this, $parentPostId);
+        if(!$parentPost)
+        {
+            throw new InvalidArgumentException('No post exists for passed parent postid ' . $parentPostId);                        
         }
         
         $query = 'CALL insert_reply(:parent_idpost, :iduser, '
