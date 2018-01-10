@@ -183,9 +183,16 @@ class PostEntryForm
     private function renderHtmlFormParentPostIdInput()
     {
         $parentPostId = 0;
+        // If this form has been created as a direct consequence of a reply,
+        // a parent post is set
         if($this->m_parentPost)
         {
             $parentPostId = $this->m_parentPost->GetId();
+        }
+        else if($this->m_peh && $this->m_peh->GetParentPostId() > 0)
+        {
+            // or, if we have already failed once, all information is in the post-handler
+            $parentPostId = $this->m_peh->GetParentPostId();
         }
         $htmlString = '<input type="hidden" '
             . 'name="' . PostEntryHandler::PARAM_PARENTPOSTID . '" value="' . $parentPostId . '"/>';
