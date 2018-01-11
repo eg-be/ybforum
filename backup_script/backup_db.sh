@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # folders and files
 backupfolder="/private/dbbackups"
@@ -11,12 +11,12 @@ compressextension="gz"
 host="server09.hostfactory.ch"
 port="3306"
 user="dbybforum_reader"
-pass="password"
+pass="yQA7y2EPUTuG"
 database="dbybforum"
 
 # first check that we do not exceed the number of files in the backup directory
 nrofbackups="$(ls -l ${backupfolder} | grep -c ${matchpattern})"
-if (( $nrofbackups > $maxfiles )); then
+if [ "$nrofbackups" -gt "$maxfiles" ]; then
     >&2 echo "ERROR: To many backup files, alreday ${nrofbackups} in ${backupfolder}, aborting"
     exit 1
 fi
@@ -26,7 +26,7 @@ now="$(mysql --host=$host --port=$port -u $user -p$pass $database -ss -e 'SELECT
 
 # if something with the today date already exists, abort
 nrofmatchingnowfiles="$(ls -l ${backupfolder} | grep -c ${now})"
-if (( $nrofmatchingnowfiles > 0 )); then
+if [ "$nrofmatchingnowfiles" -gt "0" ]; then
     >&2 echo "ERROR: A file matching ${now} already exists in ${backupfolder}, aborting"
     exit 1
 fi
@@ -34,7 +34,7 @@ fi
 # remove everyting that matches the date one week ago
 weekago="$(mysql --host=$host --port=$port -u $user -p$pass $database -ss -e 'SELECT DATE_FORMAT(SUBDATE(NOW(), INTERVAL 1 week), "%Y-%m-%d");')"
 toremovefilename="${backupfolder}/${database}_${weekago}.${dumpextensions}.${compressextension}"
-if [ -f $toremovefilename ]; then
+if [ -f "$toremovefilename" ]; then
     echo "Removing old file ${toremovefilename}"
     rm ${toremovefilename}
 fi
