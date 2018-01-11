@@ -1,0 +1,49 @@
+Dump erstellen auf Hostfactory
+==============================
+
+Via SSH zu Hostfactory verbinden.
+Dump von db 'ybforum' mit Benutzer 'ybforum_usr' erstellen:
+
+ mysqldump --routines --host=server09.hostfactory.ch --port=3306 -u ybforum_usr -p ybforum > 20180111_ybforum.dump.sql
+ 
+Komprimieren:
+
+ gzip 20180111_ybforum.dump.sql
+
+Dump auf Hostfactory zurückspielen
+==================================
+
+Via SSH zu Hostfactory verbinden.
+
+Dump extrahieren:
+
+ gunzip 20180111_ybforum.dump.sql.gz
+ 
+Dump in db 'dbybforum' mit Benutzer 'dbybforum_usr' zurückspielen:
+
+ mysql --host=server09.hostfactory.ch --port=3306 -u dbybforum_usr -pPASSWORT dbybforum < 20180111_ybforum.dump.sql
+
+
+DEFINER Statements aus dem Dump entfernen falls solche vorhanden sind
+=====================================================================
+
+Prüfen ob es solche hat:
+
+ grep DEFINER 20180111_ybforum.dump.sql
+ 
+Bei einer Ausgabe wie:
+ CREATE DEFINER=`ybforum_usr`@`%` PROCEDURE `insert_reply` <snip>
+
+Ist ersichtlich das es Einträge hat. Die Einträge 
+ CREATE DEFINER=`ybforum_usr`@`%`
+mit sed entfernen:
+
+(Achtung: sed ist auf hostfactory leider nicht verfügbar)
+
+  sed -i.bak s/DEFINER=\`ybforum_usr\`@\`%\`//g 20180111_ybforum.dump.sql
+
+Und erneut prüfen. 
+ 
+ grep DEFINER 20180111_ybforum.dump.sql
+ 
+sollte jetzt nichts mehr angeben.
