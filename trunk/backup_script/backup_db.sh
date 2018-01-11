@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # folders and files
-backupfolder="/private/dbbackups"
+backupfolder="/srv/www/vhosts/1898.ch/private/dbbackups"
 maxfiles="7"
 matchpattern="sql.dump"
 dumpextensions="sql.dump"
@@ -11,7 +11,7 @@ compressextension="gz"
 host="***REMOVED***"
 port="***REMOVED***"
 user="dbybforum_reader"
-pass="yQA7y2EPUTuG"
+pass="passwort"
 database="dbybforum"
 
 # first check that we do not exceed the number of files in the backup directory
