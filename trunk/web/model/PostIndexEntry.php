@@ -194,43 +194,7 @@ class PostIndexEntry
         }
         return $replies;
     }
-    
-    /**
-     * Search for a post that matches the passed $searchString in either the
-     * title or the content.
-     * @param ForumDb $db The database.
-     * @param string $searchString String to search for. Search using a like
-     * clause, matching '%$searchString%' in either title or content.
-     * @param type $maxEntries Maximum number of results to return.
-     * @return array An array holding PostIndexEntry objects, sorted by
-     * idpost descending.
-     */
-    public static function SearchPosts(ForumDb $db, string $searchString, 
-            $maxEntries)
-    {
-        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
-                . 'title, indent, creation_ts, '
-                . 'content IS NOT NULL AS has_content,'
-                . 'hidden '
-                . 'FROM post_table LEFT JOIN '
-                . 'user_table ON post_table.iduser = user_table.iduser '
-                . 'WHERE (title LIKE :titleSearchString '
-                . 'OR content LIKE :contentSearchString) '
-                . 'AND hidden = 0 '
-                . 'ORDER BY idpost DESC LIMIT :maxEntries';
-        $stmt = $db->prepare($query);
-        $stmt->execute(array( 
-            ':titleSearchString' => '%'.$searchString.'%', 
-            ':contentSearchString' => '%'.$searchString.'%',
-            ':maxEntries' => $maxEntries));
-        $replies = array();
-        while($indexEntry = $stmt->fetchObject('PostIndexEntry'))
-        {
-            array_push($replies, $indexEntry);
-        }
-        return $replies;
-    }
-    
+        
     /**
      * Create an instance using one of the static methods. This constructor
      * will assert that the objects holds valid values when it is invoked.
