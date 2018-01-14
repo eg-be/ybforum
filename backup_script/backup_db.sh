@@ -1,7 +1,11 @@
 #!/bin/sh
 
 # folders and files
+# Note: Backup from a cronjob requires the full path with the vhost:
+# (we should update the script to make it work relative to its location)
 backupfolder="/srv/www/vhosts/1898.ch/private/dbbackups"
+# and running it from the terminal, has another root-path:
+#backupfolder="/private/dbbackups"
 maxfiles="7"
 matchpattern="sql.dump"
 dumpextensions="sql.dump"
@@ -10,8 +14,12 @@ compressextension="gz"
 # db parameters
 host="***REMOVED***"
 port="***REMOVED***"
-user="dbybforum_reader"
-pass="passwort"
+# Note: If we dump using a user, who has not created the procedure (??)
+# the procedures will not be dumped.
+# so, for now use the user who has all access to do the dumps
+#user="dbybforum_reader"
+user="dbybforum_usr"
+pass="password"
 database="dbybforum"
 
 # first check that we do not exceed the number of files in the backup directory
@@ -44,6 +52,6 @@ dumpfile="${backupfolder}/${database}_${now}.${dumpextensions}"
 mysqldump --single-transaction --routines --host=$host --port=$port -u $user -p$pass $database > ${dumpfile}
 
 # and zip that file
-gzip ${dumpfile}
+#gzip ${dumpfile}
 
 echo "Created backup of database ${database} in file ${dumpfile}.${compressextension}"
