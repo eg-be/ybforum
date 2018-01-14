@@ -14,9 +14,9 @@ compressextension="gz"
 # db parameters
 host="***REMOVED***"
 port="***REMOVED***"
-# Note: If we dump using a user, who has not created the procedure (??)
-# the procedures will not be dumped.
-# so, for now use the user who has all access to do the dumps
+# Note: If we dump using a user, who has not the right to EXECUTE
+# stored procedures, the sp will not get dumped.
+# so, for now use the user who has all access to the db
 #user="dbybforum_reader"
 user="dbybforum_usr"
 pass="password"
