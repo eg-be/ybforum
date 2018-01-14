@@ -24,16 +24,16 @@ DROP TABLE IF EXISTS `confirm_user_table`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `confirm_user_table` (
   `iduser` int(10) unsigned NOT NULL,
-  `email` varchar(191) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `confirm_code` varchar(191) NOT NULL,
+  `email` varchar(191) COLLATE utf8mb4_german2_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_german2_ci NOT NULL,
+  `confirm_code` varchar(191) COLLATE utf8mb4_german2_ci NOT NULL,
   `request_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `request_ip_address` varchar(45) NOT NULL,
-  `confirm_source` varchar(45) NOT NULL,
+  `request_ip_address` varchar(45) COLLATE utf8mb4_german2_ci NOT NULL,
+  `confirm_source` varchar(45) COLLATE utf8mb4_german2_ci NOT NULL,
   PRIMARY KEY (`iduser`),
   UNIQUE KEY `confirm_code_UNIQUE` (`confirm_code`),
   CONSTRAINT `fk_confirm_user_table_iduser` FOREIGN KEY (`iduser`) REFERENCES `user_table` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_german2_ci ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,9 +48,9 @@ CREATE TABLE `log_table` (
   `idlog_type` int(10) unsigned NOT NULL,
   `ts` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `iduser` int(10) unsigned DEFAULT NULL,
-  `message` varchar(255) DEFAULT NULL,
-  `request_uri` varchar(255) NOT NULL,
-  `ip_address` varchar(45) NOT NULL,
+  `message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci DEFAULT NULL,
+  `request_uri` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL,
+  `ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL,
   `admin_iduser` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`idlog`),
   KEY `log_table_idlog_type_idx` (`idlog_type`),
@@ -71,8 +71,8 @@ DROP TABLE IF EXISTS `log_type_table`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `log_type_table` (
   `idlog_type` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(45) NOT NULL,
-  `description` varchar(255) NOT NULL,
+  `name` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL,
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL,
   PRIMARY KEY (`idlog_type`),
   UNIQUE KEY `name_UNIQUE` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4;
@@ -90,16 +90,16 @@ CREATE TABLE `post_table` (
   `idthread` int(10) unsigned NOT NULL,
   `parent_idpost` int(10) unsigned DEFAULT NULL,
   `iduser` int(10) unsigned NOT NULL,
-  `title` varchar(100) NOT NULL,
-  `content` text,
+  `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL,
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci,
   `rank` smallint(5) unsigned NOT NULL,
   `indent` smallint(5) unsigned NOT NULL,
   `creation_ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `email` varchar(255) DEFAULT NULL,
-  `link_url` varchar(255) DEFAULT NULL,
-  `link_text` varchar(255) DEFAULT NULL,
-  `img_url` varchar(255) DEFAULT NULL,
-  `ip_address` varchar(45) NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci DEFAULT NULL,
+  `link_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci DEFAULT NULL,
+  `link_text` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci DEFAULT NULL,
+  `img_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci DEFAULT NULL,
+  `ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL,
   `old_no` int(10) unsigned DEFAULT NULL,
   `hidden` tinyint(1) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`idpost`),
@@ -124,9 +124,9 @@ DROP TABLE IF EXISTS `reset_password_table`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `reset_password_table` (
   `iduser` int(10) unsigned NOT NULL,
-  `confirm_code` varchar(191) NOT NULL,
+  `confirm_code` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL,
   `request_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `request_ip_address` varchar(45) NOT NULL,
+  `request_ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL,
   PRIMARY KEY (`iduser`),
   UNIQUE KEY `confirm_code_UNIQUE` (`confirm_code`),
   CONSTRAINT `fk_reset_password_table_iduser` FOREIGN KEY (`iduser`) REFERENCES `user_table` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -159,13 +159,13 @@ DROP TABLE IF EXISTS `unused_user_table`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `unused_user_table` (
   `iduser` int(10) unsigned NOT NULL,
-  `nick` varchar(60) NOT NULL,
-  `email` varchar(191) DEFAULT NULL,
+  `nick` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL,
+  `email` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci DEFAULT NULL,
   `admin` tinyint(1) NOT NULL DEFAULT '0',
   `active` tinyint(1) NOT NULL DEFAULT '0',
   `registration_ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `registration_msg` text,
-  `old_passwd` varchar(100) DEFAULT NULL,
+  `registration_msg` text CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci,
+  `old_passwd` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci DEFAULT NULL,
   PRIMARY KEY (`iduser`),
   UNIQUE KEY `email_UNIQUE` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -180,10 +180,10 @@ DROP TABLE IF EXISTS `update_email_table`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `update_email_table` (
   `iduser` int(10) unsigned NOT NULL,
-  `email` varchar(191) NOT NULL,
-  `confirm_code` varchar(191) NOT NULL,
+  `email` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL,
+  `confirm_code` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL,
   `request_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `request_ip_address` varchar(45) NOT NULL,
+  `request_ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL,
   PRIMARY KEY (`iduser`),
   UNIQUE KEY `confirm_code_UNIQUE` (`confirm_code`),
   CONSTRAINT `fk_update_email_table_iduser` FOREIGN KEY (`iduser`) REFERENCES `user_table` (`iduser`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -200,7 +200,7 @@ DROP TABLE IF EXISTS `user_deactivated_reason_table`;
 CREATE TABLE `user_deactivated_reason_table` (
   `iduser` int(10) unsigned NOT NULL,
   `deactivated_by_iduser` int(10) unsigned NOT NULL,
-  `reason` varchar(255) NOT NULL,
+  `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL,
   `deactivated_ts` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`iduser`),
   KEY `user_deactived_reason_table_deactivated_by_idx` (`deactivated_by_iduser`),
@@ -219,14 +219,14 @@ DROP TABLE IF EXISTS `user_table`;
 CREATE TABLE `user_table` (
   `iduser` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `nick` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `email` varchar(191) DEFAULT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci DEFAULT NULL,
+  `email` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci DEFAULT NULL,
   `admin` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `active` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `registration_ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `registration_msg` text,
+  `registration_msg` text CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci,
   `confirmation_ts` timestamp NULL DEFAULT NULL,
-  `old_passwd` varchar(100) DEFAULT NULL,
+  `old_passwd` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci DEFAULT NULL,
   PRIMARY KEY (`iduser`),
   UNIQUE KEY `iduser_UNIQUE` (`iduser`),
   UNIQUE KEY `nick_UNIQUE` (`nick`),
@@ -238,6 +238,7 @@ CREATE TABLE `user_table` (
 -- Dumping routines for database 'dbybforum'
 --
 /*!50003 DROP PROCEDURE IF EXISTS `insert_reply` */;
+ALTER DATABASE `dbybforum` CHARACTER SET utf8 COLLATE utf8_general_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -274,6 +275,7 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+ALTER DATABASE `dbybforum` CHARACTER SET utf8 COLLATE utf8_german2_ci ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -284,4 +286,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-01-14 11:39:16
+-- Dump completed on 2018-01-14 12:36:44
