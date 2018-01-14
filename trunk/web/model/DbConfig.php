@@ -25,9 +25,9 @@
 class DbConfig 
 {
     const SERVERNAME = 'localhost';
-    const USERNAME = 'insert_username_here';
-    const PASSWORD = 'insert_password_here';
+    const USERNAME = 'root2';
+    const PASSWORD = 'master2';
 
-    const DEFAULT_DB = 'ybforum';
+    const DEFAULT_DB = 'dbybforum';
     const CHARSET = 'utf8mb4';
 }

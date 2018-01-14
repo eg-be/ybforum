@@ -428,6 +428,8 @@ class ForumDb extends PDO
             ':registration_msg' => $registrationMsg
         ));
         $userId = $this->lastInsertId();
+        $logger = new Logger();
+        $logger->LogMessageWithUserId(Logger::LOG_USER_CREATED, $userId);
         return $userId;
     }
     
@@ -460,10 +462,7 @@ class ForumDb extends PDO
                     self::CONFIRM_SOURCE_NEWUSER);
         }
         // delete an eventually already existing entry first
-        $query = 'DELETE FROM confirm_user_table WHERE iduser = :iduser';
-        $stmt = $this->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));
-        
+        $this->RemoveConfirmCode($userId);        
         // generate some random bytes to be used as confirmation code
         $bytes = random_bytes(64);
         $confirmCode = mb_strtoupper(bin2hex($bytes), 'UTF-8');
@@ -504,7 +503,7 @@ class ForumDb extends PDO
      */
     public function VerifyConfirmUserCode(string $code)
     {
-        // Select the matching entry in the migrate table
+        // Select the matching entry in the confirm table
         $query = 'SELECT iduser, email, password, request_date, '
                 . 'confirm_source '
                 . 'FROM confirm_user_table '
@@ -521,11 +520,8 @@ class ForumDb extends PDO
         $email = $result['email'];
         $confirmSource = $result['confirm_source'];
         $requestDate = new DateTime($result['request_date']);
-        // This Confirm-code has been used, remove it from the table        
-        $delQuery = 'DELETE FROM confirm_user_table WHERE confirm_code = :confirm_code';
-        $delStmt = $this->prepare($delQuery);
-        $delStmt->execute(array(':confirm_code' => $code));
-        if($delStmt->rowCount() !== 1)
+        // This Confirm-code has been used, remove it from the table
+        if($this->RemoveConfirmCode($userId) !== 1)
         {
             throw new Exception('Not exactly one row was deleted for used '
                     . 'confirmation code .' . $code);
@@ -544,6 +540,62 @@ class ForumDb extends PDO
             'email' => $email,
             'confirm_source' => $confirmSource);
         return $values;
+    }
+    
+    /**
+     * Remove entries from the confirm_user_table that match the passed 
+     * iduser. 
+     * @param int $userId
+     * @ return int Number of rows that have been removed
+     */
+    public function RemoveConfirmCode(int $userId)
+    {
+        $delQuery = 'DELETE FROM confirm_user_table WHERE iduser = :iduser';
+        $delStmt = $this->prepare($delQuery);
+        $delStmt->execute(array(':iduser' => $userId));
+        return $delStmt->rowCount();
+    }
+    
+    /**
+     * Searches for a entry in confirm_user_table matching the passed
+     * $userId, and compares the value of the field confirm_source
+     * against self::CONFIRM_SOURCE_NEWUSER or 
+     * self::CONFIRM_SOURCE_MIGRATE. If the value is one of that
+     * defined values, the defined value is returend. Else an
+     * InvalidArgumentException is thrown.
+     * An InvalidArgumentException is also thrown if no such row matching
+     * the passed $userId exists.
+     * @param int $userId
+     * @throw InvalidArgumentException
+     * @return self::CONFIRM_SOURCE_NEWUSER or self::CONFIRM_SOURCE_MIGRATE
+     */
+    public function GetConfirmReason(int $userId)
+    {
+        $query = 'SELECT confirm_source '
+                . 'FROM confirm_user_table '
+                . 'WHERE iduser = :iduser';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array(':iduser' => $userId));
+        $row = $stmt->fetch();
+        if(!$row)
+        {
+            throw new InvalidArgumentException('No row matching iduser '
+                    . $userId . ' was found in confirm_user_table');
+        }
+        $sourceValue = $row['confirm_source'];
+        if($sourceValue === self::CONFIRM_SOURCE_NEWUSER)
+        {
+            return self::CONFIRM_SOURCE_NEWUSER;
+        }
+        else if($sourceValue === self::CONFIRM_SOURCE_MIGRATE)
+        {
+            return self::CONFIRM_SOURCE_MIGRATE;
+        }
+        else
+        {
+            throw new InvalidArgumentException('Invalid confirm_source value '
+                    . $sourceValue . ' for iduser ' . $userId);
+        }
     }
     
     /**
