@@ -52,6 +52,6 @@ dumpfile="${backupfolder}/${database}_${now}.${dumpextensions}"
 mysqldump --single-transaction --routines --host=$host --port=$port -u $user -p$pass $database > ${dumpfile}
 
 # and zip that file
-#gzip ${dumpfile}
+gzip ${dumpfile}
 
 echo "Created backup of database ${database} in file ${dumpfile}.${compressextension}"
