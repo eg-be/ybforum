@@ -21,7 +21,7 @@
 
 /**
  * The fields from post_table (and user_table.nick) required to display a
- * search result entry
+ * search result entry. Provides static method(s) to create such entries.
  */
 class SearchResult 
 {
