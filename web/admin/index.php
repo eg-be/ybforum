@@ -27,6 +27,7 @@ require_once __DIR__.'/../model/ForumDb.php';
 require_once __DIR__.'/../helpers/ErrorHandler.php';
 require_once __DIR__.'/DeactivatedUserList.php';
 require_once __DIR__.'/PendingApprovalUserList.php';
+require_once __DIR__.'/PendingConfirmationUserList.php';
 require_once __DIR__.'/LogEntryList.php';
 require_once __DIR__.'/UserView.php';
 require_once __DIR__.'/PostView.php';
@@ -62,6 +63,8 @@ try
     $userViewResult = $userView->HandleActionsAndGetResultDiv($db, $_SESSION['adminuserid']);    
     $pendingActList = new PendingApprovalUserList();
     $pendingActListResult = $pendingActList->HandleActionsAndGetResultDiv($db);
+    $pendingConfList = new PendingConfirmationUserList();
+    $pendingConfListResult = $pendingConfList->HandleActionsAndGetResultDiv($db);
     $postView = new PostView();
     $postViewResult = $postView->HandleActionsAndGetResultDiv($db);
     
@@ -100,6 +103,18 @@ catch (Exception $ex)
                 echo $pendingActList->RenderHtmlDiv($db);
                 echo $pendingActListResult;
             }
+            catch (Exception $ex) { ErrorHandler::OnException($ex); }
+            ?>
+        </div>
+        <hr>
+        <div>
+            <div class="pageparttitle">Stammposter die ihre Registrierung oder Migration bestätigen müssen</div>
+            <?php
+            try
+            {
+                echo $pendingConfList->RenderHtmlDiv($db);
+                echo $pendingConfListResult;
+            } 
             catch (Exception $ex) { ErrorHandler::OnException($ex); }
             ?>
         </div>

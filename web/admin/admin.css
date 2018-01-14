@@ -53,6 +53,11 @@
     font-weight: bold;    
 }
 
+.colorNotice
+{
+    color: orange;
+}
+
 .actiontable td:last-child
 {
     border: 0;

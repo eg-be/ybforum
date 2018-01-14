@@ -67,6 +67,7 @@ class Logger
     const LOG_USER_ADMIN_SET = 'UserAdminSet';
     const LOG_USER_ADMIN_REMOVED = 'UserAdminRemoved';
     const LOG_USER_ACCECPTED = 'UserAccepted';
+    const LOG_USER_CREATED = 'UserCreated';
     const LOG_USER_DELETED = 'UserDeleted';
     const LOG_USER_TURNED_INTO_DUMMY = 'UserTurnedIntoDummy';
     
