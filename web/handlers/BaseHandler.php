@@ -46,6 +46,7 @@ abstract class BaseHandler
     const MSG_GENERIC_INVALID = 'Invalid or missing parameter value';
     const MSGCODE_BAD_PARAM = 400;
     const MSGCODE_AUTH_FAIL = 401;
+    const MSGCODE_INTERNAL_ERROR = 500;
     
     /**
      * Create a new instance, sets clientIpAddress and lastException to null.

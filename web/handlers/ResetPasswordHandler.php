@@ -39,6 +39,7 @@ class ResetPasswordHandler extends BaseHandler
     const MSG_DUMMY_USER = 'Stammposter ist ein Dummy';
     const MSG_USER_HAS_NO_EMAIL = 'Stammposter hat keine Mailadresse hinterlegt';
     const MSG_USER_INACTIVE = 'Stammposter ist deaktiviert';
+    const MSG_SENDING_CONFIRMMAIL_FAILED = 'Die Bestätigungsmail konnnte nicht gesendet werden.';
     
     public function __construct()
     {
@@ -117,13 +118,13 @@ class ResetPasswordHandler extends BaseHandler
         }
         // okay, init the request to change the password
         $confirmationCode = $db->RequestPasswortResetCode($user, $this->clientIpAddress);
+        $logger->LogMessageWithUserId(Logger::LOG_PASS_RESET_CODE_CREATED, $user->GetId(), 'Mailaddress for confirmation: ' . $user->GetEmail());
         // send the email to the address requested
         $mailer = new Mailer();
         if(!$mailer->SendResetPasswordMessage($user->GetEmail(), $confirmationCode))
         {
-            throw new Exception('Sending mail to ' . $user->GetEmail() . ' failed!');
+            throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
-        $logger->LogMessageWithUserId(Logger::LOG_PASS_RESET_CODE_CREATED, $user->GetId(), 'Mail sent to: ' . $user->GetEmail());
     }
     
     private $nick;

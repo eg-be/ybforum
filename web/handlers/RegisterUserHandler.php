@@ -47,7 +47,7 @@ class RegisterUserHandler extends BaseHandler
     const MSG_PASSWORDS_NOT_MATCH = 'Passwort und Bestätigung stimmen nicht überein.';
     const MSG_PASSWORD_TOO_SHORT = 'Neues Passwort muss mindestens ' .
                     YbForumConfig::MIN_PASSWWORD_LENGTH . ' Zeichen enthalten.';
-        
+    const MSG_SENDING_CONFIRMMAIL_FAILED = 'Die Bestätigungsmail konnnte nicht gesendet werden.';
     
     public function __construct()
     {
@@ -109,13 +109,17 @@ class RegisterUserHandler extends BaseHandler
         $confirmCode = $db->RequestConfirmUserCode($userId, $this->password, 
                 $this->email, ForumDb::CONFIRM_SOURCE_NEWUSER, 
                 $this->clientIpAddress);
+        $logger->LogMessageWithUserId(Logger::LOG_CONFIRM_REGISTRATION_CODE_CREATED, $userId, 'Mailaddress for confirmation: ' . $this->email);        
         // Send a mail with the confirmation link
         $mailer = new Mailer();
         if(!$mailer->SendRegisterUserConfirmMessage($this->email, $confirmCode))
         {
-            throw new Exception('Sending mail to ' . $this->email . ' failed!');
+            // Remove the just created user
+            $db->RemoveConfirmCode($userId);
+            $db->DeleteUser($userId);
+            // And fail
+            throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
-        $logger->LogMessageWithUserId(Logger::LOG_CONFIRM_REGISTRATION_CODE_CREATED, $userId, 'Mail sent to: ' . $this->email);
         // and return the address we have sent the mail to:
         return $this->email;
     }

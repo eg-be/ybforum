@@ -41,7 +41,8 @@ class UpdateEmailHandler extends BaseHandler
             . 'Passwort zurücksetzen Funktion im Stammposterbereich falls du '
             . 'nicht mehr weisst mit welchem Account diese Mailadresse '
             . 'verknüpft ist.';
-    
+    const MSG_SENDING_CONFIRMMAIL_FAILED = 'Die Bestätigungsmail konnnte nicht gesendet werden.';
+        
     public function __construct(User $user)
     {
         parent::__construct();
@@ -80,18 +81,17 @@ class UpdateEmailHandler extends BaseHandler
         
         // Create a confirmation link to update the email
         $confirmCode = $db->RequestUpdateEmailCode($this->user->GetId(), 
-                $this->newEmail, $this->clientIpAddress);            
+                $this->newEmail, $this->clientIpAddress);
+        $logger = new Logger($db);
+        $logger->LogMessage(Logger::LOG_CONFIRM_EMAIL_CODE_CREATED, 'Mailaddress for confirmation: ' . $this->newEmail);
 
         // send the email to the address requested
         $mailer = new Mailer();
         if(!$mailer->SendUpdateEmailConfirmMessage($this->newEmail, $confirmCode))
         {
-            throw new Exception('Sending mail to ' . $this->newEmail . ' failed!');
+            throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
         
-        $logger = new Logger($db);
-        $logger->LogMessage(Logger::LOG_CONFIRM_EMAIL_CODE_CREATED, 'Mail sent to: ' . $this->newEmail);
-
         // and return the address we have sent the mail to:
         return $this->newEmail;
     }

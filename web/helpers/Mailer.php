@@ -21,6 +21,7 @@
 
 require_once __DIR__.'/../YbForumConfig.php';
 require_once __DIR__.'/../model/ForumDb.php';
+require_once __DIR__.'/Logger.php';
 
 /**
  * Helper class to send mails.
@@ -222,7 +223,15 @@ class Mailer
         
         // If we do not force a sender, the reply-to: address is still set to www-data (?)
         $sent = mail($email, $subject, $mailBody, $this->GetHeaderString(), '-f ' . YbForumConfig::MAIL_FROM);
-        //$sent = mail($email, $subject, $mailBody, $this->GetHeaderString()); 
+        $logger = new Logger();
+        if($sent)
+        {
+            $logger->LogMessage(Logger::LOG_MAIL_SENT, 'Mail sent to: ' . $email);
+        }
+        else
+        {
+            $logger->LogMessage(Logger::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $email);
+        }
         return $sent;
     }
         
