@@ -1,8 +1,0 @@
-Hostfactory nur Struktur exportieren
-====================================
-
-Via SSH zu Hostfactory verbinden.
-Dump von db 'dbybforum' mit Benutzer 'dbybforum_usr' erstellen:
-
- mysqldump --no-data --routines --host=server09.hostfactory.ch --port=3306 -u dbybforum_usr -p dbybforum > dbybforum-no-data.dump.sql
- 
