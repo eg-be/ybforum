@@ -147,7 +147,7 @@ catch (Exception $ex)
             <div><span class="pageparttitle">Stammposter anzeigen und bearbeiten</span> | <a href="userlist.php" target="_blank">Liste aller Stammposter</a></div>
             <form method="post" action="index.php" accept-charset="utf-8">
                 Nach BenutzerId: <input type="text" size="10" name="<?php echo UserView::PARAM_USERID?>"/>
-                Nach Stammpostername (Gross-und Kleinschreibung beachten) oder Mailadresse: <input type="text" name="<?php echo UserView::PARAM_NICK_OR_EMAIL ?>"/>
+                Nach Stammpostername oder Mailadresse: <input type="text" name="<?php echo UserView::PARAM_NICK_OR_EMAIL ?>"/>
                 <input type="submit" value="Stammposter laden"/>
             </form>
             <?php
