@@ -109,7 +109,7 @@ class RegisterUserHandler extends BaseHandler
         $confirmCode = $db->RequestConfirmUserCode($userId, $this->password, 
                 $this->email, ForumDb::CONFIRM_SOURCE_NEWUSER, 
                 $this->clientIpAddress);
-        $logger->LogMessageWithUserId(Logger::LOG_CONFIRM_REGISTRATION_CODE_CREATED, $userId, 'Mailaddress for confirmation: ' . $this->email);        
+
         // Send a mail with the confirmation link
         $mailer = new Mailer();
         if(!$mailer->SendRegisterUserConfirmMessage($this->email, $confirmCode))

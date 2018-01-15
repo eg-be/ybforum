@@ -482,6 +482,18 @@ class ForumDb extends PDO
             ':request_ip_address' => $requestClientIpAddress,
             ':confirm_source' => $confirmSource
         ));
+        
+        // and log that we have created a new code
+        $logger = new Logger($this);
+        $logType = Logger::LOG_CONFIRM_REGISTRATION_CODE_CREATED;
+        if($confirmSource === self::CONFIRM_SOURCE_MIGRATE)
+        {
+            $logType = Logger::LOG_CONFIRM_MIGRATION_CODE_CREATED;
+        }
+        $logger->LogMessageWithUserId($logType, $userId,  
+                'Mailaddress with entry: ' . $newEmail);
+
+        
         return $confirmCode;
     }
     
@@ -666,6 +678,13 @@ class ForumDb extends PDO
             ':confirm_code' => $confirmCode, 
             ':request_ip_address' => $requestClientIpAddress
         ));
+
+        // log event
+        $logger = new Logger($this);
+        $logger->LogMessageWithUserId(Logger::LOG_PASS_RESET_CODE_CREATED, 
+                $user->GetId(), 'Mailaddress of user: ' . $user->GetEmail());
+        
+        
         // and return the confirm-code
         return $confirmCode;
     }
@@ -775,6 +794,11 @@ class ForumDb extends PDO
             ':confirm_code' => $confirmCode, 
             ':request_ip_address' => $requestClientIpAddress
         ));
+        
+        $logger = new Logger($this);
+        $logger->LogMessage(Logger::LOG_CONFIRM_EMAIL_CODE_CREATED, 
+                'Mailaddress with entry: ' . $newEmail);
+        
         return $confirmCode;
     }    
   
