@@ -129,7 +129,6 @@ class MigrateUserHandler extends BaseHandler
                 $this->newEmail, 
                 ForumDb::CONFIRM_SOURCE_MIGRATE,
                 $this->clientIpAddress);
-        $logger->LogMessageWithUserId(Logger::LOG_CONFIRM_MIGRATION_CODE_CREATED, $user->GetId(),  'Mailaddress for confirmation: ' . $this->newEmail);
 
         // send the email to the address requested
         $mailer = new Mailer();

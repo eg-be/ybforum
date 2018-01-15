@@ -118,7 +118,7 @@ class ResetPasswordHandler extends BaseHandler
         }
         // okay, init the request to change the password
         $confirmationCode = $db->RequestPasswortResetCode($user, $this->clientIpAddress);
-        $logger->LogMessageWithUserId(Logger::LOG_PASS_RESET_CODE_CREATED, $user->GetId(), 'Mailaddress for confirmation: ' . $user->GetEmail());
+
         // send the email to the address requested
         $mailer = new Mailer();
         if(!$mailer->SendResetPasswordMessage($user->GetEmail(), $confirmationCode))
