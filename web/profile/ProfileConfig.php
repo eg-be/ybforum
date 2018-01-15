@@ -33,12 +33,12 @@ class ProfileConfig
     /**
      * @var int Set to 1 to enable timing profiling.
      */
-    const MEASURE_TIMING = 1;
+    const MEASURE_TIMING = 0;
     
     /**
      * @var int Set to 1 to enable memory profiling.
      */
-    const MEASURE_MEMORY = 1;
+    const MEASURE_MEMORY = 0;
     
     /**
      * @var int Set to 1 to error_log all results.
