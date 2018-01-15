@@ -87,6 +87,9 @@ class Logger
     const LOG_POST_HIDDEN = 'PostHidden';
     const LOG_POST_SHOW = 'PostShow';
     
+    // generic mailing failure
+    const LOG_MAIL_FAILED = 'MailFailed';
+    
     // Fatal errors
     const LOG_ERROR_EXCEPTION_THROWN =  'ErrorExceptionThrown';
     
