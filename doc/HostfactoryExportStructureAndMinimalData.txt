@@ -12,6 +12,6 @@ Und die minimal benötigten Daten für die log_type_table
 Via SSH zu Hostfactory verbinden.
 Dump von Tabelle log_type_table aus db 'dbybforum' mit Benutzer 'dbybforum_usr' erstellen:
 
- mysqldump --host=server09.hostfactory.ch --port=3306 -u dbybforum_usr -p dbybforum log_type_table > log_type_table_data.dump.sql
+ mysqldump --no-create-info --host=server09.hostfactory.ch --port=3306 -u dbybforum_usr -p dbybforum log_type_table > log_type_table_data.dump.sql
 
 
