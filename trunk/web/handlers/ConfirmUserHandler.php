@@ -105,11 +105,10 @@ class ConfirmUserHandler extends BaseHandler
             while($row = $stmt->fetch())
             {
                 $adminEmail = $row['email'];
-                if(!$mailer->NotifyAdminUserConfirmedRegistraion($user->GetNick(), $adminEmail))
+                if($mailer->NotifyAdminUserConfirmedRegistraion($user->GetNick(), $adminEmail))
                 {
-                    throw new Exception('Sending mail to ' . $adminEmail . ' failed!');
+                    $logger->LogMessageWithUserId(Logger::LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED, $user->GetId(), 'Mail sent to: ' . $adminEmail);
                 }
-                $logger->LogMessageWithUserId(Logger::LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED, $user->GetId(), 'Mail sent to: ' . $adminEmail);
             }
         }
 

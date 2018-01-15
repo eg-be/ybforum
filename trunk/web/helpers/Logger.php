@@ -89,6 +89,7 @@ class Logger
     
     // generic mailing failure
     const LOG_MAIL_FAILED = 'MailFailed';
+    const LOG_MAIL_SENT = 'MailSent';
     
     // Fatal errors
     const LOG_ERROR_EXCEPTION_THROWN =  'ErrorExceptionThrown';

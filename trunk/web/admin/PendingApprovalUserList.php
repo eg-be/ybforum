@@ -44,15 +44,19 @@ class PendingApprovalUserList
                 {
                     $db->ActivateUser($user->GetId());
                     $sent = $mailer->SendNotifyUserAcceptedEmail($user->GetEmail());
-                    $logger->LogMessageWithUserId(Logger::LOG_NOTIFIED_USER_ACCEPTED, $user->GetId(), 'Mail sent to: ' . $user->GetEmail());
-                    $resultDiv = '<div class="actionSucceeded">Benutzer ' . $user->GetNick() . ' freigeschaltet</div>';
+                    $logger->LogMessageWithUserId(Logger::LOG_NOTIFIED_USER_ACCEPTED, $user->GetId());
+                    $resultDiv = '<div class="actionSucceeded">Benutzer ' 
+                            . $user->GetNick() . ' freigeschaltet (Mail sent: ' 
+                            . ($sent ? 'Ja' : 'Nein') .'</div>';
                 }
                 else if($userActionValue === self::VALUE_DENY && $user)
                 {
                     $db->DeleteUser($user->GetId());
                     $sent = $mailer->SendNotifyUserDeniedEmail($user->GetEmail());
-                    $logger->LogMessage(Logger::LOG_NOTIFIED_USER_DENIED, 'Mail sent to: ' . $user->GetEmail());
-                    return '<div class="actionSucceeded">Benutzer ' . $user->GetNick() . ' abgelehnt</div>';
+                    $logger->LogMessage(Logger::LOG_NOTIFIED_USER_DENIED, 'Deleted user: ' . $user->GetNick() . '(' . $user->GetId() .')');
+                    return '<div class="actionSucceeded">Benutzer ' 
+                            . $user->GetNick() . ' abgelehnt (Mail sent: ' 
+                            . ($sent ? 'Ja' : 'Nein') . ')</div>';
                 }
             }
             return $resultDiv;
