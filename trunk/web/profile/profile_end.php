@@ -26,18 +26,18 @@ require_once 'ProfileConfig.php';
 // Print some stats if configured to do so
 if(ProfileConfig::MEASURE_TIMING)
 {
-    $measureTiming && $measureTiming->Stop();
+    $measureTiming->Stop();
 }
 if(ProfileConfig::MEASURE_MEMORY)
 {
-    $measureMemory && $measureMemory->Measure();
+    $measureMemory->Measure();
 }
 if(ProfileConfig::ERRORLOG_MEASURE_RESULTS)
 {
     $measureTiming && $measureTiming->Log();
     $measureMemory && $measureMemory->Log();
 }
-if(ProfileConfig::PRINT_MEASURE_RESULTS)
+if(ProfileConfig::PRINT_MEASURE_RESULTS && ($measureTiming || $measureMemory))
 {
     echo '<hr>';
     if($measureTiming)

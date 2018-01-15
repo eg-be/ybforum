@@ -25,6 +25,9 @@ require_once 'ProfileConfig.php';
 
 $profileName = basename(filter_input(INPUT_SERVER, 'PHP_SELF'));
 
+$measureMemory = null;
+$measureTiming = null;
+
 if(ProfileConfig::MEASURE_MEMORY)
 {
     require_once 'Memory.php';
