@@ -48,6 +48,7 @@ class MigrateUserHandler extends BaseHandler
     const MSG_PASSWORDS_NOT_MATCH = 'Passwort und Bestätigung stimmen nicht überein.';
     const MSG_PASSWORD_TOO_SHORT = 'Neues Passwort muss mindestens ' .
                     YbForumConfig::MIN_PASSWWORD_LENGTH . ' Zeichen enthalten.';
+    const MSG_SENDING_CONFIRMMAIL_FAILED = 'Die Bestätigungsmail konnnte nicht gesendet werden.';
 
     
     public function __construct()
@@ -128,14 +129,14 @@ class MigrateUserHandler extends BaseHandler
                 $this->newEmail, 
                 ForumDb::CONFIRM_SOURCE_MIGRATE,
                 $this->clientIpAddress);
+        $logger->LogMessageWithUserId(Logger::LOG_CONFIRM_MIGRATION_CODE_CREATED, $user->GetId(),  'Mailaddress for confirmation: ' . $this->newEmail);
 
         // send the email to the address requested
         $mailer = new Mailer();
         if(!$mailer->SendMigrateUserConfirmMessage($this->newEmail, $confirmCode))
         {
-            throw new Exception('Sending mail to ' . $this->newEmail . ' failed!');
+            throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
-        $logger->LogMessageWithUserId(Logger::LOG_CONFIRM_MIGRATION_CODE_CREATED, $user->GetId(), 'Mail sent to: ' . $this->newEmail);
         // and return the address we have sent the mail to:
         return $this->newEmail;
     }
