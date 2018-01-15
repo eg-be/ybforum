@@ -82,8 +82,6 @@ class UpdateEmailHandler extends BaseHandler
         // Create a confirmation link to update the email
         $confirmCode = $db->RequestUpdateEmailCode($this->user->GetId(), 
                 $this->newEmail, $this->clientIpAddress);
-        $logger = new Logger($db);
-        $logger->LogMessage(Logger::LOG_CONFIRM_EMAIL_CODE_CREATED, 'Mailaddress for confirmation: ' . $this->newEmail);
 
         // send the email to the address requested
         $mailer = new Mailer();

@@ -47,7 +47,7 @@ class PendingApprovalUserList
                     $logger->LogMessageWithUserId(Logger::LOG_NOTIFIED_USER_ACCEPTED, $user->GetId());
                     $resultDiv = '<div class="actionSucceeded">Benutzer ' 
                             . $user->GetNick() . ' freigeschaltet (Mail sent: ' 
-                            . ($sent ? 'Ja' : 'Nein') .'</div>';
+                            . ($sent ? 'Ja' : 'Nein') .')</div>';
                 }
                 else if($userActionValue === self::VALUE_DENY && $user)
                 {
