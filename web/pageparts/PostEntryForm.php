@@ -52,7 +52,7 @@ class PostEntryForm
         $html =
            '<form id="postform" method="post" action="postentry.php?post=1" accept-charset="utf-8">
             <table style="margin: auto;">
-                <tr><td><span class="fbold">Name</span> (Stammposterregistrierung):</td><td><input type="text" value="' . ($this->m_peh ? $this->m_peh->GetNick() : '') .'" name="' . PostEntryHandler::PARAM_NICK . '" size="20" maxlength="60"/></td></tr>
+                <tr><td><span class="fbold">Name</span> (<a href="register.php">Stammposterregistrierung</a>):</td><td><input type="text" value="' . ($this->m_peh ? $this->m_peh->GetNick() : '') .'" name="' . PostEntryHandler::PARAM_NICK . '" size="20" maxlength="60"/></td></tr>
                 <tr><td><span class="fbold">Stammposterpasswort:</span></td><td><input type="password" value="' . ($this->m_peh ? $this->m_peh->GetPassword() : '') . '" name="' . PostEntryHandler::PARAM_PASS . '" size="20" maxlength="60"/></td></tr>
                 <tr><td><span class="fbold">Mailadresse</span> (freiwillig):</td><td><input type="text" value="' . ($this->m_peh ? $this->m_peh->GetEmail() : '') . '" name="' . PostEntryHandler::PARAM_EMAIL . '" size="30" maxlength="254"/></td></tr>
                 <tr><td>Betreff:</td><td>' . $this->renderHtmlFormTitleInput() . '</td></tr>
