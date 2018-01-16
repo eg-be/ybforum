@@ -53,6 +53,7 @@ catch(Exception $ex)
         <div class="fullwidthcenter generictitle">Neue Beiträge</div>    
         <hr>
         <div class="fullwidthcenter">
+            [ <a href="postentry.php">Beitrag Schreiben</a> ] 
             [ <a href="index.php">Forum</a> ] 
             [ <a href="search.php">Suchen</a> ] 
             [ <a href="textformatierung.html">Textformatierung</a> ] 
