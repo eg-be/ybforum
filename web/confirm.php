@@ -40,6 +40,10 @@ require_once __DIR__.'/helpers/Mailer.php';
         try
         {
             $successText = '';
+            if(Mailer::IsPreviewRequest())
+            {
+                throw new InvalidArgumentException('Preview not supported for confirmation links', 400);
+            }
             $db = new ForumDb();
             $type = urldecode(filter_input(INPUT_GET, Mailer::PARAM_TYPE, FILTER_UNSAFE_RAW));
             if($type === Mailer::VALUE_TYPE_CONFIRM_USER)
