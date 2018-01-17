@@ -25,6 +25,7 @@ require_once __DIR__.'/handlers/ConfirmUserHandler.php';
 require_once __DIR__.'/handlers/ConfirmUpdateEmailHandler.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 require_once __DIR__.'/helpers/Mailer.php';
+require_once __DIR__.'/helpers/Logger.php';
 ?>
 
 <html lang="de-ch">
@@ -42,6 +43,8 @@ require_once __DIR__.'/helpers/Mailer.php';
             $successText = '';
             if(Mailer::IsPreviewRequest())
             {
+                $logger = new Logger();
+                $logger->LogMessage(Logger::LOG_CONFIRM_REQUEST_IGNORED_IS_PREVIEW, 'HTTP_USER_AGENT: ' . filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_UNSAFE_RAW));
                 throw new InvalidArgumentException('Preview not supported for confirmation links', 400);
             }
             $db = new ForumDb();
