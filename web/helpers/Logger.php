@@ -56,6 +56,7 @@ class Logger
     // confirm code failures
     const LOG_CONFIRM_CODE_FAILED_CODE_INVALID = 'ConfirmFailedCodeInvalid';
     const LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER = 'ConfirmFailedNoMatchingUser';
+    const LOG_CONFIRM_REQUEST_IGNORED_IS_PREVIEW = 'ConfirmRequestIgnoredIsPreview';
     
     // user modified with success
     const LOG_USER_PASSWORD_UPDATED = 'UserPasswordUpdated';
