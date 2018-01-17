@@ -76,13 +76,13 @@ class Mailer
         assert(!empty($confirmationCode));
         
         return $this->SendConfirmMail($email, 
-                'Migration abschliessen',
+                '1898-Forum Migration Stammposter',
                 'confirm.php',
                 array(
                     self::PARAM_TYPE => self::VALUE_TYPE_CONFIRM_USER,
                     self::PARAM_CODE => $confirmationCode
                 ),
-                'Bitte besuche folgenden Link um die Migration abzuschliesen:');
+                'Bitte besuche den folgenden Link um die Migration deines Stammposterkontos für das 1898-Forum abzuschliessen:');
     }
     
     /**
@@ -99,13 +99,13 @@ class Mailer
         assert(!empty($confirmationCode));
         
         return $this->SendConfirmMail($email, 
-                'Registrierung abschliessen',
+                '1898-Forum Registrierung Stammposter',
                 'confirm.php',
                 array(
                     self::PARAM_TYPE => self::VALUE_TYPE_CONFIRM_USER,
                     self::PARAM_CODE => $confirmationCode
                 ),
-                'Bitte besuche folgenden Link um die Registrierung abzuschliesen:');
+                'Bitte besuche den folgenden Link um die Registrierung deines Stammposterkontos für das 1898-Forum abzuschliessen:');
     }
     
     /**
@@ -122,13 +122,14 @@ class Mailer
         assert(!empty($confirmationCode));
         
         return $this->SendConfirmMail($email, 
-                'Mailadresse bestätigen',
+                '1898-Forum aktualisierte Stammposter-Mailadresse bestätigen',
                 'confirm.php',
                 array(
                     self::PARAM_TYPE => self::VALUE_TYPE_UPDATEEMAIL,
                     self::PARAM_CODE => $confirmationCode
                 ),
-                'Bitte besuche folgenden Link um die Mailadresse zu aktivieren:');
+                'Bitte besuche den folgenden Link um die Mailadresse die mit deinem 1898-Forum Stammposterkonto verknüpft ist auf die Mailadresse ' 
+                        . $email . ' zu aktualisieren:');
     }    
     
     /**
@@ -144,12 +145,12 @@ class Mailer
         assert(!empty($confirmationCode));
         
         return $this->SendConfirmMail($email, 
-                'Passwort zurücksetzen',
+                '1898-Forum Stammposter-Passwort zurücksetzen',
                 'resetpassword.php',
                 array(
                     self::PARAM_CODE => $confirmationCode
                 ),
-                'Besuche folgenden Link um ein neues Passwort zu erstellen:');
+                'Bitte besuche den folgenden Link um ein neues Passwort für dein 1898-Forum Stammposterkonto zu setzen:');
     }
     
     /**
@@ -215,7 +216,7 @@ class Mailer
         
         $validFor = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);        
         $validForText = 'Der Link ist ' . $validFor->format('%h Stunden')
-                . ' gültig';
+                . ' lang gültig.';
 
         $mailBody = $messageText . "\r\n\r\n";
         $mailBody.= $link . "\r\n\r\n";
