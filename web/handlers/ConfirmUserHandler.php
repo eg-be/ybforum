@@ -61,8 +61,8 @@ class ConfirmUserHandler extends BaseHandler
     protected function HandleRequestImpl(ForumDb $db) 
     {
         $logger = new Logger($db);
-        // Valide the code
-        $values = $db->VerifyConfirmUserCode($this->code);
+        // Valide the code and remove it if a valid entry was found
+        $values = $db->VerifyConfirmUserCode($this->code, true);
         if(!$values)
         {
             $logger->LogMessage(Logger::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);
