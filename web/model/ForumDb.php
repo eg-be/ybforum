@@ -500,20 +500,22 @@ class ForumDb extends PDO
     /**
      * Check that in table confirm_user_table a row exists that matches
      * passed confirmation code $code in field confirm_code.
-     * If such a row is found, the code is assumed to have been used, and the
-     * row is removed from confirm_user_table.
      * A code is considered to be valid if it is not older (field 
      * request_date) than YbForumConfig::CONF_CODE_VALID_PERIOD hours.
+     * If a code is found, but the code is invalid, it is always removed
+     * from the table.
      * Returned is an array with the field values iduser, password, email and
-     * confirm_source for that row
+     * confirm_source for that row, or null if no valid code was found
      * @param string $code Confirmation code that must match field confirm_code.
+     * @param bool $remove If true, the entry will be removed from the table
+     * (if a valid entry was found, invalid entries are always removed)
      * @return array holding values of fields iduser, password, email and
      * confirm_source if a matching row is found, or null if no such row 
      * exists.
      * @throws Exception If removing a used code fails (or any other database
      * operation fails).
      */
-    public function VerifyConfirmUserCode(string $code)
+    public function VerifyConfirmUserCode(string $code, bool $remove)
     {
         // Select the matching entry in the confirm table
         $query = 'SELECT iduser, email, password, request_date, '
@@ -532,18 +534,20 @@ class ForumDb extends PDO
         $email = $result['email'];
         $confirmSource = $result['confirm_source'];
         $requestDate = new DateTime($result['request_date']);
-        // This Confirm-code has been used, remove it from the table
-        if($this->RemoveConfirmCode($userId) !== 1)
-        {
-            throw new Exception('Not exactly one row was deleted for used '
-                    . 'confirmation code .' . $code);
-        }
         // Check if the code is not too old:
-        $now = new DateTime();
-        $codeValidInterval = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);
-        if($now->sub($codeValidInterval) > $requestDate)
+        $codeExpired = !$this->IsDateWithinConfirmPeriod($requestDate);
+        // If the code is expired, or we are requested to remove it, delete:
+        if($codeExpired || $remove)
         {
-            return null;
+            if($this->RemoveConfirmCode($userId) !== 1)
+            {
+                throw new Exception('Not exactly one row was deleted for used '
+                        . 'confirmation code .' . $code);
+            }
+            if($codeExpired)
+            {
+                return null;
+            }
         }
         // okay, return the values
         $values = array(
@@ -691,18 +695,21 @@ class ForumDb extends PDO
     
     /**
      * Check that in table reset_password_table an entry matching the passed
-     * $code in field confirm_code exists. If such a row is found, the code
-     * is considered as being used, and the row is removed.
+     * $code in field confirm_code exists.
      * A code is considered to be valid if it is not older (field 
      * request_date) than YbForumConfig::CONF_CODE_VALID_PERIOD hours.
-     * @param string $code
-     * @return int If a matching row is found, and the code is not too old,
+     * If a code is found, but the code is invalid, it is always removed
+     * from the table.
+     * @param string $code Confirmation code that must match field confirm_code.
+     * @param bool $remove If true, the entry will be removed from the table
+     * (if a valid entry was found, invalid entries are always removed)
+     * @return int If a matching row is found, and the code is valid,
      * the value of the field iduser is returned. 
-     * If no matching row is found, 0 is returned.
+     * If no matching row is found, or the code is invalid, 0 is returned.
      * @throws Exception If removing a used code fails, or any other 
      * database operation fails.
      */
-    public function VerifyPasswortResetCode(string $code)
+    public function VerifyPasswortResetCode(string $code, bool $remove)
     {
         // get entry in reset_password_table
         $query = 'SELECT iduser, request_date '
@@ -717,21 +724,23 @@ class ForumDb extends PDO
         }
         $userId = $result['iduser'];
         $requestDate = new DateTime($result['request_date']);
-        // This Confirm-code has been used, remove it from the table
-        $delQuery = 'DELETE FROM reset_password_table WHERE confirm_code = :confirm_code';
-        $delStmt = $this->prepare($delQuery);
-        $delStmt->execute(array(':confirm_code' => $code));
-        if($delStmt->rowCount() !== 1)
-        {
-            throw new Exception('Not exactly one row was deleted for used '
-                    . 'confirmation code .' . $code);
-        }
         // Check if the code is not too old:
-        $now = new DateTime();
-        $codeValidInterval = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);
-        if($now->sub($codeValidInterval) > $requestDate)
+        $codeExpired = !$this->IsDateWithinConfirmPeriod($requestDate);
+        // If the code is expired, or we are requested to remove it, delete:
+        if($codeExpired || $remove)
         {
-            return 0;
+            $delQuery = 'DELETE FROM reset_password_table WHERE confirm_code = :confirm_code';
+            $delStmt = $this->prepare($delQuery);
+            $delStmt->execute(array(':confirm_code' => $code));
+            if($delStmt->rowCount() !== 1)
+            {
+                throw new Exception('Not exactly one row was deleted for used '
+                        . 'confirmation code .' . $code);
+            }
+            if($codeExpired)
+            {
+                return 0;
+            }
         }
         // okay, return the userid of this entry
         return $userId;
@@ -804,16 +813,19 @@ class ForumDb extends PDO
   
     /**
      * Check that in table update_email_table an entry matching the passed
-     * $code in field confirm_code exists. If such a row is found, the code
-     * is considered as being used, and the row is removed.
+     * $code in field confirm_code exists.
      * A code is considered to be valid if it is not older (field 
      * request_date) than YbForumConfig::CONF_CODE_VALID_PERIOD hours.
-     * @param string $code To search for
+     * If a code is found, but the code is invalid, it is always removed
+     * from the table.
+     * @param string $code To search for in field confirm_code
+     * @param bool $remove If true, the entry will be removed from the table
+     * (if a valid entry was found, invalid entries are always removed)
      * @return array Array with the values of the matching row. Array holds 
      * values for the keys 'iduser' and 'email'. null is returned if no
-     * matching row is found.
+     * matching row is found, or the code is invalid
      */
-    public function VerifyUpdateEmailCode(string $code)
+    public function VerifyUpdateEmailCode(string $code, bool $remove)
     {
         // Select the matching entry in the update_email_table
         $query = 'SELECT iduser, email, request_date '
@@ -829,21 +841,22 @@ class ForumDb extends PDO
         $userId = $result['iduser'];
         $email = $result['email'];
         $requestDate = new DateTime($result['request_date']);
-        // This Confirm-code has been used, remove it from the table        
-        $delQuery = 'DELETE FROM update_email_table WHERE confirm_code = :confirm_code';
-        $delStmt = $this->prepare($delQuery);
-        $delStmt->execute(array(':confirm_code' => $code));
-        if($delStmt->rowCount() !== 1)
-        {
-            throw new Exception('Not exactly one row was deleted for used '
-                    . 'confirmation code .' . $code);
-        }
         // Check if the code is not too old:
-        $now = new DateTime();
-        $codeValidInterval = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);
-        if($now->sub($codeValidInterval) > $requestDate)
+        $codeExpired = !$this->IsDateWithinConfirmPeriod($requestDate);
+        if($codeExpired || $remove)
         {
-            return null;
+            $delQuery = 'DELETE FROM update_email_table WHERE confirm_code = :confirm_code';
+            $delStmt = $this->prepare($delQuery);
+            $delStmt->execute(array(':confirm_code' => $code));
+            if($delStmt->rowCount() !== 1)
+            {
+                throw new Exception('Not exactly one row was deleted for used '
+                        . 'confirmation code .' . $code);
+            }
+            if($codeExpired)
+            {
+                return null;
+            }
         }
         // okay, return the values
         $values = array('iduser' => $userId, 'email' => $email);
@@ -1186,6 +1199,21 @@ class ForumDb extends PDO
         }
         $logger = new Logger($this);
         $logger->LogMessage(($show ? Logger::LOG_POST_SHOW : Logger::LOG_POST_HIDDEN), 'PostId: ' . $postId);
+    }
+    
+    /**
+     * Test if passed DateTime is not older than (now - YbForumConfig::CONF_CODE_VALID_PERIOD)
+     * @param DateTime $ts
+     * @return bool True if DateTime is new than(now - YbForumConfig::CONF_CODE_VALID_PERIOD)
+     */
+    private function IsDateWithinConfirmPeriod(DateTime $ts)
+    {
+        $now = new DateTime();
+        $codeValidInterval = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);
+        $minDate = $now;
+        $minDate->sub($codeValidInterval);
+        $inbetween = ($ts > $minDate);
+        return $inbetween;
     }
     
     private $m_connected;
