@@ -59,8 +59,8 @@ class ConfirmUpdateEmailHandler extends BaseHandler
     protected function HandleRequestImpl(ForumDb $db) 
     {
         $logger = new Logger($db);
-        // Valide the code
-        $values = $db->VerifyUpdateEmailCode($this->code);
+        // Valide the code and remove if a valid entry is found
+        $values = $db->VerifyUpdateEmailCode($this->code, true);
         if(!$values)
         {
             $logger->LogMessage(Logger::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);

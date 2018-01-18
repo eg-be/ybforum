@@ -81,6 +81,15 @@ try
         
         function abort($msg = 'Bestätigungscode abgelaufen, unbekannt oder bereits verwendet')
         {
+            if(isset($_SESSION['updatepasswordtoken'])
+                && is_string($_SESSION['updatepasswordtoken'])
+                && !empty($_SESSION['updatepasswordtoken']))
+            {
+                // remove any code, if there is one in the session
+                $code = $_SESSION['updatepasswordtoken'];
+                $db = new ForumDb();
+                $userId = $db->VerifyPasswortResetCode($code, true);
+            }            
             session_unset();
             session_destroy();
             if(!empty($msg))
@@ -90,71 +99,85 @@ try
             exit;
         }
                 
-        // Check if we have a valid userid in our session
-        if(isset($_SESSION['resetpassworduserid']) && $_SESSION['resetpassworduserid'] > 0)
+        // Check if we have a valid updatepasswordtoken in our session
+        // If we have a code as GET param, always take that code
+        $paramCode = filter_input(INPUT_GET, Mailer::PARAM_CODE, FILTER_UNSAFE_RAW);
+        if($paramCode)
         {
-            // A matching userid was already determined for this confirmation
-            // code. Its the one-time opportunity to update the password
-            $db = new ForumDb();
-            $user = User::LoadUserById($db, $_SESSION['resetpassworduserid']);
-            if(!$user)
-            {
-                abort('User nicht mehr vorhanden');                
-            }
-            try
-            {
-                $updatePasswordHandler = new UpdatePasswordHandler($user);
-                $updatePasswordHandler->HandleRequest($db);
-                // Done. Remove the session and notify user that we are ready
-                writeSuccess('Dein neues Passwort ist ab sofort gültig. Dieses Fenster kann nun geschlossen werden.');
-                abort('');                
-            }
-            catch(InvalidArgumentException $ex)
-            {
-                if($ex->getMessage() == UpdatePasswordHandler::MSG_USER_INACTIVE
-                        || $ex->getMessage() === UpdatePasswordHandler::MSG_DUMMY_USER)
-                {
-                    // If the user is inactive or deactivted, do not allow
-                    // the user to try a second time
-                    abort('Inaktive und Dummyuser können nicht aktiviert werden');
-                }
-                else
-                {
-                    // failed, but probably due to too short password, wrong
-                    // confirmatin or similar. Inform the user and let her
-                    // try again
-                    writeFailure($ex->getMessage());
-                    writeChangePasswordForm();
-                }
-            }
-        }
-        else
-        {        
-            // Check params
-            $paramCode = filter_input(INPUT_GET, Mailer::PARAM_CODE, FILTER_UNSAFE_RAW);
-            if(!$paramCode)
-            {
-                abort();
-            }
             $code = urldecode($paramCode);
             if(!$code)
             {
                 abort();
             }
 
-            // Test if token still valid
+            // Test if token still valid. Do not remove it yet
             $db = new ForumDb();
-            $userId = $db->VerifyPasswortResetCode($code);
+            $userId = $db->VerifyPasswortResetCode($code, false);
             if($userId > 0)
             {
-                // ok, token is valid, remember userid for this seesion
-                $_SESSION['resetpassworduserid'] = $userId;
+                // ok, token is valid, remember token for this seesion
+                $_SESSION['updatepasswordtoken'] = $code;
                 writeChangePasswordForm();
             }
             else
             {
                 abort();
-            }            
+            }
+        }
+        else if(isset($_SESSION['updatepasswordtoken']) 
+            && is_string($_SESSION['updatepasswordtoken'])
+            && !empty($_SESSION['updatepasswordtoken']))
+        {
+            // we have a code in our session
+            $code = $_SESSION['updatepasswordtoken'];
+            // The code was found, but is it still valid?
+            $db = new ForumDb();
+            $userId = $db->VerifyPasswortResetCode($code, false);
+            if($userId > 0)
+            {
+                // ok, token is still valid, check the user behind the token:
+                $user = User::LoadUserById($db, $userId);
+                if(!$user)
+                {
+                    abort('User nicht mehr vorhanden');                
+                }
+                try
+                {
+                    $updatePasswordHandler = new UpdatePasswordHandler($user);
+                    $updatePasswordHandler->HandleRequest($db);
+                    // Done. Remove the session and notify user that we are ready
+                    writeSuccess('Dein neues Passwort ist ab sofort gültig. Dieses Fenster kann nun geschlossen werden.');
+                    abort('');                
+                }
+                catch(InvalidArgumentException $ex)
+                {
+                    if($ex->getMessage() == UpdatePasswordHandler::MSG_USER_INACTIVE
+                            || $ex->getMessage() === UpdatePasswordHandler::MSG_DUMMY_USER)
+                    {
+                        // If the user is inactive or deactivted, do not allow
+                        // the user to try a second time
+                        abort('Inaktive und Dummyuser können nicht aktiviert werden');
+                    }
+                    else
+                    {
+                        // failed, but probably due to too short password, wrong
+                        // confirmatin or similar. Inform the user and let her
+                        // try again
+                        writeFailure($ex->getMessage());
+                        writeChangePasswordForm();
+                    }
+                }
+            }
+            else
+            {
+                // token is no longer valid, abort
+                abort();
+            } 
+        }
+        else
+        {        
+            // if we have no code in our session, or set as get param, just fail
+            abort();
         }
         ?>
     </body>
