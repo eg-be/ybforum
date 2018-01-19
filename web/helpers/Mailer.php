@@ -30,22 +30,7 @@ require_once __DIR__.'/Logger.php';
  * @author Elias Gerber
  */
 class Mailer 
-{    
-    /**
-     * Try to determine if this is some sort of a preview-request
-     * @return boolean True if the HTTP_USER_AGENT contains the word 'BingPreview'
-     */
-    public static function IsPreviewRequest()
-    {
-        // BingPreview
-        $userAgent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_UNSAFE_RAW);
-        if($userAgent && strpos($userAgent, 'BingPreview') !== false)
-        {
-            return true;
-        }
-        return false;
-    }    
-    
+{
     /**
      * Create a new mailer instance. Sets some header values that are the 
      * same for all mails being sent: mailfrom, return-path and content-type.

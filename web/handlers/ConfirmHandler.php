@@ -57,6 +57,12 @@ interface ConfirmHandler
     const VALUE_TYPE_UPDATEEMAIL = 'updateemail';    
     
     /**
+     * @var string Parameter value for the confirmation link to reset a 
+     * password.
+     */    
+    const VALUE_TYPE_RESETPASS = 'resetpass';
+    
+    /**
      * @return string Get the confirmation code.
      */
     public function GetCode();
