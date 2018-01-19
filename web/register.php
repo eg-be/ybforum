@@ -144,7 +144,7 @@ catch(Exception $ex)
         if($registerUserHandler && !$registerUserHandler->HasException())
         {
             echo  
-            '<div class="fbold fullwithcenter successcolor">Ein Bestätigungslink wurde dir an die Mailadresse 
+            '<div class="fbold fullwidthcenter successcolor">Ein Bestätigungslink wurde dir an die Mailadresse 
             <span class="fitalic">' . $registerUserHandler->GetEmail() . '</span> gesendet. 
             Bitte besuche den Link um die angegebene Mailadresse zu bestätigen.
             </div>';
