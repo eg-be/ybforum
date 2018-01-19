@@ -25,20 +25,19 @@ require_once __DIR__.'/../model/ForumDb.php';
 require_once __DIR__.'/../helpers/Logger.php';
 
 /**
- * Handle a confirmation link with a confirmation code to update the 
- * email address of a user.
- * If the REQUEST_METHOD associated with this ConfirmHandler is GET,
- * this handler does not modify any data, but will return as soon as
- * all parameters have been verified (but will fail with the same
- * IllegalArgumentException if one of the parameters fails validation.).
+ * Handle a confirmation link with a confirmation code to reset the password
+ * of a user
+ * Regardless of the REQUEST_METHOD, this handler will try to validate 
+ * a value PARAM_CODE to update a password. If the code is valid, the 
+ * corresponding User is returned from the handler implementation.
+ * This handler does not modify any data, but will fail with the same
+ * IllegalArgumentException if one of the parameters fails validation.
  *
  * @author Elias Gerber
  */
-class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
+class ConfirmResetPasswordHandler extends BaseHandler implements ConfirmHandler
 {
-
     const MSG_CODE_UNKNOWN = 'Ungültiger Bestätigungscode';
-    const MSG_DUMMY_USER = 'Stammposter ist ein Dummy';    
     
     public function __construct()
     {
@@ -46,16 +45,13 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         
         // Set defaults explicitly
         $this->code = null;
-        $this->simulate = null;
         $this->user = null;
-        $this->newEmail = null;
     }
     
     protected function ReadParams()
     {
         // Read params - depending on the invocation using GET or through base-handler
-        $this->simulate = (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET');
-        if($this->simulate)
+        if(filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET')
         {
             $this->code = trim(filter_input(INPUT_GET, ConfirmHandler::PARAM_CODE, FILTER_UNSAFE_RAW));
             if(!$this->code)
@@ -74,44 +70,28 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         // Check for the parameters required to authenticate
         $this->ValidateStringParam($this->code, self::MSG_CODE_UNKNOWN);
     }
-
+    
     protected function HandleRequestImpl(ForumDb $db) 
     {
         // reset the internal values first
         $this->user = null;
-        $this->newEmail = null;
-        $logger = new Logger($db);
-        // Valide the code and remove it if we are not simulating
-        $values = $db->VerifyUpdateEmailCode($this->code, !$this->simulate);
-        if(!$values)
+        
+        // Check if the code matches an existing entry
+        $userId = $db->VerifyPasswortResetCode($this->code, false);
+        if($userId <= 0)
         {
-            $logger->LogMessage(Logger::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
-        // First: Check if there is a matching (real) user:
-        $this->user = User::LoadUserById($db, $values['iduser']);
+        
+        // Check if a user exists for that code
+        $this->user = User::LoadUserById($db, $userId);
         if(!$this->user)
         {
-            $logger->LogMessage(Logger::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found : ' . $values['iduser']);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
-        if($this->user->IsDummyUser())
-        {
-            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_USER_IS_DUMMY, $this->user->GetId());
-            throw new InvalidArgumentException(self::MSG_DUMMY_USER, parent::MSGCODE_BAD_PARAM);
-        }
         
-        $this->newEmail = $values['email'];
-        
-        if($this->simulate)
-        {
-            // abort here in simulation mode
-            return;
-        }
-        
-        // And update the email
-        $db->UpdateUserEmail($this->user->GetId(), $this->newEmail, 
-                $this->clientIpAddress);        
+        // fine, return that user
+        return $this->user;   
     }
     
     public function GetCode()
@@ -121,23 +101,21 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
     
     public function GetType()
     {
-        return ConfirmHandler::VALUE_TYPE_UPDATEEMAIL;
+        return ConfirmHandler::VALUE_TYPE_RESETPASS;
     }
     
     public function GetConfirmText() 
     {
-        return 'Klicke auf Bestätigung um die Mailadresse '
-                . $this->newEmail . ' für den Benutzer ' 
-                . $this->user->GetNick() . ' zu bestätigen:';
+        return 'Wähle ein neues Passwort. Das Passwort muss mindestens '
+                . YbForumConfig::MIN_PASSWWORD_LENGTH 
+                . ' Zeichen enthalten:';
     }
     
     public function GetSuccessText()
     {
-        return 'Emailadresse erfolgreich aktualisiert';
+        return 'Passwort erfolgreich aktualisiert';
     }
     
     private $code;
-    private $simulate;
     private $user;
-    private $newEmail;
 }
