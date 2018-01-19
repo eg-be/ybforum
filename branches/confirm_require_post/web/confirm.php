@@ -23,9 +23,11 @@
 require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/handlers/ConfirmUserHandler.php';
 require_once __DIR__.'/handlers/ConfirmUpdateEmailHandler.php';
+require_once __DIR__.'/handlers/ConfirmHandlerFactory.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 require_once __DIR__.'/helpers/Mailer.php';
 require_once __DIR__.'/helpers/Logger.php';
+require_once __DIR__.'/pageparts/ConfirmForm.php';
 ?>
 
 <html lang="de-ch">
@@ -40,6 +42,33 @@ require_once __DIR__.'/helpers/Logger.php';
         <?php
         try
         {
+            // Get the correct handler
+            $handler = ConfirmHandlerFactory::CreateHandler();
+            
+            // let the handler handle the request
+            $db = new ForumDb();
+            // If this is GET request, the handler will only simulate
+            // but fail with a correct exception if something is wrong
+            $handler->HandleRequest($db);
+            if(filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET')
+            {
+                // A GET request is probably a click on a link in a mail
+                // output a form telling the user click the confirm button
+                // to avoid getting confirmed by evil bots
+                $confirmForm = new ConfirmForm($handler->GetType(), 
+                        $handler->GetCode(), 
+                        $handler->GetConfirmText());
+                echo $confirmForm->RenderHtmlDiv();
+            }
+            else
+            {
+                // A POST request is something that was triggered by the form
+                echo '<div class="fbold successcolor">';
+                echo $handler->GetSuccessText();
+                echo ' Dieses Fenster kann jetzt geschlossen werden.';
+                echo '</div>';
+            }
+/*            
             $successText = '';
             if(Mailer::IsPreviewRequest())
             {
@@ -84,7 +113,7 @@ require_once __DIR__.'/helpers/Logger.php';
             {
                 echo '<span class="fbold successcolor">' .
                         $successText . '</span>';                
-            }
+            }*/
         }
         catch(InvalidArgumentException $ex)
         {
