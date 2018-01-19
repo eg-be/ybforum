@@ -462,7 +462,7 @@ class ForumDb extends PDO
                     self::CONFIRM_SOURCE_NEWUSER);
         }
         // delete an eventually already existing entry first
-        $this->RemoveConfirmCode($userId);        
+        $this->RemoveConfirmUserCode($userId);        
         // generate some random bytes to be used as confirmation code
         $bytes = random_bytes(64);
         $confirmCode = mb_strtoupper(bin2hex($bytes), 'UTF-8');
@@ -539,7 +539,7 @@ class ForumDb extends PDO
         // If the code is expired, or we are requested to remove it, delete:
         if($codeExpired || $remove)
         {
-            if($this->RemoveConfirmCode($userId) !== 1)
+            if($this->RemoveConfirmUserCode($userId) !== 1)
             {
                 throw new Exception('Not exactly one row was deleted for used '
                         . 'confirmation code .' . $code);
@@ -564,7 +564,7 @@ class ForumDb extends PDO
      * @param int $userId
      * @ return int Number of rows that have been removed
      */
-    public function RemoveConfirmCode(int $userId)
+    public function RemoveConfirmUserCode(int $userId)
     {
         $delQuery = 'DELETE FROM confirm_user_table WHERE iduser = :iduser';
         $delStmt = $this->prepare($delQuery);
@@ -792,9 +792,7 @@ class ForumDb extends PDO
             string $requestClientIpAddress)
     {        
         // delete an eventually already existing entry first
-        $query = 'DELETE FROM update_email_table WHERE iduser = :iduser';
-        $stmt = $this->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));
+        $this->RemoveUpdateEmailCode($userId);
         
         // generate some random bytes to be used as confirmation code
         $bytes = random_bytes(64);
@@ -853,10 +851,7 @@ class ForumDb extends PDO
         $codeExpired = !$this->IsDateWithinConfirmPeriod($requestDate);
         if($codeExpired || $remove)
         {
-            $delQuery = 'DELETE FROM update_email_table WHERE confirm_code = :confirm_code';
-            $delStmt = $this->prepare($delQuery);
-            $delStmt->execute(array(':confirm_code' => $code));
-            if($delStmt->rowCount() !== 1)
+            if($this->RemoveUpdateEmailCode($userId) !== 1)
             {
                 throw new Exception('Not exactly one row was deleted for used '
                         . 'confirmation code .' . $code);
@@ -869,6 +864,20 @@ class ForumDb extends PDO
         // okay, return the values
         $values = array('iduser' => $userId, 'email' => $email);
         return $values;
+    }
+    
+    /**
+     * Removes all entries from table update_email_table that match the
+     * passed $userId in field iduser.
+     * @param int $userId to match against field iduser
+     * @return int Number of rows returned
+     */    
+    public function RemoveUpdateEmailCode(int $userId)
+    {
+        $delQuery = 'DELETE FROM update_email_table WHERE iduser = :iduser';
+        $delStmt = $this->prepare($delQuery);
+        $delStmt->execute(array(':iduser' => $userId));
+        return $delStmt->rowCount();
     }
     
     /**
