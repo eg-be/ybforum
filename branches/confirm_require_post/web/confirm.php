@@ -55,9 +55,7 @@ require_once __DIR__.'/pageparts/ConfirmForm.php';
                 // A GET request is probably a click on a link in a mail
                 // output a form telling the user click the confirm button
                 // to avoid getting confirmed by evil bots
-                $confirmForm = new ConfirmForm($handler->GetType(), 
-                        $handler->GetCode(), 
-                        $handler->GetConfirmText());
+                $confirmForm = new ConfirmForm($handler);
                 echo $confirmForm->RenderHtmlDiv();
             }
             else
@@ -68,52 +66,6 @@ require_once __DIR__.'/pageparts/ConfirmForm.php';
                 echo ' Dieses Fenster kann jetzt geschlossen werden.';
                 echo '</div>';
             }
-/*            
-            $successText = '';
-            if(Mailer::IsPreviewRequest())
-            {
-                $logger = new Logger();
-                $logger->LogMessage(Logger::LOG_CONFIRM_REQUEST_IGNORED_IS_PREVIEW, 'HTTP_USER_AGENT: ' . filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_UNSAFE_RAW));
-                throw new InvalidArgumentException('Preview not supported for confirmation links', 400);
-            }
-            $db = new ForumDb();
-            $type = urldecode(filter_input(INPUT_GET, Mailer::PARAM_TYPE, FILTER_UNSAFE_RAW));
-            if($type === Mailer::VALUE_TYPE_CONFIRM_USER)
-            {
-                // complete migration / registration of user
-                $cuh = new ConfirmUserHandler();
-                $confirmSource = $cuh->HandleRequest($db);
-                if($confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE)
-                {
-                    $successText = 'Migration erfolgreich abgeschlossen, dein neues '
-                            . 'Passwort ist ab sofort gültig';
-                }
-                else
-                {
-                    $successText = 'Registrierung erfolgreich abgeschlossen. '
-                            . 'Ein Administrator wird deinen Antrag begutachten '
-                            . 'und dein Account bei Gelegenheit eventuell '
-                            . 'freischalten. Du erhältst eine Email sobald '
-                            . 'dein Account freigschaltet wurde.';
-                }
-            }
-            else if($type === Mailer::VALUE_TYPE_UPDATEEMAIL)
-            {
-                // complete updating email address
-                $cueh = new ConfirmUpdateEmailHandler();
-                $cueh->HandleRequest($db);
-                $successText = 'Mailadresse bestätigt, '
-                        . 'dein neue Mailadresse ist ab sofort gültig.';
-            }
-            else
-            {
-                throw new InvalidArgumentException('Unbekannte Aktion');
-            }
-            if($successText)
-            {
-                echo '<span class="fbold successcolor">' .
-                        $successText . '</span>';                
-            }*/
         }
         catch(InvalidArgumentException $ex)
         {

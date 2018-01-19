@@ -29,6 +29,10 @@ require_once __DIR__.'/../helpers/Logger.php';
  * Handle a confirmation link with a confirmation code to either
  * finish the registration process of a user, or the complete the migration
  * of a user.
+ * If the REQUEST_METHOD associated with this ConfirmHandler is GET,
+ * this handler does not modify any data, but will return as soon as
+ * all parameters have been verified (but will fail with the same
+ * IllegalArgumentException if one of the parameters fails validation.).
  * 
  * @author Elias Gerber 
  */
@@ -76,6 +80,9 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
     
     protected function HandleRequestImpl(ForumDb $db) 
     {
+        // reset internal values first
+        $this->user = null;
+        $this->confirmSource = null;
         $logger = new Logger($db);
         // Valide the code, but only remove it if we are not simulating
         $values = $db->VerifyConfirmUserCode($this->code, !$this->simulate);
@@ -156,7 +163,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         }
         else if($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE)
         {
-            $txt = 'Klicke auf Bestätigung um die Migration für den Stammposter ' . $this->user->GetNick() . ' zu bestätigen: ';
+            $txt = 'Klicke auf Bestätigung um die Migration für den Stammposter ' . $this->user->GetNick() . ' abzuschliessen: ';
         }
         return $txt;
     }

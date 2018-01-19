@@ -28,6 +28,10 @@ require_once __DIR__.'/../helpers/Logger.php';
 /**
  * Handle a confirmation link with a confirmation code to update the 
  * email address of a user.
+ * If the REQUEST_METHOD associated with this ConfirmHandler is GET,
+ * this handler does not modify any data, but will return as soon as
+ * all parameters have been verified (but will fail with the same
+ * IllegalArgumentException if one of the parameters fails validation.).
  *
  * @author Elias Gerber
  */
@@ -45,6 +49,7 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         $this->code = null;
         $this->simulate = null;
         $this->user = null;
+        $this->newEmail = null;
     }
     
     protected function ReadParams()
@@ -73,6 +78,9 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
 
     protected function HandleRequestImpl(ForumDb $db) 
     {
+        // reset the internal values first
+        $this->user = null;
+        $this->newEmail = null;
         $logger = new Logger($db);
         // Valide the code and remove it if we are not simulating
         $values = $db->VerifyUpdateEmailCode($this->code, !$this->simulate);
@@ -94,6 +102,8 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
             throw new InvalidArgumentException(self::MSG_DUMMY_USER, parent::MSGCODE_BAD_PARAM);
         }
         
+        $this->newEmail = $values['email'];
+        
         if($this->simulate)
         {
             // abort here in simulation mode
@@ -101,7 +111,7 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         }
         
         // And update the email
-        $db->UpdateUserEmail($this->user->GetId(), $values['email'], 
+        $db->UpdateUserEmail($this->user->GetId(), $this->newEmail, 
                 $this->clientIpAddress);        
     }
     
@@ -117,7 +127,9 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
     
     public function GetConfirmText() 
     {
-        'Klicke auf Bestätigung um die Mailadresse für den Benutzer ' . $this->user->GetNick() . ' zu bestätigen:';
+        'Klicke auf Bestätigung um die Mailadresse '
+                . $this->newEmail . ' für den Benutzer ' 
+                . $this->user->GetNick() . ' zu bestätigen:';
     }
     
     public function GetSuccessText()
@@ -128,4 +140,5 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
     private $code;
     private $simulate;
     private $user;
+    private $newEmail;
 }
