@@ -21,6 +21,7 @@
 
 require_once __DIR__.'/../YbForumConfig.php';
 require_once __DIR__.'/../model/ForumDb.php';
+require_once __DIR__.'/../handlers/ConfirmHandler.php';
 require_once __DIR__.'/Logger.php';
 
 /**
@@ -29,29 +30,7 @@ require_once __DIR__.'/Logger.php';
  * @author Elias Gerber
  */
 class Mailer 
-{
-    /**
-     * @var string Parameter name for confirmation type.
-     */
-    const PARAM_TYPE = 'type';
-    
-    /**
-     * @var string Parameter name for confirmation code.
-     */
-    const PARAM_CODE = 'code';
-    
-    /**
-     * @var string Parameter value for the confirm type of confirming
-     * a user (migration / registration)
-     */
-    const VALUE_TYPE_CONFIRM_USER = 'confirmuser';
-    
-    /**
-     * @var string Parameter value for the confirm type of confirming a
-     * new email address for a user.
-     */
-    const VALUE_TYPE_UPDATEEMAIL = 'updateemail';
-    
+{    
     /**
      * Try to determine if this is some sort of a preview-request
      * @return boolean True if the HTTP_USER_AGENT contains the word 'BingPreview'
@@ -71,8 +50,8 @@ class Mailer
      * Create a new mailer instance. Sets some header values that are the 
      * same for all mails being sent: mailfrom, return-path and content-type.
      */
-    public function __construct() {
-        $host = gethostname();
+    public function __construct() 
+    {
         $this->m_mailFrom = 'YB-Forum <' . YbForumConfig::MAIL_FROM . '>';
         $this->m_returnPath = YbForumConfig::MAIL_FROM;
         $this->m_contentType = 'text/plain; charset=utf-8';
@@ -94,8 +73,8 @@ class Mailer
                 '1898-Forum Migration Stammposter',
                 'confirm.php',
                 array(
-                    self::PARAM_TYPE => self::VALUE_TYPE_CONFIRM_USER,
-                    self::PARAM_CODE => $confirmationCode
+                    ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_CONFIRM_USER,
+                    ConfirmHandler::PARAM_CODE => $confirmationCode
                 ),
                 'Bitte besuche den folgenden Link um die Migration deines Stammposterkontos für das 1898-Forum abzuschliessen:');
     }
@@ -117,8 +96,8 @@ class Mailer
                 '1898-Forum Registrierung Stammposter',
                 'confirm.php',
                 array(
-                    self::PARAM_TYPE => self::VALUE_TYPE_CONFIRM_USER,
-                    self::PARAM_CODE => $confirmationCode
+                    ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_CONFIRM_USER,
+                    ConfirmHandler::PARAM_CODE => $confirmationCode
                 ),
                 'Bitte besuche den folgenden Link um die Registrierung deines Stammposterkontos für das 1898-Forum abzuschliessen:');
     }
@@ -140,8 +119,8 @@ class Mailer
                 '1898-Forum aktualisierte Stammposter-Mailadresse bestätigen',
                 'confirm.php',
                 array(
-                    self::PARAM_TYPE => self::VALUE_TYPE_UPDATEEMAIL,
-                    self::PARAM_CODE => $confirmationCode
+                    ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_UPDATEEMAIL,
+                    ConfirmHandler::PARAM_CODE => $confirmationCode
                 ),
                 'Bitte besuche den folgenden Link um die Mailadresse die mit deinem 1898-Forum Stammposterkonto verknüpft ist auf die Mailadresse ' 
                         . $email . ' zu aktualisieren:');
@@ -163,7 +142,7 @@ class Mailer
                 '1898-Forum Stammposter-Passwort zurücksetzen',
                 'resetpassword.php',
                 array(
-                    self::PARAM_CODE => $confirmationCode
+                    ConfirmHandler::PARAM_CODE => $confirmationCode
                 ),
                 'Bitte besuche den folgenden Link um ein neues Passwort für dein 1898-Forum Stammposterkonto zu setzen:');
     }
@@ -238,8 +217,8 @@ class Mailer
         $mailBody.= $validForText . "\r\n";
         
         // If we do not force a sender, the reply-to: address is still set to www-data (?)
-        $sent = mail($email, $subject, $mailBody, $this->GetHeaderString());        
-//        $sent = mail($email, $subject, $mailBody, $this->GetHeaderString(), '-f ' . YbForumConfig::MAIL_FROM);
+//        $sent = mail($email, $subject, $mailBody, $this->GetHeaderString());        
+        $sent = mail($email, $subject, $mailBody, $this->GetHeaderString(), '-f ' . YbForumConfig::MAIL_FROM);
         $logger = new Logger();
         if($sent)
         {

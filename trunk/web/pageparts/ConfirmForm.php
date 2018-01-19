@@ -42,8 +42,8 @@ class ConfirmForm
         $html.= $this->m_confirmHandler->GetConfirmText();
         $html.= '</span>';
         $html.= '<form method="post" action="confirm.php?confirm=1" accept-charset="utf-8">';
-        $html.= '<input type="hidden" name="' . Mailer::PARAM_TYPE . '" value="' . $this->m_confirmHandler->GetType() . '"/>';
-        $html.= '<input type="hidden" name="' . Mailer::PARAM_CODE . '" value="' . $this->m_confirmHandler->GetCode() . '"/>';
+        $html.= '<input type="hidden" name="' . ConfirmHandler::PARAM_TYPE . '" value="' . $this->m_confirmHandler->GetType() . '"/>';
+        $html.= '<input type="hidden" name="' . ConfirmHandler::PARAM_CODE . '" value="' . $this->m_confirmHandler->GetCode() . '"/>';
         $html.= '<input type="submit" value="Bestätigen"/>';
         $html.= '</form>';
         $html.= '</div>';
