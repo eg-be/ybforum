@@ -20,6 +20,7 @@
 */
 
 require_once __DIR__.'/BaseHandler.php';
+require_once __DIR__.'/ConfirmHandler.php';
 require_once __DIR__.'/../model/ForumDb.php';
 require_once __DIR__.'/../helpers/Mailer.php';
 require_once __DIR__.'/../helpers/Logger.php';
@@ -28,10 +29,14 @@ require_once __DIR__.'/../helpers/Logger.php';
  * Handle a confirmation link with a confirmation code to either
  * finish the registration process of a user, or the complete the migration
  * of a user.
+ * If the REQUEST_METHOD associated with this ConfirmHandler is GET,
+ * this handler does not modify any data, but will return as soon as
+ * all parameters have been verified (but will fail with the same
+ * IllegalArgumentException if one of the parameters fails validation.).
  * 
  * @author Elias Gerber 
  */
-class ConfirmUserHandler extends BaseHandler
+class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
 {    
     const MSG_CODE_UNKNOWN = 'Ungültiger Bestätigungscode';
     const MSG_ALREADY_CONFIRMED = 'AlreadyConfirmed';
@@ -44,12 +49,27 @@ class ConfirmUserHandler extends BaseHandler
         
         // Set defaults explicitly
         $this->code = null;
+        $this->user = null;
+        $this->confirmSource = null;
+        $this->simulate = null;
     }
     
     protected function ReadParams()
     {
-        // Read params (using get, not through BaseHandler)        
-        $this->code = trim(filter_input(INPUT_GET, Mailer::PARAM_CODE, FILTER_UNSAFE_RAW));
+        // Read params - depending on the invocation using GET or through base-handler
+        $this->simulate = (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET');
+        if($this->simulate)
+        {
+            $this->code = trim(filter_input(INPUT_GET, Mailer::PARAM_CODE, FILTER_UNSAFE_RAW));
+            if(!$this->code)
+            {
+                $this->code = null;
+            }
+        }
+        else
+        {
+            $this->code = $this->ReadStringParam(Mailer::PARAM_CODE);
+        }
     }
     
     protected function ValidateParams()
@@ -60,9 +80,12 @@ class ConfirmUserHandler extends BaseHandler
     
     protected function HandleRequestImpl(ForumDb $db) 
     {
+        // reset internal values first
+        $this->user = null;
+        $this->confirmSource = null;
         $logger = new Logger($db);
-        // Valide the code and remove it if a valid entry was found
-        $values = $db->VerifyConfirmUserCode($this->code, true);
+        // Valide the code, but only remove it if we are not simulating
+        $values = $db->VerifyConfirmUserCode($this->code, !$this->simulate);
         if(!$values)
         {
             $logger->LogMessage(Logger::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);
@@ -70,32 +93,37 @@ class ConfirmUserHandler extends BaseHandler
         }
         // First: Check if there is a matching user who actually needs 
         // a confirmation to be migrated / registered:
-        $user = User::LoadUserById($db, $values['iduser']);
-        if(!$user)
+        $this->user = User::LoadUserById($db, $values['iduser']);
+        if(!$this->user)
         {
             $logger->LogMessage(Logger::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found : ' . $values['iduser']);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
-        $confirmSource = $values['confirm_source'];
-        if(!($user->NeedsConfirmation() || $user->NeedsMigration()))
+        $this->confirmSource = $values['confirm_source'];
+        if(!($this->user->NeedsConfirmation() || $this->user->NeedsMigration()))
         {
-            if($confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER)
+            if($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER)
             {
-                $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_ALREADY_CONFIRMED, $user->GetId());
+                $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_ALREADY_CONFIRMED, $this->user->GetId());
                 throw new InvalidArgumentException(self::MSG_ALREADY_CONFIRMED, parent::MSGCODE_BAD_PARAM);
             }
-            if($confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE)
+            if($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE)
             {
-                $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $user->GetId());
+                $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $this->user->GetId());
                 throw new InvalidArgumentException(self::MSG_ALREADY_MIGRATED, parent::MSGCODE_BAD_PARAM);
             }        
         }
-        $activate = ($confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE);
+        if($this->simulate)
+        {
+            // okay, return in simulation mode now
+            return $this->confirmSource;
+        }
+        $activate = ($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE);
         // And migrate that user:
-        $db->ConfirmUser($user->GetId(), $values['password'],
+        $db->ConfirmUser($this->user->GetId(), $values['password'],
                 $values['email'], $activate,  $this->clientIpAddress);
         // Notify the admins if a user is awaiting to get freed
-        if($confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER)
+        if($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER)
         {
             $mailer = new Mailer();
             $query = 'SELECT email FROM user_table '
@@ -105,16 +133,62 @@ class ConfirmUserHandler extends BaseHandler
             while($row = $stmt->fetch())
             {
                 $adminEmail = $row['email'];
-                if($mailer->NotifyAdminUserConfirmedRegistraion($user->GetNick(), $adminEmail))
+                if($mailer->NotifyAdminUserConfirmedRegistraion($this->user->GetNick(), $adminEmail))
                 {
-                    $logger->LogMessageWithUserId(Logger::LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED, $user->GetId(), 'Mail sent to: ' . $adminEmail);
+                    $logger->LogMessageWithUserId(Logger::LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED, $this->user->GetId(), 'Mail sent to: ' . $adminEmail);
                 }
             }
         }
 
         // return the type of confirmation executed
-        return $confirmSource;
+        return $this->confirmSource;
     }
+    
+    public function GetCode()
+    {
+        return $this->code;
+    }
+    
+    public function GetType()
+    {
+        return Mailer::VALUE_TYPE_CONFIRM_USER;
+    }
+    
+    public function GetConfirmText() 
+    {
+        $txt = '';
+        if($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER)
+        {
+            $txt = 'Klicke auf Bestätigung um die Registrierung für den Stampposter ' . $this->user->GetNick() . ' zu bestätigen: ';
+        }
+        else if($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE)
+        {
+            $txt = 'Klicke auf Bestätigung um die Migration für den Stammposter ' . $this->user->GetNick() . ' abzuschliessen: ';
+        }
+        return $txt;
+    }
+    
+    public function GetSuccessText()
+    {
+        $txt = '';
+        if($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER)
+        {
+            $txt = 'Registrierung erfolgreich abgeschlossen. '
+                            . 'Ein Administrator wird deinen Antrag begutachten '
+                            . 'und dein Account bei Gelegenheit eventuell '
+                            . 'freischalten. Du erhältst eine Email sobald '
+                            . 'dein Account freigschaltet wurde.';
+        }
+        else if($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE)
+        {
+            $txt = 'Migration erfolgreich abgeschlossen, dein neues '
+                            . 'Passwort ist ab sofort gültig';
+        }
+        return $txt;
+    }    
 
     private $code;
+    private $confirmSource;
+    private $user;
+    private $simulate;
 }
