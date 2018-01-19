@@ -128,7 +128,7 @@ catch(Exception $ex)
             ?>            
             <form id="resetpasswordform" method="post" action="stammposter.php?resetpassword=1" accept-charset="utf-8">
                 <table style="margin: auto; text-align: left; padding-top: 2em;">                
-                    <tr><td colspan="2" class="genericsmalltitle" style="padding-top: 2em">Neues Passwort</td></tr>
+                    <tr><td colspan="2" class="genericsmalltitle" style="padding-top: 2em">Neues Passwort anfordern</td></tr>
                     <tr>
                         <td class="fbold">Stammpostername<br>oder Mailadresse:</td>
                         <td><input type="text" id="resetpassword_email" name="resetpassword_email_or_nick" size="30" maxlength="254"/></td>

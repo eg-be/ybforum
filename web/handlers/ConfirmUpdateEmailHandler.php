@@ -126,7 +126,7 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
     
     public function GetConfirmText() 
     {
-        return 'Klicke auf Bestätigung um die Mailadresse '
+        return 'Klicke auf Bestätigen um die Mailadresse '
                 . $this->newEmail . ' für den Benutzer ' 
                 . $this->user->GetNick() . ' zu bestätigen:';
     }
