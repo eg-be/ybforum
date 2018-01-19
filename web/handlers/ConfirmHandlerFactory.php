@@ -22,6 +22,7 @@
 require_once __DIR__.'/ConfirmHandler.php';
 require_once __DIR__.'/ConfirmUserHandler.php';
 require_once __DIR__.'/ConfirmUpdateEmailHandler.php';
+require_once __DIR__.'/ConfirmResetPasswordHandler.php';
 
 /**
  * Factory to create an confirmation handler. Depending on the value of the
@@ -51,6 +52,10 @@ class ConfirmHandlerFactory
         else if($type === ConfirmHandler::VALUE_TYPE_UPDATEEMAIL)
         {
             return new ConfirmUpdateEmailHandler();
+        }
+        else if($type === ConfirmHandler::VALUE_TYPE_RESETPASS)
+        {
+            return new ConfirmResetPasswordHandler();
         }
         else
         {
