@@ -210,8 +210,8 @@ class Mailer
         $mailBody.= $validForText . "\r\n";
         
         // If we do not force a sender, the reply-to: address is still set to www-data (?)
-        $sent = mail($email, $subject, $mailBody, $this->GetHeaderString());        
-//        $sent = mail($email, $subject, $mailBody, $this->GetHeaderString(), '-f ' . YbForumConfig::MAIL_FROM);
+//        $sent = mail($email, $subject, $mailBody, $this->GetHeaderString());        
+        $sent = mail($email, $subject, $mailBody, $this->GetHeaderString(), '-f ' . YbForumConfig::MAIL_FROM);
         $logger = new Logger();
         if($sent)
         {

@@ -159,11 +159,11 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         $txt = '';
         if($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER)
         {
-            $txt = 'Klicke auf Bestätigung um die Registrierung für den Stampposter ' . $this->user->GetNick() . ' zu bestätigen: ';
+            $txt = 'Klicke auf Bestätigen um die Registrierung für den Stampposter ' . $this->user->GetNick() . ' zu bestätigen: ';
         }
         else if($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE)
         {
-            $txt = 'Klicke auf Bestätigung um die Migration für den Stammposter ' . $this->user->GetNick() . ' abzuschliessen: ';
+            $txt = 'Klicke auf Bestätigen um die Migration für den Stammposter ' . $this->user->GetNick() . ' abzuschliessen: ';
         }
         return $txt;
     }
