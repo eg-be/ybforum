@@ -50,7 +50,7 @@ class YbForumConfig
     /**
      * @var The base url, with a trailing '/' at the end
      */
-    const BASE_URL = 'https://www.1898test.ch/';
+    const BASE_URL = 'https://www.1898.ch/';
     
     /**
     * @var Minimal length of the title of a post
@@ -80,5 +80,5 @@ class YbForumConfig
     /**
     * @var string Address to use as mail from address
     */
-    const MAIL_FROM = 'ybforum@1898test.ch';
+    const MAIL_FROM = 'ybforum@1898.ch';
 }
