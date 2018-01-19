@@ -115,7 +115,7 @@ class RegisterUserHandler extends BaseHandler
         if(!$mailer->SendRegisterUserConfirmMessage($this->email, $confirmCode))
         {
             // Remove the just created user
-            $db->RemoveConfirmCode($userId);
+            $db->RemoveConfirmUserCode($userId);
             $db->DeleteUser($userId);
             // And fail
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);

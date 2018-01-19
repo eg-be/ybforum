@@ -43,7 +43,7 @@ class PendingConfirmationUserList
                 // If this is the registration of a new user, also delete
                 // the corresponding entry in the user table
                 $confirmReason = $db->GetConfirmReason($user->GetId());
-                $db->RemoveConfirmCode($user->GetId());
+                $db->RemoveConfirmUserCode($user->GetId());
                 if($confirmReason == ForumDb::CONFIRM_SOURCE_NEWUSER)
                 {
                     $db->DeleteUser($user->GetId());
@@ -77,7 +77,7 @@ class PendingConfirmationUserList
                 $email = $result['email'];
                 $confirmSource = $result['confirm_source'];
                 $activate = ($confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE);
-                $db->RemoveConfirmCode($user->GetId());
+                $db->RemoveConfirmUserCode($user->GetId());
                 $db->ConfirmUser($user->GetId(), $password, $email, $activate);
                 $resultDiv = '<div class="actionSucceeded">Benutzer ' 
                         . $user->GetNick() . ' (' . $user->GetId() . ')'
