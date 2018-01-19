@@ -666,10 +666,7 @@ class ForumDb extends PDO
             string $requestClientIpAddress)
     {
         // Delete any already existing entry first
-        $delQuery = 'DELETE FROM reset_password_table '
-                . 'WHERE iduser = :iduser';
-        $delStmt = $this->prepare($delQuery);
-        $delStmt->execute(array(':iduser' => $user->GetId()));
+        $this->RemoveResetPasswordCode($user->GetId());
         // Create some randomness and insert as new entry
         $bytes = random_bytes(64);
         $confirmCode = mb_strtoupper(bin2hex($bytes), 'UTF-8');
@@ -729,10 +726,7 @@ class ForumDb extends PDO
         // If the code is expired, or we are requested to remove it, delete:
         if($codeExpired || $remove)
         {
-            $delQuery = 'DELETE FROM reset_password_table WHERE confirm_code = :confirm_code';
-            $delStmt = $this->prepare($delQuery);
-            $delStmt->execute(array(':confirm_code' => $code));
-            if($delStmt->rowCount() !== 1)
+            if($this->RemoveResetPasswordCode($userId) !== 1)
             {
                 throw new Exception('Not exactly one row was deleted for used '
                         . 'confirmation code .' . $code);
@@ -744,6 +738,20 @@ class ForumDb extends PDO
         }
         // okay, return the userid of this entry
         return $userId;
+    }
+    
+    /**
+     * Removes all entries from table reset_password_table that match the
+     * passed $userId in field iduser.
+     * @param int $userId to match against field iduser
+     * @return int Number of rows returned
+     */
+    public function RemoveResetPasswordCode(int $userId)
+    {
+        $delQuery = 'DELETE FROM reset_password_table WHERE iduser = :iduser';
+        $delStmt = $this->prepare($delQuery);
+        $delStmt->execute(array(':iduser' => $userId));
+        return $delStmt->rowCount();
     }
     
     /**
