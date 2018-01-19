@@ -76,7 +76,9 @@ class Mailer
                     ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_CONFIRM_USER,
                     ConfirmHandler::PARAM_CODE => $confirmationCode
                 ),
-                'Bitte besuche den folgenden Link um die Migration deines Stammposterkontos für das 1898-Forum abzuschliessen:');
+                'Bitte besuche den folgenden Link um die Migration '
+                . 'deines Stammposterkontos für das 1898-Forum '
+                . 'abzuschliessen:');
     }
     
     /**
@@ -99,7 +101,9 @@ class Mailer
                     ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_CONFIRM_USER,
                     ConfirmHandler::PARAM_CODE => $confirmationCode
                 ),
-                'Bitte besuche den folgenden Link um die Registrierung deines Stammposterkontos für das 1898-Forum abzuschliessen:');
+                'Bitte besuche den folgenden Link um die Registrierung '
+                . 'deines Stammposterkontos für das 1898-Forum '
+                . 'abzuschliessen:');
     }
     
     /**
@@ -122,8 +126,10 @@ class Mailer
                     ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_UPDATEEMAIL,
                     ConfirmHandler::PARAM_CODE => $confirmationCode
                 ),
-                'Bitte besuche den folgenden Link um die Mailadresse die mit deinem 1898-Forum Stammposterkonto verknüpft ist auf die Mailadresse ' 
-                        . $email . ' zu aktualisieren:');
+                'Bitte besuche den folgenden Link um die Mailadresse die '
+                . 'mit deinem 1898-Forum Stammposterkonto verknüpft ist '
+                . 'auf die Mailadresse ' 
+                . $email . ' zu aktualisieren:');
     }    
     
     /**
@@ -144,7 +150,8 @@ class Mailer
                 array(
                     ConfirmHandler::PARAM_CODE => $confirmationCode
                 ),
-                'Bitte besuche den folgenden Link um ein neues Passwort für dein 1898-Forum Stammposterkonto zu setzen:');
+                'Bitte besuche den folgenden Link um ein neues Passwort '
+                . 'für dein 1898-Forum Stammposterkonto zu setzen:');
     }
     
     /**
