@@ -62,7 +62,7 @@ class MigrateUserForm
         $html = 
         '<div id="migratediv" style="color: #00BFFF;">
             <div id="migratetitle" class="fbold noticecolor">Passwort und Mailadresse aktualisieren:</div>
-            <div id="requestmigratediv"> Willkommen im Forum 2.0. 
+            <div id="requestmigratediv"> Willkommen im Forum. 
                 Die bisherigen Passwörter sind in einem nicht mehr zeitgemässen Format
                 verschlüsselt. Bitte aktualisiere dein Passwort und bei dieser 
                 Gelegenheit auch gleich deine Mailadresse. Um die Migration abzuschliessen 

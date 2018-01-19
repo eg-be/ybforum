@@ -41,7 +41,7 @@ try
     <head>
         <link rel="stylesheet" type="text/css" href="ybforum.css">        
         <meta charset="UTF-8">
-        <title>YB Forum 2.0</title>
+        <title>YB Forum</title>
     </head>
     <body>
         <?php
