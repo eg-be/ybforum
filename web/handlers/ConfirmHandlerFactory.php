@@ -18,6 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+require_once __DIR__.'/ConfirmHandler.php';
 require_once __DIR__.'/ConfirmUserHandler.php';
 require_once __DIR__.'/ConfirmUpdateEmailHandler.php';
 
@@ -35,18 +37,18 @@ class ConfirmHandlerFactory
         $type = null;
         if(filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET')
         {
-            $type = filter_input(INPUT_GET, Mailer::PARAM_TYPE, FILTER_UNSAFE_RAW);
+            $type = filter_input(INPUT_GET, ConfirmHandler::PARAM_TYPE, FILTER_UNSAFE_RAW);
         }
         else if(filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST')
         {
-            $type = filter_input(INPUT_POST, Mailer::PARAM_TYPE, FILTER_UNSAFE_RAW);
+            $type = filter_input(INPUT_POST, ConfirmHandler::PARAM_TYPE, FILTER_UNSAFE_RAW);
         }
         
-        if($type === Mailer::VALUE_TYPE_CONFIRM_USER)
+        if($type === ConfirmHandler::VALUE_TYPE_CONFIRM_USER)
         {
             return new ConfirmUserHandler();
         }
-        else if($type === Mailer::VALUE_TYPE_UPDATEEMAIL)
+        else if($type === ConfirmHandler::VALUE_TYPE_UPDATEEMAIL)
         {
             return new ConfirmUpdateEmailHandler();
         }

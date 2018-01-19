@@ -21,8 +21,8 @@
 */
 
 require_once __DIR__.'/model/ForumDb.php';
-require_once __DIR__.'/helpers/Mailer.php';
 require_once __DIR__.'/handlers/UpdatePasswordHandler.php';
+require_once __DIR__.'/handlers/ConfirmHandler.php';
 
 try
 {
@@ -88,7 +88,7 @@ try
                 // remove any code, if there is one in the session
                 $code = $_SESSION['updatepasswordtoken'];
                 $db = new ForumDb();
-                $userId = $db->VerifyPasswortResetCode($code, true);
+                $db->VerifyPasswortResetCode($code, true);
             }            
             session_unset();
             session_destroy();
@@ -101,7 +101,7 @@ try
                 
         // Check if we have a valid updatepasswordtoken in our session
         // If we have a code as GET param, always take that code
-        $paramCode = filter_input(INPUT_GET, Mailer::PARAM_CODE, FILTER_UNSAFE_RAW);
+        $paramCode = filter_input(INPUT_GET, ConfirmHandler::PARAM_CODE, FILTER_UNSAFE_RAW);
         if($paramCode)
         {
             $code = urldecode($paramCode);
