@@ -35,6 +35,28 @@
 interface ConfirmHandler 
 {
     /**
+     * @var string Parameter name for confirmation type.
+     */
+    const PARAM_TYPE = 'type';
+    
+    /**
+     * @var string Parameter name for confirmation code.
+     */
+    const PARAM_CODE = 'code';
+    
+    /**
+     * @var string Parameter value for the confirm type of confirming
+     * a user (migration / registration)
+     */
+    const VALUE_TYPE_CONFIRM_USER = 'confirmuser';
+    
+    /**
+     * @var string Parameter value for the confirm type of confirming a
+     * new email address for a user.
+     */
+    const VALUE_TYPE_UPDATEEMAIL = 'updateemail';    
+    
+    /**
      * @return string Get the confirmation code.
      */
     public function GetCode();

@@ -22,7 +22,6 @@
 require_once __DIR__.'/BaseHandler.php';
 require_once __DIR__.'/ConfirmHandler.php';
 require_once __DIR__.'/../model/ForumDb.php';
-require_once __DIR__.'/../helpers/Mailer.php';
 require_once __DIR__.'/../helpers/Logger.php';
 
 /**
@@ -58,7 +57,7 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         $this->simulate = (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET');
         if($this->simulate)
         {
-            $this->code = trim(filter_input(INPUT_GET, Mailer::PARAM_CODE, FILTER_UNSAFE_RAW));
+            $this->code = trim(filter_input(INPUT_GET, ConfirmHandler::PARAM_CODE, FILTER_UNSAFE_RAW));
             if(!$this->code)
             {
                 $this->code = null;
@@ -66,7 +65,7 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         }
         else
         {
-            $this->code = $this->ReadStringParam(Mailer::PARAM_CODE);
+            $this->code = $this->ReadStringParam(ConfirmHandler::PARAM_CODE);
         }
     }
     
@@ -122,7 +121,7 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
     
     public function GetType()
     {
-        return Mailer::VALUE_TYPE_UPDATEEMAIL;
+        return ConfirmHandler::VALUE_TYPE_UPDATEEMAIL;
     }
     
     public function GetConfirmText() 
