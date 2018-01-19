@@ -20,6 +20,7 @@
 */
 
 require_once __DIR__.'/BaseHandler.php';
+require_once __DIR__.'/ConfirmHandler.php';
 require_once __DIR__.'/../model/ForumDb.php';
 require_once __DIR__.'/../helpers/Mailer.php';
 require_once __DIR__.'/../helpers/Logger.php';
@@ -27,10 +28,14 @@ require_once __DIR__.'/../helpers/Logger.php';
 /**
  * Handle a confirmation link with a confirmation code to update the 
  * email address of a user.
+ * If the REQUEST_METHOD associated with this ConfirmHandler is GET,
+ * this handler does not modify any data, but will return as soon as
+ * all parameters have been verified (but will fail with the same
+ * IllegalArgumentException if one of the parameters fails validation.).
  *
  * @author Elias Gerber
  */
-class ConfirmUpdateEmailHandler extends BaseHandler
+class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
 {
 
     const MSG_CODE_UNKNOWN = 'Ungültiger Bestätigungscode';
@@ -42,12 +47,27 @@ class ConfirmUpdateEmailHandler extends BaseHandler
         
         // Set defaults explicitly
         $this->code = null;
+        $this->simulate = null;
+        $this->user = null;
+        $this->newEmail = null;
     }
     
     protected function ReadParams()
     {
-        // Read params (using get, not through BaseHandler)        
-        $this->code = trim(filter_input(INPUT_GET, Mailer::PARAM_CODE, FILTER_UNSAFE_RAW));
+        // Read params - depending on the invocation using GET or through base-handler
+        $this->simulate = (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET');
+        if($this->simulate)
+        {
+            $this->code = trim(filter_input(INPUT_GET, Mailer::PARAM_CODE, FILTER_UNSAFE_RAW));
+            if(!$this->code)
+            {
+                $this->code = null;
+            }
+        }
+        else
+        {
+            $this->code = $this->ReadStringParam(Mailer::PARAM_CODE);
+        }
     }
     
     protected function ValidateParams()
@@ -58,31 +78,67 @@ class ConfirmUpdateEmailHandler extends BaseHandler
 
     protected function HandleRequestImpl(ForumDb $db) 
     {
+        // reset the internal values first
+        $this->user = null;
+        $this->newEmail = null;
         $logger = new Logger($db);
-        // Valide the code and remove if a valid entry is found
-        $values = $db->VerifyUpdateEmailCode($this->code, true);
+        // Valide the code and remove it if we are not simulating
+        $values = $db->VerifyUpdateEmailCode($this->code, !$this->simulate);
         if(!$values)
         {
             $logger->LogMessage(Logger::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
         // First: Check if there is a matching (real) user:
-        $user = User::LoadUserById($db, $values['iduser']);
-        if(!$user)
+        $this->user = User::LoadUserById($db, $values['iduser']);
+        if(!$this->user)
         {
             $logger->LogMessage(Logger::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found : ' . $values['iduser']);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
-        if($user->IsDummyUser())
+        if($this->user->IsDummyUser())
         {
-            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_USER_IS_DUMMY, $user->GetId());
+            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_USER_IS_DUMMY, $this->user->GetId());
             throw new InvalidArgumentException(self::MSG_DUMMY_USER, parent::MSGCODE_BAD_PARAM);
         }
-
+        
+        $this->newEmail = $values['email'];
+        
+        if($this->simulate)
+        {
+            // abort here in simulation mode
+            return;
+        }
+        
         // And update the email
-        $db->UpdateUserEmail($user->GetId(), $values['email'], 
+        $db->UpdateUserEmail($this->user->GetId(), $this->newEmail, 
                 $this->clientIpAddress);        
     }
     
-    private $code;    
+    public function GetCode()
+    {
+        return $this->code;
+    }
+    
+    public function GetType()
+    {
+        return Mailer::VALUE_TYPE_UPDATEEMAIL;
+    }
+    
+    public function GetConfirmText() 
+    {
+        'Klicke auf Bestätigung um die Mailadresse '
+                . $this->newEmail . ' für den Benutzer ' 
+                . $this->user->GetNick() . ' zu bestätigen:';
+    }
+    
+    public function GetSuccessText()
+    {
+        'Emailadresse erfolgreich aktualisiert';
+    }
+    
+    private $code;
+    private $simulate;
+    private $user;
+    private $newEmail;
 }
