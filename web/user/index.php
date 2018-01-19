@@ -167,7 +167,7 @@ catch(Exception $ex)
                 else
                 {
                     echo  
-                    '<div class="fbold successcolor">Ein Bestätigungslink wurde dir an die Mailadresse 
+                    '<div class="fbold successcolor fullwidthcenter">Ein Bestätigungslink wurde dir an die Mailadresse 
                     <span class="fbold fitalic" id="confirm_mailaddress">' . $updateEmailHandler->GetNewEmail() . '</span> gesendet. 
                     Bitte besuche den Link um diese Mailadresse zu aktivieren.
                     </div>';
