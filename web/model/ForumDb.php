@@ -1129,7 +1129,7 @@ class ForumDb extends PDO
     /**
      * Deletes a user by removing it entirely from the user_table.
      * This method will fail with an InvalidArgumentException if there are
-     * already post from that user
+     * already post entries from that user
      * 
      * @param int $userId
      */
@@ -1141,11 +1141,25 @@ class ForumDb extends PDO
                     . $userId . ' there are already entries in post_table '
                     . 'by that user. Want to turn her into a dummy instead?');
         }
+        // Load the user to add some logging
+        $nick = '';
+        $email = '';
+        $user = User::LoadUserById($this, $userId);
+        if($user)
+        {
+            $nick = $user->GetNick();
+            if($user->HasEmail())
+            {
+                $email = $user->GetEmail();
+            }
+        }
         $query = 'DELETE FROM user_table WHERE iduser = :iduser';
         $stmt = $this->prepare($query);
         $stmt->execute(array(':iduser' => $userId));
         $logger = new Logger($this);
-        $logger->LogMessage(Logger::LOG_USER_DELETED, 'User ' . $userId . ' has been deleted');
+        $logger->LogMessage(Logger::LOG_USER_DELETED, 'User ' 
+                . $nick . ' (' . $userId . '), ' . $email 
+                . ' has been deleted');
     }
     
     /**
