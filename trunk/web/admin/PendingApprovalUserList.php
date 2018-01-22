@@ -52,7 +52,8 @@ class PendingApprovalUserList
                 else if($userActionValue === self::VALUE_DENY && $user)
                 {
                     $db->DeleteUser($user->GetId());
-                    $sent = $mailer->SendNotifyUserDeniedEmail($user->GetEmail());
+                    $sent = false;
+                    //$sent = $mailer->SendNotifyUserDeniedEmail($user->GetEmail());
                     $logger->LogMessage(Logger::LOG_NOTIFIED_USER_DENIED, 'Deleted user: ' . $user->GetNick() . '(' . $user->GetId() .')');
                     return '<div class="actionSucceeded">Benutzer ' 
                             . $user->GetNick() . ' abgelehnt (Mail sent: ' 
