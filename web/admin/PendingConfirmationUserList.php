@@ -114,24 +114,25 @@ class PendingConfirmationUserList
                 . '<th>Request Quelle</th>'
                 . '<th>Code</th>'                
                 . '</tr>';
-        $now = new DateTime();
-        $codeValidInterval = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);
         while($row = $stmt->fetch())
         {
             $haveSome = true;
             $requestDate = new DateTime($row['request_date']);
-            $codeTooOld = false;
-            if($now->sub($codeValidInterval) > $requestDate)
-            {
-                $codeTooOld = true;
-            }
+            $codeTooOld = !$db->IsDateWithinConfirmPeriod($requestDate);
             $htmlTable.= '<tr>';
             $htmlTable.= '<td>' . htmlspecialchars($row['nick']) 
                     . ' (' . $row['iduser'] . ')</td>';
             $htmlTable.= '<td>' . htmlspecialchars($row['email']) . '</td>';
             if($codeTooOld)
             {
-                $htmlTable.= '<td class="colorNotice">';
+                if($row['confirm_source'] === ForumDb::CONFIRM_SOURCE_NEWUSER)
+                {
+                    $htmlTable.= '<td class="colorNotice fbold">';
+                }
+                else
+                {
+                    $htmlTable.= '<td class="colorNotice">';                    
+                }
             }
             else
             {
