@@ -80,5 +80,5 @@ class YbForumConfig
     /**
     * @var string Address to use as mail from address
     */
-    const MAIL_FROM = 'ybforum@1898.ch';
+    const MAIL_FROM = 'no-reply@1898.ch';
 }
