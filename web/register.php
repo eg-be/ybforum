@@ -123,7 +123,7 @@ catch(Exception $ex)
                         <td><input type="text" value="<?php echo $emailValue; ?>" name="<?php echo RegisterUserHandler::PARAM_EMAIL; ?>" size="30" maxlength="191"/></td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fbold">Nachricht an die Forenadministration (optional)</td>
+                        <td colspan="2" style="word-wrap:break-word"><span class="fbold">Nachricht an die Forenadministration</span> (optional, eine schlaue Nachricht erhöht aber<br> die Wahrscheinlichkeit akzeptiert zu werden drastisch)</td>
                     </tr>
                     <tr>
                         <td colspan="2">
