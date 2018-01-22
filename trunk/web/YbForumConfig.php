@@ -81,4 +81,10 @@ class YbForumConfig
     * @var string Address to use as mail from address
     */
     const MAIL_FROM = 'no-reply@1898.ch';
+
+    /**
+    * @var string Name to be used as mail from address
+    */
+    const MAIL_FROM_NAME = 'YB-Forum Mailer';
+    
 }

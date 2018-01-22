@@ -37,7 +37,7 @@ class Mailer
      */
     public function __construct() 
     {
-        $this->m_mailFrom = 'YB-Forum <' . YbForumConfig::MAIL_FROM . '>';
+        $this->m_mailFrom = YbForumConfig::MAIL_FROM_NAME . ' <' . YbForumConfig::MAIL_FROM . '>';
         $this->m_returnPath = YbForumConfig::MAIL_FROM;
         $this->m_contentType = 'text/plain; charset=utf-8';
     }
@@ -150,7 +150,9 @@ class Mailer
     {
         $subject = 'Stammposter freigeschaltet';
         $mailBody = 'Willkommen im YB-Forum. Deine Registrierung wurde '
-                . 'von einem Administrator freigeschaltet.';
+                . 'von einem Administrator freigeschaltet. Bitte beachte '
+                . 'die Reihenfolge aus: ' . "\r\n\r\n"
+                . 'https://1898.ch/showentry.php?idpost=672696';
         $sent = mail($email, $subject, $mailBody, $this->GetHeaderString());
         return $sent;
     }
