@@ -78,10 +78,13 @@ catch(Exception $ex)
             Ihre hier angebenen Emailadresse wird nicht im Forum gezeigt. Sie 
             dient lediglich dem Forenadministrator dazu einen Anhaltspunkt zu 
             haben, wer seine Stammposter eigentlich sind. Bevor Ihr Antrag vom 
-            Forenadministrator genehmigt wird, wird Ihre Emailadresse verifiziert. 
+            Forenadministrator überhaupt betrachtet wird, wird Ihre Emailadresse verifiziert. 
             An Ihre Emailadresse sendet das System Ihnen einen Link, den Sie 
             besuchen müssen. Damit wird die Korrektheit Ihrer Emailadresse 
             bestätigt.
+        </div>
+        <div class="fullwidthcenter"><span class="fbold">Die Kriterien ob eine Registrierung akzeptiert wird oder nicht sind absolut willkürlich. Rückfragen werden nicht beantwortet.</span> 
+        Mit einer netten Nachricht an die Administratoren, Referenzen auf existierende Stammposter und einem Nickname der kein Spielername und nicht allzu primitiv ist, kann die Chance aber erhöht werden.        
         </div>
         <?php 
         if($registerUserHandler && $registerUserHandler->HasException())
@@ -123,7 +126,7 @@ catch(Exception $ex)
                         <td><input type="text" value="<?php echo $emailValue; ?>" name="<?php echo RegisterUserHandler::PARAM_EMAIL; ?>" size="30" maxlength="191"/></td>
                     </tr>
                     <tr>
-                        <td colspan="2" style="word-wrap:break-word"><span class="fbold">Nachricht an die Forenadministration</span> (optional, eine schlaue Nachricht erhöht aber<br> die Wahrscheinlichkeit akzeptiert zu werden drastisch)</td>
+                        <td colspan="2" class="fbold">Nachricht an die Forenadministration</td>
                     </tr>
                     <tr>
                         <td colspan="2">
