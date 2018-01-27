@@ -121,7 +121,8 @@ class ResetPasswordHandler extends BaseHandler
 
         // send the email to the address requested
         $mailer = new Mailer();
-        if(!$mailer->SendResetPasswordMessage($user->GetEmail(), $confirmationCode))
+        if(!$mailer->SendResetPasswordMessage($user->GetEmail(), 
+                $user->GetNick(), $confirmationCode))
         {
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
