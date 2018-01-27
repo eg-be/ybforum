@@ -123,7 +123,7 @@ class Mailer
      * @param string $confirmationCode
      * @return type
      */
-    public function SendResetPasswordMessage(string $email, 
+    public function SendResetPasswordMessage(string $email, string $nick,
             string $confirmationCode)
     {
         assert(!empty($email));
@@ -137,7 +137,9 @@ class Mailer
                     ConfirmHandler::PARAM_CODE => $confirmationCode
                 ),
                 'Bitte besuche den folgenden Link um ein neues Passwort '
-                . 'für dein 1898-Forum Stammposterkonto zu setzen:');
+                . 'für dein 1898-Forum Stammposterkonto '
+                . $nick
+                . ' zu setzen:');
     }
     
     /**
