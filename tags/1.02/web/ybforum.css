@@ -1,0 +1,137 @@
+body
+{
+    background-image: url('img/bg.gif');
+    font-family: arial;
+    color: #ffffff;
+    margin-left: 2em;
+    margin-right: 2em;
+}
+
+@media screen and (orientation:portrait)
+{
+  body
+  {
+    margin-left: 0.25em;
+    margin-right: 0.25em;    
+  }
+}
+
+a{
+    color: #f6d978;
+}
+a:visited
+{
+    color: #faeeca;
+}
+
+.addtag
+{
+    color: #f6d978;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.addtextstyle
+{
+    cursor: pointer;    
+}
+
+.fbold
+{
+   font-weight: bold;
+}
+
+.fitalic
+{
+    font-style: italic;
+}
+
+.funderline
+{
+    text-decoration: underline;
+}
+
+.nomargin
+{
+    margin: 0;
+}
+
+.nowrap
+{
+    white-space: nowrap;
+}
+
+.navelement
+{
+    padding-left: 0.1em;
+    padding-right: 0.1em;
+}
+
+.threadmargin
+{
+    margin-bottom: 1em;
+}
+
+.fullwidth
+{
+    width: 100%;
+}
+
+.fullwidthcenter
+{
+    width: 100%;
+    text-align: center;
+}
+
+.generictitle
+{
+    font-weight: bold;
+    font-size: 1.3em;
+    margin-bottom: 0.8em;
+    margin-top: 0.6em;
+}
+
+.genericsmalltitle
+{
+    font-weight: bold;
+    font-size: 1.0em;
+    margin-top: 0.4em;
+}
+
+.replytitle
+{
+    font-weight: bold;
+    font-size: 1.0em;
+    margin-top: 0.4em;
+}
+
+.nocontent
+{
+    color: #ff7e00;
+    font-weight: bold;
+}
+
+.postcontainer
+{
+    margin-bottom: 2em;
+}
+
+.postcontent
+{
+    white-space: pre-wrap;
+}
+
+.failcolor
+{
+    color: red;
+}
+
+.successcolor
+{
+    color: #33cc33;
+}
+
+.noticecolor
+{
+    color: #ff7e00;
+}
