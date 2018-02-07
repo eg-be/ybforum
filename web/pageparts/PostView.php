@@ -94,22 +94,22 @@ class PostView
         if($this->m_post->HasImgUrl())
         {
             $extraData.= 'data-imgurl="' 
-                    . $this->m_post->GetImgUrl() . '" ';
+                    . htmlspecialchars($this->m_post->GetImgUrl()) . '" ';
         }        
         if($this->m_post->HasLinkUrl())
         {
             $extraData.= 'data-linkurl="'
-                    . $this->m_post->GetLinkUrl() . '" ';
+                    . htmlspecialchars($this->m_post->GetLinkUrl()) . '" ';
         }
         if($this->m_post->HasLinkText())
         {
             $extraData.= 'data-linktext="'
-                    . $this->m_post->GetLinkText(). '" ';
+                    . htmlspecialchars($this->m_post->GetLinkText()) . '" ';
         }
         if($this->m_post->HasEmail())
         {
             $extraData.= 'data-email="'
-                    . $this->m_post->GetEmail() . '" ';
+                    . htmlspecialchars($this->m_post->GetEmail()) . '" ';
         }
         $html = '<div id="postcontent" ';
         if(!empty($extraData))
