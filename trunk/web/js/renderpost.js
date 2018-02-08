@@ -161,38 +161,58 @@ function renderHtmlTags($content)
     var match = rCodeA.exec(htmlContent);
     while(match !== null)
     {
-      var link = match[1];
-      var youtubeMatch = rYoutube.exec(link);
-      var youtubeShortMatch = rYoutubeShort.exec(link);
-      if(youtubeMatch || youtubeShortMatch)
-      {
-          // we might have multiple youtube videos on one page
-          // handle actual video embedding later, once we have all divs set up
-          var videoUrl;
-          if(youtubeMatch)
-          {
-              videoUrl = youtubeMatch[1];
-          }
-          else
-          {
-              videoUrl = youtubeShortMatch[1];
-          }
-          htmlContent = htmlContent.replace(match[0], '<div class="video" data-url="' + videoUrl + '"></div>');
-      }
-      else
-      {
-        htmlContent = htmlContent.replace(match[0], getHrefElement(link, link));
-      }
-      match = rCodeA.exec(htmlContent);
+        var link = match[1];
+        var youtubeMatch = rYoutube.exec(link);
+        var youtubeShortMatch = rYoutubeShort.exec(link);
+        if(youtubeMatch || youtubeShortMatch)
+        {
+            // we might have multiple youtube videos on one page
+            // handle actual video embedding later, once we have all divs set up
+            var videoUrl;
+            if(youtubeMatch)
+            {
+                videoUrl = youtubeMatch[1];
+            }
+            else
+            {
+                videoUrl = youtubeShortMatch[1];
+            }
+            htmlContent = htmlContent.replace(match[0], '<div class="video" data-url="' + videoUrl + '"></div>');
+        }
+        else
+        {
+            htmlContent = htmlContent.replace(match[0], getHrefElement(link, link));
+        }
+        match = rCodeA.exec(htmlContent);
     }
     
     match = rCodeB.exec(htmlContent);
     while(match !== null)
     {
-      var link = match[1];
-      var text = match[2];
-      htmlContent = htmlContent.replace(match[0], getHrefElement(link, text));
-      match = rCodeB.exec(htmlContent);
+        var link = match[1];
+        var youtubeMatch = rYoutube.exec(link);
+        var youtubeShortMatch = rYoutubeShort.exec(link);
+        if(youtubeMatch || youtubeShortMatch)
+        {
+            // we might have multiple youtube videos on one page
+            // handle actual video embedding later, once we have all divs set up
+            var videoUrl;
+            if(youtubeMatch)
+            {
+                videoUrl = youtubeMatch[1];
+            }
+            else
+            {
+                videoUrl = youtubeShortMatch[1];
+            }
+            htmlContent = htmlContent.replace(match[0], '<div class="video" data-url="' + videoUrl + '"></div>');
+        }
+        else
+        {
+            var text = match[2];
+            htmlContent = htmlContent.replace(match[0], getHrefElement(link, text));
+        }
+        match = rCodeB.exec(htmlContent);
     }    
     
     $content.html(htmlContent);
