@@ -38,4 +38,7 @@ function preview()
     renderColors($previewcontent);
     insertPostImage($previewcontent);
     insertPostLink($previewcontent);
+    
+    // also the embedded videos
+    insertYoutubePlayers($previewcontent);
 }
