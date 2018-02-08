@@ -365,11 +365,22 @@ function insertYoutubePlayers($content)
     });
     if($videos.length > 0)
     {
-        // load the youtube api async
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        // Check if youtube is already loaded
+        var len = $('script').filter(function () {
+            return ($(this).attr('src') == 'https://www.youtube.com/iframe_api');
+        }).length;
+        if(len === 0)
+        {
+            // load the youtube api async
+            var tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
+        else
+        {
+            onYouTubeIframeAPIReady();
+        }
     }
 }
 
@@ -377,7 +388,7 @@ function onYouTubeIframeAPIReady()
 {
     // called as soon as youtube api is loaded
     // iterate again all video classes
-    $videos = $content.find('.video');
+    $videos = $('.video');
     $videos.each(function()
     {
         // and create a player on them
