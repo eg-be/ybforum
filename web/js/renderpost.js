@@ -156,8 +156,8 @@ function renderHtmlTags($content)
     // text is the content of the tag
     var rCodeA = /\[url\](.+?)\[\/url\]/;
     var rCodeB = /\[url=(.+?)\](.+?)\[\/url\]/;
-    var rYoutube = /youtube\.com\/watch\?v=(.+)/;
-    var rYoutubeShort = /youtu\.be\/(.+)/;
+    var rYoutube = /youtube\.com\/watch\?v=([^&]+)/;
+    var rYoutubeShort = /youtu\.be\/([^&]+)/;
     var match = rCodeA.exec(htmlContent);
     while(match !== null)
     {
