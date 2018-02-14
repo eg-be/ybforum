@@ -63,7 +63,7 @@ catch(Exception $ex)
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-        <script src="js/renderpost.js"></script>
+        <script src="js/renderpost.js?v=r109"></script>
         <script type="text/javascript">
         $( document ).ready(function() {
             renderPost();
