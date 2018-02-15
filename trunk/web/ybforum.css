@@ -135,3 +135,8 @@ a:visited
 {
     color: #ff7e00;
 }
+
+.postimage
+{
+	max-width: 100%;
+}
