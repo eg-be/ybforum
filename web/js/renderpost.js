@@ -271,7 +271,7 @@ function renderImgTags($content)
       }
       // also create some alt hint, consisting of the filename
       var alt = getLastPartWithoutExtension(imgUrl);           
-      htmlContent = htmlContent.replace(match[0], '<img src="' + imgUrl + '" alt="' + alt + '"/>');
+      htmlContent = htmlContent.replace(match[0], '<img src="' + imgUrl + '" alt="' + alt + '" class="postimage"/>');
       match = rCodeImg.exec(htmlContent);
     }
     $content.html(htmlContent);
@@ -312,7 +312,7 @@ function insertPostImage($content)
     if(imgUrl)
     {
         $('<div class="fullwidthcenter"><img src="' 
-                + imgUrl + '" alt="' + imgUrl + '"/></div>')
+                + imgUrl + '" alt="' + imgUrl + '" class="postimage"/></div>')
                 .insertBefore($content);
     }
 }
