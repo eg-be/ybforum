@@ -142,7 +142,7 @@ class PostEntryForm
         }
         $htmlString = '<input type="text" '
             . 'name="' . PostEntryHandler::PARAM_TITLE . '" size="50" '
-            . 'maxlength="100" value="'. $title
+            . 'maxlength="100" value="'. htmlspecialchars($title)
             . '"/>';
         return $htmlString;
     }
@@ -171,7 +171,7 @@ class PostEntryForm
         }
         $htmlString = '<textarea name="' . PostEntryHandler::PARAM_CONTENT . '" '
             . 'id="post_content" cols="85" rows="10">'
-            . $content . '</textarea>';
+            . htmlspecialchars($content) . '</textarea>';
         return $htmlString;
     }
     
