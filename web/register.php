@@ -111,33 +111,37 @@ catch(Exception $ex)
                 <table style="margin: auto;">
                     <tr>
                         <td class="fbold">Nickname</td>
-                        <td><input type="text" value="<?php echo $nickValue; ?>" name="<?php echo RegisterUserHandler::PARAM_NICK; ?>" size="20" maxlength="60"/></td>
+                        <td><input disabled type="text" value="<?php echo $nickValue; ?>" name="<?php echo RegisterUserHandler::PARAM_NICK; ?>" size="20" maxlength="60"/></td>
                     </tr>
                     <tr>
                         <td class="fbold">Passwort (mind. 8 Zeichen):</td>
-                        <td><input type="password" name="<?php echo RegisterUserHandler::PARAM_PASS; ?>" size="20" maxlength="60"/></td>
+                        <td><input disabled type="password" name="<?php echo RegisterUserHandler::PARAM_PASS; ?>" size="20" maxlength="60"/></td>
                     </tr>
                     <tr>
                         <td class="fbold">Passwortwiederholung:</td>
-                        <td><input type="password" name="<?php echo RegisterUserHandler::PARAM_CONFIRMPASS; ?>" size="20" maxlength="60"/></td>
+                        <td><input disabled type="password" name="<?php echo RegisterUserHandler::PARAM_CONFIRMPASS; ?>" size="20" maxlength="60"/></td>
                     </tr>
                     <tr>
                         <td class="fbold">Mailadresse</td>
-                        <td><input type="text" value="<?php echo $emailValue; ?>" name="<?php echo RegisterUserHandler::PARAM_EMAIL; ?>" size="30" maxlength="191"/></td>
+                        <td><input disabled type="text" value="<?php echo $emailValue; ?>" name="<?php echo RegisterUserHandler::PARAM_EMAIL; ?>" size="30" maxlength="191"/></td>
                     </tr>
                     <tr>
                         <td colspan="2" class="fbold">Nachricht an die Forenadministration</td>
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <textarea name="<?php echo RegisterUserHandler::PARAM_REGMSG; ?>" cols="85" rows="10"><?php echo $regMsgValue; ?></textarea>'</td>
+                            <textarea disabled name="<?php echo RegisterUserHandler::PARAM_REGMSG; ?>" cols="85" rows="10"><?php echo $regMsgValue; ?></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="failcolor fbold">Wegen zu vielen Spambots wird die Registrierung nächstens überarbeitet und ist momentan geschlossen.</td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="submit" value="Registrieren"/>
+                            <input disabled type="submit" value="Registrieren"/>
                         </td>
                         <td>
-                            <input type="reset" value="Eingaben löschen"/>
+                            <input disabled type="reset" value="Eingaben löschen"/>
                         </td>
                     </tr>
                 </table>
