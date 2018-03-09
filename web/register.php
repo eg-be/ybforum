@@ -134,7 +134,7 @@ catch(Exception $ex)
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="failcolor fbold">Wegen zu vielen Spambots wird die Registrierung nächstens überarbeitet und ist momentan geschlossen.</td>
+                        <td colspan="2" class="failcolor fbold">Die Registrierung wurd nächstens überarbeitet und ist momentan geschlossen.</td>
                     </tr>
                     <tr>
                         <td>
