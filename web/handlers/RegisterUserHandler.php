@@ -79,9 +79,7 @@ class RegisterUserHandler extends BaseHandler
     }
     
     protected function ValidateParams()
-    {        
-        $this->m_captchaVerifier->VerifyResponse();
-            
+    { 
         // Validate where we cannot accept null values:
         $this->ValidateStringParam($this->nick, self::MSG_NICK_TOO_SHORT, YbForumConfig::MIN_NICK_LENGTH);
         $this->ValidateEmailValue($this->email);
