@@ -1306,6 +1306,9 @@ class ForumDb extends PDO
             ':email' => $email,
             ':description' => $reason
         ));
+        $logger = new Logger($this);
+        $logger->LogMessage(Logger::LOG_BLACKLIST_EMAIL_ADDED,
+                'Email: ' . $email . ' Reason: ' . $reason);
     }
     
     private $m_connected;
