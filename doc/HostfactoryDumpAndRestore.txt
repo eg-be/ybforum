@@ -56,4 +56,7 @@ Um einen Dump wiederherzustellen, ist es schneller im Dump die Definition des
 FULLTEXT KEY zu enfernen, dann zu importieren und anschliessend den 
 FULLTEXT KEY wieder hinzuzufügen:
 
+Testen ob es welche hat:
+
+  sed -i.bak s/FULLTEXT KEY \`fulltext_title_content\` \(\`title\`,\`content\`\),//g 20180111_dbybforum.dump.sql
 
