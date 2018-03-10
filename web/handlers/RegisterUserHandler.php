@@ -46,7 +46,6 @@ class RegisterUserHandler extends BaseHandler
     const MSG_NICK_TOO_SHORT = 'Nickname muss mindestens ' .
             YbForumConfig::MIN_NICK_LENGTH . ' Zeichen enthalten.';
     const MSG_EMAIL_NOT_UNIQUE = 'Angegebene Mailadresse bereits verwendet.';
-    const MSG_EMAIL_NOT_ACCEPTED = 'Mailadressen die mit .ru enden sind nicht erlaubt.';
     const MSG_PASSWORDS_NOT_MATCH = 'Passwort und Bestätigung stimmen nicht überein.';
     const MSG_PASSWORD_TOO_SHORT = 'Neues Passwort muss mindestens ' .
                     YbForumConfig::MIN_PASSWWORD_LENGTH . ' Zeichen enthalten.';
@@ -85,13 +84,6 @@ class RegisterUserHandler extends BaseHandler
         $this->ValidateEmailValue($this->email);
         $this->ValidateStringParam($this->password, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
         
-        // Emails ending with .ru are probably spam bots
-        if(substr($this->email, -3) === '.ru')
-        {
-            throw new InvalidArgumentException(self::MSG_EMAIL_NOT_ACCEPTED, 
-                    parent::MSGCODE_BAD_PARAM);
-        }
-        
         // passwords must match
         if($this->confirmpassword !== $this->password)
         {
@@ -125,6 +117,9 @@ class RegisterUserHandler extends BaseHandler
             throw new InvalidArgumentException(self::MSG_EMAIL_NOT_UNIQUE, 
                     parent::MSGCODE_BAD_PARAM);
         }
+        // Check that email is not blacklisted
+        $this->ValidateEmailAgainstBlacklist($this->email, $db, $logger);
+        
         // Create the user and request a confirmation code 
         $userId = $db->CreateNewUser($this->nick, $this->email, 
                 $this->regMsg, $this->clientIpAddress);

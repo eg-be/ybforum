@@ -23,6 +23,7 @@
 require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 require_once __DIR__.'/handlers/RegisterUserHandler.php';
+require_once __DIR__.'/YbForumConfig.php';
 
 try
 {
@@ -143,11 +144,17 @@ catch(Exception $ex)
                     <tr>
                         <td colspan="2" class="failcolor fbold">Die Registrierung wurd nächstens überarbeitet und ist momentan geschlossen.</td>
                     </tr>
-                    <tr>
-                        <td colspan="2">
-                            <div class="g-recaptcha" data-sitekey="6Lc3HksUAAAAACle5q5Mi8qKlpJQVZJ5roh-bIVw"></div>                            
-                        </td>
-                    </tr>
+                    <?php
+                    if(YbForumConfig::CAPTCHA_VERIFY)
+                    {
+                        echo 
+                        '<tr>
+                            <td colspan="2">
+                                <div class="g-recaptcha" data-sitekey="6Lc3HksUAAAAACle5q5Mi8qKlpJQVZJ5roh-bIVw"></div>                            
+                            </td>
+                        </tr>';
+                    }
+                    ?>
                     <tr>
                         <td>
                             <input type="submit" value="Registrieren"/>
