@@ -93,7 +93,7 @@ class Logger
     const LOG_MAIL_SENT = 'MailSent';
     
     // captcha
-    const LOG_CAPTCHA_TOKEN_INVALID = CaptchaTokenInvalid;
+    const LOG_CAPTCHA_TOKEN_INVALID = 'CaptchaTokenInvalid';
     
     // Fatal errors
     const LOG_ERROR_EXCEPTION_THROWN =  'ErrorExceptionThrown';
