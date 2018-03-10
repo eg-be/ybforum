@@ -58,7 +58,14 @@ catch(Exception $ex)
         <link rel="stylesheet" type="text/css" href="ybforum.css">
         <title>YB Forum</title>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src='https://www.google.com/recaptcha/api.js'></script>        
+        <script type='text/javascript'>
+            function foo()
+            {
+                alert("foo");
+            }
+        </script>
     </head>
     <body>
         <div  style="max-width: 700px; margin: auto;">
@@ -111,37 +118,42 @@ catch(Exception $ex)
                 <table style="margin: auto;">
                     <tr>
                         <td class="fbold">Nickname</td>
-                        <td><input disabled type="text" value="<?php echo $nickValue; ?>" name="<?php echo RegisterUserHandler::PARAM_NICK; ?>" size="20" maxlength="60"/></td>
+                        <td><input type="text" value="<?php echo $nickValue; ?>" name="<?php echo RegisterUserHandler::PARAM_NICK; ?>" size="20" maxlength="60"/></td>
                     </tr>
                     <tr>
                         <td class="fbold">Passwort (mind. 8 Zeichen):</td>
-                        <td><input disabled type="password" name="<?php echo RegisterUserHandler::PARAM_PASS; ?>" size="20" maxlength="60"/></td>
+                        <td><input type="password" name="<?php echo RegisterUserHandler::PARAM_PASS; ?>" size="20" maxlength="60"/></td>
                     </tr>
                     <tr>
                         <td class="fbold">Passwortwiederholung:</td>
-                        <td><input disabled type="password" name="<?php echo RegisterUserHandler::PARAM_CONFIRMPASS; ?>" size="20" maxlength="60"/></td>
+                        <td><input type="password" name="<?php echo RegisterUserHandler::PARAM_CONFIRMPASS; ?>" size="20" maxlength="60"/></td>
                     </tr>
                     <tr>
                         <td class="fbold">Mailadresse</td>
-                        <td><input disabled type="text" value="<?php echo $emailValue; ?>" name="<?php echo RegisterUserHandler::PARAM_EMAIL; ?>" size="30" maxlength="191"/></td>
+                        <td><input type="text" value="<?php echo $emailValue; ?>" name="<?php echo RegisterUserHandler::PARAM_EMAIL; ?>" size="30" maxlength="191"/></td>
                     </tr>
                     <tr>
                         <td colspan="2" class="fbold">Nachricht an die Forenadministration</td>
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <textarea disabled name="<?php echo RegisterUserHandler::PARAM_REGMSG; ?>" cols="85" rows="10"><?php echo $regMsgValue; ?></textarea>
+                            <textarea name="<?php echo RegisterUserHandler::PARAM_REGMSG; ?>" cols="85" rows="10"><?php echo $regMsgValue; ?></textarea>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="2" class="failcolor fbold">Die Registrierung wurd nächstens überarbeitet und ist momentan geschlossen.</td>
                     </tr>
                     <tr>
+                        <td colspan="2">
+                            <div class="g-recaptcha" data-sitekey="6Lc3HksUAAAAACle5q5Mi8qKlpJQVZJ5roh-bIVw"></div>                            
+                        </td>
+                    </tr>
+                    <tr>
                         <td>
-                            <input disabled type="submit" value="Registrieren"/>
+                            <input type="submit" value="Registrieren"/>
                         </td>
                         <td>
-                            <input disabled type="reset" value="Eingaben löschen"/>
+                            <input type="reset" value="Eingaben löschen"/>
                         </td>
                     </tr>
                 </table>
