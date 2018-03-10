@@ -42,6 +42,7 @@ abstract class BaseHandler
 {
     const MSG_INVALID_CLIENT_IPADDRESS = 'Invalid REMOTE_ADDR';
     const MSG_EMAIL_INVALID = 'Ungültige Mailadresse.';
+    const MSG_HTTPURL_INVALID = 'Ungültige (http(s)) URL.';
     
     const MSG_GENERIC_INVALID = 'Invalid or missing parameter value';
     const MSGCODE_BAD_PARAM = 400;
@@ -103,21 +104,28 @@ abstract class BaseHandler
     }
     
     /**
-     * Throw InvalidArgumentException with MSG_EMAIL_INVALID if 
-     * $value is not an email address.
-     * @param type $value
+     * Throw InvalidArgumentException if $value is not an email address.
+     * If $errMessage is null, the message for the InvalidArgumentException
+     * will be with MSG_EMAIL_INVALID , else it is the passed $errMessage
+     * @param mixed $value
+     * @param string $errMessage
      * @throws InvalidArgumentException
      */
-    protected function ValidateEmailValue($value)
+    protected function ValidateEmailValue($value, string $errMessage = null)
     {
         if(!$value || filter_var($value, FILTER_VALIDATE_EMAIL) === false)
         {
-            throw new InvalidArgumentException(self::MSG_EMAIL_INVALID, self::MSGCODE_BAD_PARAM);            
+            if(!$errMessage)
+            {
+                $errMessage = self::MSG_EMAIL_INVALID;
+            }
+            throw new InvalidArgumentException($errMessage, self::MSGCODE_BAD_PARAM);            
         }
     }
     
     /**
      * Reads an URL value from INPUT_POST using FILTER_VALIDATE_URL.
+     * Note that this does not enforce any protocol (ssh:// would be fine)
      * @param string $paramName
      * @return string or null. 
      */
@@ -131,6 +139,40 @@ abstract class BaseHandler
         }
         return $url;
     }
+    
+    /**
+     * Throw InvalidArgumentException if $value is not an url address, 
+     * and if it does not start with either 'http://' or 'https://'.
+     * If $errMessage is null, the message for the InvalidArgumentException
+     * will be with MSG_HTTPURL_INVALID , else it is the passed $errMessage
+     * @param mixed $value
+     * @param string $errMessage
+     * @throws InvalidArgumentException
+     */
+    protected function ValidateHttpUrlValue($value, string $errMessage = null, 
+            bool $requirePath = false)
+    {
+        if(!$errMessage)
+        {
+            $errMessage = self::MSG_HTTPURL_INVALID;
+        }
+        if(!$value)
+        {
+            throw new InvalidArgumentException($errMessage, self::MSGCODE_BAD_PARAM);
+        }
+        if($requirePath && filter_var($value, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED) === false)
+        {
+            throw new InvalidArgumentException($errMessage, self::MSGCODE_BAD_PARAM);
+        }
+        else if(filter_var($value, FILTER_VALIDATE_URL) === false)
+        {
+            throw new InvalidArgumentException($errMessage, self::MSGCODE_BAD_PARAM);
+        }
+        if(!(strncasecmp($value, 'https://', 8) || strncasecmp($value, 'http://', 7)))
+        {
+            throw new InvalidArgumentException($errMessage, self::MSGCODE_BAD_PARAM);
+        }
+    }    
     
     /**
      * Reads an int value from INPUT_POST using FILTER_VALIDATE_INT.
