@@ -18,6 +18,7 @@ class PendingConfirmationUserList
     const PARAM_PENDINGCONFIRM_ACTION = 'pendingconfirm_action';
     const VALUE_CONFIRM = 'pendingconfirm_confirm';
     const VALUE_DELETE = 'pendingconfirm_delete';
+    const VALUE_DELETE_AND_BLOCK = 'pendingconfirm_delete_and_block';
     
     const PARAM_USERID = 'pendingconfirm_userid';        
     
@@ -58,6 +59,28 @@ class PendingConfirmationUserList
                             . 'entfernt</div>';
                 }
             }
+            else if($user && $userActionValue === self::VALUE_DELETE_AND_BLOCK)
+            {
+                // If this is the registration of a new user, also delete
+                // the corresponding entry in the user table and add it to the
+                // list of blocked emails
+                $confirmReason = $db->GetConfirmReason($user->GetId());
+                $db->RemoveConfirmUserCode($user->GetId());
+                if($confirmReason == ForumDb::CONFIRM_SOURCE_NEWUSER)
+                {
+                    $db->AddBlacklist($user->GetEmail(), 'Blocked from admin');
+                    $db->DeleteUser($user->GetId());
+                    $resultDiv = '<div class="actionSucceeded">Registerungs-Eintrag für Benutzer ' 
+                            . $user->GetNick() . ' (' . $user->GetId() .') '
+                            . 'entfernt (inkl. Benutzereintrag)</div>';
+                }
+                else
+                {
+                    $resultDiv = '<div class="actionSucceeded">Migrations-Eintrag für Benutzer ' 
+                            . $user->GetNick() . ' (' . $user->GetId() . ') '
+                            . 'entfernt</div>';
+                }
+            }            
             else if($user && $userActionValue === self::VALUE_CONFIRM)
             {
                 // Read the values required for confirming
@@ -143,12 +166,21 @@ class PendingConfirmationUserList
             $htmlTable.= '<td>' . htmlspecialchars($row['confirm_source']) . '</td>';
             $htmlTable.= '<td style="word-wrap: break-word;">' . htmlspecialchars($row['confirm_code']) . '</td>';            
             $htmlTable.= '<td>';
-            $htmlTable.= '<form method="post" action="" accept-charset="utf-8">'
+            $htmlTable.= 
+                      '<form method="post" action="" accept-charset="utf-8">'
                     . '<input type="submit" value="Eintrag löschen"/>'
                     . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $row['iduser'] . '"/>'
                     . '<input type="hidden" name="' . self::PARAM_PENDINGCONFIRM_ACTION . '" value="' . self::VALUE_DELETE . '"/>'
-                    . '</form>'
-                    . '<form method="post" action="" accept-charset="utf-8">'
+                    . '</form>';
+            if($row['confirm_source'] === ForumDb::CONFIRM_SOURCE_NEWUSER)
+            {
+                $htmlTable.= '<form method="post" action="" accept-charset="utf-8">'
+                    . '<input type="submit" value="Eintrag löschen und Mailadresse blockieren"/>'
+                    . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $row['iduser'] . '"/>'
+                    . '<input type="hidden" name="' . self::PARAM_PENDINGCONFIRM_ACTION . '" value="' . self::VALUE_DELETE_AND_BLOCK . '"/>'
+                    . '</form>';
+            }
+            $htmlTable.= '<form method="post" action="" accept-charset="utf-8">'
                     . '<input type="submit" value="Manuell bestätigen"/>'
                     . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $row['iduser'] . '"/>'
                     . '<input type="hidden" name="' . self::PARAM_PENDINGCONFIRM_ACTION . '" value="' . self::VALUE_CONFIRM . '"/>'
