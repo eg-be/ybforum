@@ -19,6 +19,8 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+require_once __DIR__.'/../helpers/Logger.php';
+
 /**
  * Abstract handler to be used as base for all handlers. Provides methods
  * to syntactically validate arguments that are being read from POST data.
@@ -43,6 +45,7 @@ abstract class BaseHandler
     const MSG_INVALID_CLIENT_IPADDRESS = 'Invalid REMOTE_ADDR';
     const MSG_EMAIL_INVALID = 'Ungültige Mailadresse.';
     const MSG_HTTPURL_INVALID = 'Ungültige (http(s)) URL.';
+    const MSG_EMAIL_BLACKLISTED = 'Mailadresse ist nicht zugelassen: ';
     
     const MSG_GENERIC_INVALID = 'Invalid or missing parameter value';
     const MSGCODE_BAD_PARAM = 400;
@@ -120,6 +123,41 @@ abstract class BaseHandler
                 $errMessage = self::MSG_EMAIL_INVALID;
             }
             throw new InvalidArgumentException($errMessage, self::MSGCODE_BAD_PARAM);            
+        }
+    }
+    
+    /**
+     * Throws an InvalidArgumentException if passed email matches any blacklist.
+     * Creates corresponding log-entry.
+     * @param string $email
+     * @param ForumDb $db
+     * @param Logger $logger
+     * @throws InvalidArgumentException
+     */
+    protected function ValidateEmailAgainstBlacklist(string $email, ForumDb $db, 
+            Logger $logger)
+    {
+        $mailOnBlacklistExactly = $db->IsEmailOnBlacklistExactly($email);
+        if($mailOnBlacklistExactly)
+        {
+            $logger->LogMessage(
+                    Logger::LOG_OPERATION_FAILED_EMAIL_BLACKLISTED, 
+                    $mailOnBlacklistExactly
+                    . '(Mail: ' . $email . ')');
+            throw new InvalidArgumentException(
+                    self::MSG_EMAIL_BLACKLISTED . $mailOnBlacklistExactly,
+                    self::MSGCODE_BAD_PARAM);
+        }
+        $mailMatchesBlacklistRegex = $db->IsEmailOnBlacklistRegex($email);
+        if($mailMatchesBlacklistRegex)
+        {
+            $logger->LogMessage(
+                    Logger::LOG_OPERATION_FAILED_EMAIL_REGEX_BLACKLISTED, 
+                    $mailMatchesBlacklistRegex 
+                    . '(Mail: ' . $email . ')');
+            throw new InvalidArgumentException(
+                    self::MSG_EMAIL_BLACKLISTED . $mailMatchesBlacklistRegex,
+                    self::MSGCODE_BAD_PARAM);            
         }
     }
     

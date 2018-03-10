@@ -1247,5 +1247,54 @@ class ForumDb extends PDO
         return $inbetween;
     }
     
+    /**
+     * Test if passed email appears in blacklist_table in field email.
+     * If an (exactly) matching entry is found, the description field of
+     * that row is returned.
+     * Else false is found.
+     * @param string $email
+     * @return mixed false if no entry is found, else the value of the 
+     * description field.
+     */
+    public function IsEmailOnBlacklistExactly(string $email)
+    {
+        $query = 'SELECT description FROM blacklist_table '
+                . 'WHERE email = :email';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array(':email' => $email));
+        $result = $stmt->fetch();
+        if($result)
+        {
+            return $result['description'];
+        }
+        return false;
+    }
+    
+    /**
+     * Test if passed email matches a regex from the blacklist_table.
+     * If an regex of field email_regex matches the email, the 
+     * description field of that row is returned.
+     * Else false is found.
+     * @param string $email
+     * @return mixed false if no matching entry is found, else the value of the 
+     * description field.
+     */
+    public function IsEmailOnBlacklistRegex(string $email)
+    {
+        $query = 'SELECT email_regex, description FROM blacklist_table '
+                . 'WHERE email_regex IS NOT NULL';
+        $stmt = $this->prepare($query);
+        $stmt->execute();
+        while($row = $stmt->fetch())
+        {
+            $regex = $row['email_regex'];
+            if(preg_match($regex, $email) === 1)
+            {
+                return $row['description'];
+            }
+        }
+        return false;
+    }
+        
     private $m_connected;
 }
