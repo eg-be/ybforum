@@ -69,10 +69,12 @@ class PostEntryHandler extends BaseHandler
         $this->password = $this->ReadStringParam(self::PARAM_PASS);
         $this->title = $this->ReadStringParam(self::PARAM_TITLE);
         $this->content = $this->ReadStringParam(self::PARAM_CONTENT);
-        $this->email = $this->ReadEmailParam(self::PARAM_EMAIL);
-        $this->linkUrl = $this->ReadUrlParam(self::PARAM_LINKURL);
+        // Read optional values as plain-text and validate them later
+        // so that we can send them back to the user on failure
+        $this->email = $this->ReadStringParam(self::PARAM_EMAIL);
+        $this->linkUrl = $this->ReadStringParam(self::PARAM_LINKURL);
         $this->linkText = $this->ReadStringParam(self::PARAM_LINKTEXT);
-        $this->imgUrl = $this->ReadUrlParam(self::PARAM_IMGURL);
+        $this->imgUrl = $this->ReadStringParam(self::PARAM_IMGURL);
     }
     
     protected function ValidateParams()
@@ -82,6 +84,32 @@ class PostEntryHandler extends BaseHandler
         $this->ValidateStringParam($this->nick, self::MSG_AUTH_FAIL);
         $this->ValidateStringParam($this->password, self::MSG_AUTH_FAIL);
         $this->ValidateStringParam($this->title, self::MSG_TITLE_TOO_SHORT, YbForumConfig::MIN_TITLE_LENGTH);
+        
+        // If the user passed an optional value that does not meet the specs,
+        // notify the user (instead of discarding silently)
+        if($this->email)
+        {
+            $this->ValidateEmailValue($this->email, 'Der Wert ' . $this->email 
+                    .  ' ist keine gültige Mailadresse.');
+        }
+        if($this->linkUrl)
+        {
+            $this->ValidateHttpUrlValue($this->linkUrl, 'Der Wert ' . $this->linkUrl 
+                    .  ' ist kein gültiger Link. Links müssen mit https://'
+                    . ' (oder http://) beginnen.');
+        }
+        if(($this->linkUrl && !$this->linkText) || ($this->linkText && !$this->linkText))
+        {
+            throw new InvalidArgumentException('Wird ein URL Link angegeben '
+                    . 'muss auch ein Linktext angegeben werden (und umgekehrt).');
+        }
+        if($this->imgUrl)
+        {
+            $this->ValidateHttpUrlValue($this->imgUrl, 'Der Wert ' . $this->imgUrl 
+                    .  ' ist keine gültige Bild URL. Bild URLs müssen mit https://'
+                    . ' (oder http://) beginnen und auf eine Bilddatei'
+                    . ' verweisen', true);
+        }
     }
     
     protected function HandleRequestImpl(ForumDb $db)
