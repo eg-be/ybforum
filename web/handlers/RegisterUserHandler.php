@@ -23,6 +23,8 @@ require_once __DIR__.'/BaseHandler.php';
 require_once __DIR__.'/../model/ForumDb.php';
 require_once __DIR__.'/../helpers/Mailer.php';
 require_once __DIR__.'/../helpers/Logger.php';
+require_once __DIR__.'/../helpers/CaptchaVerifier.php';
+require_once __DIR__.'/../YbForumConfig.php';
 
 /**
  * Creates a new user by adding an entry in user_table and creating the 
@@ -59,6 +61,7 @@ class RegisterUserHandler extends BaseHandler
         $this->password = null;
         $this->confirmpassword = null;
         $this->email = null;
+        $this->m_captchaVerifier = null;
     }
     
     protected function ReadParams()
@@ -67,11 +70,18 @@ class RegisterUserHandler extends BaseHandler
         $this->email = $this->ReadEmailParam(self::PARAM_EMAIL);
         $this->password = $this->ReadStringParam(self::PARAM_PASS);
         $this->confirmpassword = $this->ReadStringParam(self::PARAM_CONFIRMPASS);
-        $this->regMsg = $this->ReadStringParam(self::PARAM_REGMSG);
+        $this->regMsg = $this->ReadStringParam(self::PARAM_REGMSG);        
+        
+        if(YbForumConfig::CAPTCHA_VERIFY)
+        {
+            $this->m_captchaVerifier = new CaptchaVerifier(YbForumConfig::CAPTCHA_SECRET);
+        }
     }
     
     protected function ValidateParams()
-    {
+    {        
+        $this->m_captchaVerifier->VerifyResponse();
+            
         // Validate where we cannot accept null values:
         $this->ValidateStringParam($this->nick, self::MSG_NICK_TOO_SHORT, YbForumConfig::MIN_NICK_LENGTH);
         $this->ValidateEmailValue($this->email);
@@ -90,6 +100,12 @@ class RegisterUserHandler extends BaseHandler
             throw new InvalidArgumentException(self::MSG_PASSWORDS_NOT_MATCH, 
                     parent::MSGCODE_BAD_PARAM);            
         }
+
+        // Verify captcha
+        if(YbForumConfig::CAPTCHA_VERIFY)
+        {
+            $this->m_captchaVerifier->VerifyResponse();
+        }        
     }
 
     protected function HandleRequestImpl(ForumDb $db) 
@@ -152,4 +168,5 @@ class RegisterUserHandler extends BaseHandler
     private $confirmpassword;
     private $email;
     private $regMsg;
+    private $m_captchaVerifier;
 }
