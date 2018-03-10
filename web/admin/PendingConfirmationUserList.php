@@ -72,7 +72,9 @@ class PendingConfirmationUserList
                     $db->DeleteUser($user->GetId());
                     $resultDiv = '<div class="actionSucceeded">Registerungs-Eintrag für Benutzer ' 
                             . $user->GetNick() . ' (' . $user->GetId() .') '
-                            . 'entfernt (inkl. Benutzereintrag)</div>';
+                            . 'entfernt (inkl. Benutzereintrag), '
+                            . 'Mailadresse ' . $user->GetEmail() 
+                            . ' blockiert</div>';
                 }
                 else
                 {
