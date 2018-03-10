@@ -86,5 +86,14 @@ class YbForumConfig
     * @var string Name to be used as mail from address
     */
     const MAIL_FROM_NAME = 'YB-Forum Mailer';
+ 
+    /**
+     * @var bool Use captcha verification while registering new users.
+     */
+    const CAPTCHA_VERIFY = true;
     
+    /**
+     * @var string Captcha secret code
+     */
+    const CAPTCHA_SECRET = '6Lc3HksUAAAAAPRM08dQUlqZaekbxr47GMzW4m1Y';
 }
