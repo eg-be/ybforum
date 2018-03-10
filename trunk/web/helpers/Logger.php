@@ -46,6 +46,8 @@ class Logger
     const LOG_OPERATION_FAILED_NO_MATCHING_NICK_OR_EMAIL = 'OperationFailedNoMatchingNickOrEmail';
     const LOG_OPERATION_FAILED_USER_HAS_NO_EMAIL = 'OperationFailedUserHasNoEmail';
     const LOG_OPERATION_FAILED_USER_IS_INACTIVE = 'OperationFailedUserIsInactive';
+    const LOG_OPERATION_FAILED_EMAIL_BLACKLISTED = 'OperationFailedEmailBlacklisted';
+    const LOG_OPERATION_FAILED_EMAIL_REGEX_BLACKLISTED = 'OperationFailedEmailRegexBlacklisted';
     
     // confirmation codes requested and created with success
     const LOG_CONFIRM_MIGRATION_CODE_CREATED = 'ConfirmMigrationCodeCreated';
@@ -94,6 +96,7 @@ class Logger
     
     // captcha
     const LOG_CAPTCHA_TOKEN_INVALID = 'CaptchaTokenInvalid';
+
     
     // Fatal errors
     const LOG_ERROR_EXCEPTION_THROWN =  'ErrorExceptionThrown';
