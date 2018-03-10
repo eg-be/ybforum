@@ -96,7 +96,9 @@ class Logger
     
     // captcha
     const LOG_CAPTCHA_TOKEN_INVALID = 'CaptchaTokenInvalid';
-
+    
+    // Blacklist
+    const LOG_BLACKLIST_EMAIL_ADDED = 'BlacklistEmailAdded';
     
     // Fatal errors
     const LOG_ERROR_EXCEPTION_THROWN =  'ErrorExceptionThrown';
