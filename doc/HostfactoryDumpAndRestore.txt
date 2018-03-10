@@ -1,4 +1,4 @@
-Dump erstellen auf Hostfactory
+﻿Dump erstellen auf Hostfactory
 ==============================
 
 Via SSH zu Hostfactory verbinden.
@@ -47,3 +47,13 @@ Und erneut prüfen.
  grep DEFINER 20180111_dbybforum.dump.sql
  
 sollte jetzt nichts mehr angeben.
+
+
+FULLTEXT KEY Definition entfernen
+=================================
+Das importieren einer DB mit einem FULLTEXT INDEX ist extrem langsam.
+Um einen Dump wiederherzustellen, ist es schneller im Dump die Definition des
+FULLTEXT KEY zu enfernen, dann zu importieren und anschliessend den 
+FULLTEXT KEY wieder hinzuzufügen:
+
+
