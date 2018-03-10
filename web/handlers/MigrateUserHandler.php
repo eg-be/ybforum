@@ -123,6 +123,8 @@ class MigrateUserHandler extends BaseHandler
             $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE, $user->GetId(), 'New Email: ' . $this->newEmail);
             throw new InvalidArgumentException(self::MSG_EMAIL_NOT_UNIQUE, parent::MSGCODE_BAD_PARAM);
         }
+        // check that the new email is not blacklisted
+        $this->ValidateEmailAgainstBlacklist($this->newEmail, $db, $logger);
         // And prepare to migrate
         $confirmCode = $db->RequestConfirmUserCode($user->GetId(), 
                 $this->newPassword, 
