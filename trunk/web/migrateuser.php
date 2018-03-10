@@ -131,20 +131,6 @@ catch(Exception $ex)
                 }
                 $muf = new MigrateUserForm($initialNick, $initialEmail, $source);
                 echo $muf->renderHtmlDiv();
-                echo '<div class="fullwidthcenter">'
-                    . '<span class="fbold">Achtung:</span> '
-                    . 'Hotmail.com und outlook.com haben die Angewohnheit Emails, insbesondere solche von 1898.ch, ohne weitere Benachrichtigung zu '
-                    . '<a href="https://www.google.ch/search?q=hotmail+silently+discards+emails" target="_blank">löschen</a>. '
-                    . 'Hotmail/Outlook Benutzer müssen 1898.ch <span class="fbold">vor</span> '
-                    . 'der Registrierung zur Liste der vertrauenswürdigen Absender '
-                    . '<a href="https://www.google.ch/search?q=hotmail+liste+der+vertrauensw%C3%BCrdigen+absender" targer="_blank">hinzufügen.</a> '
-                    . 'Anschliessend muss mindestens eine halbe Stunde gewartet werden, bis die Migration vorgenommen wird, '
-                    . 'damit die Einstellungen von hotmail übernommen werden.'
-                    . '</div>';
-                echo '<div class="fullwidthcenter fbold">'
-                    . 'Alternativ empfiehlt es sich für den Stammposter-Account gänzlich auf hotmail.com / outlook.com '
-                    . 'Adressen zu verzichten und eine andere <span class="fitalic">(gültige)</span> Mailadresse anzugeben.'
-                    . '</div>';
             }
             else
             {
