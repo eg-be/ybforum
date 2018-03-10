@@ -91,8 +91,11 @@ catch(Exception $ex)
             besuchen müssen. Damit wird die Korrektheit Ihrer Emailadresse 
             bestätigt.
         </div>
-        <div class="fullwidthcenter"><span class="fbold">Die Kriterien ob eine Registrierung akzeptiert wird oder nicht sind absolut willkürlich. Rückfragen werden nicht beantwortet.</span> 
-        Mit einer netten Nachricht an die Administratoren, Referenzen auf existierende Stammposter und einem Nickname der kein Spielername und nicht allzu primitiv ist, kann die Chance aber erhöht werden.        
+        <div class="fullwidthcenter">
+        <div><span class="fbold">Die Freischaltung kann einige Zeit dauern.</span></div>
+        <div>Ob ein Benutzer überhaupt freigeschaltet wird, 
+        hängt massgeblich vom Inhalt der Registrierungsnachricht ab 
+        (Forenregeln bekannt, Referenz auf Stammposter, etc.).</div>
         </div>
         <?php 
         if($registerUserHandler && $registerUserHandler->HasException())
@@ -140,9 +143,6 @@ catch(Exception $ex)
                         <td colspan="2">
                             <textarea name="<?php echo RegisterUserHandler::PARAM_REGMSG; ?>" cols="85" rows="10"><?php echo $regMsgValue; ?></textarea>
                         </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" class="failcolor fbold">Die Registrierung wurd nächstens überarbeitet und ist momentan geschlossen.</td>
                     </tr>
                     <?php
                     if(YbForumConfig::CAPTCHA_VERIFY)
