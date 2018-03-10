@@ -168,7 +168,7 @@ abstract class BaseHandler
         {
             throw new InvalidArgumentException($errMessage, self::MSGCODE_BAD_PARAM);
         }
-        if(!(strncasecmp($value, 'https://', 8) || strncasecmp($value, 'http://', 7)))
+        if(!(strncasecmp($value, 'https://', 8) === 0 || strncasecmp($value, 'http://', 7) === 0))
         {
             throw new InvalidArgumentException($errMessage, self::MSGCODE_BAD_PARAM);
         }
