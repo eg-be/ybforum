@@ -1295,6 +1295,18 @@ class ForumDb extends PDO
         }
         return false;
     }
-        
+    
+    
+    public function AddBlacklist(string $email, string $reason)
+    {
+        $query = 'INSERT INTO blacklist_table (email, description) '
+                . 'VALUES(:email, :description)';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array(
+            ':email' => $email,
+            ':description' => $reason
+        ));
+    }
+    
     private $m_connected;
 }
