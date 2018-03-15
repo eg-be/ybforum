@@ -428,7 +428,7 @@ class ForumDb extends PDO
             ':registration_msg' => $registrationMsg
         ));
         $userId = $this->lastInsertId();
-        $logger = new Logger();
+        $logger = new Logger($this);
         $logger->LogMessageWithUserId(Logger::LOG_USER_CREATED, $userId);
         return $userId;
     }

@@ -20,6 +20,7 @@
 */
 
 require_once __DIR__.'/../model/ForumDb.php';
+require_once __DIR__.'/../model/User.php';
 
 /**
  * Helper to do all log-handling
@@ -118,6 +119,7 @@ class Logger
     public function LogMessageWithUserId(string $logType, int $userId, string $msg = null)
     {
         $logTypeId = $this->GetLogTypeId($logType);
+        $msg.= ' / ' . $this->GetFullUserContext($userId);
         $this->InsertLogEntry($logTypeId, $userId, $msg);
     }
     
@@ -125,6 +127,33 @@ class Logger
     {
         $logTypeId = $this->GetLogTypeId($logType);
         $this->InsertLogEntry($logTypeId, null, $msg);
+    }
+    
+    private function GetFullUserContext(int $userId)
+    {
+        $context = 'iduser: ' . $userId;
+        $user = User::LoadUserById($this->m_db, $userId);
+        if($user)
+        {
+            $context.= '; nick: ' . $user->GetNick();            
+            $context.= '; email: ';
+            if($user->HasEmail())
+            {
+                $context.= $user->GetEmail();
+            }
+            else
+            {
+                $context.= '<Keine Email gesetzt>';
+            }
+            $context.= '; Aktiv: ' . ($user->IsActive() ? 'Ja' : 'Nein');
+            $context.= '; Bestätigt: ' . ($user->IsConfirmed() ? 'Ja' : 'Nein');
+            $context.= '; Benötigt Mig.: ' . ($user->NeedsMigration() ? 'Ja' : 'Nein');
+        }
+        else
+        {
+            $context.= ' <Benutzer existiert nicht in der Datenbank>';
+        }
+        return $context;
     }
     
     private function InsertLogEntry(int $logTypeId, int $userId = null, string $msg = null)
