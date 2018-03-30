@@ -52,9 +52,9 @@ class PostEntryForm
         $html =
            '<form id="postform" method="post" action="postentry.php?post=1" accept-charset="utf-8">
             <table style="margin: auto;">
-                <tr><td><span class="fbold">Name</span> (<a href="register.php">Stammposterregistrierung</a>):</td><td><input type="text" value="' . ($this->m_peh ? $this->m_peh->GetNick() : '') .'" name="' . PostEntryHandler::PARAM_NICK . '" size="20" maxlength="60"/></td></tr>
-                <tr><td><span class="fbold">Stammposterpasswort:</span></td><td><input type="password" value="' . ($this->m_peh ? $this->m_peh->GetPassword() : '') . '" name="' . PostEntryHandler::PARAM_PASS . '" size="20" maxlength="60"/></td></tr>
-                <tr><td><span class="fbold">Mailadresse</span> (freiwillig):</td><td><input type="text" value="' . ($this->m_peh ? $this->m_peh->GetEmail() : '') . '" name="' . PostEntryHandler::PARAM_EMAIL . '" size="30" maxlength="254"/></td></tr>
+                <tr><td><span class="fbold">Name</span> (<a href="register.php">Stammposterregistrierung</a>):</td><td><input type="text" autocomplete="username" value="' . ($this->m_peh ? $this->m_peh->GetNick() : '') .'" name="' . PostEntryHandler::PARAM_NICK . '" size="20" maxlength="60"/></td></tr>
+                <tr><td><span class="fbold">Stammposterpasswort:</span></td><td><input type="password" autocomplete="current-password" value="' . ($this->m_peh ? $this->m_peh->GetPassword() : '') . '" name="' . PostEntryHandler::PARAM_PASS . '" size="20" maxlength="60"/></td></tr>
+                <tr><td><span class="fbold">Mailadresse</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . ($this->m_peh ? $this->m_peh->GetEmail() : '') . '" name="' . PostEntryHandler::PARAM_EMAIL . '" size="30" maxlength="254"/></td></tr>
                 <tr><td>Betreff:</td><td>' . $this->renderHtmlFormTitleInput() . '</td></tr>
                 <tr><td colspan="2">Textformattierung: 
                         <img class="addtextstyle" src="img/bold.gif" alt="bold" onclick="formatText(\'b\')"/>
@@ -63,9 +63,9 @@ class PostEntryForm
                     </td></tr>
                 <tr><td colspan="2">' . $this->renderHtmlFormContentTextArea() . '</td></tr>                
                 <tr><td colspan="2">' . $this->renderHtmlFormParentPostIdInput() . '</td></tr>
-                <tr><td><span class="fbold">URL Link</span> (freiwillig):</td><td><input type="text" value="' . ($this->m_peh ? $this->m_peh->GetLinkUrl() : '') . '" id="post_linkurl" name="' . PostEntryHandler::PARAM_LINKURL . '" size="50" maxlength="250"/></td></tr>
-                <tr><td><span class="fbold">URL Link Text</span> (freiwillig):</td><td><input type="text" value="' . ($this->m_peh ? $this->m_peh->GetLinkText() : '') . '" id="post_linktext" name="' . PostEntryHandler::PARAM_LINKTEXT . '" size="20" maxlength="100"/></td></tr>
-                <tr><td><span class="fbold">URL eines Bildes</span> (freiwillig):</td><td><input type="text" value="' . ($this->m_peh ? $this->m_peh->GetImgUrl() : '') . '" id="post_imgurl" name="' . PostEntryHandler::PARAM_IMGURL . '" size="50" maxlength="100"/></td></tr>
+                <tr><td><span class="fbold">URL Link</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . ($this->m_peh ? $this->m_peh->GetLinkUrl() : '') . '" id="post_linkurl" name="' . PostEntryHandler::PARAM_LINKURL . '" size="50" maxlength="250"/></td></tr>
+                <tr><td><span class="fbold">URL Link Text</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . ($this->m_peh ? $this->m_peh->GetLinkText() : '') . '" id="post_linktext" name="' . PostEntryHandler::PARAM_LINKTEXT . '" size="20" maxlength="100"/></td></tr>
+                <tr><td><span class="fbold">URL eines Bildes</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . ($this->m_peh ? $this->m_peh->GetImgUrl() : '') . '" id="post_imgurl" name="' . PostEntryHandler::PARAM_IMGURL . '" size="50" maxlength="100"/></td></tr>
                 <tr><td colspan="2">
                         <input type="submit" value="Eintrag senden"/>
                         <input type="button" value="Vorschau" onclick="preview();"/>
