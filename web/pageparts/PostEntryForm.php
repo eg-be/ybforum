@@ -49,6 +49,37 @@ class PostEntryForm
      */
     public function renderHtmlForm()
     {
+        // If the parent post has a link and/or img, re-use that value
+        // but allow the value to be overridden by the current user-values
+        $imgUrl = '';
+        $linkText = '';
+        $linkUrl = '';
+        if($this->m_peh)
+        {
+            // re-use user values first, from an existing PostEntryHandler:
+            $imgUrl = $this->m_peh->GetImgUrl();
+            $linkText = $this->m_peh->GetLinkText();
+            $linkUrl = $this->m_peh->GetLinkUrl();
+        } 
+        else if($this->m_parentPost)
+        {
+            // If there is a parent-post, use values from that parent-post
+            // note: We want users to allow to set the fields to empty values,
+            // so this here must be an else part (PostEntryHandler shall win)
+            if($this->m_parentPost->HasImgUrl())
+            {
+                $imgUrl = $this->m_parentPost->GetImgUrl();
+            }
+            if($this->m_parentPost->HasLinkText())
+            {
+                $linkText = $this->m_parentPost->GetLinkText();
+            }
+            if($this->m_parentPost->HasLinkUrl())
+            {
+                $linkUrl = $this->m_parentPost->GetLinkUrl();
+            }
+        }
+        
         $html =
            '<form id="postform" method="post" action="postentry.php?post=1" accept-charset="utf-8">
             <table style="margin: auto;">
@@ -63,9 +94,9 @@ class PostEntryForm
                     </td></tr>
                 <tr><td colspan="2">' . $this->renderHtmlFormContentTextArea() . '</td></tr>                
                 <tr><td colspan="2">' . $this->renderHtmlFormParentPostIdInput() . '</td></tr>
-                <tr><td><span class="fbold">URL Link</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . ($this->m_peh ? $this->m_peh->GetLinkUrl() : '') . '" id="post_linkurl" name="' . PostEntryHandler::PARAM_LINKURL . '" size="50" maxlength="250"/></td></tr>
-                <tr><td><span class="fbold">URL Link Text</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . ($this->m_peh ? $this->m_peh->GetLinkText() : '') . '" id="post_linktext" name="' . PostEntryHandler::PARAM_LINKTEXT . '" size="20" maxlength="100"/></td></tr>
-                <tr><td><span class="fbold">URL eines Bildes</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . ($this->m_peh ? $this->m_peh->GetImgUrl() : '') . '" id="post_imgurl" name="' . PostEntryHandler::PARAM_IMGURL . '" size="50" maxlength="100"/></td></tr>
+                <tr><td><span class="fbold">URL Link</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . $linkUrl . '" id="post_linkurl" name="' . PostEntryHandler::PARAM_LINKURL . '" size="50" maxlength="255"/></td></tr>
+                <tr><td><span class="fbold">URL Link Text</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . $linkText . '" id="post_linktext" name="' . PostEntryHandler::PARAM_LINKTEXT . '" size="20" maxlength="255"/></td></tr>
+                <tr><td><span class="fbold">URL eines Bildes</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . $imgUrl . '" id="post_imgurl" name="' . PostEntryHandler::PARAM_IMGURL . '" size="50" maxlength="255"/></td></tr>
                 <tr><td colspan="2">
                         <input type="submit" value="Eintrag senden"/>
                         <input type="button" value="Vorschau" onclick="preview();"/>
