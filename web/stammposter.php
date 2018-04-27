@@ -36,6 +36,7 @@ try
     
     $loginValue = filter_input(INPUT_GET, 'login', FILTER_VALIDATE_INT);
     $loginFailed = false;
+    $authFailReason = 0;
     $resetPasswordHandler = null;
     if($loginValue && $loginValue > 0)
     {
@@ -47,7 +48,7 @@ try
         if($nick && $pass)
         {
             // Note: AuthUser will take care of logging
-            $user = $db->AuthUser($nick, $pass);
+            $user = $db->AuthUser($nick, $pass, $authFailReason);
             if($user)
             {
                 $logger = new Logger($db);
@@ -123,7 +124,21 @@ catch(Exception $ex)
             <?php
             if($loginFailed)
             {
-                echo '<div class="fullwidthcenter" style="color: red">Login fehlgeschlagen</div>';
+                $authFailMsg = null;
+                if ($authFailReason === ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID)
+                {
+                    $authFailMsg = 'Ungültiges Passwort';
+                }
+                else if($authFailReason === ForumDb::AUTH_FAIL_REASON_NO_SUCH_USER)
+                {
+                    $authFailMsg  = 'Unbekannter Stammposter';
+                }                
+                echo '<div class="fullwidthcenter" style="color: red">Login fehlgeschlagen';
+                if($authFailMsg)
+                {
+                    echo ': ' . $authFailMsg;
+                }
+                echo '</div>';
             }
             ?>            
             <form id="resetpasswordform" method="post" action="stammposter.php?resetpassword=1" accept-charset="utf-8">

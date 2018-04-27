@@ -228,6 +228,10 @@ class ForumDb extends PDO
         return $result[0];
     }
 
+    const AUTH_FAIL_REASON_NO_SUCH_USER = 1;
+    const AUTH_FAIL_REASON_USER_IS_DUMMY = 2;
+    const AUTH_FAIL_REASON_USER_IS_INACTIVE = 3;
+    const AUTH_FAIL_REASON_PASSWORD_INVALID = 4;
     /**
      * Authenticate against the user_table. Returns a user object if
      * a user with the passed $nick exists and:
@@ -239,7 +243,7 @@ class ForumDb extends PDO
      * @param string $password
      * @return User
      */
-    public function AuthUser(string $nick, string $password)
+    public function AuthUser(string $nick, string $password, int &$authFailReason = null)
     {
         assert(!empty($nick));
         assert(!empty($password));
@@ -251,16 +255,28 @@ class ForumDb extends PDO
         if(!$user)
         {
             $logger->LogMessage(Logger::LOG_AUTH_FAILED_NO_SUCH_USER, 'Passed nick: ' . $nick);
+            if(!is_null($authFailReason))
+            {
+                $authFailReason = self::AUTH_FAIL_REASON_NO_SUCH_USER;
+            }
             return null;
         }
         if($user->IsDummyUser())
         {
             $logger->LogMessageWithUserId(Logger::LOG_AUTH_FAILED_USER_IS_DUMMY, $user->GetId());
+            if(!is_null($authFailReason))
+            {
+                $authFailReason = self::AUTH_FAIL_REASON_USER_IS_DUMMY;
+            }
             return null;
         }
         if(!$user->IsActive() && !$user->NeedsMigration())
         {
             $logger->LogMessageWithUserId(Logger::LOG_AUTH_FAILED_USER_INACTIVE, $user->GetId());
+            if(!is_null($authFailReason))
+            {
+                $authFailReason = self::AUTH_FAIL_REASON_USER_IS_DUMMY;
+            }            
             return null;
         }
         // First try to auth using modern auth, else using old md5 hash auth
@@ -274,6 +290,10 @@ class ForumDb extends PDO
             return $user;
         }
         $logger->LogMessageWithUserId(Logger::LOG_AUTH_FAILED_PASSWORD_INVALID, $user->GetId());        
+        if(!is_null($authFailReason))
+        {
+            $authFailReason = self::AUTH_FAIL_REASON_PASSWORD_INVALID;
+        }        
         return null;
     }
 
