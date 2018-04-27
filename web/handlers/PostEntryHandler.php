@@ -41,7 +41,10 @@ class PostEntryHandler extends BaseHandler
     const PARAM_LINKTEXT = 'post_linktext';
     const PARAM_IMGURL = 'post_imgurl';
     
-    const MSG_AUTH_FAIL = 'Es dürfen nur Stammposter schreiben';
+    
+    const MSG_AUTH_FAIL = 'Stammposter ist nicht aktiv';
+    const MSG_AUTH_FAIL_PASSWORD_INVALID = 'Ungültiges Passwort';
+    const MSG_AUTH_FAIL_NO_SUCH_USER = 'Unbekannter Stammposter';
     const MSG_MIGRATION_REQUIRED = 'MigrationRequired';
     const MSG_TITLE_TOO_SHORT = 'Betreff muss mindestens ' .
                     YbForumConfig::MIN_TITLE_LENGTH . ' Zeichen enthalten';
@@ -116,10 +119,20 @@ class PostEntryHandler extends BaseHandler
     {        
         // Authenticate
         // note: The AuthUser of the db will do loggin in case of failure
-        $user = $db->AuthUser($this->nick, $this->password);
+        $authFailReason = 0;
+        $user = $db->AuthUser($this->nick, $this->password, $authFailReason);
         if(!$user)
         {
-            throw new InvalidArgumentException(self::MSG_AUTH_FAIL, parent::MSGCODE_AUTH_FAIL);
+            $authFailMsg = self::MSG_AUTH_FAIL;
+            if ($authFailReason === ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID)
+            {
+                $authFailMsg = self::MSG_AUTH_FAIL_PASSWORD_INVALID;
+            }
+            else if($authFailReason === ForumDb::AUTH_FAIL_REASON_NO_SUCH_USER)
+            {
+                $authFailMsg  = self::MSG_AUTH_FAIL_NO_SUCH_USER;
+            }
+            throw new InvalidArgumentException($authFailMsg, parent::MSGCODE_AUTH_FAIL);
         }
         // Check if migration is required
         if($user->NeedsMigration())
