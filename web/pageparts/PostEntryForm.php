@@ -139,7 +139,12 @@ class PostEntryForm
                                 <td><img src="img/hundi.gif" alt="Hundi"/></td><td onclick="addObject(\'[[hundi]]\')" class="addtag">[[hundi]]</td>
                                 <td><img src="img/pm.gif" alt="PM"/></td><td onclick="addObject(\'[[pm]]\')" class="addtag">[[pm]]</td>
                                 <td><img src="img/!!!.gif" alt="!!!"/></td><td onclick="addObject(\'[[!!!]]\')" class="addtag">[[!!!]]</td>
-                            </tr>                            
+                            </tr>
+                            <tr>
+                                <td><img src="img/pokal.png" alt="Pokal"/></td><td onclick="addObject(\'[[pokal]]\')" class="addtag">[[pokal]]</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
                         </table>
                 </td></tr>
             </table>';
