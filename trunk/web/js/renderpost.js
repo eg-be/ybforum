@@ -107,7 +107,11 @@ function renderObjects($content)
         {
             reg: /\[\[!!!\]\]/g,
             img: '<img src="img/!!!.gif"/>'
-        }        
+        },
+        {
+            reg: /\[\[pokal\]\]/g,
+            img: '<img src="img/pokal.png"/>'
+        }
     ];
     
     htmlContent = $content.html();
