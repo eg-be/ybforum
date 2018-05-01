@@ -29,5 +29,6 @@ function addObject(object)
         newTxt+= txt.substr(cursorStart);
         $textArea.val(newTxt);
         $textArea.focus();
+        $textArea.prop("selectionEnd", cursorStart + object.length);
     }
 }
