@@ -98,7 +98,7 @@ class Mailer
      * @param string $confirmationCode
      * @return type
      */
-    public function SendUpdateEmailConfirmMessage(string $email, 
+    public function SendUpdateEmailConfirmMessage(string $email, string $nick,
             string $confirmationCode)
     {
         assert(!empty($email));
@@ -112,9 +112,11 @@ class Mailer
                     ConfirmHandler::PARAM_CODE => $confirmationCode
                 ),
                 'Bitte besuche den folgenden Link um die Mailadresse die '
-                . 'mit deinem 1898-Forum Stammposterkonto verknüpft ist '
-                . 'auf die Mailadresse ' 
-                . $email . ' zu aktualisieren:');
+                . 'mit deinem 1898-Forum Stammposterkonto '
+                . $nick
+                . ' verknüpft ist auf die Mailadresse ' 
+                . $email 
+                . ' zu aktualisieren:');
     }    
     
     /**
