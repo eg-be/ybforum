@@ -78,6 +78,12 @@ class YbForumConfig
     const MIN_SEARCH_LENGTH = 4;
     
     /**
+     * @var boolean If set, the Mailer does not use -f and the MAIL_FROM address
+     * Useful for debugging if mail is redirected to a file
+     */
+    const MAIL_DEBUG = false;
+    
+    /**
     * @var string Address to use as mail from address
     */
     const MAIL_FROM = 'no-reply@1898.ch';
