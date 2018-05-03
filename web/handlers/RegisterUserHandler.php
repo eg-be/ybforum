@@ -129,7 +129,7 @@ class RegisterUserHandler extends BaseHandler
 
         // Send a mail with the confirmation link
         $mailer = new Mailer();
-        if(!$mailer->SendRegisterUserConfirmMessage($this->email, $confirmCode))
+        if(!$mailer->SendRegisterUserConfirmMessage($this->email, $this->nick, $confirmCode))
         {
             // Remove the just created user
             $db->RemoveConfirmUserCode($userId);
