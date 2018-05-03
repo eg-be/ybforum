@@ -150,11 +150,15 @@ class Mailer
      * @param string $email
      * @return type
      */
-    public function SendNotifyUserAcceptedEmail(string $email)
+    public function SendNotifyUserAcceptedEmail(string $email, string $nick)
     {
         $subject = 'Stammposter freigeschaltet';
         $mailBody = 'Willkommen im YB-Forum. Deine Registrierung wurde '
-                . 'von einem Administrator freigeschaltet. Bitte beachte '
+                . 'von einem Administrator freigeschaltet. '
+                . 'Du kannst dein Stammposterkonto ' 
+                . $nick 
+                . ' ab sofort verwenden um Beiträge zu posten. '
+                . 'Bitte beachte '
                 . 'die Reihenfolge aus: ' . "\r\n\r\n"
                 . 'https://1898.ch/showentry.php?idpost=672696';
         $sent = mail($email, $subject, $mailBody, $this->GetHeaderString());
