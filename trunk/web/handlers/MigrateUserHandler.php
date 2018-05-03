@@ -134,7 +134,7 @@ class MigrateUserHandler extends BaseHandler
 
         // send the email to the address requested
         $mailer = new Mailer();
-        if(!$mailer->SendMigrateUserConfirmMessage($this->newEmail, $confirmCode))
+        if(!$mailer->SendMigrateUserConfirmMessage($this->newEmail, $this->nick, $confirmCode))
         {
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }

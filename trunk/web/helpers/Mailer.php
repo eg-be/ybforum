@@ -48,7 +48,7 @@ class Mailer
      * @param string $confirmationCode
      * @return bool True if sending the mail succeeded
      */
-    public function SendMigrateUserConfirmMessage(string $email, 
+    public function SendMigrateUserConfirmMessage(string $email, string $nick,
             string $confirmationCode)
     {
         assert(!empty($email));
@@ -62,7 +62,9 @@ class Mailer
                     ConfirmHandler::PARAM_CODE => $confirmationCode
                 ),
                 'Bitte besuche den folgenden Link um die Migration '
-                . 'deines Stammposterkontos für das 1898-Forum '
+                . 'deines Stammposterkontos '
+                . $nick
+                . ' für das 1898-Forum '
                 . 'abzuschliessen:');
     }
     
@@ -73,7 +75,7 @@ class Mailer
      * @param string $confirmationCode
      * @return type
      */
-    public function SendRegisterUserConfirmMessage(string $email, 
+    public function SendRegisterUserConfirmMessage(string $email, string $nick,
             string $confirmationCode)
     {
         assert(!empty($email));
@@ -87,8 +89,9 @@ class Mailer
                     ConfirmHandler::PARAM_CODE => $confirmationCode
                 ),
                 'Bitte besuche den folgenden Link um die Registrierung '
-                . 'deines Stammposterkontos für das 1898-Forum '
-                . 'abzuschliessen:');
+                . 'deines Stammposterkontos '
+                . $nick
+                . ' für das 1898-Forum abzuschliessen:');
     }
     
     /**
@@ -229,7 +232,7 @@ class Mailer
         $mailBody.= $validForText . "\r\n";
         
         // If we do not force a sender, the reply-to: address is still set to www-data (?)
-//        $sent = mail($email, $subject, $mailBody, $this->GetHeaderString());        
+//        $sent = mail($email, $subject, $mailBody, $this->GetHeaderString());
         $sent = mail($email, $subject, $mailBody, $this->GetHeaderString(), '-f ' . YbForumConfig::MAIL_FROM);
         $logger = new Logger();
         if($sent)
