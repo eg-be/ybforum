@@ -94,6 +94,12 @@ class YbForumConfig
     const MAIL_FROM_NAME = 'YB-Forum Mailer';
  
     /**
+    * @var string If set to a value that evaluates to true, all mail will 
+    * be sent using BCC to this address
+    */
+    const MAIL_ALL_BCC = 'mail-monitor@1898.ch';
+ 
+    /**
      * @var bool Use captcha verification while registering new users.
      */
     const CAPTCHA_VERIFY = true;
