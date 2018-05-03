@@ -39,6 +39,7 @@ class Mailer
     {
         $this->m_mailFrom = YbForumConfig::MAIL_FROM_NAME . ' <' . YbForumConfig::MAIL_FROM . '>';
         $this->m_returnPath = YbForumConfig::MAIL_FROM;
+        $this->m_allMailBcc = YbForumConfig::MAIL_ALL_BCC;
         $this->m_contentType = 'text/plain; charset=utf-8';
     }
     
@@ -266,6 +267,10 @@ class Mailer
             'Content-Type' => $this->m_contentType,
             'Date' => date('r')             
         );
+        if($this->m_allMailBcc)
+        {
+            $headers['Bcc'] = $this->m_allMailBcc;
+        }
         
         $str = '';
         foreach($headers as $key => $item) 
@@ -279,4 +284,5 @@ class Mailer
     private $m_mailFrom;
     private $m_returnPath;
     private $m_contentType;
+    private $m_allMailBcc;
 }
