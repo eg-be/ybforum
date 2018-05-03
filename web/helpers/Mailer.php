@@ -173,13 +173,22 @@ class Mailer
         return $sent;
     }
     
+    /**
+     * Sends a mail to an admin informing that a user has confirmed his registration
+     * @param string $confirmedNick nickname of the user who completed registration
+     * @param string $adminEmail destination email
+     * @param mixed $registrationMsg A string with the Registration message or null
+     * @return boolean True if sending succeeds
+     */
     public function NotifyAdminUserConfirmedRegistraion(string $confirmedNick, 
-            string $adminEmail)
+            string $adminEmail, $registrationMsg)
     {
         $subject = 'Benutzer wartet auf Freischaltung';
         $mailBody = 'Der Benutzer ' . $confirmedNick . ' hat seine '
                 . 'Mailadresse bestätigt und wartet darauf freigeschaltet '
-                . 'zu werden.';
+                . 'zu werden.' . "\r\n\r\n";
+        $mailBody.= 'Registrierungsnachricht: ' . "\r\n";
+        $mailBody.= $registrationMsg;
         $sent = mail($adminEmail, $subject, $mailBody, $this->GetHeaderString());
         return $sent;
     }
