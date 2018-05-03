@@ -85,7 +85,7 @@ class UpdateEmailHandler extends BaseHandler
 
         // send the email to the address requested
         $mailer = new Mailer();
-        if(!$mailer->SendUpdateEmailConfirmMessage($this->newEmail, $confirmCode))
+        if(!$mailer->SendUpdateEmailConfirmMessage($this->newEmail, $this->user->GetNick(), $confirmCode))
         {
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
