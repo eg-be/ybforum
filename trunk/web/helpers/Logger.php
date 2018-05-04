@@ -119,7 +119,6 @@ class Logger
     public function LogMessageWithUserId(string $logType, int $userId, string $msg = null)
     {
         $logTypeId = $this->GetLogTypeId($logType);
-        $msg.= ' / ' . $this->GetFullUserContext($userId);
         $this->InsertLogEntry($logTypeId, $userId, $msg);
     }
     
@@ -160,9 +159,11 @@ class Logger
     {
         if(!$this->m_insertLogEntryStmt)
         {
-            $query = 'INSERT INTO log_table (idlog_type, iduser, message, '
+            $query = 'INSERT INTO log_table (idlog_type, iduser, '
+                    . 'historic_user_context, message, '
                     . 'request_uri, ip_address, admin_iduser) '
-                    . 'VALUES(:idlog_type, :iduser, :message, '
+                    . 'VALUES(:idlog_type, :iduser, '
+                    . ':historic_user_context, :message, '
                     . ':request_uri, :ip_address, :admin_iduser)';
             $this->m_insertLogEntryStmt = $this->m_db->prepare($query);
         }
@@ -176,9 +177,16 @@ class Logger
             $adminIdUser = $_SESSION['adminuserid'];
         }
         
+        $historicUserContext = null;
+        if($userId)
+        {
+            $historicUserContext = $this->GetFullUserContext($userId);
+        }
+        
         $this->m_insertLogEntryStmt->execute(array(
             ':idlog_type' => $logTypeId,
             ':iduser' => $userId,
+            ':historic_user_context' => $historicUserContext,
             ':message' => $msg,
             ':request_uri' => $requestUri,
             ':ip_address' => $clientIp,

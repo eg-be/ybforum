@@ -21,7 +21,8 @@ class LogEntryList {
         $haveSome = false;
         $query = 'SELECT l.idlog AS idlog, '
             . 'l.ts AS ts, lt.description AS description, '
-            . 'l.iduser AS iduser, u.nick AS nick, '
+            . 'l.iduser AS iduser, l.historic_user_context AS historic_user_context, '
+            . 'u.nick AS nick, '
             . 'l.message AS message, l.request_uri AS request_uri, '
             . 'l.ip_address AS ip_address, l.admin_iduser AS admin_iduser '
             . 'FROM ((log_table l LEFT JOIN user_table u '
@@ -33,7 +34,8 @@ class LogEntryList {
         {
             $query = 'SELECT l.idlog AS idlog, '
                 . 'l.ts AS ts, lt.description AS description, '
-                . 'l.iduser AS iduser, u.nick AS nick, '
+                . 'l.iduser AS iduser, l.historic_user_context AS historic_user_context, '
+                . 'u.nick AS nick, '
                 . 'l.message AS message, l.request_uri AS request_uri, '
                 . 'l.ip_address AS ip_address, l.admin_iduser AS admin_iduser '
                 . 'FROM ((log_table l LEFT JOIN user_table u '
@@ -56,6 +58,7 @@ class LogEntryList {
                 . '<th>Datum</th>'
                 . '<th>Aktion</th>'
                 . '<th>Nick (UserId)</th>'
+                . '<th>Damaliger User Context</th>'
                 . '<th>AdminId</th>'
                 . '<th>Nachricht</th>'
                 . '<th>IP Adresse</th>'
@@ -77,6 +80,14 @@ class LogEntryList {
             else
             {
                 $htmlTable.= '<td></td>';
+            }
+            if($row['historic_user_context'])
+            {
+                $htmlTable.= '<td>' . htmlspecialchars($row['historic_user_context']) . '</td>';                
+            }
+            else
+            {
+                $htmlTable.= '<td></td>';                
             }
             if($row['admin_iduser'])
             {
