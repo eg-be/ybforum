@@ -140,29 +140,17 @@ class Logger
      * @param int $userId
      * @return string
      */
-    private function GetFullUserContext(int $userId)
+    private function GetHistoricUserContext(int $userId)
     {
-        $context = 'iduser: ' . $userId;
+        $context = '';
         $user = User::LoadUserById($this->m_db, $userId);
         if($user)
         {
-            $context.= '; nick: ' . $user->GetNick();            
-            $context.= '; email: ';
-            if($user->HasEmail())
-            {
-                $context.= $user->GetEmail();
-            }
-            else
-            {
-                $context.= '<Keine Email gesetzt>';
-            }
-            $context.= '; Aktiv: ' . ($user->IsActive() ? 'Ja' : 'Nein');
-            $context.= '; Bestätigt: ' . ($user->IsConfirmed() ? 'Ja' : 'Nein');
-            $context.= '; Benötigt Mig.: ' . ($user->NeedsMigration() ? 'Ja' : 'Nein');
+            $context.= $user->GetMinimalUserInfoAsString();
         }
         else
         {
-            $context.= ' <Benutzer existiert nicht in der Datenbank>';
+            $context.= ' <Benutzer ' . $userId . 'existiert nicht in der Datenbank>';
         }
         return $context;
     }
@@ -203,7 +191,7 @@ class Logger
         $historicUserContext = null;
         if($userId)
         {
-            $historicUserContext = $this->GetFullUserContext($userId);
+            $historicUserContext = $this->GetHistoricUserContext($userId);
         }
         
         $this->m_insertLogEntryStmt->execute(array(
