@@ -1162,24 +1162,19 @@ class ForumDb extends PDO
                     . 'by that user. Want to turn her into a dummy instead?');
         }
         // Load the user to add some logging
-        $nick = '';
-        $email = '';
+        $logMessage = null;
+        $extendedLogMessage = null;
         $user = User::LoadUserById($this, $userId);
         if($user)
         {
-            $nick = $user->GetNick();
-            if($user->HasEmail())
-            {
-                $email = $user->GetEmail();
-            }
+            $logMessage = $user->GetMinimalUserInfoAsString();
+            $extendedLogMessage = $user->GetFullUserInfoAsString();
         }
         $query = 'DELETE FROM user_table WHERE iduser = :iduser';
         $stmt = $this->prepare($query);
         $stmt->execute(array(':iduser' => $userId));
         $logger = new Logger($this);
-        $logger->LogMessage(Logger::LOG_USER_DELETED, 'User ' 
-                . $nick . ' (' . $userId . '), ' . $email 
-                . ' has been deleted');
+        $logger->LogMessage(Logger::LOG_USER_DELETED, $logMessage, $extendedLogMessage);
     }
     
     /**

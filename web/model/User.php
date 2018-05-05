@@ -139,7 +139,6 @@ class User
      * Build a string containing userId, nick, email,
      * active, confirmed and need migration info as one string.
      * Mostly used for logging.
-     * @param int $userId
      * @return string
      */    
     public function GetMinimalUserInfoAsString()
@@ -159,6 +158,44 @@ class User
         $userStr.= '; Confirmed: ' . ($this->IsConfirmed() ? 'Yes' : 'No');
         $userStr.= '; Needs Migration: ' . ($this->NeedsMigration() ? 'Yes' : 'No');
 
+        return $userStr;        
+    }
+    
+    /**
+     * Get all information about this User as a string.
+     * Mostly used for logging.
+     * @return string
+     */
+    public function GetFullUserInfoAsString()
+    {
+        $userStr = $this->GetMinimalUserInfoAsString();
+        $userStr.= '; HasPassword: ' . ($this->HasPassword() ? 'Yes' : 'No');
+        $userStr.= '; HasOldPassword: ' . ($this->HasOldPassword() ? 'Yes' : 'No');
+        $userStr.= '; IsAdmin: ' . ($this->IsAdmin() ? 'Yes' : 'No');
+        $userStr.= '; IsDummy: ' . ($this->IsDummyUser() ? 'Yes' : 'No');
+        // Registration ts is always set
+        $userStr.= '; Registration Timestamp: '
+                . $this->GetRegistrationTimestamp()->format('d.m.Y H:i:s');
+        $userStr.= '; Confirmation Timestamp: ';
+        // Rest could be null
+        if($this->IsConfirmed())
+        {
+            $userStr.= $this->GetConfirmationTimestamp()->format('d.m.Y H:i:s');
+        }
+        else
+        {
+            $userStr.= '<Not Confirmed>';
+        }
+        $userStr.= '; Registration Message: ';
+        if($this->HasRegistrationMsg())
+        {
+            $userStr.= $this->GetRegistrationMsg();
+        }
+        else
+        {
+            $userStr.= '<No Registration Message set>';
+        }
+        
         return $userStr;        
     }
     
@@ -225,6 +262,14 @@ class User
     {
         return $this->registration_msg;
     }
+    
+    /**
+     * @return bool True if field registration_msg is not null and not empty.
+     */
+    public function HasRegistrationMsg()
+    {
+        return !is_null($this->registration_msg) && !empty($this->registration_msg);
+    }    
     
     /**
      * @return boolean True if field confirmation_ts is not null
