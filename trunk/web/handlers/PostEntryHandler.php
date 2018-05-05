@@ -115,9 +115,41 @@ class PostEntryHandler extends BaseHandler
         }
     }
     
+    /**
+     * Build a message containing all values of this post
+     * @return string
+     */
+    private function GetExtendedLogMsg()
+    {
+        $extMsg = 'Title: ' . $this->title;
+        if($this->content)
+        {
+            $extMsg.= '; Content: ' . $this->content;
+        }
+        if($this->email)
+        {
+            $extMsg.= '; Email: ' . $this->email;
+        }
+        if($this->linkUrl)
+        {
+            $extMsg.= '; LinkUrl: ' . $this->linkUrl;
+        }
+        if($this->linkText)
+        {
+            $extMsg.= '; LinkText: ' . $this->linkText;
+        }
+        if($this->imgUrl)
+        {
+            $extMsg.= '; ImgUrl: ' . $this->imgUrl;
+        }
+        return $extMsg;
+    }
+
+
     protected function HandleRequestImpl(ForumDb $db)
     {        
         // Authenticate
+        $logger = new Logger($db);
         // note: The AuthUser of the db will do loggin in case of failure
         $authFailReason = 0;
         $user = $db->AuthUser($this->nick, $this->password, $authFailReason);
@@ -127,17 +159,26 @@ class PostEntryHandler extends BaseHandler
             if ($authFailReason === ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID)
             {
                 $authFailMsg = self::MSG_AUTH_FAIL_PASSWORD_INVALID;
+                if(YbForumConfig::LOG_EXT_POST_DATA_PASSWORD_INVALID)
+                {
+                    $logger->LogMessage(Logger::LOG_EXT_POST_DISCARDED, 
+                            $authFailMsg, $this->GetExtendedLogMsg());
+                }
             }
             else if($authFailReason === ForumDb::AUTH_FAIL_REASON_NO_SUCH_USER)
             {
                 $authFailMsg  = self::MSG_AUTH_FAIL_NO_SUCH_USER;
+                if(YbForumConfig::LOG_EXT_POST_DATA_NO_SUCH_USER)
+                {
+                    $logger->LogMessage(Logger::LOG_EXT_POST_DISCARDED, 
+                            $authFailMsg, $this->GetExtendedLogMsg());
+                }
             }
             throw new InvalidArgumentException($authFailMsg, parent::MSGCODE_AUTH_FAIL);
         }
         // Check if migration is required
         if($user->NeedsMigration())
         {
-            $logger = new Logger($db);
             $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user->GetId());
             throw new InvalidArgumentException(self::MSG_MIGRATION_REQUIRED, parent::MSGCODE_AUTH_FAIL);
         }

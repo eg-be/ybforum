@@ -101,6 +101,9 @@ class Logger
     // Blacklist
     const LOG_BLACKLIST_EMAIL_ADDED = 'BlacklistEmailAdded';
     
+    // Extended log
+    const LOG_EXT_POST_DISCARDED = 'ExtLogPostDiscarded';
+    
     // Fatal errors
     const LOG_ERROR_EXCEPTION_THROWN =  'ErrorExceptionThrown';
     
@@ -114,20 +117,29 @@ class Logger
         // Init stmts with null, create them when needed
         $this->m_selectTypeStmt = null;
         $this->m_insertLogEntryStmt = null;
+        $this->m_insertExtendedInfoStmt = null;
     }
 
-    public function LogMessageWithUserId(string $logType, int $userId, string $msg = null)
+    public function LogMessageWithUserId(string $logType, int $userId, 
+            string $msg = null, string $extendedInfo = null)
     {
         $logTypeId = $this->GetLogTypeId($logType);
-        $this->InsertLogEntry($logTypeId, $userId, $msg);
+        $this->InsertLogEntry($logTypeId, $userId, $msg, $extendedInfo);
     }
     
-    public function LogMessage(string $logType, string $msg)
+    public function LogMessage(string $logType, string $msg, 
+            string $extendedInfo = null)
     {
         $logTypeId = $this->GetLogTypeId($logType);
-        $this->InsertLogEntry($logTypeId, null, $msg);
+        $this->InsertLogEntry($logTypeId, null, $msg, $extendedInfo);
     }
     
+    /**
+     * Build a string containing userId, nick, email,
+     * active, confirmed and need migration info.
+     * @param int $userId
+     * @return string
+     */
     private function GetFullUserContext(int $userId)
     {
         $context = 'iduser: ' . $userId;
@@ -155,7 +167,18 @@ class Logger
         return $context;
     }
     
-    private function InsertLogEntry(int $logTypeId, int $userId = null, string $msg = null)
+    /**
+     * Log a message to the log_table
+     * @param int $logTypeId id of a log_type_table entry
+     * @param int $userId If not null, the iduser of an existing entry 
+     * from user_table
+     * @param string $msg The value for the message field
+     * @param string $extendedInfo If not null, an antry in log_extended_info
+     * is created with the passed value
+     * @throws Exception
+     */
+    private function InsertLogEntry(int $logTypeId, int $userId = null, 
+            string $msg = null, string $extendedInfo = null)
     {
         if(!$this->m_insertLogEntryStmt)
         {
@@ -197,8 +220,34 @@ class Logger
         {
             throw new Exception('Failed to insert log entry into log_table');
         }
+        
+        if($extendedInfo)
+        {
+            $logId = $this->m_db->lastInsertId();
+            if($logId <= 0)
+            {
+                throw new Exception('Failed to get idlog of newly created entry');                
+            }
+            if(!$this->m_insertExtendedInfoStmt)
+            {
+                $queryExtend = 'INSERT INTO log_extended_info '
+                        . '(idlog, info) '
+                        . 'VALUES(:idlog, :info)';
+                $this->m_insertExtendedInfoStmt = $this->m_db->prepare($queryExtend);
+            }
+            $this->m_insertExtendedInfoStmt->execute(array(
+                ':idlog' => $logId,
+                ':info' => $extendedInfo
+            ));
+        }
     }
     
+    /**
+     * Lookup an entry in log_type_table where name matches the passed string
+     * @param string $logType value for column name
+     * @return int value of column idlog_type
+     * @throws InvalidArgumentException If no matching row is found
+     */
     private function GetLogTypeId(string $logType)
     {
         if(!$this->m_selectTypeStmt)
@@ -220,6 +269,7 @@ class Logger
     
     private $m_selectTypeStmt;
     private $m_insertLogEntryStmt;
+    private $m_insertExtendedInfoStmt;
     
     private $m_db;
 }
