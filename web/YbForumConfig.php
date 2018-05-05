@@ -108,4 +108,16 @@ class YbForumConfig
      * @var string Captcha secret code
      */
     const CAPTCHA_SECRET = '6Lc3HksUAAAAAPRM08dQUlqZaekbxr47GMzW4m1Y';
+    
+    /**
+     * @var bool If true, post content is logged as extended log if
+     * posting fails because user is unknown
+     */
+    const LOG_EXT_POST_DATA_NO_SUCH_USER = true;
+    
+    /**
+     * @var bool If true, post content is logged as extended log if
+     * posting fails because user password is invalid
+     */
+    const LOG_EXT_POST_DATA_PASSWORD_INVALID = true;    
 }
