@@ -136,6 +136,33 @@ class User
     private $old_passwd;
     
     /**
+     * Build a string containing userId, nick, email,
+     * active, confirmed and need migration info as one string.
+     * Mostly used for logging.
+     * @param int $userId
+     * @return string
+     */    
+    public function GetMinimalUserInfoAsString()
+    {
+        $userStr = 'IdUser: ' . $this->GetId();
+        $userStr.= '; Nick: ' . $this->GetNick();            
+        $userStr.= '; Email: ';
+        if($this->HasEmail())
+        {
+            $userStr.= $this->GetEmail();
+        }
+        else
+        {
+            $userStr.= '<No Email set>';
+        }
+        $userStr.= '; Active: ' . ($this->IsActive() ? 'Yes' : 'No');
+        $userStr.= '; Confirmed: ' . ($this->IsConfirmed() ? 'Yes' : 'No');
+        $userStr.= '; Needs Migration: ' . ($this->NeedsMigration() ? 'Yes' : 'No');
+
+        return $userStr;        
+    }
+    
+    /**
      * @return int Field iduser.
      */
     public function GetId()
