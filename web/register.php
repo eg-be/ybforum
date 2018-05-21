@@ -95,7 +95,7 @@ catch(Exception $ex)
         <div><span class="fbold">Die Freischaltung kann einige Zeit dauern.</span></div>
         <div>Ob ein Benutzer überhaupt freigeschaltet wird, 
         hängt massgeblich vom Inhalt der Registrierungsnachricht ab 
-        (Forenregeln bekannt, Referenz auf Stammposter, etc.).</div>
+        (Referenz auf existierende Stammposter, kurzes Aufführen der allseits bekannten 1898-Forenregeln, etc.).</div>
         </div>
         <?php 
         if($registerUserHandler && $registerUserHandler->HasException())
