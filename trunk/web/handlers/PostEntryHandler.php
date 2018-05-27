@@ -42,9 +42,11 @@ class PostEntryHandler extends BaseHandler
     const PARAM_IMGURL = 'post_imgurl';
     
     
-    const MSG_AUTH_FAIL = 'Stammposter ist nicht aktiv';
+    const MSG_AUTH_FAIL = 'Ungültiger Stammpostername / Passwort';
     const MSG_AUTH_FAIL_PASSWORD_INVALID = 'Ungültiges Passwort';
     const MSG_AUTH_FAIL_NO_SUCH_USER = 'Unbekannter Stammposter';
+    const MSG_AUTH_FAIL_USER_IS_INACTIVE = 'Stammposter ist nicht aktiv';
+    const MSG_AUTH_FAIL_USER_IS_DUMMY = 'Stammposter ist ein Dummy';
     const MSG_MIGRATION_REQUIRED = 'MigrationRequired';
     const MSG_TITLE_TOO_SHORT = 'Betreff muss mindestens ' .
                     YbForumConfig::MIN_TITLE_LENGTH . ' Zeichen enthalten';
@@ -159,21 +161,26 @@ class PostEntryHandler extends BaseHandler
             if ($authFailReason === ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID)
             {
                 $authFailMsg = self::MSG_AUTH_FAIL_PASSWORD_INVALID;
-                if(YbForumConfig::LOG_EXT_POST_DATA_PASSWORD_INVALID)
-                {
-                    $logger->LogMessage(Logger::LOG_EXT_POST_DISCARDED, 
-                            $authFailMsg, $this->GetExtendedLogMsg());
-                }
             }
             else if($authFailReason === ForumDb::AUTH_FAIL_REASON_NO_SUCH_USER)
             {
                 $authFailMsg  = self::MSG_AUTH_FAIL_NO_SUCH_USER;
-                if(YbForumConfig::LOG_EXT_POST_DATA_NO_SUCH_USER)
-                {
-                    $logger->LogMessage(Logger::LOG_EXT_POST_DISCARDED, 
-                            $authFailMsg, $this->GetExtendedLogMsg());
-                }
             }
+            else if($authFailReason === ForumDb::AUTH_FAIL_REASON_USER_IS_INACTIVE)
+            {
+                $authFailMsg = self::MSG_AUTH_FAIL_USER_IS_INACTIVE;
+            }
+            else if($authFailReason === ForumDb::AUTH_FAIL_REASON_USER_IS_DUMMY)
+            {
+                $authFailMsg = self::MSG_AUTH_FAIL_USER_IS_DUMMY;
+            }
+            
+            if(YbForumConfig::LOG_EXT_POST_DATA_PASSWORD_INVALID)
+            {
+                $logger->LogMessage(Logger::LOG_EXT_POST_DISCARDED, 
+                        $authFailMsg, $this->GetExtendedLogMsg());
+            }
+            
             throw new InvalidArgumentException($authFailMsg, parent::MSGCODE_AUTH_FAIL);
         }
         // Check if migration is required

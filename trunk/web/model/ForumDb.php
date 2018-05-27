@@ -275,7 +275,7 @@ class ForumDb extends PDO
             $logger->LogMessageWithUserId(Logger::LOG_AUTH_FAILED_USER_INACTIVE, $user->GetId());
             if(!is_null($authFailReason))
             {
-                $authFailReason = self::AUTH_FAIL_REASON_USER_IS_DUMMY;
+                $authFailReason = self::AUTH_FAIL_REASON_USER_IS_INACTIVE;
             }            
             return null;
         }
