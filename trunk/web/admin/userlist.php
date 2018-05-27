@@ -135,7 +135,7 @@ try
         $rowStr.= '<td>' . ($row['confirmation_ts'] ? (new DateTime($row['confirmation_ts']))->format('d.m.Y H:i:s') : '') . '</td>';
         $rowStr.= '<td>' . $row['active'] . '</td>';
         $rowStr.= '<td>' . $row['admin'] . '</td>';
-        $rowStr.= '<td>' . ($row['is_dummy'] ? 'JFa' : 'Nein') . '</td>';
+        $rowStr.= '<td>' . ($row['is_dummy'] ? 'Ja' : 'Nein') . '</td>';
         $rowStr.= '<td>' . ($row['has_password'] ? 'Ja' : 'Nein') . '</td>';
         $rowStr.= '<td>' . ($row['has_old_passwd'] ? 'Ja' : 'Nein') . '</td>';
         $rowStr.= '<tr>';
