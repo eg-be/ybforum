@@ -46,7 +46,7 @@ require_once __DIR__.'/pageparts/ConfirmForm.php';
             $handler = ConfirmHandlerFactory::CreateHandler();
             
             // let the handler handle the request
-            $db = new ForumDb();
+            $db = new ForumDb(false);
             // If this is GET request, the handler will only simulate
             // but fail with a correct exception if something is wrong
             $handler->HandleRequest($db);

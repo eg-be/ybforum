@@ -31,8 +31,6 @@ try
     {
         throw new Exception('session_start() failed');
     }
-
-    $db = new ForumDb();    
     
     $loginValue = filter_input(INPUT_GET, 'login', FILTER_VALIDATE_INT);
     $loginFailed = false;
@@ -40,6 +38,8 @@ try
     $resetPasswordHandler = null;
     if($loginValue && $loginValue > 0)
     {
+        // for the login, a read-only db is enough
+        $db = new ForumDb();
         // do the login, reset first
         unset($_SESSION['userid']);
         $nick = trim(filter_input(INPUT_POST, 'login_nick'));
@@ -71,6 +71,8 @@ try
     {
         try
         {
+            // Requires a writeable db
+            $db = new ForumDb(false);
             $resetPasswordHandler = new ResetPasswordHandler();
             $resetPasswordHandler->HandleRequest($db);
         }
