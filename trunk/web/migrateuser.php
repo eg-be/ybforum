@@ -34,7 +34,7 @@ try
     
     // Determine what we have to do
     $migrateUserHandler = null;
-    $db = new ForumDb();
+    $db = new ForumDb(false);
     $migrationSucceeded = false;
     $alreadyMigrated = false;
     if(filter_input(INPUT_GET, 'migrate', FILTER_VALIDATE_INT) > 0)

@@ -32,7 +32,7 @@ try
         throw new Exception('session_start() failed');
     }
 
-    $db = new ForumDb();
+    $db = new ForumDb(false);
     
     $registerUserHandler = null;
     if(filter_input(INPUT_GET, 'register', FILTER_VALIDATE_INT) > 0)

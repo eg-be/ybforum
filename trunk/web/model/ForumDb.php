@@ -50,9 +50,11 @@ class ForumDb extends PDO
      * DbConfig. Sets m_connected to true on success.
      * Invokes ErrorHandler::OnException() if connecting fails.
      */
-    public function __construct() 
+    public function __construct(bool $readOnly = true) 
     {
         $this->m_connected = false;
+        $this->m_readOnly = $readOnly;
+		
         $dsn = 'mysql:host=' . DbConfig::SERVERNAME .
                 ';dbname=' . DbConfig::DEFAULT_DB .
                 ';charset=' . DbConfig::CHARSET;
@@ -61,7 +63,14 @@ class ForumDb extends PDO
             PDO::ATTR_EMULATE_PREPARES => false,
             PDO::ATTR_STRINGIFY_FETCHES => false
         );
-        parent::__construct($dsn, DbConfig::USERNAME, DbConfig::PASSWORD, $options);
+        if($this->m_readOnly)
+        {
+            parent::__construct($dsn, DbConfig::RO_USERNAME, DbConfig::RO_PASSWORD, $options);
+        }
+        else
+        {
+            parent::__construct($dsn, DbConfig::RW_USERNAME, DbConfig::RW_PASSWORD, $options);			
+        }
         $this->m_connected = true;
     }
   
@@ -71,6 +80,14 @@ class ForumDb extends PDO
     public function IsConnected()
     {
         return $this->m_connected;
+    }
+    
+    /**
+    * @return bool True if connected using read-only parameters
+    */
+    public function IsReadOnly()
+    {
+        return $this->m_readOnly;
     }
   
     /**
@@ -1327,4 +1344,5 @@ class ForumDb extends PDO
     }
     
     private $m_connected;
+    private $m_readOnly;
 }
