@@ -53,7 +53,7 @@ try
     }
 
     // Get and verify user
-    $db = new ForumDb();
+    $db = new ForumDb(false);
     $user = User::LoadUserById($db, $_SESSION['userid']);
     // If user is a dummy or inactive, get out
     if($user->IsDummyUser() || (!$user->IsActive() && !$user->NeedsMigration()))

@@ -36,7 +36,7 @@ try
     // Determine what we have to do
     $postEntryHandler = null;
     $parentPost = null;
-    $db = new ForumDb();
+    $db = new ForumDb(false);
     if(filter_input(INPUT_GET, 'post', FILTER_VALIDATE_INT) > 0)
     {
         // Try to submit passed post data

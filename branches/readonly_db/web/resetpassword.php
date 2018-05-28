@@ -49,7 +49,7 @@ require_once __DIR__.'/pageparts/ResetPasswordForm.php';
             }
             
             // let the handler validate the code
-            $db = new ForumDb();
+            $db = new ForumDb(false);
             $user = $handler->HandleRequest($db);
             
             // If this is a POST request, we might have data to update 
