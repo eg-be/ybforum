@@ -50,7 +50,7 @@ try
     else
     {
         // check that this adminuserid is still valid
-        $db = new ForumDb();
+        $db = new ForumDb(false);
         $adminUser = User::LoadUserById($db, $_SESSION['adminuserid']);
         if(!($adminUser && $adminUser->IsActive() && $adminUser->IsAdmin()))
         {
