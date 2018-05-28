@@ -109,9 +109,9 @@ class Logger
     
     public function __construct(ForumDb $db = null)
     {
-        if(!$db)
+        if(!$db || $db->IsReadOnly())
         {
-            $db = new ForumDb();
+            $db = new ForumDb(false);
         }
         $this->m_db = $db;
         // Init stmts with null, create them when needed
