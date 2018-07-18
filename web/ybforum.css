@@ -51,6 +51,11 @@ a:visited
     text-decoration: underline;
 }
 
+.fmonospace
+{
+    font-family: monospace;
+}
+
 .nomargin
 {
     margin: 0;
