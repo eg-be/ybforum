@@ -58,12 +58,12 @@ catch(Exception $ex)
 
 <html lang="de-ch">
     <head>
-        <link rel="stylesheet" type="text/css" href="ybforum.css">        
+        <link rel="stylesheet" type="text/css" href="ybforum.css?v=r181">        
         <title>YB Forum</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-        <script src="js/renderpost.js?v=r146"></script>
+        <script src="js/renderpost.js?v=r181"></script>
         <script type="text/javascript">
         $( document ).ready(function() {
             renderPost();
