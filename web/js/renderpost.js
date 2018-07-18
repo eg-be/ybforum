@@ -3,15 +3,17 @@ function renderSpans($content)
     var spanRules = {
         'i': 'fitalic',
         'b': 'fbold',
-        'u': 'funderline'
+        'u': 'funderline',
+        'f': 'fmonospace'
     };
     htmlContent = $content.html();
     var inTagsStack = {
         'i': 0,
         'b': 0,
-        'u': 0
+        'u': 0,
+        'f': 0
     };
-    var rCode = /\[(\/?[ibu])\]/;
+    var rCode = /\[(\/?[ibuf])\]/;
     var match = rCode.exec(htmlContent);
     while(match !== null)
     {
