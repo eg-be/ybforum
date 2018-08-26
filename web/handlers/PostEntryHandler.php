@@ -157,6 +157,8 @@ class PostEntryHandler extends BaseHandler
         $user = $db->AuthUser($this->nick, $this->password, $authFailReason);
         if(!$user)
         {
+            // determine a verbose reason for the auth-fail (which is 
+            // used in the exception thrown)
             $authFailMsg = self::MSG_AUTH_FAIL;
             if ($authFailReason === ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID)
             {
@@ -175,7 +177,8 @@ class PostEntryHandler extends BaseHandler
                 $authFailMsg = self::MSG_AUTH_FAIL_USER_IS_DUMMY;
             }
             
-            if(YbForumConfig::LOG_EXT_POST_DATA_PASSWORD_INVALID)
+            // Maybe log the data of the post that has been discarded
+            if(YbForumConfig::LOG_EXT_POST_DATA_ON_AUTH_FAILURE)
             {
                 $logger->LogMessage(Logger::LOG_EXT_POST_DISCARDED, 
                         $authFailMsg, $this->GetExtendedLogMsg());

@@ -111,13 +111,14 @@ class YbForumConfig
     
     /**
      * @var bool If true, post content is logged as extended log if
-     * posting fails because user is unknown
+     * posting fails because authentication has failed (user not found,
+     * wrong password, user inactive or dummy). A normal log entry is 
+     * created, with type LOG_EXT_POST_DISCARDED. The message of that log
+     * entry is the authentication failure reason. In the 
+     * log_extended_info table an entry is added, holding the content (and 
+     * subject) of the post that has been discarded. Note; This is mostly
+     * funny to see what spammers want to add, or what stupid newspapers
+     * like 20min are trying to post..
      */
-    const LOG_EXT_POST_DATA_NO_SUCH_USER = true;
-    
-    /**
-     * @var bool If true, post content is logged as extended log if
-     * posting fails because user password is invalid
-     */
-    const LOG_EXT_POST_DATA_PASSWORD_INVALID = true;    
+    const LOG_EXT_POST_DATA_ON_AUTH_FAILURE = true;
 }
