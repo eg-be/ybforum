@@ -109,7 +109,7 @@ class Mailer
         assert(!empty($confirmationCode));
         
         return $this->SendConfirmMail($email, 
-                '1898-Forum aktualisierte Stammposter-Mailadresse bestätigen',
+                '1898-Forum aktualisierte Stammposter-Mailadresse bestaetigen',
                 'confirm.php',
                 array(
                     ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_UPDATEEMAIL,
@@ -136,7 +136,7 @@ class Mailer
         assert(!empty($confirmationCode));
         
         return $this->SendConfirmMail($email, 
-                '1898-Forum Stammposter-Passwort zurücksetzen',
+                '1898-Forum Stammposter-Passwort zuruecksetzen',
                 'resetpassword.php',
                 array(
                 ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_RESETPASS,
