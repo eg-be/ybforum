@@ -111,7 +111,8 @@ catch(Exception $ex)
         <link rel="stylesheet" type="text/css" href="ybforum.css?v=r181">
         <title>Beitrag schreiben</title>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">                
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="theme-color" content="#FFCC00">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script src="js/formatentry.js?v=r148"></script>
         <script src="js/renderpost.js?v=r181"></script>

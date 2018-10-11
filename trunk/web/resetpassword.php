@@ -31,6 +31,8 @@ require_once __DIR__.'/pageparts/ResetPasswordForm.php';
     <head>
         <link rel="stylesheet" type="text/css" href="ybforum.css">        
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="theme-color" content="#FFCC00">
         <title>YB Forum</title>
     </head>
     <body>
