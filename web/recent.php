@@ -44,6 +44,7 @@ catch(Exception $ex)
         <link rel="stylesheet" type="text/css" href="ybforum.css">
         <title>YB Forum</title>
         <meta charset="UTF-8">
+        <meta name="theme-color" content="#FFCC00">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">        
     </head>
     <body>
