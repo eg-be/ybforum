@@ -36,6 +36,7 @@ require_once __DIR__.'/pageparts/ConfirmForm.php';
         <title>YB Forum</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+        <meta name="theme-color" content="#FFCC00">
     </head>
     <body>
         <div class="fullwidthcenter">
