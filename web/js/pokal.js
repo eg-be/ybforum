@@ -1,12 +1,12 @@
 showPokal = function(nr, maxNr) {
-	let str = "";
+	let str = "/#";
 	for(i = 0; i < nr; i++) {
 		str+= String.fromCodePoint(0x1F3C6);
 	}
 	setTimeout(function() {
-		window.location.hash = str;
+		window.history.replaceState({}, "YB Forum", str);
 		if(nr < maxNr) {
-			showPokal(nr++, maxNr);
+			showPokal(nr + 1, maxNr);
 		}
 	}, 500);
 }
