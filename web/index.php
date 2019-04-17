@@ -53,6 +53,8 @@ catch(Exception $ex)
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="theme-color" content="#FFCC00">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="js/pokal.js?v=r181"></script>		
     </head>
     <body>
         <div  style="max-width: 700px; margin: auto;">
