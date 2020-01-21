@@ -62,16 +62,10 @@ catch(Exception $ex)
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="theme-color" content="#FFCC00">
         <script src='https://www.google.com/recaptcha/api.js'></script>        
-        <script type='text/javascript'>
-            function foo()
-            {
-                alert("foo");
-            }
-        </script>
     </head>
     <body>
         <div  style="max-width: 700px; margin: auto;">
-            <img style="max-width: 100%; height: auto;" src="logo.jpg" alt="YB Forum"/>
+            <?php include __DIR__.'/logo.php'; ?>
         </div>
         <div class="fullwidthcenter generictitle">Stammposter Registrierungsantrag</div>    
         <hr>
@@ -158,7 +152,7 @@ catch(Exception $ex)
                     ?>
                     <tr>
                         <td>
-                            <input type="submit" value="Registrieren"/>
+                            <input type="submit" value="Registrieren" disabled/><span class="fbold failcolor">Registrierung zurzeit geschlossen</span>
                         </td>
                         <td>
                             <input type="reset" value="Eingaben löschen"/>
