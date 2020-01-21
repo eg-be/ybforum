@@ -49,7 +49,7 @@ catch(Exception $ex)
     </head>
     <body>
         <div  style="max-width: 700px; margin: auto;">
-            <img style="max-width: 100%; height: auto;" src="logo.jpg" alt="YB Forum"/>
+            <?php include __DIR__.'/logo.php'; ?>
         </div>
         <div class="fullwidthcenter generictitle">Neue Beiträge</div>    
         <hr>
