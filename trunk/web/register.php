@@ -152,7 +152,8 @@ catch(Exception $ex)
                     ?>
                     <tr>
                         <td>
-                            <input type="submit" value="Registrieren" disabled/><span class="fbold failcolor">Registrierung zurzeit geschlossen</span>
+<!--                            <input type="submit" value="Registrieren" disabled/><span class="fbold failcolor">Registrierung zurzeit geschlossen</span> -->
+                            <input type="submit" value="Registrieren"/>
                         </td>
                         <td>
                             <input type="reset" value="Eingaben löschen"/>
