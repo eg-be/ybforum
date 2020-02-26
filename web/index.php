@@ -65,7 +65,7 @@ catch(Exception $ex)
             [ <a href="postentry.php">Beitrag Schreiben</a> ] 
             [ <a href="recent.php">Neue Beiträge</a> ] 
             [ <a href="search.php">Suchen</a> ] 
-            [ <a href="textformatierung.html">Textformatierung</a> ] 
+            [ <a href="textformatierung.php">Textformatierung</a> ] 
             [ <a href="stammposter.php">Stammposter</a> ]
             [ <a href="register.php">Registrieren</a> ]
         </div>
