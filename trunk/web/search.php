@@ -74,7 +74,7 @@ catch(Exception $ex)
         <div class="fullwidthcenter">
             [ <a href="index.php">Forum</a> ] 
             [ <a href="recent.php">Neue Beiträge</a> ] 
-            [ <a href="textformatierung.html">Textformatierung</a> ] 
+            [ <a href="textformatierung.php">Textformatierung</a> ] 
             [ <a href="stammposter.php">Stammposter</a> ]            
             [ <a href="register.php">Registrieren</a> ]
         </div>
