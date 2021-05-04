@@ -3,7 +3,7 @@
 # folders and files
 # Note: Backup from a cronjob requires the full path with the vhost:
 # (we should update the script to make it work relative to its location)
-backupfolder="/srv/www/vhosts/1898.ch/private/dbbackups"
+backupfolder="/private/dbbackups"
 # and running it from the terminal, has another root-path:
 #backupfolder="/private/dbbackups"
 maxfiles="7"
@@ -19,7 +19,7 @@ port="3306"
 # so, for now use the user who has all access to the db
 #user="dbybforum_reader"
 user="dbybforum_usr"
-pass="password"
+pass="password" 
 database="dbybforum"
 
 # first check that we do not exceed the number of files in the backup directory
