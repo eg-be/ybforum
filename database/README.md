@@ -43,8 +43,15 @@ mysql> SHOW GRANTS FOR dbybforum_ro@localhost;
 | GRANT SELECT, SHOW VIEW ON `dbybforum`.* TO `dbybforum_ro`@`localhost` |
 +------------------------------------------------------------------------+
 
+eg-be@dev:~$ mysql -h localhost -u dbybforum_rw -prw-password dbybforum
 
+mysql> SHOW GRANTS FOR dbybforum_rw@localhost;
++---------------------------------------------------------------------+
+| Grants for dbybforum_rw@localhost                                   |
++---------------------------------------------------------------------+
+| GRANT USAGE ON *.* TO `dbybforum_rw`@`localhost`                    |
+| GRANT ALL PRIVILEGES ON `dbybforum`.* TO `dbybforum_rw`@`localhost` |
++---------------------------------------------------------------------+
 ```
-
 
 ## Setup database
