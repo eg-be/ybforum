@@ -55,3 +55,8 @@ mysql> SHOW GRANTS FOR dbybforum_rw@localhost;
 ```
 
 ## Setup database
+Create the database-structure and import the initial data:
+```
+eg-be@dev:~/ybforum/database$ mysql -h localhost -u dbybforum_rw -prw-password dbybforum < dbybforum-no-data.dump.sql 
+eg-be@dev:~/ybforum/database$ mysql -h localhost -u dbybforum_rw -prw-password dbybforum < log_type_table_data.dump.sql 
+```
