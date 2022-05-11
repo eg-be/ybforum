@@ -63,7 +63,7 @@ class PostIndexEntry
                 . 'FROM post_table LEFT JOIN '
                 . 'user_table ON post_table.iduser = user_table.iduser '
                 . 'WHERE idthread <= :maxThreadId AND idthread > :minThreadId '
-                . 'ORDER BY idthread DESC, rank';
+                . 'ORDER BY idthread DESC, `rank`';
         $stmt = $db->prepare($query);
         $stmt->execute(array(':maxThreadId' => $maxThreadId, 
             ':minThreadId' => $minThreadId));
@@ -126,8 +126,8 @@ class PostIndexEntry
                 . 'hidden '
                 . 'FROM post_table LEFT JOIN '
                 . 'user_table ON post_table.iduser = user_table.iduser '
-                . 'WHERE idthread = :idthread AND indent > :indent AND rank > :rank '
-                . 'ORDER BY idthread DESC, rank';
+                . 'WHERE idthread = :idthread AND indent > :indent AND `rank` > :rank '
+                . 'ORDER BY idthread DESC, `rank`';
         $stmt = $db->prepare($query);
         $stmt->execute(array(':idthread' => $post->GetThreadId(), 
                 ':indent' => $post->GetIndent(),
