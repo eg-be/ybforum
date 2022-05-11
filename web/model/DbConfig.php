@@ -25,11 +25,11 @@
 class DbConfig 
 {
     const SERVERNAME = 'localhost';
-    const RW_USERNAME = 'root2';
-    const RW_PASSWORD = 'master2';
+    const RW_USERNAME = 'dbybforum_rw';
+    const RW_PASSWORD = 'rw-password';
 	
-	const RO_USERNAME = 'root3';
-	const RO_PASSWORD = 'master3';
+	const RO_USERNAME = 'dbybforum_ro';
+	const RO_PASSWORD = 'ro-password';
 	
     const DEFAULT_DB = 'dbybforum';
     const CHARSET = 'utf8mb4';
