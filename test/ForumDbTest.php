@@ -5,7 +5,11 @@ require_once __DIR__.'/../web/model/ForumDb.php';
 
 /**
  * Requires a valid database to connect to, as we
- * want to really test the executed sql
+ * want to really test the executed sql.
+ * 
+ * See test.md located in this directory, on how
+ * to setup the test-database.
+ * 
  * on the current installation, this is accessible as
  * user/pass:
  *  root2/master
@@ -31,9 +35,12 @@ final class ForumDbTest extends TestCase
         $this->assertTrue($this->db->IsConnected());
     }
 
-
-    public function testIsConnected(): void
+    public function testIsReadOnly(): void
     {
-        $this->assertTrue(true);
-    }
+        // a database is ro by default
+        $this->assertTrue($this->db->IsReadOnly());
+        // except we enfore a rw-db:
+        $this->db = new ForumDb(false);
+        $this->assertFalse($this->db->IsReadOnly());
+    }    
 }
