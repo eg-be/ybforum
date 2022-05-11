@@ -510,7 +510,7 @@ class DataImporter
         }        
         $createRootPostQuery = 'INSERT INTO post_table '
                 . '(idthread, parent_idpost, iduser, title, content, '
-                . 'rank, indent, creation_ts, email, '
+                . '`rank`, indent, creation_ts, email, '
                 . 'link_url, link_text, img_url, '
                 . 'ip_address, old_no, hidden) '
                 . 'VALUES(?, NULL, ?, ?, ?, 1, 0, ?, ?, ?, ?, ?, ?, ?, ?)';
