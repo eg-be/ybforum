@@ -40,7 +40,7 @@ class Post
         assert($idPost > 0);
         $query = 'SELECT idpost, idthread, parent_idpost, nick, '
                 . 'post_table.iduser AS iduser, '
-                . 'title, content, rank, indent, '
+                . 'title, content, `rank`, indent, '
                 . 'creation_ts, '
                 . 'post_table.email AS email, '
                 . 'link_url, link_text, img_url, old_no, '

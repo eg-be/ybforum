@@ -365,7 +365,7 @@ class ForumDb extends PDO
         }
         // and now the actual post
         $query = 'INSERT INTO post_table (idthread, iduser, title, '
-                . 'content, rank, indent, email, '
+                . 'content, `rank`, indent, email, '
                 . 'link_url, link_text, img_url, '
                 . 'ip_address) '
                 . 'VALUES(:idthread, :iduser, :title, '
