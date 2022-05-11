@@ -60,3 +60,28 @@ Create the database-structure and import the initial data:
 eg-be@dev:~/ybforum/database$ mysql -h localhost -u dbybforum_rw -prw-password dbybforum < dbybforum-no-data.dump.sql 
 eg-be@dev:~/ybforum/database$ mysql -h localhost -u dbybforum_rw -prw-password dbybforum < log_type_table_data.dump.sql 
 ```
+
+Create a very first admin user:
+The password must be hashed, just use a php interactive shell to create a hash from your password:
+```
+eg-be@dev:~$ php -a
+Interactive shell
+php > echo password_hash("my-pass", PASSWORD_DEFAULT);
+$2y$10$g.h9s8ncbW6qhK4Xqb49OOXhUQqX/IPhPmwuG.PvvHc6QCflevQcS
+```
+And create the corresponding user-entry with that password-hash:
+```
+eg-be@dev:~$ mysql -h localhost -u dbybforum_rw -prw-password dbybforum
+
+mysql> INSERT INTO user_table (nick, password, email, admin, active, registration_msg, confirmation_ts) VALUES('admin', '$2y$10$g.h9s8ncbW6qhK4Xqb49OOXhUQqX/IPhPmwuG.PvvHc6QCflevQcS', 'eg-be@dev', 1, 1, 'initial admin-user', CURRENT_TIMESTAMP());
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT * FROM user_table;
++--------+-------+--------------------------------------------------------------+-----------+-------+--------+---------------------+--------------------+---------------------+------------+
+| iduser | nick  | password                                                     | email     | admin | active | registration_ts     | registration_msg   | confirmation_ts     | old_passwd |
++--------+-------+--------------------------------------------------------------+-----------+-------+--------+---------------------+--------------------+---------------------+------------+
+|   2874 | admin | $2y$10$g.h9s8ncbW6qhK4Xqb49OOXhUQqX/IPhPmwuG.PvvHc6QCflevQcS | eg-be@dev |     1 |      1 | 2022-05-11 17:24:02 | initial admin-user | 2022-05-11 17:24:02 | NULL       |
++--------+-------+--------------------------------------------------------------+-----------+-------+--------+---------------------+--------------------+---------------------+------------+
+1 row in set (0.00 sec)
+```
+
