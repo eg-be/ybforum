@@ -7,22 +7,40 @@ require_once __DIR__.'/../web/model/ForumDb.php';
  * Requires a valid database to connect to, as we
  * want to really test the executed sql.
  * 
- * See test.md located in this directory, on how
+ * See README.md located in this directory, on how
  * to setup the test-database.
- * 
- * on the current installation, this is accessible as
- * user/pass:
- *  root2/master
- * On a fresh installation, just load the test-dbyforum.dump file:
- * In mysql:
- *  CREATE DATABASE dbbforum;
- * From terminal:
- *  mysql -u root2 -p dbybforum < test-dbyforum.dump
  * 
  */
 final class ForumDbTest extends TestCase
 {
     private $db;
+
+    const TEST_DB = [
+        __DIR__.'/../database/dbybforum-no-data.dump.sql',
+        __DIR__.'/../database/log_type_table_data.dump.sql'
+    ];
+
+    public static function setUpBeforeClass(): void
+    {
+        // restore an empty database for the tests
+        foreach(ForumDbTest::TEST_DB as $file)
+        {
+            $cmd = sprintf('mysql -h localhost -u %s -p%s %s < %s 2>&1', 
+            DbConfig::RW_USERNAME, DbConfig::RW_PASSWORD, DbConfig::DEFAULT_DB, $file);
+            $output = null;
+            $result_code = null;
+            fwrite(STDOUT, 'Executing: ' . $cmd . PHP_EOL);
+            $res = exec($cmd, $output, $result_code);
+            if($res === false || $result_code !== 0)
+            {
+                throw new Exception('Failed to init test-datase: ' . implode(PHP_EOL, $output));
+            }
+            foreach($output as $res)
+            {
+                fwrite(STDOUT, $res . PHP_EOL);
+            }
+        }
+    }
 
     protected function setUp(): void
     {
@@ -42,5 +60,11 @@ final class ForumDbTest extends TestCase
         // except we enfore a rw-db:
         $this->db = new ForumDb(false);
         $this->assertFalse($this->db->IsReadOnly());
-    }    
+    }
+
+    public function testGetThreadCount() : void
+    {
+        $count = $this->db->GetThreadCount();
+        $this->assertEquals(0, $count);
+    }
 }
