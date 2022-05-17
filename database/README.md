@@ -3,6 +3,8 @@ All data is stored in a mysql database. This page describes the required step to
 
 ## Prerequisites
 - A working installation of [MySQL](https://www.mysql.com).
+
+## Create empty database with two users
 - An empty database
 - A user with read-only access to the database
 - A user with read-write access to the database
@@ -54,7 +56,7 @@ mysql> SHOW GRANTS FOR dbybforum_rw@localhost;
 +---------------------------------------------------------------------+
 ```
 
-## Setup database
+## Create database structure and import initial data
 Create the database-structure and import the initial data:
 ```
 eg-be@dev:~/ybforum/database$ mysql -h localhost -u dbybforum_rw -prw-password dbybforum < dbybforum-no-data.dump.sql 
