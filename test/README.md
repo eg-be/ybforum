@@ -6,7 +6,7 @@ Most tests are about validating the queries againts the underlying database, the
 Follow the instructions in [database](../database/) to create an empty database with a read-only and a read-write user.
 
 ## Sendmail
-Some functions must send a confirmation mail to complete the request. The test-system requires a working MTA, so that PHPs `mail()` function returns without an error. A cheap solution is to install exim, configure it to deliver mail locally only and and then just specify an alias to redirect all mail for www-data to some other user:
+Some functions must send a confirmation mail to complete the request. The test-system requires a working MTA, so that PHPs `mail()` function returns without an error. A cheap solution is to install exim, configure it to deliver mail locally only and and then just specify an alias to redirect all mail for `www-data` to some other user:
 
 ```
 eg-be@dev:~$ cat /etc/aliases 
