@@ -19,3 +19,7 @@ Thats it, now point your browser to the URL serving the content of httpdoc. You 
 ![Empty index](doc/index.png)
 
 You are ready to post your first entry now.
+
+## Notes
+### sendmail
+Confirmation mails are sent using phps built-in function [mail](https://www.php.net/manual/de/function.mail.php). Make sure that the `sendmail_path` in `php.ini` is configured with a MTA satisfying the [requirements](https://www.php.net/manual/en/mail.requirements.php).
