@@ -232,14 +232,23 @@ class Mailer
         $mailBody.= $link . "\r\n\r\n";
         $mailBody.= $validForText . "\r\n";
         
-        // If we do not force a sender, the reply-to: address is still set to www-data (?)
         $sent = false;
         if (YbForumConfig::MAIL_DEBUG)
         {
-            $sent = mail($email, $subject, $mailBody, $this->GetHeaderString());        
+            $msg = $this->GetHeaderString() . PHP_EOL 
+                . 'From: ' . YbForumConfig::MAIL_FROM_NAME .'<'. YbForumConfig::MAIL_FROM . '>' . PHP_EOL
+                .  'To: ' . $email . PHP_EOL
+                . 'Subject: ' . $subject . PHP_EOL
+                . $mailBody;
+            openlog("YbForum", LOG_PERROR, LOG_USER);
+            syslog(LOG_DEBUG, $msg);
+            closelog();
+            $sent = true;
         }
         else
         {
+            // If we do not force a sender, the reply-to: address is still set to www-data (?)
+            // so we just use that -f switch
             $sent = mail($email, $subject, $mailBody, $this->GetHeaderString(), '-f ' . YbForumConfig::MAIL_FROM);
         }
         $logger = new Logger();
