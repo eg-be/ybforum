@@ -17,7 +17,8 @@ final class ForumDbTest extends TestCase
 
     const TEST_DB = [
         __DIR__.'/../database/dbybforum-no-data.dump.sql',
-        __DIR__.'/../database/log_type_table_data.dump.sql'
+        __DIR__.'/../database/log_type_table_data.dump.sql',
+        __DIR__.'/users.sql'
     ];
 
     public static function setUpBeforeClass(): void
@@ -62,9 +63,23 @@ final class ForumDbTest extends TestCase
         $this->assertFalse($this->db->IsReadOnly());
     }
 
+    public function testGetUserCount() : void
+    {
+        $count = $this->db->GetUserCount();
+        $this->assertEquals(7, $count);
+        // add some users
+
+    }
+
     public function testGetThreadCount() : void
     {
         $count = $this->db->GetThreadCount();
+        $this->assertEquals(0, $count);
+    }
+
+    public function testGetPostCount() : void
+    {
+        $count = $this->db->GetPostCount();
         $this->assertEquals(0, $count);
     }
 }
