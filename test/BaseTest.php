@@ -12,7 +12,7 @@ require_once __DIR__.'/../web/model/ForumDb.php';
  */
 class BaseTest extends TestCase
 {
-    protected $db;
+    //protected $db;
 
     const TEST_DB = [
         __DIR__.'/../database/dbybforum-no-data.dump.sql',
@@ -20,7 +20,7 @@ class BaseTest extends TestCase
         __DIR__.'/users.sql'
     ];
 
-    private function createTestDatabase() : void
+    protected static function createTestDatabase() : void
     {
         // restore an empty database for the tests
         foreach(BaseTest::TEST_DB as $file)
@@ -42,19 +42,17 @@ class BaseTest extends TestCase
         }
     }
 
-    public static function setUpBeforeClass(): void
-    {
 
-    }
-
+/*
     protected function setUp(): void
     {
-        $this->createTestDatabase();
-        $this->db = new ForumDb();
+        //$this->createTestDatabase();
+        //$this->db = new ForumDb();
     }
 
     protected function assertPreConditions(): void
     {
-        $this->assertTrue($this->db->IsConnected());
+        //$this->assertTrue($this->db->IsConnected());
     }    
+    */
 }
