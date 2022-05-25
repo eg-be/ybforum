@@ -234,17 +234,17 @@ class User
     /**
      * @return bool True if field admin holds a value > 0.
      */
-    public function IsAdmin()
+    public function IsAdmin() : bool
     {
-        return $this->admin;
+        return $this->admin > 0;
     }
     
     /**
      * @return bool True if field active holds a value > 0.
      */
-    public function IsActive()
+    public function IsActive() : bool
     {
-        return $this->active;
+        return $this->active > 0;
     }
     
     /**

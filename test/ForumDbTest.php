@@ -67,8 +67,6 @@ final class ForumDbTest extends TestCase
     {
         $count = $this->db->GetUserCount();
         $this->assertEquals(7, $count);
-        // add some users
-
     }
 
     public function testGetThreadCount() : void
