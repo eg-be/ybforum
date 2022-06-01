@@ -41,7 +41,7 @@ catch(Exception $ex)
 
 <html lang="de-ch">
     <head>
-        <link rel="stylesheet" type="text/css" href="ybforum.css">
+        <link rel="stylesheet" type="text/css" href="ybforum.css?v=r182">
         <title>YB Forum</title>
         <meta charset="UTF-8">
         <meta name="theme-color" content="#FFCC00">
@@ -67,5 +67,8 @@ catch(Exception $ex)
         $pl = new PostList($replies);
         echo $pl->RenderListDiv();
         ?>
+        <?php
+        include __DIR__.'/pageparts/StandWithUkr.php';
+        ?>        
     </body>
 </html>

@@ -58,7 +58,7 @@ catch(Exception $ex)
 
 <html lang="de-ch">
     <head>
-        <link rel="stylesheet" type="text/css" href="ybforum.css?v=r181">        
+        <link rel="stylesheet" type="text/css" href="ybforum.css?v=r182">        
         <title>YB Forum</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -166,5 +166,8 @@ catch(Exception $ex)
             [ <a href="register.php">Registrieren</a> ] 
         </div>
         <hr>
+        <?php
+        include __DIR__.'/pageparts/StandWithUkr.php';
+        ?>        
     </body>
 </html>
