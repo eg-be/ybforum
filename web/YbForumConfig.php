@@ -102,7 +102,7 @@ class YbForumConfig
     /**
      * @var bool Use captcha verification while registering new users.
      */
-    const CAPTCHA_VERIFY = true;
+    const CAPTCHA_VERIFY = false;
     
     /**
      * @var string Captcha secret code
