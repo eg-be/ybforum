@@ -25,7 +25,6 @@ require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/pageparts/PageNavigationView.php';
 require_once __DIR__.'/pageparts/ThreadIndexView.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
-
 include __DIR__.'/profile/profile_start.php';
 
 try
@@ -48,7 +47,7 @@ catch(Exception $ex)
 
 <html lang="de-ch">
     <head>
-        <link rel="stylesheet" type="text/css" href="ybforum.css">
+        <link rel="stylesheet" type="text/css" href="ybforum.css?v=r182">
         <title>YB Forum</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -109,6 +108,9 @@ catch(Exception $ex)
         }
         ?>
         </div>
+        <?php
+        include __DIR__.'/pageparts/StandWithUkr.php';
+        ?>
         <?php
         include __DIR__.'/profile/profile_end.php';
         ?>
