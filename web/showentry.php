@@ -23,6 +23,7 @@
 require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/pageparts/PostView.php';
 require_once __DIR__.'/pageparts/ThreadIndexView.php';
+require_once __DIR__.'/pageparts/StandWithUkr.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 
 try
@@ -166,5 +167,8 @@ catch(Exception $ex)
             [ <a href="register.php">Registrieren</a> ] 
         </div>
         <hr>
+        <?php
+        include __DIR__.'/pageparts/StandWithUkr.php';
+        ?>        
     </body>
 </html>

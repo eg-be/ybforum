@@ -24,6 +24,7 @@ require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 require_once __DIR__.'/helpers/Logger.php';
 require_once __DIR__.'/handlers/ResetPasswordHandler.php';
+require_once __DIR__.'/pageparts/StandWithUkr.php';
 
 try
 {
@@ -169,5 +170,8 @@ catch(Exception $ex)
             }
             ?>
         </div>
+        <?php
+        include __DIR__.'/pageparts/StandWithUkr.php';
+        ?>
     </body>
 </html>
