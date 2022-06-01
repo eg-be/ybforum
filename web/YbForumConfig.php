@@ -121,4 +121,9 @@ class YbForumConfig
      * like 20min are trying to post..
      */
     const LOG_EXT_POST_DATA_ON_AUTH_FAILURE = true;
+
+    /**
+     * @var bool If true, a stand with ukraine logo is rendered
+     */
+    const STAND_WITH_UKR = true;
 }

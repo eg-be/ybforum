@@ -23,6 +23,7 @@
 require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 require_once __DIR__.'/pageparts/PostList.php';
+require_once __DIR__.'/pageparts/StandWithUkr.php';
 
 try
 {
@@ -67,5 +68,8 @@ catch(Exception $ex)
         $pl = new PostList($replies);
         echo $pl->RenderListDiv();
         ?>
+        <?php
+        include __DIR__.'/pageparts/StandWithUkr.php';
+        ?>        
     </body>
 </html>
