@@ -29,7 +29,7 @@ require_once __DIR__.'/pageparts/ResetPasswordForm.php';
 
 <html lang="de-ch">
     <head>
-        <link rel="stylesheet" type="text/css" href="ybforum.css?v=r182">        
+        <link rel="stylesheet" type="text/css" href="ybforum.css?v=r183">        
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="theme-color" content="#FFCC00">
