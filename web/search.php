@@ -25,6 +25,7 @@ require_once __DIR__.'/helpers/ErrorHandler.php';
 require_once __DIR__.'/pageparts/PostList.php';
 require_once __DIR__.'/pageparts/SearchForm.php';
 require_once __DIR__.'/pageparts/SearchResultsView.php';
+require_once __DIR__.'/pageparts/StandWithUkr.php';
 require_once __DIR__.'/handlers/SearchHandler.php';
 
 include __DIR__.'/profile/profile_start.php';
@@ -108,6 +109,9 @@ catch(Exception $ex)
             echo $searchResultsView->RenderResultsNavigationDiv();
         }
         ?>
+        <?php
+        include __DIR__.'/pageparts/StandWithUkr.php';
+        ?>        
         <?php
         include __DIR__.'/profile/profile_end.php';
         ?>        

@@ -18,5 +18,44 @@
  * You should have received a copy of the GNU General Public License
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
-echo '<img style="max-width: 100%; height: auto;" src="logo.jpg?r=8" alt="YB Forum"/>';
+
+namespace standwithukr;
+
+
+require_once(__DIR__.'/../YbForumConfig.php');
+
+/**
+ * @author Elias Gerber 
+ */
+class StandWithUkr {
+
+    /**
+     */
+    public function __construct()
+    {
+    }
+    
+    /**
+     * Render a div for a UKR flag
+     */
+    public function renderHtmlDiv() : String
+    {
+        $htmlStr = '<div class="standwithukr" title="We stand with Ukraine" id="we-stand-with-ukraine"></div>';
+        return $htmlStr;
+    }    
+}
+
+try
+{
+    if (\YbForumConfig::STAND_WITH_UKR === true )
+    {
+        $swu = new StandWithUkr();
+        echo $swu->renderHtmlDiv();
+    }
+}
+catch(\Exception $ex)
+{
+    \ErrorHandler::OnException($ex);
+}
+
 ?>

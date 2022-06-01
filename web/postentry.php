@@ -23,6 +23,7 @@
 require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/pageparts/PostEntryForm.php';
 require_once __DIR__.'/pageparts/MigrateUserForm.php';
+require_once __DIR__.'/pageparts/StandWithUkr.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 require_once __DIR__.'/handlers/PostEntryHandler.php';
 
@@ -164,5 +165,8 @@ catch(Exception $ex)
         }
         ?>
         </div>
+        <?php
+        include __DIR__.'/pageparts/StandWithUkr.php';
+        ?>        
     </body>
 </html>

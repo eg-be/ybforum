@@ -25,6 +25,7 @@ require_once __DIR__.'/handlers/ConfirmHandlerFactory.php';
 require_once __DIR__.'/handlers/ConfirmResetPasswordHandler.php';
 require_once __DIR__.'/handlers/UpdatePasswordHandler.php';
 require_once __DIR__.'/pageparts/ResetPasswordForm.php';
+require_once __DIR__.'/pageparts/StandWithUkr.php';
 ?>
 
 <html lang="de-ch">
@@ -102,5 +103,8 @@ require_once __DIR__.'/pageparts/ResetPasswordForm.php';
         }
         ?>
         </div>
+        <?php
+        include __DIR__.'/pageparts/StandWithUkr.php';
+        ?>
     </body>
 </html>

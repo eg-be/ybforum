@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__.'/pageparts/StandWithUkr.php';
+?>
+
 <!DOCTYPE html>
 <html lang="de-ch">
     <head>
@@ -111,5 +115,8 @@
                 Die Pseudotags müssen exakt in der dargestellten Schreibweise verwenden werden (keine Leerzeichen, alle Zeichen in Kleinschreibung).
             </p>
         </div>
+        <?php
+        include __DIR__.'/pageparts/StandWithUkr.php';
+        ?>
     </body>
 </html>
