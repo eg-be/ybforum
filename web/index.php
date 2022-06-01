@@ -24,8 +24,8 @@ require_once __DIR__.'/YbForumConfig.php';
 require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/pageparts/PageNavigationView.php';
 require_once __DIR__.'/pageparts/ThreadIndexView.php';
+require_once __DIR__.'/pageparts/StandWithUkr.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
-
 include __DIR__.'/profile/profile_start.php';
 
 try
@@ -109,6 +109,9 @@ catch(Exception $ex)
         }
         ?>
         </div>
+        <?php
+        include __DIR__.'/pageparts/StandWithUkr.php';
+        ?>
         <?php
         include __DIR__.'/profile/profile_end.php';
         ?>

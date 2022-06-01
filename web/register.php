@@ -24,6 +24,7 @@ require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 require_once __DIR__.'/handlers/RegisterUserHandler.php';
 require_once __DIR__.'/YbForumConfig.php';
+require_once __DIR__.'/pageparts/StandWithUkr.php';
 
 try
 {
@@ -172,5 +173,8 @@ catch(Exception $ex)
             </div>';
         }
         ?>
+        <?php
+        include __DIR__.'/pageparts/StandWithUkr.php';
+        ?>        
     </body>
 </html>
