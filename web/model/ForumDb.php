@@ -77,7 +77,7 @@ class ForumDb extends PDO
     /**
     * @return bool True if connected to db (constructor run without exception)
     */    
-    public function IsConnected()
+    public function IsConnected() : bool
     {
         return $this->m_connected;
     }
@@ -85,17 +85,20 @@ class ForumDb extends PDO
     /**
     * @return bool True if connected using read-only parameters
     */
-    public function IsReadOnly()
+    public function IsReadOnly() : bool
     {
         return $this->m_readOnly;
     }
   
     /**
-    * Count number of entries in thread_table
+    * Count number of entries in thread_table.
+    * Note: This will also include threads that have no
+    * visible posts (no posts, or all posts hidden). Its
+    * just the count of rows of the thread_table.
     * @return int
     * @throws Exception If a database operation fails.
     */
-    public function GetThreadCount()
+    public function GetThreadCount() : int
     {
         $stmt = $this->query('SELECT COUNT(idthread) FROM thread_table');
         $result = $stmt->fetch(PDO::FETCH_NUM);
@@ -107,10 +110,12 @@ class ForumDb extends PDO
     }
     
     /**
-     * Counter number of entries in post_table
+     * Counter number of entries in post_table.
+     * Note: This will also include posts that are hidden, 
+     * its just the count of rows of the post_table.
      * @throws Exception If database operation fails
      */
-    public function GetPostCount()
+    public function GetPostCount() : int
     {
         $stmt = $this->query('SELECT COUNT(idpost) FROM post_table');
         $result = $stmt->fetch(PDO::FETCH_NUM);
@@ -125,7 +130,7 @@ class ForumDb extends PDO
      * Count number of entries in user_table
      * @throws Exception If database operation fails
      */
-    public function GetUserCount()
+    public function GetUserCount() : int
     {
         $stmt = $this->query('SELECT COUNT(iduser) FROM user_table');
         $result = $stmt->fetch(PDO::FETCH_NUM);
