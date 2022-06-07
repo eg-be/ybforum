@@ -38,12 +38,6 @@ final class ForumDbTest extends BaseTest
         $this->assertFalse($this->db->IsReadOnly());
     }
 
-    public function testGetUserCount() : void
-    {
-        $count = $this->db->GetUserCount();
-        $this->assertEquals(8, $count);
-    }
-
     public function testGetThreadCount() : void
     {
         $count = $this->db->GetThreadCount();
@@ -55,4 +49,41 @@ final class ForumDbTest extends BaseTest
         $count = $this->db->GetPostCount();
         $this->assertEquals(19, $count);
     }
+
+    public function testGetUserCount() : void
+    {
+        $count = $this->db->GetUserCount();
+        $this->assertEquals(8, $count);
+    }
+
+    public function testGetActiveUserCount() : void
+    {
+        $count = $this->db->GetActiveUserCount();
+        $this->assertEquals(4, $count);
+    }
+
+    public function testGetFromAdminDeactivatedUserCount() : void
+    {
+        $count = $this->db->GetFromAdminDeactivatedUserCount();
+        $this->assertEquals(1, $count);
+    }
+
+    public function testGetPendingAdminApprovalUserCount() : void
+    {
+        $count = $this->db->GetPendingAdminApprovalUserCount();
+        $this->assertEquals(1, $count);
+    }
+
+    public function testGetNeedMigrationUserCount() : void
+    {
+        $count = $this->db->GetNeedMigrationUserCount();
+        $this->assertEquals(1, $count);
+    }
+
+    public function testGetDummyUserCount() : void
+    {
+        $count = $this->db->GetDummyUserCount();
+        $this->assertEquals(1, $count);
+    }
+
 }
