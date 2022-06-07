@@ -145,7 +145,7 @@ class ForumDb extends PDO
      * Count number of entries in user_table that have the flag active set to 1
      * @throws Exception If database operation fails
      */
-    public function GetActiveUserCount()
+    public function GetActiveUserCount() : int
     {
         $stmt = $this->query('SELECT COUNT(iduser) FROM user_table '
                 . 'WHERE active > 0');
@@ -158,7 +158,12 @@ class ForumDb extends PDO
     }
     
     /**
-     * Count number of entries in deactivated_user_view
+     * Count number of entries that have been deactivated 
+     * by an admin: Those users have an entry in table
+     * user_deactivated_reason_table. All rows from 
+     * user_deactivated_reason_table are included where
+     * the referened user has the flag user_table.active set
+     * to 0.
      * @throws Exception If database operation fails
      */
     public function GetFromAdminDeactivatedUserCount()
@@ -178,10 +183,15 @@ class ForumDb extends PDO
     }
     
     /**
-     * Count number of entries in pending_admin_approval_view
+     * Count number of users which are inactive, because
+     * an admin needs to approve the registration. Those
+     * users must have confirmed their e-mail address,
+     * therefore confirmation_ts must not be NULL, their
+     * active flag must be set to 0 and they are not allowed
+     * to appear in user_deactivated_reason_table.
      * @throws Exception If database operation fails
      */
-    public function GetPendingAdminApprovalUserCount()
+    public function GetPendingAdminApprovalUserCount() : int
     {
         $query = 'SELECT COUNT(*) '
                 . 'FROM user_table '
@@ -203,7 +213,7 @@ class ForumDb extends PDO
      * value in field old_passwd
      * @throws Exception If database operation fails
      */
-    public function GetNeedMigrationUserCount()
+    public function GetNeedMigrationUserCount() : int
     {
         $stmt = $this->query('SELECT COUNT(iduser) FROM user_table '
                 . 'WHERE old_passwd IS NOT NULL');
@@ -220,7 +230,7 @@ class ForumDb extends PDO
      * old_passwd, password and email
      * @throws Exception If database operation fails
      */
-    public function GetDummyUserCount()
+    public function GetDummyUserCount() : int
     {
         $stmt = $this->query('SELECT COUNT(iduser) FROM user_table '
                 . 'WHERE old_passwd IS NULL AND password IS NULL '

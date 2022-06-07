@@ -75,17 +75,17 @@ final class UserTest extends BaseTest
         $this->assertTrue($user->HasOldPassword());        
     }
 
-    private function validateFooBar(User $user) : void
+    private function validateDeactivated(User $user) : void
     {
         $this->assertNotNull($user);
         $this->assertEquals(50, $user->GetId());
-        $this->assertEquals('foo bar', $user->GetNick());
+        $this->assertEquals('deactivated', $user->GetNick());
         $this->assertTrue($user->HasEmail());
-        $this->assertEquals('foo-bar@dev', $user->GetEmail());
+        $this->assertEquals('deactivated@dev', $user->GetEmail());
         $this->assertFalse($user->IsAdmin());
-        $this->assertTrue($user->IsActive());
+        $this->assertFalse($user->IsActive());
         $this->assertEquals(new DateTime('2021-03-30 14:30:05'), $user->GetRegistrationTimestamp());
-        $this->assertEquals('initial foo bar', $user->GetRegistrationMsg());
+        $this->assertEquals('deactivated by admin', $user->GetRegistrationMsg());
         $this->assertTrue($user->HasRegistrationMsg());
         $this->assertTrue($user->IsConfirmed());
         $this->assertEquals(new DateTime('2021-03-30 14:30:15'), $user->GetConfirmationTimestamp());
@@ -102,8 +102,8 @@ final class UserTest extends BaseTest
         $this->validateAdmin($admin);
         $oldUser = User::LoadUserById($this->db, 10);
         $this->validateOldUser($oldUser);
-        $foobar = User::LoadUserById($this->db, 50);
-        $this->validateFooBar($foobar);
+        $deactivated = User::LoadUserById($this->db, 50);
+        $this->validateDeactivated($deactivated);
 
         $this->assertNull(User::LoadUserById($this->db, -1));
         $this->assertNull(User::LoadUserById($this->db, 12));
@@ -115,8 +115,8 @@ final class UserTest extends BaseTest
         $this->validateAdmin($admin);
         $oldUser = User::LoadUserByNick($this->db, 'old-user');
         $this->validateOldUser($oldUser);
-        $foobar = User::LoadUserByNick($this->db, 'foo bar');
-        $this->validateFooBar($foobar);
+        $deactivated = User::LoadUserByNick($this->db, 'deactivated');
+        $this->validateDeactivated($deactivated);
 
         $this->assertNull(User::LoadUserByNick($this->db, 'nope'));
         $this->assertNull(User::LoadUserByNick($this->db, ' admin'));
@@ -131,8 +131,8 @@ final class UserTest extends BaseTest
         $this->validateAdmin($admin);
         $oldUser = User::LoadUserByEmail($this->db, 'old-user@dev');
         $this->validateOldUser($oldUser);
-        $foobar = User::LoadUserByEmail($this->db, 'foo-bar@dev');
-        $this->validateFooBar($foobar);
+        $deactivated = User::LoadUserByEmail($this->db, 'deactivated@dev');
+        $this->validateDeactivated($deactivated);
 
         $this->assertNull(User::LoadUserByEmail($this->db, 'nope@foo'));
         $this->assertNull(User::LoadUserByEmail($this->db, ' eg-be@dev'));
