@@ -25,7 +25,7 @@ class BaseTest extends TestCase
     protected static function createTestDatabase() : void
     {
         // restore an empty database for the tests
-        foreach(BaseTest::TEST_DB as $file)
+        foreach(self::TEST_DB as $file)
         {
             $cmd = sprintf('mysql -h localhost -u %s -p%s %s < %s 2>&1', 
             DbConfig::RW_USERNAME, DbConfig::RW_PASSWORD, DbConfig::DEFAULT_DB, $file);
