@@ -86,4 +86,46 @@ final class ForumDbTest extends BaseTest
         $this->assertEquals(1, $count);
     }
 
+    public function testGetLastThreadId() : void
+    {
+        $id = $this->db->GetLastThreadId();
+        $this->assertEquals(12, $id);
+    }
+
+    public function testAuthUser() : void
+    {
+        // a user with a new password that is active is ok:
+        $reason = 0;
+        $admin = $this->db->AuthUser("admin", "admin-pass", $reason);
+        $this->assertNotNull($admin);
+        $this->assertEquals(1, $admin->GetId());
+        // active user fails because password missmatch
+        $admin = $this->db->AuthUser("admin", "foo", $reason);
+        $this->assertNull($admin);
+        $this->assertEquals(ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID, $reason);
+        // fail because password is correct, but user is inactive:
+        $deact = $this->db->AuthUser("deactivated", "deactivated-pass", $reason);
+        $this->assertNull($deact);
+        $this->assertEquals(ForumDb::AUTH_FAIL_REASON_USER_IS_INACTIVE, $reason);
+        // fail with wrong password on inactive: must return inactive-reason:
+        $deact = $this->db->AuthUser("deactivated", "foo", $reason);
+        $this->assertNull($deact);
+        $this->assertEquals(ForumDb::AUTH_FAIL_REASON_USER_IS_INACTIVE, $reason);
+        // fail because its a dummy
+        $dummy = $this->db->AuthUser("dummy", "foo", $reason);
+        $this->assertNull($dummy);
+        $this->assertEquals(ForumDb::AUTH_FAIL_REASON_USER_IS_DUMMY, $reason);
+        // fails because user is unknown
+        $unknown = $this->db->AuthUser("anyone", "foo", $reason);
+        $this->assertNull($unknown);
+        $this->assertEquals(ForumDb::AUTH_FAIL_REASON_NO_SUCH_USER, $reason);
+        // and auth a user that needs to migrate (but is not active yet):
+        $old = $this->db->AuthUser("old-user", "old-user-pass");
+        $this->assertNotNull($old);
+        $this->assertEquals(10, $old->GetId());
+        // but fail for an old user if pass is incorrect
+        $old = $this->db->AuthUser("old-user", "foo", $reason);
+        $this->assertNull($old);
+        $this->assertEquals(ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID, $reason);
+    }
 }
