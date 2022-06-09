@@ -249,7 +249,7 @@ class ForumDb extends PDO
     * @return int
     * @throws Exception If a database operation fails.
     */
-    public function GetLastThreadId()
+    public function GetLastThreadId() : int
     {
         $stmt = $this->query('SELECT MAX(idthread) FROM thread_table');
         $result = $stmt->fetch(PDO::FETCH_NUM);
@@ -267,15 +267,19 @@ class ForumDb extends PDO
     /**
      * Authenticate against the user_table. Returns a user object if
      * a user with the passed $nick exists and:
-     * - If the user as a (new) password set in field password that matches
+     * - If the user has a (new) password set in field password that matches
      * the passed $password and the user is active, 
      * or:
      * - If the user has an old password set in field old_passwd that matches
      * the passed $password (ignoring active).
+     * authFailReason is set to one of the constants AUTH_FAIL_REASON_xx
+     * only if authentification fails and null is returned. Else its not modified
+     * If a user is inactive and the password missmatches, AUTH_FAIL_REASON_USER_IS_INACTIVE
+     * is set as authFailReason
      * @param string $password
      * @return User
      */
-    public function AuthUser(string $nick, string $password, int &$authFailReason = null)
+    public function AuthUser(string $nick, string $password, int &$authFailReason = null) : ?User
     {
         assert(!empty($nick));
         assert(!empty($password));
