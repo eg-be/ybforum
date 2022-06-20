@@ -350,8 +350,10 @@ class ForumDb extends PDO
      * if passed user is a dummy.
      * @throws Exception If a database operation fails.
      */
-    public function CreateThread(User $user, string $title, $content, $email, 
-            $linkUrl, $linkText, $imgUrl, string $clientIpAddress)
+    public function CreateThread(User $user, string $title, 
+            ?string $content, ?string $email, 
+            ?string $linkUrl, ?string $linkText, 
+            ?string $imgUrl, string $clientIpAddress) : int
     {        
         assert(!empty($title));
         assert(is_null($content) || (is_string($content) && !empty($content)));        
