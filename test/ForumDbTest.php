@@ -21,7 +21,7 @@ final class ForumDbTest extends BaseTest
         // some of the tests will modify the db, 
         // just re-create from scratch on every test
         BaseTest::createTestDatabase();        
-        $this->db = new ForumDb();
+        $this->db = new ForumDb(false);
     }
 
     protected function assertPreConditions(): void
@@ -32,10 +32,11 @@ final class ForumDbTest extends BaseTest
     public function testIsReadOnly(): void
     {
         // a database is ro by default
-        $this->assertTrue($this->db->IsReadOnly());
+        $ro = new ForumDb();
+        $this->assertTrue($ro->IsReadOnly());
         // except we enfore a rw-db:
-        $this->db = new ForumDb(false);
-        $this->assertFalse($this->db->IsReadOnly());
+        $rw = new ForumDb(false);
+        $this->assertFalse($rw->IsReadOnly());
     }
 
     public function testGetThreadCount() : void
@@ -128,4 +129,41 @@ final class ForumDbTest extends BaseTest
         $this->assertNull($old);
         $this->assertEquals(ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID, $reason);
     }
+
+    public function testCreateThread() : void
+    {
+        $oldCount = $this->db->GetThreadCount();
+        $user = User::LoadUserByNick($this->db, "admin");
+        $this->assertNotNull($user);
+        // create a new thread: only a title must be set
+        $newId = $this->db->CreateThread($user, "thread-title", 
+            null, null, null, null, null, "::1");
+        $newCount = $this->db->GetThreadCount();
+        $this->assertEquals($oldCount + 1, $newCount);
+        // todo: Check values are inserted correctly
+    }
+
+    /**
+     * @dataProvider providerInactiveDummy
+     * @test
+     */
+    public function testCreateThreadFails(User $u) : void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->CreateThread($u, "title",
+            null, null, null, null, null, "::1");
+    }
+
+    public function providerInactiveDummy() : array 
+    {
+        $db = new ForumDb();
+        $deactivated = User::LoadUserByNick($db, "deactivated");
+        $dummy = User::LoadUserByNick($db, "dummy");
+        return array(
+            [$deactivated], 
+            [$dummy]
+        );
+    }
+
+
 }
