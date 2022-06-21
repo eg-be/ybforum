@@ -16,13 +16,27 @@ final class ForumDbTest extends BaseTest
 {
     private $db;
 
+    public static function setUpBeforeClass(): void
+    {
+        // Most of the test require just a database,
+        // but do not rely on an exact count of things
+        // setup here, tests which require a given state
+        // shall do that on their own
+        BaseTest::createTestDatabase();
+    }
+
     protected function setUp(): void
+    {
+        $this->db = new ForumDb(false);
+    }
+
+/*    protected function setUp(): void
     {
         // some of the tests will modify the db, 
         // just re-create from scratch on every test
         BaseTest::createTestDatabase();        
         $this->db = new ForumDb(false);
-    }
+    }*/
 
     protected function assertPreConditions(): void
     {
@@ -41,54 +55,63 @@ final class ForumDbTest extends BaseTest
 
     public function testGetThreadCount() : void
     {
+        BaseTest::createTestDatabase();
         $count = $this->db->GetThreadCount();
         $this->assertEquals(12, $count);
     }
 
     public function testGetPostCount() : void
     {
+        BaseTest::createTestDatabase();
         $count = $this->db->GetPostCount();
         $this->assertEquals(19, $count);
     }
 
     public function testGetUserCount() : void
     {
+        BaseTest::createTestDatabase();
         $count = $this->db->GetUserCount();
         $this->assertEquals(8, $count);
     }
 
     public function testGetActiveUserCount() : void
     {
+        BaseTest::createTestDatabase();
         $count = $this->db->GetActiveUserCount();
         $this->assertEquals(4, $count);
     }
 
     public function testGetFromAdminDeactivatedUserCount() : void
     {
+        BaseTest::createTestDatabase();
         $count = $this->db->GetFromAdminDeactivatedUserCount();
         $this->assertEquals(1, $count);
     }
 
     public function testGetPendingAdminApprovalUserCount() : void
     {
+        BaseTest::createTestDatabase();
         $count = $this->db->GetPendingAdminApprovalUserCount();
         $this->assertEquals(1, $count);
     }
 
     public function testGetNeedMigrationUserCount() : void
     {
+        BaseTest::createTestDatabase();
         $count = $this->db->GetNeedMigrationUserCount();
         $this->assertEquals(1, $count);
     }
 
     public function testGetDummyUserCount() : void
     {
+        BaseTest::createTestDatabase();        
         $count = $this->db->GetDummyUserCount();
         $this->assertEquals(1, $count);
     }
 
     public function testGetLastThreadId() : void
     {
+        BaseTest::createTestDatabase();
         $id = $this->db->GetLastThreadId();
         $this->assertEquals(12, $id);
     }
@@ -149,6 +172,7 @@ final class ForumDbTest extends BaseTest
      */
     public function testCreateThreadFails(User $u) : void
     {
+        $this->assertTrue($u->IsDummyUser() || $u->IsActive() === false);
         $this->expectException(InvalidArgumentException::class);
         $this->db->CreateThread($u, "title",
             null, null, null, null, null, "::1");

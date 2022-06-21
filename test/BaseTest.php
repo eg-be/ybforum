@@ -17,9 +17,9 @@ class BaseTest extends TestCase
     const TEST_DB = [
         __DIR__.'/../database/dbybforum-no-data.dump.sql',
         __DIR__.'/../database/log_type_table_data.dump.sql',
-        __DIR__.'/users.sql',
-        __DIR__.'/threads.sql',
-        __DIR__.'/posts.sql'
+        __DIR__.'/data/users.sql',
+        __DIR__.'/data/threads.sql',
+        __DIR__.'/data/posts.sql'
     ];
 
     protected static function createTestDatabase() : void
