@@ -2,6 +2,7 @@
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__.'/BaseTest.php';
+require_once __DIR__.'/UserMock.php';
 require_once __DIR__.'/../web/model/User.php';
 
 
@@ -32,92 +33,58 @@ final class UserTest extends BaseTest
         $this->assertTrue($this->db->IsConnected());
     }       
 
-    private function validateAdmin(User $user) : void
+    public function providerUserMock() : array
     {
-        $this->assertNotNull($user);
-        $this->assertEquals(1, $user->GetId());
-        $this->assertEquals('admin', $user->GetNick());
-        $this->assertTrue($user->HasEmail());
-        $this->assertEquals('eg-be@dev', $user->GetEmail());
-        $this->assertTrue($user->IsAdmin());
-        $this->assertTrue($user->IsActive());
-        $this->assertEquals(new DateTime('2020-03-30 14:30:05'), $user->GetRegistrationTimestamp());
-        $this->assertEquals('initial admin-user', $user->GetRegistrationMsg());
-        $this->assertTrue($user->HasRegistrationMsg());
-        $this->assertTrue($user->IsConfirmed());
-        $this->assertEquals(new DateTime('2020-03-30 14:30:15'), $user->GetConfirmationTimestamp());
-        $this->assertFalse($user->IsDummyUser());
-        $this->assertFalse($user->NeedsMigration());
-        $this->assertFalse($user->NeedsConfirmation());
-        $this->assertTrue($user->HasPassword());
-        $this->assertFalse($user->HasOldPassword());
+        $admin = new UserMock(1, 'admin', 'eg-be@dev',
+            1, 1, '2020-03-30 14:30:05', 'initial admin-user',
+            '2020-03-30 14:30:15', 
+            '$2y$10$n.ZGkNoS3BvavZ3qcs50nelspmTfM3dh8ZLSZ5JXfBvW9rQ6i..VC', null);
+        $old = new UserMock(10, 'old-user', 'old-user@dev',
+            0, 0, '2017-12-31 15:21:27', 'needs migration',
+            null,
+            null, '895e1aace5e13c683491bb26dd7453bf');
+        $deactivated = new UserMock(50, 'deactivated', 'deactivated@dev',
+            0, 0, '2021-03-30 14:30:05', 'deactivated by admin',
+            '2021-03-30 14:30:15',
+            '$2y$10$U2nazhRAEhg1JkXu2Uls0.pnH5Wi9QsyXbmoJMBC2KNYGPN8fezfe', null);
+        
+        return array(
+            [$admin],
+            [$old],
+            [$deactivated]
+        );
     }
 
-    private function validateOldUser(User $user) : void
+    /**
+     * @test
+     * @dataProvider providerUserMock
+     */
+    public function testLoadUserById(User $ref) : void
     {
+        $user = User::LoadUserById($this->db, $ref->GetId());
         $this->assertNotNull($user);
-        $this->assertEquals(10, $user->GetId());
-        $this->assertEquals('old-user', $user->GetNick());
-        $this->assertTrue($user->HasEmail());
-        $this->assertEquals('old-user@dev', $user->GetEmail());
-        $this->assertFalse($user->IsAdmin());
-        $this->assertFalse($user->IsActive());
-        // Note: In real data, registration-ts is set to the date of the db-migration for old-users.
-        $this->assertEquals(new DateTime('2017-12-31 15:21:27'), $user->GetRegistrationTimestamp());
-        $this->assertEquals('needs migration', $user->GetRegistrationMsg());
-        $this->assertTrue($user->HasRegistrationMsg());
-        $this->assertFalse($user->IsConfirmed());
-        $this->assertNull($user->GetConfirmationTimestamp());
-        $this->assertFalse($user->IsDummyUser());
-        $this->assertTrue($user->NeedsMigration());
-        $this->assertTrue($user->NeedsConfirmation());
-        $this->assertFalse($user->HasPassword());
-        $this->assertTrue($user->HasOldPassword());        
+        $this->assertObjectEquals($ref, $user);
     }
 
-    private function validateDeactivated(User $user) : void
+    public function testLoadUserByIdFail() : void
     {
-        $this->assertNotNull($user);
-        $this->assertEquals(50, $user->GetId());
-        $this->assertEquals('deactivated', $user->GetNick());
-        $this->assertTrue($user->HasEmail());
-        $this->assertEquals('deactivated@dev', $user->GetEmail());
-        $this->assertFalse($user->IsAdmin());
-        $this->assertFalse($user->IsActive());
-        $this->assertEquals(new DateTime('2021-03-30 14:30:05'), $user->GetRegistrationTimestamp());
-        $this->assertEquals('deactivated by admin', $user->GetRegistrationMsg());
-        $this->assertTrue($user->HasRegistrationMsg());
-        $this->assertTrue($user->IsConfirmed());
-        $this->assertEquals(new DateTime('2021-03-30 14:30:15'), $user->GetConfirmationTimestamp());
-        $this->assertFalse($user->IsDummyUser());
-        $this->assertFalse($user->NeedsMigration());
-        $this->assertFalse($user->NeedsConfirmation());
-        $this->assertTrue($user->HasPassword());
-        $this->assertFalse($user->HasOldPassword());        
-    }
-
-    public function testLoadUserById() : void
-    {
-        $admin = User::LoadUserById($this->db, 1);
-        $this->validateAdmin($admin);
-        $oldUser = User::LoadUserById($this->db, 10);
-        $this->validateOldUser($oldUser);
-        $deactivated = User::LoadUserById($this->db, 50);
-        $this->validateDeactivated($deactivated);
-
         $this->assertNull(User::LoadUserById($this->db, -1));
         $this->assertNull(User::LoadUserById($this->db, 12));
-    }
+    }    
 
-    public function testLoadUserByNick() : void
+    /**
+     * @test
+     * @dataProvider providerUserMock
+     */
+    public function testLoadUserByNick(User $ref) : void
     {
-        $admin = User::LoadUserByNick($this->db, 'admin');
-        $this->validateAdmin($admin);
-        $oldUser = User::LoadUserByNick($this->db, 'old-user');
-        $this->validateOldUser($oldUser);
-        $deactivated = User::LoadUserByNick($this->db, 'deactivated');
-        $this->validateDeactivated($deactivated);
+        $user = User::LoadUserByNick($this->db, $ref->GetNick());
+        $this->assertNotNull($user);
+        $this->assertObjectEquals($ref, $user);
+    }    
 
+    public function testLoadUserByNickFail() : void
+    {
         $this->assertNull(User::LoadUserByNick($this->db, 'nope'));
         $this->assertNull(User::LoadUserByNick($this->db, ' admin'));
 
@@ -125,20 +92,24 @@ final class UserTest extends BaseTest
         $this->assertNotNull(User::LoadUserByNick($this->db, 'admin '));
     }
 
-    public function testLoadUserByEmail() : void
+        /**
+     * @test
+     * @dataProvider providerUserMock
+     */
+    public function testLoadUserByEmail(User $ref) : void
     {
-        $admin = User::LoadUserByEmail($this->db, 'eg-be@dev');
-        $this->validateAdmin($admin);
-        $oldUser = User::LoadUserByEmail($this->db, 'old-user@dev');
-        $this->validateOldUser($oldUser);
-        $deactivated = User::LoadUserByEmail($this->db, 'deactivated@dev');
-        $this->validateDeactivated($deactivated);
+        $user = User::LoadUserByEmail($this->db, $ref->GetEmail());
+        $this->assertNotNull($user);
+        $this->assertObjectEquals($ref, $user);
+    }
 
+    public function testLoadUserByEmailFail() : void
+    {
         $this->assertNull(User::LoadUserByEmail($this->db, 'nope@foo'));
         $this->assertNull(User::LoadUserByEmail($this->db, ' eg-be@dev'));
         
         // it seems whitespaces get trimmed at the end of a prepared statement:
-        $this->assertNotNull(User::LoadUserByEmail($this->db, 'eg-be@dev '));
+        $this->assertNotNull(User::LoadUserByEmail($this->db, 'eg-be@dev '));        
     }
 
     public function testAuth() : void
