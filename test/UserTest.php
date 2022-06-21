@@ -140,4 +140,181 @@ final class UserTest extends BaseTest
         $this->assertFalse($oldUser->OldAuth(' old-user-pass'));
         $this->assertFalse($oldUser->OldAuth('olD-user-pass'));
     }
+
+    public function testEmail() : void
+    {
+        $mail = new UserMock(13, 'nick', 'mail@foo.com',
+            0, 0, '2020-03-30 14:30:05', null,
+            null,
+            null, null
+        );
+        $this->assertSame('mail@foo.com', $mail->GetEmail());
+        $this->assertTrue($mail->HasEmail());
+        
+        $noMail = new UserMock(13, 'nick', null,
+        0, 0, '2020-03-30 14:30:05', null,
+        null,
+        null, null
+        );
+        $this->assertNull($noMail->GetEmail());
+        $this->assertFalse($noMail->HasEmail());
+    }
+
+    public function testAdmin() : void
+    {
+        $admin = new UserMock(13, 'nick', null,
+            1, 0, '2020-03-30 14:30:05', null,
+            null,
+            null, null
+        );
+        $this->assertTrue($admin->IsAdmin());
+        $admin = new UserMock(13, 'nick', null,
+            99, 0, '2020-03-30 14:30:05', null,
+            null,
+            null, null
+        );
+        $this->assertTrue($admin->IsAdmin());
+
+        $noAdmin = new UserMock(13, 'nick', null,
+            0, 0, '2020-03-30 14:30:05', null,
+            null,
+            null, null
+        );
+        $this->assertFalse($noAdmin->IsAdmin());
+        $noAdmin = new UserMock(13, 'nick', null,
+            -1, 0, '2020-03-30 14:30:05', null,
+            null,
+            null, null
+        );
+        $this->assertFalse($noAdmin->IsAdmin());        
+    }
+
+    public function testActive() : void
+    {
+        $active = new UserMock(13, 'nick', null,
+            0, 1, '2020-03-30 14:30:05', null,
+            null,
+            null, null
+        );
+        $this->assertTrue($active->IsActive());
+        $active = new UserMock(13, 'nick', null,
+            0, 99, '2020-03-30 14:30:05', null,
+            null,
+            null, null
+        );
+        $this->assertTrue($active->IsActive());
+
+        $inactive = new UserMock(13, 'nick', null,
+            0, 0, '2020-03-30 14:30:05', null,
+            null,
+            null, null
+        );
+        $this->assertFalse($inactive->IsActive());
+        $inactive = new UserMock(13, 'nick', null,
+            0, -3, '2020-03-30 14:30:05', null,
+            null,
+            null, null
+        );
+        $this->assertFalse($inactive->IsActive());        
+    }
+    
+    public function testRegistrationMsg() : void
+    {
+        $msg = new UserMock(13, 'nick', null,
+            0, 0, '2020-03-30 14:30:05', 'message',
+            null,
+            null, null
+        );
+        $this->assertSame('message', $msg->GetRegistrationMsg());
+        $this->assertTrue($msg->HasRegistrationMsg());
+        
+        $noMsg = new UserMock(13, 'nick', null,
+        0, 0, '2020-03-30 14:30:05', null,
+        null,
+        null, null
+        );
+        $this->assertNull($noMsg->GetRegistrationMsg());
+        $this->assertFalse($noMsg->HasRegistrationMsg());        
+    }
+
+    public function testConfirmed() : void
+    {
+        $conf= new UserMock(13, 'nick', null,
+            0, 0, '2020-03-30 14:30:05', 'message',
+            '2022-06-21 07:30:05',
+            null, null
+        );
+        $this->assertEquals(new DateTime('2022-06-21 07:30:05'), $conf->GetConfirmationTimestamp());
+        $this->assertTrue($conf->IsConfirmed());
+        $this->assertFalse($conf->NeedsConfirmation());
+
+        $notConf = new UserMock(13, 'nick', null,
+        0, 0, '2020-03-30 14:30:05', null,
+        null,
+        null, null
+        );
+        $this->assertNull($notConf->GetConfirmationTimestamp());
+        $this->assertFalse($notConf->IsConfirmed());
+        $this->assertTrue($notConf->NeedsConfirmation());
+    }
+
+    public function testDummy() : void
+    {
+        $dummy = new UserMock(13, 'nick', null,
+            0, 0, '2020-03-30 14:30:05', null,
+            null,
+            null, null
+        );
+        $this->assertTrue($dummy->IsDummyUser());
+
+        $noDummy = new UserMock(13, 'nick', 'mail@foo.com',
+            0, 0, '2020-03-30 14:30:05', null,
+            null,
+            null, null
+        );
+        $this->assertFalse($noDummy->IsDummyUser());
+        $noDummy = new UserMock(13, 'nick', null,
+            0, 0, '2020-03-30 14:30:05', null,
+            null,
+            'password', null
+        );
+        $this->assertFalse($noDummy->IsDummyUser());
+        $noDummy = new UserMock(13, 'nick', null,
+            0, 0, '2020-03-30 14:30:05', null,
+            null,
+            null, 'old-passwd'
+        );
+        $this->assertFalse($noDummy->IsDummyUser());
+    }
+
+    public function testMigrationAndPassword() : void
+    {
+        $mig = new UserMock(13, 'nick', null,
+            0, 0, '2020-03-30 14:30:05', null,
+            null,
+            null, 'old-pass'
+        );
+        $this->assertTrue($mig->HasOldPassword());
+        $this->assertTrue($mig->NeedsMigration());
+        $this->assertFalse($mig->HasPassword());
+
+        $noMig = new UserMock(13, 'nick', null,
+            0, 0, '2020-03-30 14:30:05', null,
+            null,
+            null, null
+        );
+        $this->assertFalse($noMig->HasOldPassword());
+        $this->assertFalse($noMig->NeedsMigration());
+        $this->assertFalse($noMig->HasPassword());
+
+        $noMig = new UserMock(13, 'nick', null,
+            0, 0, '2020-03-30 14:30:05', null,
+            null,
+            'new-password', null
+        );
+        $this->assertFalse($noMig->HasOldPassword());
+        $this->assertFalse($noMig->NeedsMigration());
+        $this->assertTrue($noMig->HasPassword());
+
+    }
 }
