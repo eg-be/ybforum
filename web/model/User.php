@@ -32,7 +32,7 @@ class User
      * @return User or null.
      * @throws Exception If a database operation fails.
      */        
-    public static function LoadUserById(ForumDb $db, int $userId)
+    public static function LoadUserById(ForumDb $db, int $userId) :?User
     {
         assert($userId > 0);
         
@@ -61,7 +61,7 @@ class User
      * @return User or null.
      * @throws Exception If a database operation fails.
      */    
-    public static function LoadUserByNick(ForumDb $db, string $nick)
+    public static function LoadUserByNick(ForumDb $db, string $nick) :?User
     {
         assert(!empty($nick));
 
@@ -86,7 +86,7 @@ class User
      * @return User or null.
      * @throws Exception If a database operation fails.
      */    
-    public static function LoadUserByEmail(ForumDb $db, string $email)
+    public static function LoadUserByEmail(ForumDb $db, string $email) :?User
     {
         assert(!empty($email));
 
