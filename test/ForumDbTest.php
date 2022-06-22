@@ -293,5 +293,40 @@ final class ForumDbTest extends BaseTest
         $this->assertObjectEquals($allPostRef, $allPost);
     }
 
+    /**
+     * @dataProvider providerInactiveDummy
+     * @test
+     */
+    public function testCreateReplyFailsBecauseOfUser(User $u) : void
+    {
+        $this->assertTrue($u->IsDummyUser() || $u->IsActive() === false);
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->CreateReplay(30, $u, 
+            'min-post', null, null, 
+            null, null, null, '::1');
+    }
 
+    public function providerInvalidParentPostId() : array 
+    {
+        return array(
+            [-1], 
+            [18]
+        );
+    }    
+
+    /**
+     * @dataProvider providerInvalidParentPostId
+     * @test
+     */
+    public function testCreateReplyFailsBecauseOfParent(int $parentPostId) : void
+    {
+        $user = User::LoadUserByNick($this->db, 'user2');
+        $this->assertNotNull($user);
+        $parentPost = Post::LoadPost($this->db, $parentPostId);
+        $this->assertNull($parentPost);
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->CreateReplay($parentPostId, $user, 
+            'min-post', null, null, 
+            null, null, null, '::1');
+    }
 }
