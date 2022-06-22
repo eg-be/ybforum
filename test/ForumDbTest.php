@@ -64,7 +64,7 @@ final class ForumDbTest extends BaseTest
     {
         BaseTest::createTestDatabase();
         $count = $this->db->GetPostCount();
-        $this->assertEquals(19, $count);
+        $this->assertEquals(21, $count);
     }
 
     public function testGetUserCount() : void
