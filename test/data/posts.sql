@@ -41,3 +41,10 @@ VALUES(25, 3, 23, 101, 'Thread 3 - A1-2-1', 'The quick brown fox jumps over the 
 INSERT INTO post_table (idpost, idthread, parent_idpost, iduser, title, content, `rank`, indent, creation_ts, ip_address)
 VALUES(26, 3, 20, 103, 'Thread 3 - A1-3', 'The quick brown fox jumps over the lazy dog', 6, 2, '2020-03-30 14:55:00', '::1');
 
+/* populate ONE thread with a post with all fields set, except hidden */
+INSERT INTO post_table (idpost, idthread, parent_idpost, iduser, title, content, `rank`, indent, creation_ts, ip_address, email, link_text, link_url, img_url, old_no)
+VALUES(30, 5, 5, 101, 'Thread 5 - A1', 'The quick brown fox jumps over the lazy dog', 2, 1, '2022-06-22 16:13:25', '::1', 'mail@me.com', 'Visit me', 'https://foobar', 'https://giphy/bar.gif', 131313);
+
+/* and add a hidden-post */
+INSERT INTO post_table (idpost, idthread, parent_idpost, iduser, title, content, `rank`, indent, creation_ts, ip_address, hidden)
+VALUES(40, 8, 8, 103, 'Thread 8 - A1', 'The quick brown fox jumps over the lazy dog', 2, 1, '2020-03-30 14:50:00', '::1', 1);

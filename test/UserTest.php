@@ -70,7 +70,7 @@ final class UserTest extends BaseTest
     {
         $this->assertNull(User::LoadUserById($this->db, -1));
         $this->assertNull(User::LoadUserById($this->db, 12));
-    }    
+    }
 
     /**
      * @test
