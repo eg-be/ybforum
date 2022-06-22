@@ -156,23 +156,28 @@ final class ForumDbTest extends BaseTest
 
     public function testCreateThread() : void
     {
-        $oldCount = $this->db->GetThreadCount();
+        $oldThreadCount = $this->db->GetThreadCount();
+        $oldPostCount = $this->db->GetPostCount();
         $user = User::LoadUserByNick($this->db, 'admin');
         $this->assertNotNull($user);
         // create a new thread with the minimal required arguments
         $minPostId = $this->db->CreateThread($user, 'min-thread', 
             null, null, null, null, null, '::1');
-        $newCount = $this->db->GetThreadCount();
-        $this->assertEquals($oldCount + 1, $newCount);
+        $newThreadCount = $this->db->GetThreadCount();
+        $newPostCount = $this->db->GetPostCount();
+        $this->assertSame($oldThreadCount + 1, $newThreadCount);
+        $this->assertSame($oldPostCount + 1, $newPostCount);
         // and one with all possible values set:
         $allPostId = $this->db->CreateThread($user, 'all-thread', 
             'content', 'mail@foo.com', 
             'http://visit.me', 'cool link', 
             'http://foo/bar.gif', '::1');
-        $newCount = $this->db->GetThreadCount();
-        $this->assertEquals($oldCount + 2, $newCount);
+        $newThreadCount = $this->db->GetThreadCount();
+        $newPostCount = $this->db->GetPostCount();
+        $this->assertSame($oldThreadCount + 2, $newThreadCount);
+        $this->assertSame($oldPostCount + 2, $newPostCount);
 
-        // todo: Check values are inserted correctly
+        // And check that the newly created threads / posts can be read back:
         $minPost = Post::LoadPost($this->db, $minPostId);
         $this->assertNotNull($minPost);
         $minPostRef = new PostMock($minPostId, 
@@ -229,6 +234,63 @@ final class ForumDbTest extends BaseTest
             [$deactivated], 
             [$dummy]
         );
+    }
+
+    public function testCreateReply() : void
+    {
+        $oldPostCount = $this->db->GetPostCount();
+        $user = User::LoadUserByNick($this->db, 'user2');
+        $this->assertNotNull($user);
+        $parentPost = Post::LoadPost($this->db, 26);
+        $this->assertNotNull($parentPost);
+        // create a new post with the minimal required arguments
+        $minPostId = $this->db->CreateReplay($parentPost->GetId(), $user, 
+            'min-post', null, null, 
+            null, null, null, '::1');
+        $newPostCount = $this->db->GetPostCount();
+        $this->assertSame($oldPostCount + 1, $newPostCount);
+        // and one with all possible values set:
+        $allPostId = $this->db->CreateReplay($parentPost->GetId(), $user, 
+            'all-post', 'content', 'mail@foo.com', 
+            'http://visit.me', 'cool link', 
+            'http://foo/bar.gif', '::1');
+        $newPostCount = $this->db->GetPostCount();
+        $this->assertSame($oldPostCount + 2, $newPostCount);
+
+        // And check that the newly created posts can be read back:
+        $minPost = Post::LoadPost($this->db, $minPostId);
+        $this->assertNotNull($minPost);
+        $minPostRef = new PostMock($minPostId, 
+            $parentPost->GetThreadId(), // must be part of parent-thread
+            $parentPost->GetId(),
+            $user->GetNick(), $user->GetId(),
+            'min-post', null,
+            8, 3,
+            $minPost->GetPostTimestamp()->format('Y-m-d H:i:s'),   // not can we know this value
+            null,
+            null, null, null,
+            null,
+            0,
+            '::1'
+        );
+        $this->assertObjectEquals($minPostRef, $minPost);
+
+        $allPost = Post::LoadPost($this->db, $allPostId);
+        $this->assertNotNull($allPost);
+        $allPostRef = new PostMock($allPostId, 
+            $parentPost->GetThreadId(), // must be part of parent-thread            
+            $parentPost->GetId(),
+            $user->GetNick(), $user->GetId(),
+            'all-post', 'content',
+            7, 3,
+            $allPost->GetPostTimestamp()->format('Y-m-d H:i:s'),   // not can we know this value
+            'mail@foo.com',
+            'http://visit.me', 'cool link', 'http://foo/bar.gif',
+            null,
+            0,
+            '::1'
+        );
+        $this->assertObjectEquals($allPostRef, $allPost);
     }
 
 

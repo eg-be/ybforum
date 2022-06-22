@@ -338,11 +338,11 @@ class ForumDb extends PDO
      * thread_table and the first entry for that thread in the post_table.
      * @param User $user User object of authenticated user writing the post.
      * @param string $title Non-empty title of the post.
-     * @param mixed $content String with content of the post. Can be null.
-     * @param mixed $email String with email. Can be null.
-     * @param mixed $linkUrl String with an URL. Can be null.
-     * @param mixed $linkText String with a text for the URL. Can be null.
-     * @param mixed $imgUrl String with an URL to an image. Can be null.
+     * @param ?string $content String with content of the post. Can be null.
+     * @param ?string $email String with email. Can be null.
+     * @param ?string $linkUrl String with an URL. Can be null.
+     * @param ?string $linkText String with a text for the URL. Can be null.
+     * @param ?string $imgUrl String with an URL to an image. Can be null.
      * @param string $clientIpAddress Client IP address writing the post.
      * @return int The Value of the field idpost of the post_table for the
      * post just created.
@@ -412,11 +412,11 @@ class ForumDb extends PDO
      * @param int $parentPostId Value of field idpost of parent post.
      * @param User $user User writing the post.
      * @param string $title Title of the post. Must be non-empty.
-     * @param mixed $content Content of the post. Can be null.
-     * @param mixed $email String with email. Can be null.
-     * @param mixed $linkUrl String with an URL. Can be null.
-     * @param mixed $linkText String with a text for the URL. Can be null.
-     * @param mixed $imgUrl String with an URL to an image. Can be null.
+     * @param ?string $content Content of the post. Can be null.
+     * @param ?string $email String with email. Can be null.
+     * @param ?string $linkUrl String with an URL. Can be null.
+     * @param ?string $linkText String with a text for the URL. Can be null.
+     * @param ?string $imgUrl String with an URL to an image. Can be null.
      * @param string $clientIpAddress Client IP address writing the post.
      * @return int The Value of the field idpost of the post_table for the
      * post just created.
@@ -425,8 +425,9 @@ class ForumDb extends PDO
      * @throws Exception If a database operation fails.
      */
     public function CreateReplay(int $parentPostId, User $user, string $title, 
-            $content, $email, 
-            $linkUrl, $linkText, $imgUrl, string $clientIpAddress)
+            ?string $content, ?string $email, 
+            ?string $linkUrl, ?string $linkText,
+            ?string $imgUrl, string $clientIpAddress) : int
     {
         assert($parentPostId > 0);
         assert(!empty($title));
