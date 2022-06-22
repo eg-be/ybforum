@@ -2,6 +2,7 @@
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__.'/BaseTest.php';
+require_once __DIR__.'/PostMock.php';
 require_once __DIR__.'/../web/model/ForumDb.php';
 
 /**
@@ -156,14 +157,55 @@ final class ForumDbTest extends BaseTest
     public function testCreateThread() : void
     {
         $oldCount = $this->db->GetThreadCount();
-        $user = User::LoadUserByNick($this->db, "admin");
+        $user = User::LoadUserByNick($this->db, 'admin');
         $this->assertNotNull($user);
-        // create a new thread: only a title must be set
-        $newId = $this->db->CreateThread($user, "thread-title", 
-            null, null, null, null, null, "::1");
+        // create a new thread with the minimal required arguments
+        $minPostId = $this->db->CreateThread($user, 'min-thread', 
+            null, null, null, null, null, '::1');
         $newCount = $this->db->GetThreadCount();
         $this->assertEquals($oldCount + 1, $newCount);
+        // and one with all possible values set:
+        $allPostId = $this->db->CreateThread($user, 'all-thread', 
+            'content', 'mail@foo.com', 
+            'http://visit.me', 'cool link', 
+            'http://foo/bar.gif', '::1');
+        $newCount = $this->db->GetThreadCount();
+        $this->assertEquals($oldCount + 2, $newCount);
+
         // todo: Check values are inserted correctly
+        $minPost = Post::LoadPost($this->db, $minPostId);
+        $this->assertNotNull($minPost);
+        $minPostRef = new PostMock($minPostId, 
+            $minPost->GetThreadId(), // we cannot know the created thread-id, read from db
+            null,
+            $user->GetNick(), $user->GetId(),
+            'min-thread', null,
+            1, 0,
+            $minPost->GetPostTimestamp()->format('Y-m-d H:i:s'),   // not can we know this value
+            null,
+            null, null, null,
+            null,
+            0,
+            '::1'
+        );
+        $this->assertObjectEquals($minPostRef, $minPost);
+
+        $allPost = Post::LoadPost($this->db, $allPostId);
+        $this->assertNotNull($allPost);
+        $allPostRef = new PostMock($allPostId, 
+            $allPost->GetThreadId(), // we cannot know the created thread-id, read from db
+            null,
+            $user->GetNick(), $user->GetId(),
+            'all-thread', 'content',
+            1, 0,
+            $allPost->GetPostTimestamp()->format('Y-m-d H:i:s'),   // not can we know this value
+            'mail@foo.com',
+            'http://visit.me', 'cool link', 'http://foo/bar.gif',
+            null,
+            0,
+            '::1'
+        );
+        $this->assertObjectEquals($allPostRef, $allPost);        
     }
 
     /**
