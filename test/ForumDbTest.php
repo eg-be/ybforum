@@ -3,6 +3,7 @@ use PHPUnit\Framework\TestCase;
 
 require_once __DIR__.'/BaseTest.php';
 require_once __DIR__.'/PostMock.php';
+require_once __DIR__.'/UserMock.php';
 require_once __DIR__.'/../web/model/ForumDb.php';
 
 /**
@@ -328,5 +329,37 @@ final class ForumDbTest extends BaseTest
         $this->db->CreateReplay($parentPostId, $user, 
             'min-post', null, null, 
             null, null, null, '::1');
+    }
+
+    public function providerNewUserData() : array
+    {
+        return array(
+            ['foo', 'foo@mail.com', null],      // registration-msg is not required
+            ['bar', 'bar@mail.com', 'hello world']
+        );
+    }
+
+    /**
+     * @dataProvider providerNewUserData
+     * @test
+     */
+    public function testCreateNewUser(string $nick, string $mail, ?string $regMsg) : void
+    {
+        // Creating a user works, if neither nick nor email is already set:
+        // registration_msg is optinal
+        // new users are inactive, have no password set and no confirmation-ts
+
+        $newId = $this->db->CreateNewUser($nick, $mail, $regMsg);
+        $this->assertNotNull($newId);
+        $this->assertGreaterThan(0, $newId);
+        // read back created user and verify:
+        $newUser = User::LoadUserById($this->db, $newId);
+        $this->assertNotNull($newUser);
+        $newUserRef = new UserMock($newId, $nick, $mail, 
+            0, 0,
+            $newUser->GetRegistrationTimestamp()->Format('Y-m-d H:i:s'), $regMsg,
+            null, null, null
+        );
+        $this->assertObjectEquals($newUserRef, $newUser);
     }
 }

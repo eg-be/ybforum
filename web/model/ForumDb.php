@@ -470,11 +470,11 @@ class ForumDb extends PDO
      * Creates a new entry in user_table and returns the iduser of that entry.
      * @param string $nick Value for field nick.
      * @param string $email Value for field email.
-     * @param type $registrationMsg Value for field registration_mgs.
+     * @param ?string $registrationMsg Value for field registration_mgs.
      * @return int Value of iduser field.
      */
     public function CreateNewUser(string $nick, string $email,
-            $registrationMsg)
+            ?string $registrationMsg) : int
     {
         $query = 'INSERT INTO user_table (nick, email, '
                 . 'registration_msg) '
