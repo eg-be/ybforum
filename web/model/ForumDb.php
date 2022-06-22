@@ -472,10 +472,21 @@ class ForumDb extends PDO
      * @param string $email Value for field email.
      * @param ?string $registrationMsg Value for field registration_mgs.
      * @return int Value of iduser field.
+     * @throws InvalidArgumentException If nick or email already used
      */
     public function CreateNewUser(string $nick, string $email,
             ?string $registrationMsg) : int
     {
+        $existingUser = User::LoadUserByNick($this, $nick);
+        if(!is_null($existingUser))
+        {
+            throw new InvalidArgumentException('Nick  ' . $nick . ' already used');
+        }
+        $existingUser = User::LoadUserByEmail($this, $email);
+        if(!is_null($existingUser))
+        {
+            throw new InvalidArgumentException('Email  ' . $email . ' already used');
+        }        
         $query = 'INSERT INTO user_table (nick, email, '
                 . 'registration_msg) '
                 . 'VALUES(:nick, :email, '

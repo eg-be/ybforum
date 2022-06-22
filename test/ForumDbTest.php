@@ -362,4 +362,23 @@ final class ForumDbTest extends BaseTest
         );
         $this->assertObjectEquals($newUserRef, $newUser);
     }
+
+    public function providerNewUserDataFail() : array
+    {
+        return array(
+            ['user1', 'foo@mail.com'],      // nick already set
+            ['bar', 'user1@dev'],           // mail already used
+            ['user1', 'user1@dev']          // both invalid
+        );
+    }    
+
+    /**
+     * @dataProvider providerNewUserDataFail
+     * @test
+     */    
+    public function testCreateNewUserFail(string $nick, string $mail) : void
+    {
+        $this->expectException(InvalidArgumentException::class);        
+        $newId = $this->db->CreateNewUser($nick, $mail, null);
+    }
 }
