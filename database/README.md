@@ -1,5 +1,5 @@
 # Database
-All data is stored in a mysql database. This page describes the required step to setup a new, empty database and import the required intial data.
+All data is stored in a mysql database. This page describes the required step to setup a new, empty database and import the required initial data.
 
 ## Prerequisites
 - A working installation of [MySQL](https://www.mysql.com).
