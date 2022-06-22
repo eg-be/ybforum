@@ -58,100 +58,100 @@ final class ForumDbTest extends BaseTest
     {
         BaseTest::createTestDatabase();
         $count = $this->db->GetThreadCount();
-        $this->assertEquals(12, $count);
+        $this->assertSame(12, $count);
     }
 
     public function testGetPostCount() : void
     {
         BaseTest::createTestDatabase();
         $count = $this->db->GetPostCount();
-        $this->assertEquals(21, $count);
+        $this->assertSame(21, $count);
     }
 
     public function testGetUserCount() : void
     {
         BaseTest::createTestDatabase();
         $count = $this->db->GetUserCount();
-        $this->assertEquals(8, $count);
+        $this->assertSame(8, $count);
     }
 
     public function testGetActiveUserCount() : void
     {
         BaseTest::createTestDatabase();
         $count = $this->db->GetActiveUserCount();
-        $this->assertEquals(4, $count);
+        $this->assertSame(4, $count);
     }
 
     public function testGetFromAdminDeactivatedUserCount() : void
     {
         BaseTest::createTestDatabase();
         $count = $this->db->GetFromAdminDeactivatedUserCount();
-        $this->assertEquals(1, $count);
+        $this->assertSame(1, $count);
     }
 
     public function testGetPendingAdminApprovalUserCount() : void
     {
         BaseTest::createTestDatabase();
         $count = $this->db->GetPendingAdminApprovalUserCount();
-        $this->assertEquals(1, $count);
+        $this->assertSame(1, $count);
     }
 
     public function testGetNeedMigrationUserCount() : void
     {
         BaseTest::createTestDatabase();
         $count = $this->db->GetNeedMigrationUserCount();
-        $this->assertEquals(1, $count);
+        $this->assertSame(1, $count);
     }
 
     public function testGetDummyUserCount() : void
     {
         BaseTest::createTestDatabase();        
         $count = $this->db->GetDummyUserCount();
-        $this->assertEquals(1, $count);
+        $this->assertSame(1, $count);
     }
 
     public function testGetLastThreadId() : void
     {
         BaseTest::createTestDatabase();
         $id = $this->db->GetLastThreadId();
-        $this->assertEquals(12, $id);
+        $this->assertSame(12, $id);
     }
 
     public function testAuthUser() : void
     {
         // a user with a new password that is active is ok:
         $reason = 0;
-        $admin = $this->db->AuthUser("admin", "admin-pass", $reason);
+        $admin = $this->db->AuthUser('admin', 'admin-pass', $reason);
         $this->assertNotNull($admin);
-        $this->assertEquals(1, $admin->GetId());
+        $this->assertSame(1, $admin->GetId());
         // active user fails because password missmatch
-        $admin = $this->db->AuthUser("admin", "foo", $reason);
+        $admin = $this->db->AuthUser('admin', 'foo', $reason);
         $this->assertNull($admin);
-        $this->assertEquals(ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID, $reason);
+        $this->assertSame(ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID, $reason);
         // fail because password is correct, but user is inactive:
-        $deact = $this->db->AuthUser("deactivated", "deactivated-pass", $reason);
+        $deact = $this->db->AuthUser('deactivated', 'deactivated-pass', $reason);
         $this->assertNull($deact);
-        $this->assertEquals(ForumDb::AUTH_FAIL_REASON_USER_IS_INACTIVE, $reason);
+        $this->assertSame(ForumDb::AUTH_FAIL_REASON_USER_IS_INACTIVE, $reason);
         // fail with wrong password on inactive: must return inactive-reason:
-        $deact = $this->db->AuthUser("deactivated", "foo", $reason);
+        $deact = $this->db->AuthUser('deactivated', 'foo', $reason);
         $this->assertNull($deact);
-        $this->assertEquals(ForumDb::AUTH_FAIL_REASON_USER_IS_INACTIVE, $reason);
+        $this->assertSame(ForumDb::AUTH_FAIL_REASON_USER_IS_INACTIVE, $reason);
         // fail because its a dummy
-        $dummy = $this->db->AuthUser("dummy", "foo", $reason);
+        $dummy = $this->db->AuthUser('dummy', 'foo', $reason);
         $this->assertNull($dummy);
-        $this->assertEquals(ForumDb::AUTH_FAIL_REASON_USER_IS_DUMMY, $reason);
+        $this->assertSame(ForumDb::AUTH_FAIL_REASON_USER_IS_DUMMY, $reason);
         // fails because user is unknown
-        $unknown = $this->db->AuthUser("anyone", "foo", $reason);
+        $unknown = $this->db->AuthUser('anyone', 'foo', $reason);
         $this->assertNull($unknown);
-        $this->assertEquals(ForumDb::AUTH_FAIL_REASON_NO_SUCH_USER, $reason);
+        $this->assertSame(ForumDb::AUTH_FAIL_REASON_NO_SUCH_USER, $reason);
         // and auth a user that needs to migrate (but is not active yet):
-        $old = $this->db->AuthUser("old-user", "old-user-pass");
+        $old = $this->db->AuthUser('old-user', 'old-user-pass');
         $this->assertNotNull($old);
-        $this->assertEquals(10, $old->GetId());
+        $this->assertSame(10, $old->GetId());
         // but fail for an old user if pass is incorrect
-        $old = $this->db->AuthUser("old-user", "foo", $reason);
+        $old = $this->db->AuthUser('old-user', 'foo', $reason);
         $this->assertNull($old);
-        $this->assertEquals(ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID, $reason);
+        $this->assertSame(ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID, $reason);
     }
 
     public function testCreateThread() : void
@@ -221,15 +221,15 @@ final class ForumDbTest extends BaseTest
     {
         $this->assertTrue($u->IsDummyUser() || $u->IsActive() === false);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->CreateThread($u, "title",
-            null, null, null, null, null, "::1");
+        $this->db->CreateThread($u, 'title',
+            null, null, null, null, null, '::1');
     }
 
     public function providerInactiveDummy() : array 
     {
         $db = new ForumDb();
-        $deactivated = User::LoadUserByNick($db, "deactivated");
-        $dummy = User::LoadUserByNick($db, "dummy");
+        $deactivated = User::LoadUserByNick($db, 'deactivated');
+        $dummy = User::LoadUserByNick($db, 'dummy');
         return array(
             [$deactivated], 
             [$dummy]
