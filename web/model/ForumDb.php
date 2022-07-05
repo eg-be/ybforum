@@ -430,14 +430,8 @@ class ForumDb extends PDO
             ?string $imgUrl, string $clientIpAddress) : int
     {
         assert($parentPostId > 0);
-        assert(!empty($title));
-        assert(is_null($content) || (is_string($content) && !empty($content)));        
-        assert(is_null($email) || (is_string($email) && !empty($email)));
-        assert(is_null($linkUrl) || (is_string($linkUrl) && !empty($linkUrl)));
-        assert(is_null($linkText) || (is_string($linkText) && !empty($linkText)));
-        assert(is_null($imgUrl) || (is_string($imgUrl) && !empty($imgUrl)));
-        assert(!empty($clientIpAddress));
-        
+        $this->validateNonEmpty([$title, $clientIpAddress]);
+        $this->validateNotWhitespaceOnly([$content, $email, $linkUrl, $linkText, $imgUrl, $clientIpAddress ]);  
         if(!$user->IsActive())
         {
             throw new InvalidArgumentException('User ' . $user->GetNick() . ' is not active');
@@ -472,11 +466,13 @@ class ForumDb extends PDO
      * @param string $email Value for field email.
      * @param ?string $registrationMsg Value for field registration_mgs.
      * @return int Value of iduser field.
-     * @throws InvalidArgumentException If nick or email already used
+     * @throws InvalidArgumentException If nick or email already used, or if
+     * empty values are passed for nick or email
      */
     public function CreateNewUser(string $nick, string $email,
             ?string $registrationMsg) : int
     {
+        $this->validateNonEmpty([$nick, $email]);
         $existingUser = User::LoadUserByNick($this, $nick);
         if(!is_null($existingUser))
         {
@@ -522,8 +518,9 @@ class ForumDb extends PDO
             string $newPasswordClearText, 
             string $newEmail, 
             string $confirmSource,
-            string $requestClientIpAddress)
+            string $requestClientIpAddress) : string
     {
+        $this->validateNonEmpty([ $newPasswordClearText, $newEmail, $confirmSource, $requestClientIpAddress ]);
         if(!($confirmSource === self::CONFIRM_SOURCE_MIGRATE || 
                 $confirmSource === self::CONFIRM_SOURCE_NEWUSER))
         {
@@ -1376,6 +1373,38 @@ class ForumDb extends PDO
                 'Email: ' . $email . ' Reason: ' . $reason);
     }
     
+    /**
+     * @param array values
+     * @throws InvalidArgumentException If one of the values
+     * is empty or contains only whitespaces
+     */
+    private function validateNonEmpty(array $values) : void
+    {
+        foreach($values as $v)
+        {
+            if(empty(trim($v)))
+            {
+                throw new InvalidArgumentException('Empty parameter value not allowed');
+            }
+        }
+    }
+
+    /**
+     * @param array values
+     * @throws InvalidArgumentException If one of the values
+     * is empty or contains only whitespaces
+     */
+    private function validateNotWhitespaceOnly(array $values) : void
+    {
+        foreach($values as $v)
+        {
+            if(!empty($v) && empty(trim($v)))
+            {
+                throw new InvalidArgumentException('Whitespace-only parameter value not allowed');
+            }
+        }
+    }    
+
     private $m_connected;
     private $m_readOnly;
 }

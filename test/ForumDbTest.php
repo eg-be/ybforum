@@ -331,6 +331,42 @@ final class ForumDbTest extends BaseTest
             null, null, null, '::1');
     }
 
+    public function providerInvalidPostValues() : array 
+    {
+        $db = new ForumDb();
+        $user = User::LoadUserByNick($db, 'user2');
+        $this->assertNotNull($user);
+        $parentPost = Post::LoadPost($db, 26);
+        $this->assertNotNull($parentPost);        
+        return array(
+            [$parentPost->GetId(), $user, '', null, null, null, null, null, '::1'], 
+            [$parentPost->GetId(), $user, ' ', null, null, null, null, null, '::1'], 
+            [$parentPost->GetId(), $user, 'cont', ' ', null, null, null, null, '::1'], 
+            [$parentPost->GetId(), $user, 'cont', null, ' ', null, null, null, '::1'], 
+            [$parentPost->GetId(), $user, 'cont', null, null, ' ', null, null, '::1'], 
+            [$parentPost->GetId(), $user, 'cont', null, null, null, ' ', null, '::1'], 
+            [$parentPost->GetId(), $user, 'cont', null, null, null, null, ' ', '::1'], 
+            [$parentPost->GetId(), $user, 'cont', null, null, null, null, null, ''], 
+            [$parentPost->GetId(), $user, 'cont', null, null, null, null, null, ' '], 
+        );
+    }    
+
+    /**
+     * @dataProvider providerInvalidPostValues
+     * @test
+     */
+    public function testCreateReplyFailsBecauseOfValues(int $parentPostId,
+        User $user, string $title, 
+        ?string $content, ?string $email, 
+        ?string $linkUrl, ?string $linkText,
+        ?string $imgUrl, string $clientIpAddress) : void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->CreateReplay($parentPostId, $user, 
+            $title, $content, $email, 
+            $linkUrl, $linkText, $imgUrl, $clientIpAddress);
+    }    
+
     public function providerNewUserData() : array
     {
         return array(
@@ -368,7 +404,11 @@ final class ForumDbTest extends BaseTest
         return array(
             ['user1', 'foo@mail.com'],      // nick already set
             ['bar', 'user1@dev'],           // mail already used
-            ['user1', 'user1@dev']          // both invalid
+            ['user1', 'user1@dev'],         // both invalid
+            ['', 'foo@mail.com'],           // no empty values allowed
+            [' ', 'foo@mail.com'],           // no empty values allowed
+            ['user22', ''],
+            ['user22', ' ']
         );
     }    
 
@@ -381,4 +421,114 @@ final class ForumDbTest extends BaseTest
         $this->expectException(InvalidArgumentException::class);        
         $newId = $this->db->CreateNewUser($nick, $mail, null);
     }
+
+    public function providerRequestConfirmUserCode() : array
+    {
+        return array(
+            [101, 'new-pass', 'mail@dev', ForumDb::CONFIRM_SOURCE_MIGRATE, '::1'],
+            [101, 'new-pass', 'mail@dev', ForumDb::CONFIRM_SOURCE_NEWUSER, '::1']
+        );
+    }
+
+    /**
+     * @dataProvider providerRequestConfirmUserCode
+     * @test
+     */       
+    public function testRequestConfirmUserCodeCreateEntries(int $userId, 
+        string $newPass, string $newMail, string $confSource, 
+        string $clientIp) : void
+    {
+        // test that entries are created propery
+        $now = new DateTime();
+        $code = $this->db->RequestConfirmUserCode($userId, 
+            $newPass, $newMail, $confSource, $clientIp);
+        $this->assertNotEmpty($code);
+
+        // read back the values:
+        $query = 'SELECT iduser, email, '
+        . 'password, request_date, '
+        . 'confirm_source, request_ip_address '
+        . 'FROM confirm_user_table '
+        . 'WHERE confirm_code = BINARY :confirm_code';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(array(':confirm_code' => $code));
+        $result = $stmt->fetch();
+        $this->assertNotNull($result);
+        $this->assertSame($userId, $result['iduser']);
+        $this->assertSame($newMail, $result['email']);
+        $this->assertSame($confSource, $result['confirm_source']);
+        $this->assertSame($clientIp, $result['request_ip_address']);
+        // pass must have been hashed properly:
+        $hashedPw = $result['password'];
+        $this->assertNotNull($hashedPw);
+        $this->assertNotEquals($newPass, $hashedPw);
+        $this->assertTrue(password_verify($newPass, $hashedPw));
+        // request_date must be somewhere around now
+        // (note: we do not have ms in the test-db)
+        // attention: MySql returns a local time
+        // but DateTime('xx') uses UTC as default?
+        $test = date_default_timezone_get();
+        $tz = new DateTimeZone('Europe/Zurich');
+        $reqDate = new DateTime($result['request_date'], $tz);
+        $ts1 = $now->getTimestamp();
+        $ts2 = $reqDate->getTimestamp();
+        // todo: here, with mysql we get local (?) timestamps
+        $this->assertEqualsWithDelta($now->getTimestamp(), 
+            $reqDate->getTimestamp(), 2);
+    }
+
+    /**
+     * @dataProvider providerRequestConfirmUserCode
+     * @test
+     */       
+    public function testRequestConfirmUserCodeEntriesRemoved(int $userId, 
+        string $newPass, string $newMail, string $confSource, 
+        string $clientIp) : void
+    {
+        // test that entries referring the same user are removed
+        // before a new one is created.
+        // our dataprovider uses the same user, check that
+        // there is only one entry for that user
+        $now = new DateTime();
+        $code = $this->db->RequestConfirmUserCode($userId, 
+            $newPass, $newMail, $confSource, $clientIp);
+        $this->assertNotEmpty($code);
+        $inserted = new DateTime();
+
+        // read back the values: Only one entry can exist
+        $query = 'SELECT COUNT(*) '
+        . 'FROM confirm_user_table '
+        . 'WHERE iduser = :iduser';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(array(':iduser' => $userId));
+        $result = $stmt->fetch(PDO::FETCH_NUM);
+        $this->assertSame(1, $result[0]);
+    }
+
+    public function providerRequestConfirmUserCodeFails() : array
+    {
+        return array(
+            [999, 'new-pass', 'mail@dev', ForumDb::CONFIRM_SOURCE_MIGRATE, '::1'],
+            [101, '', 'mail@dev', ForumDb::CONFIRM_SOURCE_NEWUSER, '::1'],
+            [101, 'new-pass', '', ForumDb::CONFIRM_SOURCE_MIGRATE, '::1'],
+            [101, 'new-pass', '', ForumDb::CONFIRM_SOURCE_MIGRATE, ''],
+            [101, 'new-pass', 'mail@dev', 'invalid source', '::1']
+        );
+    }
+
+    /**
+     * @dataProvider providerRequestConfirmUserCodeFails
+     * @test
+     */       
+    public function testRequestConfirmUserCodeFails(int $userId, 
+        string $newPass, string $newMail, string $confSource, 
+        string $clientIp) : void
+    {
+        // fail if user is unknown, if mail or pass is empty
+        // or if source is not set to a known value
+        $this->expectException(Exception::class);        
+        $code = $this->db->RequestConfirmUserCode($userId, 
+            $newPass, $newMail, $confSource, $clientIp);
+    }
+
 }
