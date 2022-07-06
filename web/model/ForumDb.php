@@ -580,10 +580,11 @@ class ForumDb extends PDO
      * confirm_source if a matching row is found, or null if no such row 
      * exists.
      * @throws Exception If removing a used code fails (or any other database
-     * operation fails).
+     * operation fails). If empty value is passed for $code
      */
-    public function VerifyConfirmUserCode(string $code, bool $remove)
+    public function VerifyConfirmUserCode(string $code, bool $remove) : ?array
     {
+        $this->validateNonEmpty([$code]);
         // Select the matching entry in the confirm table
         $query = 'SELECT iduser, email, password, request_date, '
                 . 'confirm_source '

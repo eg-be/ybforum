@@ -467,7 +467,6 @@ final class ForumDbTest extends BaseTest
         // (note: we do not have ms in the test-db)
         // attention: MySql returns a local time
         // but DateTime('xx') uses UTC as default?
-        $test = date_default_timezone_get();
         $tz = new DateTimeZone('Europe/Zurich');
         $reqDate = new DateTime($result['request_date'], $tz);
         $ts1 = $now->getTimestamp();
@@ -531,4 +530,42 @@ final class ForumDbTest extends BaseTest
             $newPass, $newMail, $confSource, $clientIp);
     }
 
+    public function testVerifyConfirmUserCode() : void
+    {
+        // create two entries: one that has elapsed one minute ago
+        // and one that will elapse in one minute
+        $elapsedCode = $this->db->RequestConfirmUserCode(101, 'new-pw', 'new@mail', 
+            ForumDb::CONFIRM_SOURCE_MIGRATE, '::1');
+        $validCode = $this->db->RequestConfirmUserCode(102, 'new-ps', 'new@mail',
+            ForumDb::CONFIRM_SOURCE_NEWUSER, '::1');
+        // modify the timestamps:
+        $tz = new DateTimeZone('Europe/Zurich');
+        $elapsedDate = new DateTime("now", $tz);
+        $validDate = new DateTime("now", $tz);
+        $codeValidInterval = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);
+        $oneMinuteInterval = new DateInterval('PT1M');
+        $elapsedDate->sub($codeValidInterval);
+        $elapsedDate->sub($oneMinuteInterval);
+        $validDate->sub($codeValidInterval);
+        $validDate->add($oneMinuteInterval);
+        $query = 'UPDATE confirm_user_table SET request_date = :request_date '
+            . 'WHERE confirm_code = BINARY :confirm_code';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(array(':request_date' => $elapsedDate->format('Y-m-d H:i:s'), 
+            ':confirm_code' => $elapsedCode));
+        $stmt->execute(array(':request_date' => $validDate->format('Y-m-d H:i:s'), 
+            ':confirm_code' => $validCode));
+
+
+        // test that an unknown code fails to validate
+
+        // test for known, but invalid codes (time has elapsed by one minute)
+        // test that those entries are removed always
+
+        // test for known valid codes: one that will elapse in one minute
+        // test it is not removed if not specified
+        // test that it is removed if specified
+
+        // test that the values returned are correct
+    }
 }
