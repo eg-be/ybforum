@@ -465,10 +465,7 @@ final class ForumDbTest extends BaseTest
         $this->assertTrue(password_verify($newPass, $hashedPw));
         // request_date must be somewhere around now
         // (note: we do not have ms in the test-db)
-        // attention: MySql returns a local time
-        // but DateTime('xx') uses UTC as default?
-        $tz = new DateTimeZone('Europe/Zurich');
-        $reqDate = new DateTime($result['request_date'], $tz);
+        $reqDate = new DateTime($result['request_date']);
         $ts1 = $now->getTimestamp();
         $ts2 = $reqDate->getTimestamp();
         // todo: here, with mysql we get local (?) timestamps
@@ -536,12 +533,11 @@ final class ForumDbTest extends BaseTest
         // and one that will elapse in one minute
         $elapsedCode = $this->db->RequestConfirmUserCode(101, 'new-pw', 'new@mail', 
             ForumDb::CONFIRM_SOURCE_MIGRATE, '::1');
-        $validCode = $this->db->RequestConfirmUserCode(102, 'new-ps', 'new@mail',
+        $validCode = $this->db->RequestConfirmUserCode(102, 'valid-pw', 'valid@mail',
             ForumDb::CONFIRM_SOURCE_NEWUSER, '::1');
         // modify the timestamps:
-        $tz = new DateTimeZone('Europe/Zurich');
-        $elapsedDate = new DateTime("now", $tz);
-        $validDate = new DateTime("now", $tz);
+        $elapsedDate = new DateTime();
+        $validDate = new DateTime();
         $codeValidInterval = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);
         $oneMinuteInterval = new DateInterval('PT1M');
         $elapsedDate->sub($codeValidInterval);
@@ -556,16 +552,38 @@ final class ForumDbTest extends BaseTest
         $stmt->execute(array(':request_date' => $validDate->format('Y-m-d H:i:s'), 
             ':confirm_code' => $validCode));
 
-
         // test that an unknown code fails to validate
+        $this->assertNull($this->db->VerifyConfirmUserCode('AB12', true));
 
         // test for known, but invalid codes (time has elapsed by one minute)
-        // test that those entries are removed always
-
+        $this->assertNull($this->db->VerifyConfirmUserCode($elapsedCode, false));
+        // test that those entries are removed always (despite we set remove to false)
+        $query = 'SELECT confirm_code FROM confirm_user_table '
+            . 'WHERE confirm_code = BINARY :confirm_code';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(array(':confirm_code' => $elapsedCode));
+        $result = $stmt->fetch();
+        $this->assertFalse($result);
+        
         // test for known valid codes: one that will elapse in one minute
+        $values = $this->db->VerifyConfirmUserCode($validCode, false);
+        $this->assertNotNull($values);
         // test it is not removed if not specified
+        $stmt->execute(array(':confirm_code' => $validCode));
+        $result = $stmt->fetch();
+        $this->assertIsArray($result);        
         // test that it is removed if specified
-
+        $values = $this->db->VerifyConfirmUserCode($validCode, true);
+        $this->assertNotNull($values);
+        $stmt->execute(array(':confirm_code' => $validCode));
+        $result = $stmt->fetch();
+        $this->assertFalse($result);  
+        
         // test that the values returned are correct
+        $this->assertSame(102, $values['iduser']);
+        $this->assertSame('valid@mail', $values['email']);
+        $this->assertSame(ForumDb::CONFIRM_SOURCE_NEWUSER, $values['confirm_source']);
+        // note: password is hasehd
+        password_verify('valid-pw', $values['password']);
     }
 }
