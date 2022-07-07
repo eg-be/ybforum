@@ -578,7 +578,7 @@ class ForumDb extends PDO
      * (if a valid entry was found, invalid entries are always removed)
      * @return array holding values of fields iduser, password, email and
      * confirm_source if a matching row is found, or null if no such row 
-     * exists.
+     * exists or if the code is invalid.
      * @throws Exception If removing a used code fails (or any other database
      * operation fails). If empty value is passed for $code
      */
