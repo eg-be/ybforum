@@ -21,7 +21,10 @@ INSERT INTO user_deactivated_reason_table (iduser, deactivated_by_iduser, reason
 VALUES(50, 1, 'test deactivated by admin');
 
 INSERT INTO user_table (iduser, nick, password, email, admin, active, registration_msg, confirmation_ts) 
-VALUES(51, 'needs-approval', '$2y$10$vzzdRF/SrnhQxSwrbVyFNeW07E5dKdx3Nwwix.ONMCDDResM4zq5u', 'needs-approval@dev', 0, 0, 'inactive waiting for admin confirmation', CURRENT_TIMESTAMP());
+VALUES(51, 'needs-approval', '$2y$10$vzzdRF/SrnhQxSwrbVyFNeW07E5dKdx3Nwwix.ONMCDDResM4zq5u', 'needs-approval@dev', 0, 0, 'inactive (but confirmed) waiting for admin confirmation', CURRENT_TIMESTAMP());
+
+INSERT INTO user_table (iduser, nick, password, email, admin, active, registration_msg) 
+VALUES(52, 'needs-confirmation', '$2y$10$5E5FHwZYdxgBBqhxV/lz1eKcJf8pFxZm2r9f4OZh27G9nLSyDwPWm', 'needs-confirmation@dev', 0, 0, 'inactive, unconfirmed (must confirm email first)');
 
 /* note: A dummy must have set everything to NULL (also the confirmation_ts)*/
 INSERT INTO user_table (iduser, nick, password, email, admin, active, registration_msg, confirmation_ts) 

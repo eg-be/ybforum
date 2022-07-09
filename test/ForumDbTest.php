@@ -73,7 +73,7 @@ final class ForumDbTest extends BaseTest
     {
         BaseTest::createTestDatabase();
         $count = $this->db->GetUserCount();
-        $this->assertSame(8, $count);
+        $this->assertSame(9, $count);
     }
 
     public function testGetActiveUserCount() : void
@@ -522,7 +522,7 @@ final class ForumDbTest extends BaseTest
     {
         // fail if user is unknown, if mail or pass is empty
         // or if source is not set to a known value
-        $this->expectException(Exception::class);        
+        $this->expectException(Exception::class);
         $code = $this->db->RequestConfirmUserCode($userId, 
             $newPass, $newMail, $confSource, $clientIp);
     }
@@ -586,4 +586,80 @@ final class ForumDbTest extends BaseTest
         // note: password is hasehd
         password_verify('valid-pw', $values['password']);
     }
+
+    public function testRemoveConfirmUserCode() : void
+    {
+        // insert some entries, test they are removed
+        $this->db->RequestConfirmUserCode(101, 'new', 'new@mail', 
+            ForumDb::CONFIRM_SOURCE_MIGRATE, '::1');
+        $this->assertSame(1, $this->db->RemoveConfirmUserCode(101));
+        $this->assertSame(0, $this->db->RemoveConfirmUserCode(101));
+        // not existing entry works
+        $this->assertSame(0, $this->db->RemoveConfirmUserCode(33));
+    }
+
+    public function testGetConfirmReason() : void
+    {
+        $this->db->RequestConfirmUserCode(101, 'new', 'new@mail', 
+            ForumDb::CONFIRM_SOURCE_MIGRATE, '::1');
+        $this->assertSame(ForumDb::CONFIRM_SOURCE_MIGRATE, 
+            $this->db->GetConfirmReason(101));
+        $this->db->RequestConfirmUserCode(101, 'new', 'new@mail', 
+            ForumDb::CONFIRM_SOURCE_NEWUSER, '::1');
+        $this->assertSame(ForumDb::CONFIRM_SOURCE_NEWUSER, 
+        $this->db->GetConfirmReason(101));
+        // test that an invalid reason throws:
+        $this->db->RemoveConfirmUserCode(102);
+        $insertQuery = 'INSERT INTO confirm_user_table (iduser, email, '
+            . 'password, confirm_code, request_ip_address, '
+            . 'confirm_source) '
+            . 'VALUES(:iduser, :email, :password, '
+            . ':confirm_code, :request_ip_address, :confirm_source)';
+        $insertStmt = $this->db->prepare($insertQuery);
+        $insertStmt->execute(array(':iduser' => 102,
+            ':email' => 'foo@mail', ':password' => 'pass',
+            ':confirm_code' => 'ABC', 
+            ':request_ip_address' => '::1',
+            ':confirm_source' => 'Foobar'));
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->GetConfirmReason(102);
+    }
+
+    public function testConfirmUser() : void
+    {
+        // need a clean database, must work with a use awaiting confirmation
+        self::createTestDatabase();
+        $user = User::LoadUserById($this->db, 52);
+        $this->assertNotNull($user);
+        $this->assertFalse($user->IsConfirmed());
+        $this->assertFalse($user->IsActive());
+        $newPass = 'new-pw';
+        $newMail = 'new@mail';
+        // confirm, but dont activate:
+        $this->db->ConfirmUser($user->GetId(), 
+            password_hash($newPass, PASSWORD_DEFAULT),
+            $newMail, false);
+        $user = User::LoadUserById($this->db, 52);
+        $this->assertNotNull($user);
+        $this->assertTrue($user->IsConfirmed());
+        $this->assertFalse($user->IsActive());
+        $this->assertSame($newMail, $user->GetEmail());
+        // confirm and activate:
+        $this->db->ConfirmUser($user->GetId(), 
+            password_hash($newPass, PASSWORD_DEFAULT),
+            $newMail, true);
+        $user = User::LoadUserById($this->db, 52);
+        $this->assertNotNull($user);
+        $this->assertTrue($user->IsConfirmed());
+        $this->assertTrue($user->IsActive());
+        // note: To verify the hashed-password, just auth
+        // but to auth, user mus tbe active so do that down here
+        $this->assertTrue($user->Auth($newPass));
+        
+        // fail for unknown user-id
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->ConfirmUser(333, 'foo', 'foo@mail', true);
+
+    }
+
 }

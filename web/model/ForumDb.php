@@ -632,7 +632,7 @@ class ForumDb extends PDO
      * @param int $userId
      * @ return int Number of rows that have been removed
      */
-    public function RemoveConfirmUserCode(int $userId)
+    public function RemoveConfirmUserCode(int $userId) : int
     {
         $delQuery = 'DELETE FROM confirm_user_table WHERE iduser = :iduser';
         $delStmt = $this->prepare($delQuery);
@@ -653,7 +653,7 @@ class ForumDb extends PDO
      * @throw InvalidArgumentException
      * @return self::CONFIRM_SOURCE_NEWUSER or self::CONFIRM_SOURCE_MIGRATE
      */
-    public function GetConfirmReason(int $userId)
+    public function GetConfirmReason(int $userId) : string
     {
         $query = 'SELECT confirm_source '
                 . 'FROM confirm_user_table '
@@ -686,14 +686,15 @@ class ForumDb extends PDO
      * Marks a user as confirmed, by setting the field confirmation_ts of
      * the matching row to the current timestamp and updating the row
      * with the passed values.
+     * This will in all cases set old_passwd to NULL.
      * @param int $userId Identify the row in user_table to update.
      * @param string $hashedPassword Value for field password
      * @param string $email Value for field email.
      * @param bool $activate If True, field active will be set to 1, else to 0.
-     * @throws Exception If no row was updated
+     * @throws InvalidArgumentException If no row was updated
      */
     public function ConfirmUser(int $userId, string $hashedPassword, 
-            string $email, bool $activate)
+            string $email, bool $activate) : void
     {
         $activateQuery = 'UPDATE user_table SET password = :password, '
                 . 'email = :email, active = :active, old_passwd = NULL,'
@@ -707,7 +708,7 @@ class ForumDb extends PDO
             ':iduser' => $userId));
         if($activateStmt->rowCount() === 0)
         {
-            throw new Exception('No row updated matching userid ' . $userId);
+            throw new InvalidArgumentException('No row updated matching userid ' . $userId);
         }
         
         $logger = new Logger($this);
