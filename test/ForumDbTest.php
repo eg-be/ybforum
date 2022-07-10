@@ -468,7 +468,6 @@ final class ForumDbTest extends BaseTest
         $reqDate = new DateTime($result['request_date']);
         $ts1 = $now->getTimestamp();
         $ts2 = $reqDate->getTimestamp();
-        // todo: here, with mysql we get local (?) timestamps
         $this->assertEqualsWithDelta($now->getTimestamp(), 
             $reqDate->getTimestamp(), 2);
     }
@@ -636,6 +635,7 @@ final class ForumDbTest extends BaseTest
         $newPass = 'new-pw';
         $newMail = 'new@mail';
         // confirm, but dont activate:
+        $now = new DateTime();
         $this->db->ConfirmUser($user->GetId(), 
             password_hash($newPass, PASSWORD_DEFAULT),
             $newMail, false);
@@ -644,6 +644,10 @@ final class ForumDbTest extends BaseTest
         $this->assertTrue($user->IsConfirmed());
         $this->assertFalse($user->IsActive());
         $this->assertSame($newMail, $user->GetEmail());
+        // confirmation-timestamp must be somewhere around now
+        $this->assertEqualsWithDelta($now->getTimestamp(), 
+            $user->GetConfirmationTimestamp()->getTimestamp(), 2);
+
         // confirm and activate:
         $this->db->ConfirmUser($user->GetId(), 
             password_hash($newPass, PASSWORD_DEFAULT),
@@ -659,7 +663,38 @@ final class ForumDbTest extends BaseTest
         // fail for unknown user-id
         $this->expectException(InvalidArgumentException::class);
         $this->db->ConfirmUser(333, 'foo', 'foo@mail', true);
+    }
 
+    public function testRequestPasswordResetCode() : void
+    {
+        // create an entry and verify its created with the proper value
+        $now = new DateTime();
+        $user = User::LoadUserById($this->db, 52);
+        $this->assertNotNull($user);
+        $code = $this->db->RequestPasswortResetCode($user, '::1');
+        // verify returned value is in the db
+        $query = 'SELECT iduser, request_date '
+                . 'FROM reset_password_table '
+                . 'WHERE confirm_code = BINARY :confirm_code';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(array(':confirm_code' => $code));
+        $result = $stmt->fetch();
+        $this->assertIsArray($result);
+        $this->assertSame($user->GetId(), $result['iduser']);
+        $ts = new DateTime($result['request_date']);
+        $this->assertEqualsWithDelta($now->getTimestamp(), 
+            $ts->getTimestamp(), 2);
+        // check that there is only one entry, even if we create a second one:
+        $newCode = $this->db->RequestPasswortResetCode($user, '::1');
+        $this->assertNotSame($code, $newCode);
+        $query = 'SELECT confirm_code FROM reset_password_table '
+            . 'WHERE iduser = :iduser';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(array(':iduser' => $user->getId()));
+        $result = $stmt->fetch();
+        $this->assertIsArray($result);
+        $this->assertSame($newCode, $result['confirm_code']);
+        $this->assertFalse($stmt->fetch()); // no more data
     }
 
 }
