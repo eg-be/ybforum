@@ -732,7 +732,7 @@ class ForumDb extends PDO
      * @return string Confirmation code.
      */
     public function RequestPasswortResetCode(User $user, 
-            string $requestClientIpAddress)
+            string $requestClientIpAddress) : string
     {
         // Delete any already existing entry first
         $this->RemoveResetPasswordCode($user->GetId());
