@@ -697,4 +697,203 @@ final class ForumDbTest extends BaseTest
         $this->assertFalse($stmt->fetch()); // no more data
     }
 
+    public function testVerifyPasswordResetCode() : void
+    {
+        // create two codes: One that will expire in one minute
+        // and one that has expired one minute ago
+        $user101 = User::LoadUserById($this->db, 101);
+        $user102 = User::LoadUserById($this->db, 102);
+        $this->assertNotNull($user101);
+        $this->assertNotNull($user102);
+        $validCode = $this->db->RequestPasswortResetCode($user101, '::1');        
+        $elapsedCode = $this->db->RequestPasswortResetCode($user102, '::1');        
+
+        // modify the timestamps in the db:
+        $elapsedDate = new DateTime();
+        $validDate = new DateTime();
+        $codeValidInterval = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);
+        $oneMinuteInterval = new DateInterval('PT1M');
+        $elapsedDate->sub($codeValidInterval);
+        $elapsedDate->sub($oneMinuteInterval);
+        $validDate->sub($codeValidInterval);
+        $validDate->add($oneMinuteInterval);
+        $query = 'UPDATE reset_password_table SET request_date = :request_date '
+                . 'WHERE confirm_code = BINARY :confirm_code';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(array(':request_date' => $elapsedDate->format('Y-m-d H:i:s'), 
+            ':confirm_code' => $elapsedCode));
+        $stmt->execute(array(':request_date' => $validDate->format('Y-m-d H:i:s'), 
+            ':confirm_code' => $validCode));        
+
+        // test that an unknown code fails to validate
+        $this->assertSame(0, $this->db->VerifyPasswortResetCode('AB12', true));
+
+        // test for known, but invalid codes (time has elapsed by one minute)
+        $this->assertSame(0, $this->db->VerifyPasswortResetCode($elapsedCode, false));
+        // test that those entries are removed always (despite we set remove to false)
+        $query = 'SELECT confirm_code FROM reset_password_table '
+            . 'WHERE confirm_code = BINARY :confirm_code';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(array(':confirm_code' => $elapsedCode));
+        $result = $stmt->fetch();
+        $this->assertFalse($result);
+        
+        // test for known valid codes: one that will elapse in one minute
+        $iduser = $this->db->VerifyPasswortResetCode($validCode, false);
+        $this->assertSame(101, $iduser);
+        // test it is not removed if not specified
+        $stmt->execute(array(':confirm_code' => $validCode));
+        $result = $stmt->fetch();
+        $this->assertIsArray($result);        
+        // test that it is removed if specified
+        $values = $this->db->VerifyPasswortResetCode($validCode, true);
+        $this->assertSame(101, $iduser);
+        $stmt->execute(array(':confirm_code' => $validCode));
+        $result = $stmt->fetch();
+        $this->assertFalse($result);        
+    }
+
+    public function testRemoveResetPasswordCode() : void
+    {
+        // insert some entries, test they are removed
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertNotNull($user101);        
+        $this->db->RequestPasswortResetCode($user101, '::1');
+        $this->assertSame(1, $this->db->RemoveResetPasswordCode($user101->getId()));
+        $this->assertSame(0, $this->db->RemoveResetPasswordCode($user101->getId()));
+        // not existing entry works
+        $this->assertSame(0, $this->db->RemoveResetPasswordCode(33));        
+    }
+
+    public function testUpdateUserPassword() : void
+    {
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertNotNull($user101);
+        $this->db->UpdateUserPassword($user101->GetId(), "foobar");
+        // note: Must reload the user after a password-change
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertNotNull($user101);
+        $this->assertTrue($user101->Auth("foobar"));
+        $this->assertFalse($user101->Auth("Foobar"));
+    }
+
+    public function testRequestUpdateEmailCode() : void
+    {
+        // create an entry and verify its created with the proper value
+        $now = new DateTime();
+        $user = User::LoadUserById($this->db, 52);
+        $this->assertNotNull($user);
+        $code = $this->db->RequestUpdateEmailCode($user->GetId(), 
+            'new-mail@mail.com', '::1');
+        // verify returned value matches entry from the db
+        $query = 'SELECT iduser, email, request_date '
+                . 'FROM update_email_table '
+                . 'WHERE confirm_code = BINARY :confirm_code';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(array(':confirm_code' => $code));
+        $result = $stmt->fetch();
+        $this->assertIsArray($result);
+        $this->assertSame($user->GetId(), $result['iduser']);
+        $this->assertSame('new-mail@mail.com', $result['email']);
+        $ts = new DateTime($result['request_date']);
+        $this->assertEqualsWithDelta($now->getTimestamp(), 
+            $ts->getTimestamp(), 2);
+        // check that there is only one entry, even if we create a second one:
+        $newCode = $this->db->RequestUpdateEmailCode($user->GetId(), 
+            'another@mail.com', '::1');
+        $this->assertNotSame($code, $newCode);
+        $query = 'SELECT confirm_code FROM update_email_table '
+            . 'WHERE iduser = :iduser';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(array(':iduser' => $user->getId()));
+        $result = $stmt->fetch();
+        $this->assertIsArray($result);
+        $this->assertSame($newCode, $result['confirm_code']);
+        $this->assertFalse($stmt->fetch()); // no more data
+    }
+
+    public function testVerifyUpdateEmailCode() : void
+    {
+        // create two codes: One that will expire in one minute
+        // and one that has expired one minute ago
+        $user101 = User::LoadUserById($this->db, 101);
+        $user102 = User::LoadUserById($this->db, 102);
+        $this->assertNotNull($user101);
+        $this->assertNotNull($user102);
+        $validCode = $this->db->RequestUpdateEmailCode($user101->GetId(), 
+            '101@mail', '::1');
+        $elapsedCode = $this->db->RequestUpdateEmailCode($user102->GetId(), 
+            '102@mail', '::1');
+
+        // modify the timestamps in the db:
+        $elapsedDate = new DateTime();
+        $validDate = new DateTime();
+        $codeValidInterval = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);
+        $oneMinuteInterval = new DateInterval('PT1M');
+        $elapsedDate->sub($codeValidInterval);
+        $elapsedDate->sub($oneMinuteInterval);
+        $validDate->sub($codeValidInterval);
+        $validDate->add($oneMinuteInterval);
+        $query = 'UPDATE update_email_table SET request_date = :request_date '
+                . 'WHERE confirm_code = BINARY :confirm_code';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(array(':request_date' => $elapsedDate->format('Y-m-d H:i:s'), 
+            ':confirm_code' => $elapsedCode));
+        $stmt->execute(array(':request_date' => $validDate->format('Y-m-d H:i:s'), 
+            ':confirm_code' => $validCode));        
+
+        // test that an unknown code fails to validate
+        $this->assertNull($this->db->VerifyUpdateEmailCode('AB12', true));
+
+        // test for known, but invalid codes (time has elapsed by one minute)
+        $this->assertNull($this->db->VerifyUpdateEmailCode($elapsedCode, false));
+        // test that those entries are removed always (despite we set remove to false)
+        $query = 'SELECT confirm_code FROM update_email_table '
+            . 'WHERE confirm_code = BINARY :confirm_code';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(array(':confirm_code' => $elapsedCode));
+        $result = $stmt->fetch();
+        $this->assertFalse($result);
+        
+        // test for known valid codes: one that will elapse in one minute
+        $values = $this->db->VerifyUpdateEmailCode($validCode, false);
+        $this->assertNotNull($values);
+        // test it is not removed if not specified
+        $stmt->execute(array(':confirm_code' => $validCode));
+        $result = $stmt->fetch();
+        $this->assertIsArray($result);        
+        // test that it is removed if specified
+        $values = $this->db->VerifyUpdateEmailCode($validCode, true);
+        $this->assertNotNull($values);
+        $stmt->execute(array(':confirm_code' => $validCode));
+        $result = $stmt->fetch();
+        $this->assertFalse($result);
+
+        // test that the values returned are correct
+        $this->assertSame(101, $values['iduser']);
+        $this->assertSame('101@mail', $values['email']);
+    }
+
+    public function testRemoveUpdateEmailCode() : void
+    {
+        // insert some entries, test they are removed
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertNotNull($user101);
+        $this->db->RequestUpdateEmailCode($user101->GetId(), 'new@mail', '::1');
+        $this->assertSame(1, $this->db->RemoveUpdateEmailCode($user101->getId()));
+        $this->assertSame(0, $this->db->RemoveUpdateEmailCode($user101->getId()));
+        // not existing entry works
+        $this->assertSame(0, $this->db->RemoveUpdateEmailCode(33));        
+    }
+
+    public function testUpdateUserEmail() : void
+    {
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertNotNull($user101);
+        $this->db->UpdateUserEmail($user101->GetId(), 'bla@mail');
+        // note: Must reload the user after a password-change
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertNotNull($user101);
+        $this->assertSame('bla@mail', $user101->GetEmail());
+    }    
 }
