@@ -895,5 +895,63 @@ final class ForumDbTest extends BaseTest
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
         $this->assertSame('bla@mail', $user101->GetEmail());
+    }
+
+    public function testActivateUser() : void
+    {
+        // rely on a test-database
+        self::createTestDatabase();
+        // activate one that is not active
+        $needsApproval = User::LoadUserById($this->db, 51);
+        $this->assertNotNull($needsApproval);
+        $this->assertFalse($needsApproval->IsActive());
+        $this->db->ActivateUser($needsApproval->GetId());
+        // must reload, see #21
+        $needsApproval = User::LoadUserById($this->db, 51);
+        $this->assertTrue($needsApproval->IsActive());
+
+        // activating one that is already active, does nothing
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertNotNull($user101);
+        $this->assertTrue($user101->IsActive());
+        $this->db->ActivateUser($needsApproval->GetId());
+        // must reload, see #21
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertTrue($user101->IsActive());
+
+        // Activating one with a deactivated reason, removes that reason
+        $deactivated = User::LoadUserById($this->db, 50);
+        $this->assertNotNull($deactivated);
+        $this->assertFalse($deactivated->IsActive());
+        $query = 'SELECT reason FROM user_deactivated_reason_table '
+            . 'WHERE iduser = :iduser';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(array(':iduser' => $deactivated->GetId()));
+        $result = $stmt->fetch();
+        $this->assertIsArray($result);
+        $this->db->ActivateUser($deactivated->GetId());
+        $deactivated = User::LoadUserById($this->db, 50);  // must reload, see #21
+        $this->assertTrue($deactivated->IsActive());
+        $stmt->execute(array(':iduser' => $deactivated->GetId()));
+        $result = $stmt->fetch();
+        $this->assertFalse($result);
+    }
+
+    public function providerNotExistingNotConfirmed() : array 
+    {
+        return array(
+            [333], // not existing in db
+            [52]    // needs to confirm email
+        );
     }    
+
+    /**
+     * @test
+     * @dataProvider providerNotExistingNotConfirmed
+     */
+    public function testActivateUserFails(int $userId) : void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->ActivateUser($userId);
+    }
 }

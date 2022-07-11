@@ -983,7 +983,7 @@ class ForumDb extends PDO
      * @throws InvalidArgumentException If no user with passed $userId exists
      * or if the user has no value in the field confirmed_ts
      */
-    public function ActivateUser(int $userId)
+    public function ActivateUser(int $userId) : void
     {
         // Get the user first
         $user = User::LoadUserById($this, $userId);
