@@ -775,7 +775,7 @@ class ForumDb extends PDO
      * @throws Exception If removing a used code fails, or any other 
      * database operation fails.
      */
-    public function VerifyPasswortResetCode(string $code, bool $remove)
+    public function VerifyPasswortResetCode(string $code, bool $remove) : int
     {
         // get entry in reset_password_table
         $query = 'SELECT iduser, request_date '
@@ -815,7 +815,7 @@ class ForumDb extends PDO
      * @param int $userId to match against field iduser
      * @return int Number of rows returned
      */
-    public function RemoveResetPasswordCode(int $userId)
+    public function RemoveResetPasswordCode(int $userId) : int
     {
         $delQuery = 'DELETE FROM reset_password_table WHERE iduser = :iduser';
         $delStmt = $this->prepare($delQuery);
@@ -830,7 +830,7 @@ class ForumDb extends PDO
      * @param string $clearTextPassword New password to set (will be hashed)
      * @throws Exception If not exactly one row is updated.
      */
-    public function UpdateUserPassword(int $userId, string $clearTextPassword)
+    public function UpdateUserPassword(int $userId, string $clearTextPassword) : void
     {
         $hashedPassword = password_hash($clearTextPassword, PASSWORD_DEFAULT);
         $query = 'UPDATE user_table SET password = :password '
@@ -858,7 +858,7 @@ class ForumDb extends PDO
      * @return string confirmation code created.
      */
     public function RequestUpdateEmailCode(int $userId, string $newEmail, 
-            string $requestClientIpAddress)
+            string $requestClientIpAddress) : string
     {        
         // delete an eventually already existing entry first
         $this->RemoveUpdateEmailCode($userId);
@@ -900,7 +900,7 @@ class ForumDb extends PDO
      * values for the keys 'iduser' and 'email'. null is returned if no
      * matching row is found, or the code is invalid
      */
-    public function VerifyUpdateEmailCode(string $code, bool $remove)
+    public function VerifyUpdateEmailCode(string $code, bool $remove) : ?array
     {
         // Select the matching entry in the update_email_table
         $query = 'SELECT iduser, email, request_date '
@@ -941,7 +941,7 @@ class ForumDb extends PDO
      * @param int $userId to match against field iduser
      * @return int Number of rows returned
      */    
-    public function RemoveUpdateEmailCode(int $userId)
+    public function RemoveUpdateEmailCode(int $userId) : int
     {
         $delQuery = 'DELETE FROM update_email_table WHERE iduser = :iduser';
         $delStmt = $this->prepare($delQuery);
@@ -956,7 +956,7 @@ class ForumDb extends PDO
      * @param string $email
      * @throws Exception If not exactly one row is updated.
      */
-    public function UpdateUserEmail(int $userId, string $email)
+    public function UpdateUserEmail(int $userId, string $email) : void
     {
         $activateQuery = 'UPDATE user_table SET '
                 . 'email = :email '
