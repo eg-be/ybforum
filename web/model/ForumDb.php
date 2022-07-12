@@ -1022,7 +1022,7 @@ class ForumDb extends PDO
      * @param int $userId
      * @throws InvalidArgumentException If no user with passed userid exists
      */
-    public function DeactivateUser(int $userId)
+    public function DeactivateUser(int $userId) : void
     {
         // Get the user first
         $user = User::LoadUserById($this, $userId);
@@ -1060,7 +1060,7 @@ class ForumDb extends PDO
      * deactivated_by_iduser
      */
     public function SetDeactivationReason(int $userId, string $reason,
-            int $deactivatedByUserId)
+            int $deactivatedByUserId) : void
     {
         // delete any existing entry in the reasons-table
         $delQuery = 'DELETE FROM user_deactivated_reason_table '
@@ -1085,7 +1085,7 @@ class ForumDb extends PDO
      * @throws InvalidArgumentException If no user with passed $userId exists
      * or if the user has no value in the field confirmed_ts
      */
-    public function SetAdmin(int $userId)
+    public function SetAdmin(int $userId) : void
     {
         // Get the user first
         $user = User::LoadUserById($this, $userId);
@@ -1123,7 +1123,7 @@ class ForumDb extends PDO
      * @param int $userId
      * @throws InvalidArgumentException If no user with passed $userId exists
      */
-    public function RemoveAdmin(int $userId)
+    public function RemoveAdmin(int $userId) : void
     {
         // Get the user first
         $user = User::LoadUserById($this, $userId);
@@ -1154,7 +1154,7 @@ class ForumDb extends PDO
      * the passed $uesrId
      * @param int $userId
      */
-    private function ClearDeactivationReason(int $userId)
+    private function ClearDeactivationReason(int $userId) : void
     {
         $delQuery = 'DELETE FROM user_deactivated_reason_table '
                 . 'WHERE iduser = :iduser';
@@ -1170,7 +1170,7 @@ class ForumDb extends PDO
      * @param int $userId
      * @throws IllegalArgumentException If no user with passed $userId exists
      */
-    public function MakeDummy(int $userId)
+    public function MakeDummy(int $userId) : void
     {
         $user = User::LoadUserById($this, $userId);
         if(!$user)

@@ -914,7 +914,7 @@ final class ForumDbTest extends BaseTest
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
         $this->assertTrue($user101->IsActive());
-        $this->db->ActivateUser($needsApproval->GetId());
+        $this->db->ActivateUser($user101->GetId());
         // must reload, see #21
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertTrue($user101->IsActive());
@@ -953,5 +953,121 @@ final class ForumDbTest extends BaseTest
     {
         $this->expectException(InvalidArgumentException::class);
         $this->db->ActivateUser($userId);
+    }
+
+    public function testDeactivateUser() : void
+    {
+        // rely on a test-database
+        self::createTestDatabase();
+        // deactivate one that is active
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertNotNull($user101);
+        $this->assertTrue($user101->IsActive());
+        $this->db->DeactivateUser($user101->GetId());
+        // must reload, see #21
+        $user101 = User::LoadUserById($this->db, 51);
+        $this->assertFalse($user101->IsActive());
+
+        // deactivating one that is already deactivated, does nothing
+        $deactivated = User::LoadUserById($this->db, 50);
+        $this->assertNotNull($deactivated);
+        $this->assertFalse($deactivated->IsActive());
+        $this->db->DeactivateUser($deactivated->GetId());
+        // must reload, see #21
+        $deactivated = User::LoadUserById($this->db, 50);
+        $this->assertFalse($deactivated->IsActive());
+
+        // not-existing cant be deactivated
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->DeactivateUser(333);
+    }
+
+    public function testSetDeactivationReason() : void
+    {
+        $query = 'SELECT deactivated_by_iduser, reason FROM '
+            . 'user_deactivated_reason_table WHERE '
+            . 'iduser = :iduser';
+        $stmt = $this->db->prepare($query);
+
+        // Create an entry
+        $this->db->SetDeactivationReason(101, 'just for fun', 1);
+        $stmt->execute(array(':iduser' => 101));
+        $result = $stmt->fetch();
+        $this->assertIsArray($result);
+        $this->assertFalse($stmt->fetch());
+        // even if we create a second entry, only one remains
+        $this->db->SetDeactivationReason(101, 'more fun', 102);
+        $stmt->execute(array(':iduser' => 101));
+        $result = $stmt->fetch();
+        $this->assertIsArray($result);
+        $this->assertFalse($stmt->fetch());
+        // check values
+        $this->assertSame(102, $result['deactivated_by_iduser']);;
+        $this->assertSame('more fun', $result['reason']);
+    }
+
+    public function testSetAdmin() : void
+    {
+        // rely on a test-database
+        self::createTestDatabase();
+        // promote one to an admin that is not yet
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertNotNull($user101);
+        $this->assertFalse($user101->IsAdmin());
+        $this->db->SetAdmin($user101->GetId());
+        // must reload, see #21
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertTrue($user101->IsAdmin());
+
+        // promote an admin to an admin again, nothing changes
+        $admin = User::LoadUserById($this->db, 1);
+        $this->assertNotNull($admin);
+        $this->assertTrue($admin->IsAdmin());
+        $this->db->SetAdmin($admin->GetId());
+        // must reload, see #21
+        $admin = User::LoadUserById($this->db, 1);
+        $this->assertTrue($admin->IsAdmin());
+    }
+
+    /**
+     * @test
+     * @dataProvider providerNotExistingNotConfirmed
+     */
+    public function testSetAdminFails(int $userId) : void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->SetAdmin($userId);
+    }    
+
+    public function testRemoveAdmin() : void
+    {
+        // rely on a test-database
+        self::createTestDatabase();
+        // unset admin from an admin
+        $admin = User::LoadUserById($this->db, 1);
+        $this->assertNotNull($admin);
+        $this->assertTrue($admin->IsAdmin());
+        $this->db->RemoveAdmin($admin->GetId());
+        // must reload, see #21
+        $admin = User::LoadUserById($this->db, 1);
+        $this->assertFalse($admin->IsAdmin());
+
+        // remove admin from one who is not admin, does nothing
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertNotNull($user101);
+        $this->assertFalse($user101->IsAdmin());
+        $this->db->RemoveAdmin($user101->GetId());
+        // must reload, see #21
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertFalse($user101->IsAdmin());
+
+        // not-existing cant be deactivated
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->RemoveAdmin(333);
+    }
+
+    public function testMakeDummy() : void
+    {
+        
     }
 }
