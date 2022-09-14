@@ -1068,6 +1068,39 @@ final class ForumDbTest extends BaseTest
 
     public function testMakeDummy() : void
     {
-        
+        // rely on a test-database
+        self::createTestDatabase();
+        // turn a user into a dummy
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertNotNull($user101);
+        $this->assertFalse($user101->IsDummy());
+        $this->db->MakeDummy($user101->GetId());
+        // must reload, see #21
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertTrue($user101->IsDummy());
+        // a dummy can be turned into a dummy over and over
+        $dummy = User::LoadUserById($this->db, 66);
+        $this->assertNotNull($dummy);
+        $this->assertTrue($dummy->IsDummy());
+        $this->db->MakeDummy($dummy->GetId());
+        // must reload, see #21
+        $dummy = User::LoadUserById($this->db, 66);
+        $this->assertTrue($dummy->IsDummy());
+
+        // not-existing cant be turned into dummy
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->MakeDummy(333);        
+    }
+
+    
+    public function testDeleteUser() : void
+    {
+        // rely on a test-database
+        self::createTestDatabase();   
+        // only users with 0 posts can be deleted
+        // try to delete all users with zero posts
+
+
+        // todo: fail tests for not existing and users with posts
     }
 }
