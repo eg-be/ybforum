@@ -24,7 +24,7 @@ VALUES(11, 11, NULL, 102, 'Thread 11', 'The quick brown fox jumps over the lazy 
 INSERT INTO post_table (idpost, idthread, parent_idpost, iduser, title, content, `rank`, indent, creation_ts, ip_address)
 VALUES(12, 12, NULL, 103, 'Thread 12', 'The quick brown fox jumps over the lazy dog', 1, 0, '2020-03-30 14:42:00', '::1');
 
-/* populate ONE thred with some post-tree. That is enough for most of the tests.
+/* populate ONE thread with some post-tree. That is enough for most of the tests.
    tests requiring more data, shall provide their own data and load it */
 INSERT INTO post_table (idpost, idthread, parent_idpost, iduser, title, content, `rank`, indent, creation_ts, ip_address)
 VALUES(20, 3, 3, 101, 'Thread 3 - A1', 'The quick brown fox jumps over the lazy dog', 2, 1, '2020-03-30 14:50:00', '::1');

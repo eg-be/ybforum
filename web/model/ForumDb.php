@@ -1330,7 +1330,7 @@ class ForumDb extends PDO
      * @param DateTime $ts
      * @return bool True if DateTime is new than(now - YbForumConfig::CONF_CODE_VALID_PERIOD)
      */
-    public function IsDateWithinConfirmPeriod(DateTime $ts)
+    public function IsDateWithinConfirmPeriod(DateTime $ts) : bool
     {
         $now = new DateTime();
         $codeValidInterval = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);

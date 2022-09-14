@@ -1207,4 +1207,18 @@ final class ForumDbTest extends BaseTest
         $this->expectException(InvalidArgumentException::class);
         $this->db->SetPostVisible(666, false);
     }
+
+    public function testIsDateWithinConfirmPeriod() : void
+    {
+        $codeValidInterval = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);
+        $oneSecondInterval = new DateInterval('PT3S');
+        $elapsed = new DateTime();
+        $valid = new DateTime();
+        $elapsed->sub($codeValidInterval);
+        $elapsed->sub($oneSecondInterval);
+        $valid->sub($codeValidInterval);
+        $valid->add($oneSecondInterval);
+        $this->assertFalse($this->db->IsDateWithinConfirmPeriod($elapsed));
+        $this->assertTrue($this->db->IsDateWithinConfirmPeriod($valid));
+    }
 }
