@@ -1179,6 +1179,32 @@ final class ForumDbTest extends BaseTest
 
     public function testSetPostVisible() : void
     {
+        // rely on a test-database
+        self::createTestDatabase();
+        // hide some post within a thread:
+        // its child must get hidden too
+        $postA1_2 = Post::LoadPost($this->db, 23);
+        $this->assertNotNull($postA1_2);
+        $this->assertFalse($postA1_2->IsHidden());
+        $postA1_2_1 = Post::LoadPost($this->db, 25);
+        $this->assertNotNull($postA1_2_1);
+        $this->assertFalse($postA1_2_1->IsHidden());
+        $this->assertSame(23, $postA1_2_1->GetParentPostId());
+        // now hide that tree by hiding the parent
+        $this->db->SetPostVisible(23, false);
+        $postA1_2 = Post::LoadPost($this->db, 23);
+        $this->assertTrue($postA1_2->IsHidden());
+        $postA1_2_1 = Post::LoadPost($this->db, 25);
+        $this->assertTrue($postA1_2_1->IsHidden());
+        // show again:
+        $this->db->SetPostVisible(23, true);
+        $postA1_2 = Post::LoadPost($this->db, 23);
+        $this->assertFalse($postA1_2->IsHidden());
+        $postA1_2_1 = Post::LoadPost($this->db, 25);
+        $this->assertFalse($postA1_2_1->IsHidden());
 
+        // fail for invalid post-ids
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->SetPostVisible(666, false);
     }
 }
