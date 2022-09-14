@@ -1006,6 +1006,18 @@ final class ForumDbTest extends BaseTest
         $this->assertSame('more fun', $result['reason']);
     }
 
+    public function testGetDeactivationReason() : void
+    {
+        // check the message for our deactivated user
+        $reason = $this->db->GetDeactivationReason(50);
+        $this->assertSame('test deactivated by admin', $reason);
+        // non-deactived, or non-existing just return null
+        $reason = $this->db->GetDeactivationReason(1);
+        $this->assertNull($reason);
+        $reason = $this->db->GetDeactivationReason(666);
+        $this->assertNull($reason);
+    }
+
     public function testSetAdmin() : void
     {
         // rely on a test-database
@@ -1092,15 +1104,76 @@ final class ForumDbTest extends BaseTest
         $this->db->MakeDummy(333);        
     }
 
-    
-    public function testDeleteUser() : void
+
+    public function providerZeroPosts() : array 
+    {
+        return array(
+            [1],
+            [10],
+            [50] ,
+            [51],
+            [52],
+            [66]
+        );
+    }
+
+
+    public function providerHasPostsAndNotExisting() : array
+    {
+        return array(
+            [101],
+            [102],
+            [103],
+            [999]
+        );
+    }
+
+    /**
+    * @test
+    * @dataProvider providerZeroPosts
+    */
+    public function testDeleteUser(int $userId) : void
     {
         // rely on a test-database
         self::createTestDatabase();   
         // only users with 0 posts can be deleted
         // try to delete all users with zero posts
+        $user = User::LoadUserById($this->db, $userId);
+        $this->assertNotNull($user);
+        $this->db->DeleteUser($user->GetId());
+        // user must be gone by now
+        $user = User::LoadUserById($this->db, $userId);
+        $this->assertNull($user);
+
+        // check that deactivated_reason_table has been cleared:
+        // (yes, is done by constraint of foreign key)
+        $reason = $this->db->GetDeactivationReason($userId);
+        $this->assertNull($reason);
+    }
+
+    /**
+    * @test
+    * @dataProvider providerHasPostsAndNotExisting
+    */
+    public function testDeleteUserFails(int $userId) : void
+    {
+        // rely on a test-database
+        self::createTestDatabase();   
+        // only users with 0 posts can be deleted
+        // try to delete all users with zero posts
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->DeleteUser($userId);
+    }
 
 
-        // todo: fail tests for not existing and users with posts
+    public function testGetPostByUserCount() : void
+    {
+        // rely on a test-database
+        self::createTestDatabase();
+        $this->assertSame(8, $this->db->GetPostByUserCount(101));
+        $this->assertSame(6, $this->db->GetPostByUserCount(102));
+        $this->assertSame(7, $this->db->GetPostByUserCount(103));
+        $this->assertSame(0, $this->db->GetPostByUserCount(1));
+        $this->assertSame(0, $this->db->GetPostByUserCount(666));
     }
 }
