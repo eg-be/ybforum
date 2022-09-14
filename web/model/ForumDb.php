@@ -1279,17 +1279,15 @@ class ForumDb extends PDO
     }
     
     /**
-     * Update the field hidden of an entry in post_table. If the field 
-     * already contains the value it shall be updated too, this method does 
-     * nothing.
+     * Update the field hidden of an entry in post_table and of all
+     * the children. If the post identified by postId, this method
+     * does nothing - especially it does not alter any children.
      * @param int $postId
      * @param bool $show If true, set hidden to 0, else set hidden to 1.
-     * @return type
      * @throws InvalidArgumentException If no post with passed $postId 
      * exists
-     * @throws Exception
      */
-    public function SetPostVisible(int $postId, bool $show = true)
+    public function SetPostVisible(int $postId, bool $show = true) : void
     {
         $post = Post::LoadPost($this, $postId);
         if(!$post)
