@@ -1015,7 +1015,7 @@ class ForumDb extends PDO
         // remove entry from the deactivated reasons table
         $this->ClearDeactivationReason($userId);
     }
-    
+
     /**
      * Deactivate a user. If user is already deactivated, this method
      * does nothing.
@@ -1077,6 +1077,28 @@ class ForumDb extends PDO
             ':reason' => $reason));
     }
     
+    
+    /**
+     * Get the deactivation-reason for a user.
+     * Returns null if there is no entry user_deactivated_reason_table
+     */
+    public function GetDeactivationReason(int $userId) : ?string
+    {
+        // Select the matching entry in the table
+        $query = 'SELECT reason '
+                . 'FROM user_deactivated_reason_table '
+                . 'WHERE iduser = :iduser';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array(':iduser' => $userId));
+        $result = $stmt->fetch();
+        if(!$result)
+        {
+            return null;
+        }
+        $reason = $result['reason'];
+        return $reason;
+    }    
+
     /**
      * Makes a user an admin  if that user exists and has confirmed 
      * the email address.
@@ -1197,13 +1219,20 @@ class ForumDb extends PDO
     
     /**
      * Deletes a user by removing it entirely from the user_table.
-     * This method will fail with an InvalidArgumentException if there are
-     * already post entries from that user
-     * 
+     * This method will fail if there are
+     * already post entries from that user, or no such user is known.
      * @param int $userId
+     * @throws IllegalArgumentException If no user with passed $userId exists
+     * or if the user has already posted something
      */
-    public function DeleteUser(int $userId)
+    public function DeleteUser(int $userId) : void
     {
+        $user = User::LoadUserById($this, $userId);
+        if(!$user)
+        {
+            throw new InvalidArgumentException('No user with id ' . $userId . 
+                    ' was found');
+        }            
         if($this->GetPostByUserCount($userId) > 0)
         {
             throw new InvalidArgumentException('Cannot delete user '
@@ -1228,12 +1257,14 @@ class ForumDb extends PDO
     
     /**
      * Count the number of entries in post_table that have been created
-     * using the passed $userId
+     * using the passed $userId.
+     * note: Does not fail if user is unknown, but returns 0.
+     * note: Hidden posts are also included.
      * @param int $userId
-     * @return type
-     * @throws Exception
+     * @return int Post-count. 0 if no such user es known
+     * @throws Exception If database operation fails
      */
-    public function GetPostByUserCount(int $userId)
+    public function GetPostByUserCount(int $userId) : int
     {
         $query = 'SELECT COUNT(idpost) FROM post_table '
                 . 'WHERE iduser = :iduser';
@@ -1244,7 +1275,7 @@ class ForumDb extends PDO
         {
             throw new Exception('Failed to get GetPostByUserCount');        
         }
-        return $result[0];        
+        return $result[0];
     }
     
     /**
