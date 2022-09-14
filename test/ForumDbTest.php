@@ -1085,19 +1085,19 @@ final class ForumDbTest extends BaseTest
         // turn a user into a dummy
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
-        $this->assertFalse($user101->IsDummy());
+        $this->assertFalse($user101->IsDummyUser());
         $this->db->MakeDummy($user101->GetId());
         // must reload, see #21
         $user101 = User::LoadUserById($this->db, 101);
-        $this->assertTrue($user101->IsDummy());
+        $this->assertTrue($user101->IsDummyUser());
         // a dummy can be turned into a dummy over and over
         $dummy = User::LoadUserById($this->db, 66);
         $this->assertNotNull($dummy);
-        $this->assertTrue($dummy->IsDummy());
+        $this->assertTrue($dummy->IsDummyUser());
         $this->db->MakeDummy($dummy->GetId());
         // must reload, see #21
         $dummy = User::LoadUserById($this->db, 66);
-        $this->assertTrue($dummy->IsDummy());
+        $this->assertTrue($dummy->IsDummyUser());
 
         // not-existing cant be turned into dummy
         $this->expectException(InvalidArgumentException::class);
@@ -1175,5 +1175,10 @@ final class ForumDbTest extends BaseTest
         $this->assertSame(7, $this->db->GetPostByUserCount(103));
         $this->assertSame(0, $this->db->GetPostByUserCount(1));
         $this->assertSame(0, $this->db->GetPostByUserCount(666));
+    }
+
+    public function testSetPostVisible() : void
+    {
+
     }
 }
