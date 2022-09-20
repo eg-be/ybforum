@@ -1349,7 +1349,7 @@ class ForumDb extends PDO
      * @return mixed false if no entry is found, else the value of the 
      * description field.
      */
-    public function IsEmailOnBlacklistExactly(string $email)
+    public function IsEmailOnBlacklistExactly(string $email) : mixed
     {
         $query = 'SELECT description FROM blacklist_table '
                 . 'WHERE email = :email';
@@ -1372,7 +1372,7 @@ class ForumDb extends PDO
      * @return mixed false if no matching entry is found, else the value of the 
      * description field.
      */
-    public function IsEmailOnBlacklistRegex(string $email)
+    public function IsEmailOnBlacklistRegex(string $email) : mixed
     {
         $query = 'SELECT email_regex, description FROM blacklist_table '
                 . 'WHERE email_regex IS NOT NULL';
@@ -1389,8 +1389,12 @@ class ForumDb extends PDO
         return false;
     }
     
-    
-    public function AddBlacklist(string $email, string $reason)
+    /**
+     * Add a single email to the blacklist
+     * @param string $email
+     * @param string $reason
+     */
+    public function AddBlacklist(string $email, string $reason) : void
     {
         $query = 'INSERT INTO blacklist_table (email, description) '
                 . 'VALUES(:email, :description)';

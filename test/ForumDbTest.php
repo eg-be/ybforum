@@ -1221,4 +1221,35 @@ final class ForumDbTest extends BaseTest
         $this->assertFalse($this->db->IsDateWithinConfirmPeriod($elapsed));
         $this->assertTrue($this->db->IsDateWithinConfirmPeriod($valid));
     }
+
+    public function testIsEmailOnBlacklistExactly() : void
+    {
+        // rely on a test-database
+        self::createTestDatabase();        
+        $desc = $this->db->IsEmailOnBlacklistExactly('foo@bar.com');
+        $this->assertSame('foo-bar', $desc);
+        $desc = $this->db->IsEmailOnBlacklistExactly('foO@bar.net');
+        $this->assertFalse($desc);
+    }
+
+    public function testIsEmailOnBlacklistRegex() : void
+    {
+        // rely on a test-database
+        self::createTestDatabase();
+        $desc = $this->db->IsEmailOnBlacklistRegex('foo@bar.ru');
+        $this->assertSame('Mailadressen aus .ru sind blockiert.', $desc);
+        $desc = $this->db->IsEmailOnBlacklistRegex('foO@bar.com');
+        $this->assertFalse($desc);
+    }
+
+
+    public function testAddBlacklist() : void
+    {
+        // no one is adding to blacklist from tests, do not restore db
+        $desc = $this->db->IsEmailOnBlacklistExactly('hans@wurst.com');
+        $this->assertFalse($desc);
+        $this->db->AddBlacklist('hans@wurst.com', 'hans wurst');
+        $desc = $this->db->IsEmailOnBlacklistExactly('hans@wurst.com');
+        $this->assertSame('hans wurst', $desc);
+    }
 }
