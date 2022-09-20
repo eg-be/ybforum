@@ -19,7 +19,8 @@ class BaseTest extends TestCase
         __DIR__.'/../database/log_type_table_data.dump.sql',
         __DIR__.'/data/users.sql',
         __DIR__.'/data/threads.sql',
-        __DIR__.'/data/posts.sql'
+        __DIR__.'/data/posts.sql',
+        __DIR__.'/data/blacklist.sql'
     ];
 
     protected static function createTestDatabase() : void
