@@ -133,7 +133,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
             while($row = $stmt->fetch())
             {
                 $adminEmail = $row['email'];
-                if($mailer->NotifyAdminUserConfirmedRegistraion($this->user->GetNick(), 
+                if($mailer->NotifyAdminUserConfirmedRegistration($this->user->GetNick(), 
                         $adminEmail, $this->user->GetRegistrationMsg()))
                 {
                     $logger->LogMessageWithUserId(Logger::LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED, $this->user->GetId(), 'Mail sent to: ' . $adminEmail);
