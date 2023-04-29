@@ -117,7 +117,7 @@ class ResetPasswordHandler extends BaseHandler
             throw new InvalidArgumentException(self::MSG_USER_INACTIVE, parent::MSGCODE_BAD_PARAM);
         }
         // okay, init the request to change the password
-        $confirmationCode = $db->RequestPasswortResetCode($user, $this->clientIpAddress);
+        $confirmationCode = $db->RequestPasswordResetCode($user, $this->clientIpAddress);
 
         // send the email to the address requested
         $mailer = new Mailer();
