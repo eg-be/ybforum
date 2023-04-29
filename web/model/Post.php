@@ -35,12 +35,12 @@ class Post
      * @return \Post
      * @throws Exception If a database operation fails.
      */  
-    public static function LoadPost(ForumDb $db, int $idPost)
+    public static function LoadPost(ForumDb $db, int $idPost) : ?Post
     {
         assert($idPost > 0);
         $query = 'SELECT idpost, idthread, parent_idpost, nick, '
                 . 'post_table.iduser AS iduser, '
-                . 'title, content, rank, indent, '
+                . 'title, content, `rank`, indent, '
                 . 'creation_ts, '
                 . 'post_table.email AS email, '
                 . 'link_url, link_text, img_url, old_no, '
@@ -63,7 +63,7 @@ class Post
      * Create an instance using the static LoadPost method. This constructor
      * will assert that all members have a valid data.
      */
-    private function __construct()
+    protected function __construct()
     {
         assert(is_int($this->idthread) && $this->idthread > 0);
         assert(is_null($this->parent_idpost) || (is_int($this->parent_idpost) && $this->parent_idpost > 0));
@@ -84,28 +84,28 @@ class Post
         $this->creation_ts = new DateTime($this->creation_ts);
     }
   
-    private $idpost;
-    private $idthread;
-    private $parent_idpost;
-    private $nick;
-    private $iduser;
-    private $title;
-    private $content;
-    private $rank;
-    private $indent;
-    private $creation_ts;
-    private $email;
-    private $link_url;
-    private $link_text;
-    private $img_url;
-    private $old_no;
-    private $hidden;
-    private $ip_address;
+    protected $idpost;
+    protected $idthread;
+    protected $parent_idpost;
+    protected $nick;
+    protected $iduser;
+    protected $title;
+    protected $content;
+    protected $rank;
+    protected $indent;
+    protected $creation_ts;
+    protected $email;
+    protected $link_url;
+    protected $link_text;
+    protected $img_url;
+    protected $old_no;
+    protected $hidden;
+    protected $ip_address;
   
     /**
      * @return int Field idpost
      */
-    public function GetId()
+    public function GetId() : int
     {
         return $this->idpost;
     }
@@ -113,7 +113,7 @@ class Post
     /**
      * @return int Field idthread
      */
-    public function GetThreadId()
+    public function GetThreadId() : int
     {
         return $this->idthread;
     }
@@ -121,7 +121,7 @@ class Post
     /**
      * @return bool True if field hidden has a value > 0.
      */
-    public function IsHidden()
+    public function IsHidden() : bool
     {
         return $this->hidden > 0;
     }
@@ -129,7 +129,7 @@ class Post
     /**
      * @return null or int. field parent_idpost.
      */
-    public function GetParentPostId()
+    public function GetParentPostId() : ?int
     {
         return $this->parent_idpost;
     }
@@ -137,7 +137,7 @@ class Post
     /**
      * @return boolean True if field parent_idpost has a value > 0
      */
-    public function HasParentPost()
+    public function HasParentPost() : bool
     {
         return !is_null($this->parent_idpost) && $this->parent_idpost > 0;
     }
@@ -145,7 +145,7 @@ class Post
     /**
      * @return string Non empty field title.
      */
-    public function GetTitle()
+    public function GetTitle() : string
     {
         return $this->title;
     }
@@ -153,7 +153,7 @@ class Post
     /**
      * @return string Non empty nick (field user_table.nick) who wrote this post. 
      */
-    public function GetNick()
+    public function GetNick() : string
     {
         return $this->nick;
     }
@@ -161,7 +161,7 @@ class Post
     /**
      * @return int User who wrote this post (field post_table.iduser)
      */
-    public function GetUserId()
+    public function GetUserId() : int
     {
         return $this->iduser;
     }
@@ -169,7 +169,7 @@ class Post
     /**
      * @return DateTime of the field creation_ts.
      */
-    public function GetPostTimestamp()
+    public function GetPostTimestamp() : DateTime
     {
         return $this->creation_ts;
     }
@@ -177,7 +177,7 @@ class Post
     /**
      * @return bool True if field content is not null.
      */
-    public function HasContent()
+    public function HasContent() : bool
     {
         return !is_null($this->content);
     }
@@ -185,7 +185,7 @@ class Post
     /**
      * @return string or null. Field content.
      */
-    public function GetContent()
+    public function GetContent() : ?string
     {
         assert($this->HasContent());
         return $this->content;
@@ -194,7 +194,7 @@ class Post
     /**
      * @return int or null. Field old_no.
      */
-    public function GetOldPostNo()
+    public function GetOldPostNo() : ?int
     {
         assert($this->IsOldPost());
         return $this->old_no;
@@ -203,7 +203,7 @@ class Post
     /**
      * @return bool True if field old_no is not null.
      */
-    public function IsOldPost()
+    public function IsOldPost() : bool
     {
         return !is_null($this->old_no);
     }
@@ -211,7 +211,7 @@ class Post
     /**
      * @return bool True if field link_url is not null.
      */
-    public function HasLinkUrl()
+    public function HasLinkUrl() : bool
     {
         return !is_null($this->link_url);
     }
@@ -219,7 +219,7 @@ class Post
     /**
      * @return string or null. Field link_url.
      */
-    public function GetLinkUrl()
+    public function GetLinkUrl() : ?string
     {
         assert($this->HasLinkUrl());
         return $this->link_url;
@@ -228,7 +228,7 @@ class Post
     /**
      * @return bool True if field link_text is not null.
      */
-    public function HasLinkText()
+    public function HasLinkText() : bool
     {
         return !is_null($this->link_text);
     }
@@ -236,7 +236,7 @@ class Post
     /**
      * @return string or null. Field link_text.
      */
-    public function GetLinkText()
+    public function GetLinkText() : ?string
     {
         assert($this->HasLinkText());
         return $this->link_text;
@@ -245,7 +245,7 @@ class Post
     /**
      * @return bool True if field img_url is not null.
      */
-    public function HasImgUrl()
+    public function HasImgUrl() : bool
     {
         return !is_null($this->img_url);
     }
@@ -253,7 +253,7 @@ class Post
     /**
      * @return string or null. Field img_url.
      */
-    public function GetImgUrl()
+    public function GetImgUrl() : ?string
     {
         assert($this->HasImgUrl());
         return $this->img_url;
@@ -262,7 +262,7 @@ class Post
     /**
      * @return bool True if field email is not null.
      */
-    public function HasEmail()
+    public function HasEmail() : bool
     {
         return !is_null($this->email);
     }
@@ -270,7 +270,7 @@ class Post
     /**
      * @return string or email Field email.
      */
-    public function GetEmail()
+    public function GetEmail() : ?string
     {
         assert($this->HasEmail());
         return $this->email;
@@ -279,7 +279,7 @@ class Post
     /**
      * @return int Field rank.
      */
-    public function GetRank()
+    public function GetRank() : int
     {
         return $this->rank;
     }
@@ -287,7 +287,7 @@ class Post
     /**
      * @return int Field indent.
      */
-    public function GetIndent()
+    public function GetIndent() : int
     {
         return $this->indent;
     }
@@ -295,8 +295,33 @@ class Post
     /**
      * @return string Field ip_address.
      */    
-    public function GetIpAddress()
+    public function GetIpAddress() : string
     {
        return $this->ip_address; 
     }
+
+    /**
+     * True, if all values are equal
+     */
+    public function equals(self $other) : bool
+    {
+        return $this->idpost === $other->idpost
+            && $this->idthread === $other->idthread
+            && $this->parent_idpost === $other->parent_idpost
+            && $this->nick === $other->nick
+            && $this->iduser === $other->iduser
+            && $this->title === $other->title
+            && $this->content === $other->content
+            && $this->rank === $other->rank
+            && $this->indent === $other->indent
+            && $this->creation_ts == $other->creation_ts
+            && $this->email === $other->email
+            && $this->link_url === $other->link_url
+            && $this->link_text === $other->link_text
+            && $this->img_url === $other->img_url
+            && $this->old_no === $other->old_no
+            && $this->hidden === $other->hidden
+            && $this->ip_address === $other->ip_address;
+            ;
+    }    
 }

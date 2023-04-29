@@ -77,7 +77,7 @@ class ForumDb extends PDO
     /**
     * @return bool True if connected to db (constructor run without exception)
     */    
-    public function IsConnected()
+    public function IsConnected() : bool
     {
         return $this->m_connected;
     }
@@ -85,17 +85,20 @@ class ForumDb extends PDO
     /**
     * @return bool True if connected using read-only parameters
     */
-    public function IsReadOnly()
+    public function IsReadOnly() : bool
     {
         return $this->m_readOnly;
     }
   
     /**
-    * Count number of entries in thread_table
+    * Count number of entries in thread_table.
+    * Note: This will also include threads that have no
+    * visible posts (no posts, or all posts hidden). Its
+    * just the count of rows of the thread_table.
     * @return int
     * @throws Exception If a database operation fails.
     */
-    public function GetThreadCount()
+    public function GetThreadCount() : int
     {
         $stmt = $this->query('SELECT COUNT(idthread) FROM thread_table');
         $result = $stmt->fetch(PDO::FETCH_NUM);
@@ -107,10 +110,12 @@ class ForumDb extends PDO
     }
     
     /**
-     * Counter number of entries in post_table
+     * Counter number of entries in post_table.
+     * Note: This will also include posts that are hidden, 
+     * its just the count of rows of the post_table.
      * @throws Exception If database operation fails
      */
-    public function GetPostCount()
+    public function GetPostCount() : int
     {
         $stmt = $this->query('SELECT COUNT(idpost) FROM post_table');
         $result = $stmt->fetch(PDO::FETCH_NUM);
@@ -125,7 +130,7 @@ class ForumDb extends PDO
      * Count number of entries in user_table
      * @throws Exception If database operation fails
      */
-    public function GetUserCount()
+    public function GetUserCount() : int
     {
         $stmt = $this->query('SELECT COUNT(iduser) FROM user_table');
         $result = $stmt->fetch(PDO::FETCH_NUM);
@@ -140,7 +145,7 @@ class ForumDb extends PDO
      * Count number of entries in user_table that have the flag active set to 1
      * @throws Exception If database operation fails
      */
-    public function GetActiveUserCount()
+    public function GetActiveUserCount() : int
     {
         $stmt = $this->query('SELECT COUNT(iduser) FROM user_table '
                 . 'WHERE active > 0');
@@ -153,7 +158,12 @@ class ForumDb extends PDO
     }
     
     /**
-     * Count number of entries in deactivated_user_view
+     * Count number of entries that have been deactivated 
+     * by an admin: Those users have an entry in table
+     * user_deactivated_reason_table. All rows from 
+     * user_deactivated_reason_table are included where
+     * the referened user has the flag user_table.active set
+     * to 0.
      * @throws Exception If database operation fails
      */
     public function GetFromAdminDeactivatedUserCount()
@@ -173,10 +183,15 @@ class ForumDb extends PDO
     }
     
     /**
-     * Count number of entries in pending_admin_approval_view
+     * Count number of users which are inactive, because
+     * an admin needs to approve the registration. Those
+     * users must have confirmed their e-mail address,
+     * therefore confirmation_ts must not be NULL, their
+     * active flag must be set to 0 and they are not allowed
+     * to appear in user_deactivated_reason_table.
      * @throws Exception If database operation fails
      */
-    public function GetPendingAdminApprovalUserCount()
+    public function GetPendingAdminApprovalUserCount() : int
     {
         $query = 'SELECT COUNT(*) '
                 . 'FROM user_table '
@@ -198,7 +213,7 @@ class ForumDb extends PDO
      * value in field old_passwd
      * @throws Exception If database operation fails
      */
-    public function GetNeedMigrationUserCount()
+    public function GetNeedMigrationUserCount() : int
     {
         $stmt = $this->query('SELECT COUNT(iduser) FROM user_table '
                 . 'WHERE old_passwd IS NOT NULL');
@@ -215,7 +230,7 @@ class ForumDb extends PDO
      * old_passwd, password and email
      * @throws Exception If database operation fails
      */
-    public function GetDummyUserCount()
+    public function GetDummyUserCount() : int
     {
         $stmt = $this->query('SELECT COUNT(iduser) FROM user_table '
                 . 'WHERE old_passwd IS NULL AND password IS NULL '
@@ -234,7 +249,7 @@ class ForumDb extends PDO
     * @return int
     * @throws Exception If a database operation fails.
     */
-    public function GetLastThreadId()
+    public function GetLastThreadId() : int
     {
         $stmt = $this->query('SELECT MAX(idthread) FROM thread_table');
         $result = $stmt->fetch(PDO::FETCH_NUM);
@@ -252,15 +267,19 @@ class ForumDb extends PDO
     /**
      * Authenticate against the user_table. Returns a user object if
      * a user with the passed $nick exists and:
-     * - If the user as a (new) password set in field password that matches
+     * - If the user has a (new) password set in field password that matches
      * the passed $password and the user is active, 
      * or:
      * - If the user has an old password set in field old_passwd that matches
      * the passed $password (ignoring active).
+     * authFailReason is set to one of the constants AUTH_FAIL_REASON_xx
+     * only if authentification fails and null is returned. Else its not modified
+     * If a user is inactive and the password missmatches, AUTH_FAIL_REASON_USER_IS_INACTIVE
+     * is set as authFailReason
      * @param string $password
      * @return User
      */
-    public function AuthUser(string $nick, string $password, int &$authFailReason = null)
+    public function AuthUser(string $nick, string $password, int &$authFailReason = null) : ?User
     {
         assert(!empty($nick));
         assert(!empty($password));
@@ -319,11 +338,11 @@ class ForumDb extends PDO
      * thread_table and the first entry for that thread in the post_table.
      * @param User $user User object of authenticated user writing the post.
      * @param string $title Non-empty title of the post.
-     * @param mixed $content String with content of the post. Can be null.
-     * @param mixed $email String with email. Can be null.
-     * @param mixed $linkUrl String with an URL. Can be null.
-     * @param mixed $linkText String with a text for the URL. Can be null.
-     * @param mixed $imgUrl String with an URL to an image. Can be null.
+     * @param ?string $content String with content of the post. Can be null.
+     * @param ?string $email String with email. Can be null.
+     * @param ?string $linkUrl String with an URL. Can be null.
+     * @param ?string $linkText String with a text for the URL. Can be null.
+     * @param ?string $imgUrl String with an URL to an image. Can be null.
      * @param string $clientIpAddress Client IP address writing the post.
      * @return int The Value of the field idpost of the post_table for the
      * post just created.
@@ -331,8 +350,10 @@ class ForumDb extends PDO
      * if passed user is a dummy.
      * @throws Exception If a database operation fails.
      */
-    public function CreateThread(User $user, string $title, $content, $email, 
-            $linkUrl, $linkText, $imgUrl, string $clientIpAddress)
+    public function CreateThread(User $user, string $title, 
+            ?string $content, ?string $email, 
+            ?string $linkUrl, ?string $linkText, 
+            ?string $imgUrl, string $clientIpAddress) : int
     {        
         assert(!empty($title));
         assert(is_null($content) || (is_string($content) && !empty($content)));        
@@ -365,7 +386,7 @@ class ForumDb extends PDO
         }
         // and now the actual post
         $query = 'INSERT INTO post_table (idthread, iduser, title, '
-                . 'content, rank, indent, email, '
+                . 'content, `rank`, indent, email, '
                 . 'link_url, link_text, img_url, '
                 . 'ip_address) '
                 . 'VALUES(:idthread, :iduser, :title, '
@@ -391,11 +412,11 @@ class ForumDb extends PDO
      * @param int $parentPostId Value of field idpost of parent post.
      * @param User $user User writing the post.
      * @param string $title Title of the post. Must be non-empty.
-     * @param mixed $content Content of the post. Can be null.
-     * @param mixed $email String with email. Can be null.
-     * @param mixed $linkUrl String with an URL. Can be null.
-     * @param mixed $linkText String with a text for the URL. Can be null.
-     * @param mixed $imgUrl String with an URL to an image. Can be null.
+     * @param ?string $content Content of the post. Can be null.
+     * @param ?string $email String with email. Can be null.
+     * @param ?string $linkUrl String with an URL. Can be null.
+     * @param ?string $linkText String with a text for the URL. Can be null.
+     * @param ?string $imgUrl String with an URL to an image. Can be null.
      * @param string $clientIpAddress Client IP address writing the post.
      * @return int The Value of the field idpost of the post_table for the
      * post just created.
@@ -404,18 +425,13 @@ class ForumDb extends PDO
      * @throws Exception If a database operation fails.
      */
     public function CreateReplay(int $parentPostId, User $user, string $title, 
-            $content, $email, 
-            $linkUrl, $linkText, $imgUrl, string $clientIpAddress)
+            ?string $content, ?string $email, 
+            ?string $linkUrl, ?string $linkText,
+            ?string $imgUrl, string $clientIpAddress) : int
     {
         assert($parentPostId > 0);
-        assert(!empty($title));
-        assert(is_null($content) || (is_string($content) && !empty($content)));        
-        assert(is_null($email) || (is_string($email) && !empty($email)));
-        assert(is_null($linkUrl) || (is_string($linkUrl) && !empty($linkUrl)));
-        assert(is_null($linkText) || (is_string($linkText) && !empty($linkText)));
-        assert(is_null($imgUrl) || (is_string($imgUrl) && !empty($imgUrl)));
-        assert(!empty($clientIpAddress));
-        
+        $this->validateNonEmpty([$title, $clientIpAddress]);
+        $this->validateNotWhitespaceOnly([$content, $email, $linkUrl, $linkText, $imgUrl, $clientIpAddress ]);  
         if(!$user->IsActive())
         {
             throw new InvalidArgumentException('User ' . $user->GetNick() . ' is not active');
@@ -448,12 +464,25 @@ class ForumDb extends PDO
      * Creates a new entry in user_table and returns the iduser of that entry.
      * @param string $nick Value for field nick.
      * @param string $email Value for field email.
-     * @param type $registrationMsg Value for field registration_mgs.
+     * @param ?string $registrationMsg Value for field registration_mgs.
      * @return int Value of iduser field.
+     * @throws InvalidArgumentException If nick or email already used, or if
+     * empty values are passed for nick or email
      */
     public function CreateNewUser(string $nick, string $email,
-            $registrationMsg)
+            ?string $registrationMsg) : int
     {
+        $this->validateNonEmpty([$nick, $email]);
+        $existingUser = User::LoadUserByNick($this, $nick);
+        if(!is_null($existingUser))
+        {
+            throw new InvalidArgumentException('Nick  ' . $nick . ' already used');
+        }
+        $existingUser = User::LoadUserByEmail($this, $email);
+        if(!is_null($existingUser))
+        {
+            throw new InvalidArgumentException('Email  ' . $email . ' already used');
+        }        
         $query = 'INSERT INTO user_table (nick, email, '
                 . 'registration_msg) '
                 . 'VALUES(:nick, :email, '
@@ -489,8 +518,9 @@ class ForumDb extends PDO
             string $newPasswordClearText, 
             string $newEmail, 
             string $confirmSource,
-            string $requestClientIpAddress)
+            string $requestClientIpAddress) : string
     {
+        $this->validateNonEmpty([ $newPasswordClearText, $newEmail, $confirmSource, $requestClientIpAddress ]);
         if(!($confirmSource === self::CONFIRM_SOURCE_MIGRATE || 
                 $confirmSource === self::CONFIRM_SOURCE_NEWUSER))
         {
@@ -548,12 +578,13 @@ class ForumDb extends PDO
      * (if a valid entry was found, invalid entries are always removed)
      * @return array holding values of fields iduser, password, email and
      * confirm_source if a matching row is found, or null if no such row 
-     * exists.
+     * exists or if the code is invalid.
      * @throws Exception If removing a used code fails (or any other database
-     * operation fails).
+     * operation fails). If empty value is passed for $code
      */
-    public function VerifyConfirmUserCode(string $code, bool $remove)
+    public function VerifyConfirmUserCode(string $code, bool $remove) : ?array
     {
+        $this->validateNonEmpty([$code]);
         // Select the matching entry in the confirm table
         $query = 'SELECT iduser, email, password, request_date, '
                 . 'confirm_source '
@@ -601,7 +632,7 @@ class ForumDb extends PDO
      * @param int $userId
      * @ return int Number of rows that have been removed
      */
-    public function RemoveConfirmUserCode(int $userId)
+    public function RemoveConfirmUserCode(int $userId) : int
     {
         $delQuery = 'DELETE FROM confirm_user_table WHERE iduser = :iduser';
         $delStmt = $this->prepare($delQuery);
@@ -622,7 +653,7 @@ class ForumDb extends PDO
      * @throw InvalidArgumentException
      * @return self::CONFIRM_SOURCE_NEWUSER or self::CONFIRM_SOURCE_MIGRATE
      */
-    public function GetConfirmReason(int $userId)
+    public function GetConfirmReason(int $userId) : string
     {
         $query = 'SELECT confirm_source '
                 . 'FROM confirm_user_table '
@@ -655,14 +686,15 @@ class ForumDb extends PDO
      * Marks a user as confirmed, by setting the field confirmation_ts of
      * the matching row to the current timestamp and updating the row
      * with the passed values.
+     * This will in all cases set old_passwd to NULL.
      * @param int $userId Identify the row in user_table to update.
      * @param string $hashedPassword Value for field password
      * @param string $email Value for field email.
      * @param bool $activate If True, field active will be set to 1, else to 0.
-     * @throws Exception If no row was updated
+     * @throws InvalidArgumentException If no row was updated
      */
     public function ConfirmUser(int $userId, string $hashedPassword, 
-            string $email, bool $activate)
+            string $email, bool $activate) : void
     {
         $activateQuery = 'UPDATE user_table SET password = :password, '
                 . 'email = :email, active = :active, old_passwd = NULL,'
@@ -676,7 +708,7 @@ class ForumDb extends PDO
             ':iduser' => $userId));
         if($activateStmt->rowCount() === 0)
         {
-            throw new Exception('No row updated matching userid ' . $userId);
+            throw new InvalidArgumentException('No row updated matching userid ' . $userId);
         }
         
         $logger = new Logger($this);
@@ -700,7 +732,7 @@ class ForumDb extends PDO
      * @return string Confirmation code.
      */
     public function RequestPasswortResetCode(User $user, 
-            string $requestClientIpAddress)
+            string $requestClientIpAddress) : string
     {
         // Delete any already existing entry first
         $this->RemoveResetPasswordCode($user->GetId());
@@ -743,7 +775,7 @@ class ForumDb extends PDO
      * @throws Exception If removing a used code fails, or any other 
      * database operation fails.
      */
-    public function VerifyPasswortResetCode(string $code, bool $remove)
+    public function VerifyPasswortResetCode(string $code, bool $remove) : int
     {
         // get entry in reset_password_table
         $query = 'SELECT iduser, request_date '
@@ -783,7 +815,7 @@ class ForumDb extends PDO
      * @param int $userId to match against field iduser
      * @return int Number of rows returned
      */
-    public function RemoveResetPasswordCode(int $userId)
+    public function RemoveResetPasswordCode(int $userId) : int
     {
         $delQuery = 'DELETE FROM reset_password_table WHERE iduser = :iduser';
         $delStmt = $this->prepare($delQuery);
@@ -798,7 +830,7 @@ class ForumDb extends PDO
      * @param string $clearTextPassword New password to set (will be hashed)
      * @throws Exception If not exactly one row is updated.
      */
-    public function UpdateUserPassword(int $userId, string $clearTextPassword)
+    public function UpdateUserPassword(int $userId, string $clearTextPassword) : void
     {
         $hashedPassword = password_hash($clearTextPassword, PASSWORD_DEFAULT);
         $query = 'UPDATE user_table SET password = :password '
@@ -826,7 +858,7 @@ class ForumDb extends PDO
      * @return string confirmation code created.
      */
     public function RequestUpdateEmailCode(int $userId, string $newEmail, 
-            string $requestClientIpAddress)
+            string $requestClientIpAddress) : string
     {        
         // delete an eventually already existing entry first
         $this->RemoveUpdateEmailCode($userId);
@@ -868,7 +900,7 @@ class ForumDb extends PDO
      * values for the keys 'iduser' and 'email'. null is returned if no
      * matching row is found, or the code is invalid
      */
-    public function VerifyUpdateEmailCode(string $code, bool $remove)
+    public function VerifyUpdateEmailCode(string $code, bool $remove) : ?array
     {
         // Select the matching entry in the update_email_table
         $query = 'SELECT iduser, email, request_date '
@@ -909,7 +941,7 @@ class ForumDb extends PDO
      * @param int $userId to match against field iduser
      * @return int Number of rows returned
      */    
-    public function RemoveUpdateEmailCode(int $userId)
+    public function RemoveUpdateEmailCode(int $userId) : int
     {
         $delQuery = 'DELETE FROM update_email_table WHERE iduser = :iduser';
         $delStmt = $this->prepare($delQuery);
@@ -924,7 +956,7 @@ class ForumDb extends PDO
      * @param string $email
      * @throws Exception If not exactly one row is updated.
      */
-    public function UpdateUserEmail(int $userId, string $email)
+    public function UpdateUserEmail(int $userId, string $email) : void
     {
         $activateQuery = 'UPDATE user_table SET '
                 . 'email = :email '
@@ -951,7 +983,7 @@ class ForumDb extends PDO
      * @throws InvalidArgumentException If no user with passed $userId exists
      * or if the user has no value in the field confirmed_ts
      */
-    public function ActivateUser(int $userId)
+    public function ActivateUser(int $userId) : void
     {
         // Get the user first
         $user = User::LoadUserById($this, $userId);
@@ -983,14 +1015,14 @@ class ForumDb extends PDO
         // remove entry from the deactivated reasons table
         $this->ClearDeactivationReason($userId);
     }
-    
+
     /**
      * Deactivate a user. If user is already deactivated, this method
      * does nothing.
      * @param int $userId
      * @throws InvalidArgumentException If no user with passed userid exists
      */
-    public function DeactivateUser(int $userId)
+    public function DeactivateUser(int $userId) : void
     {
         // Get the user first
         $user = User::LoadUserById($this, $userId);
@@ -1028,7 +1060,7 @@ class ForumDb extends PDO
      * deactivated_by_iduser
      */
     public function SetDeactivationReason(int $userId, string $reason,
-            int $deactivatedByUserId)
+            int $deactivatedByUserId) : void
     {
         // delete any existing entry in the reasons-table
         $delQuery = 'DELETE FROM user_deactivated_reason_table '
@@ -1045,6 +1077,28 @@ class ForumDb extends PDO
             ':reason' => $reason));
     }
     
+    
+    /**
+     * Get the deactivation-reason for a user.
+     * Returns null if there is no entry user_deactivated_reason_table
+     */
+    public function GetDeactivationReason(int $userId) : ?string
+    {
+        // Select the matching entry in the table
+        $query = 'SELECT reason '
+                . 'FROM user_deactivated_reason_table '
+                . 'WHERE iduser = :iduser';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array(':iduser' => $userId));
+        $result = $stmt->fetch();
+        if(!$result)
+        {
+            return null;
+        }
+        $reason = $result['reason'];
+        return $reason;
+    }    
+
     /**
      * Makes a user an admin  if that user exists and has confirmed 
      * the email address.
@@ -1053,7 +1107,7 @@ class ForumDb extends PDO
      * @throws InvalidArgumentException If no user with passed $userId exists
      * or if the user has no value in the field confirmed_ts
      */
-    public function SetAdmin(int $userId)
+    public function SetAdmin(int $userId) : void
     {
         // Get the user first
         $user = User::LoadUserById($this, $userId);
@@ -1091,7 +1145,7 @@ class ForumDb extends PDO
      * @param int $userId
      * @throws InvalidArgumentException If no user with passed $userId exists
      */
-    public function RemoveAdmin(int $userId)
+    public function RemoveAdmin(int $userId) : void
     {
         // Get the user first
         $user = User::LoadUserById($this, $userId);
@@ -1122,7 +1176,7 @@ class ForumDb extends PDO
      * the passed $uesrId
      * @param int $userId
      */
-    private function ClearDeactivationReason(int $userId)
+    private function ClearDeactivationReason(int $userId) : void
     {
         $delQuery = 'DELETE FROM user_deactivated_reason_table '
                 . 'WHERE iduser = :iduser';
@@ -1138,7 +1192,7 @@ class ForumDb extends PDO
      * @param int $userId
      * @throws IllegalArgumentException If no user with passed $userId exists
      */
-    public function MakeDummy(int $userId)
+    public function MakeDummy(int $userId) : void
     {
         $user = User::LoadUserById($this, $userId);
         if(!$user)
@@ -1165,13 +1219,20 @@ class ForumDb extends PDO
     
     /**
      * Deletes a user by removing it entirely from the user_table.
-     * This method will fail with an InvalidArgumentException if there are
-     * already post entries from that user
-     * 
+     * This method will fail if there are
+     * already post entries from that user, or no such user is known.
      * @param int $userId
+     * @throws IllegalArgumentException If no user with passed $userId exists
+     * or if the user has already posted something
      */
-    public function DeleteUser(int $userId)
+    public function DeleteUser(int $userId) : void
     {
+        $user = User::LoadUserById($this, $userId);
+        if(!$user)
+        {
+            throw new InvalidArgumentException('No user with id ' . $userId . 
+                    ' was found');
+        }            
         if($this->GetPostByUserCount($userId) > 0)
         {
             throw new InvalidArgumentException('Cannot delete user '
@@ -1196,12 +1257,14 @@ class ForumDb extends PDO
     
     /**
      * Count the number of entries in post_table that have been created
-     * using the passed $userId
+     * using the passed $userId.
+     * note: Does not fail if user is unknown, but returns 0.
+     * note: Hidden posts are also included.
      * @param int $userId
-     * @return type
-     * @throws Exception
+     * @return int Post-count. 0 if no such user es known
+     * @throws Exception If database operation fails
      */
-    public function GetPostByUserCount(int $userId)
+    public function GetPostByUserCount(int $userId) : int
     {
         $query = 'SELECT COUNT(idpost) FROM post_table '
                 . 'WHERE iduser = :iduser';
@@ -1212,21 +1275,19 @@ class ForumDb extends PDO
         {
             throw new Exception('Failed to get GetPostByUserCount');        
         }
-        return $result[0];        
+        return $result[0];
     }
     
     /**
-     * Update the field hidden of an entry in post_table. If the field 
-     * already contains the value it shall be updated too, this method does 
-     * nothing.
+     * Update the field hidden of an entry in post_table and of all
+     * the children. If the post identified by postId, this method
+     * does nothing - especially it does not alter any children.
      * @param int $postId
      * @param bool $show If true, set hidden to 0, else set hidden to 1.
-     * @return type
      * @throws InvalidArgumentException If no post with passed $postId 
      * exists
-     * @throws Exception
      */
-    public function SetPostVisible(int $postId, bool $show = true)
+    public function SetPostVisible(int $postId, bool $show = true) : void
     {
         $post = Post::LoadPost($this, $postId);
         if(!$post)
@@ -1269,7 +1330,7 @@ class ForumDb extends PDO
      * @param DateTime $ts
      * @return bool True if DateTime is new than(now - YbForumConfig::CONF_CODE_VALID_PERIOD)
      */
-    public function IsDateWithinConfirmPeriod(DateTime $ts)
+    public function IsDateWithinConfirmPeriod(DateTime $ts) : bool
     {
         $now = new DateTime();
         $codeValidInterval = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);
@@ -1288,7 +1349,7 @@ class ForumDb extends PDO
      * @return mixed false if no entry is found, else the value of the 
      * description field.
      */
-    public function IsEmailOnBlacklistExactly(string $email)
+    public function IsEmailOnBlacklistExactly(string $email) : mixed
     {
         $query = 'SELECT description FROM blacklist_table '
                 . 'WHERE email = :email';
@@ -1311,7 +1372,7 @@ class ForumDb extends PDO
      * @return mixed false if no matching entry is found, else the value of the 
      * description field.
      */
-    public function IsEmailOnBlacklistRegex(string $email)
+    public function IsEmailOnBlacklistRegex(string $email) : mixed
     {
         $query = 'SELECT email_regex, description FROM blacklist_table '
                 . 'WHERE email_regex IS NOT NULL';
@@ -1328,8 +1389,12 @@ class ForumDb extends PDO
         return false;
     }
     
-    
-    public function AddBlacklist(string $email, string $reason)
+    /**
+     * Add a single email to the blacklist
+     * @param string $email
+     * @param string $reason
+     */
+    public function AddBlacklist(string $email, string $reason) : void
     {
         $query = 'INSERT INTO blacklist_table (email, description) '
                 . 'VALUES(:email, :description)';
@@ -1343,6 +1408,38 @@ class ForumDb extends PDO
                 'Email: ' . $email . ' Reason: ' . $reason);
     }
     
+    /**
+     * @param array values
+     * @throws InvalidArgumentException If one of the values
+     * is empty or contains only whitespaces
+     */
+    private function validateNonEmpty(array $values) : void
+    {
+        foreach($values as $v)
+        {
+            if(empty(trim($v)))
+            {
+                throw new InvalidArgumentException('Empty parameter value not allowed');
+            }
+        }
+    }
+
+    /**
+     * @param array values
+     * @throws InvalidArgumentException If one of the values
+     * is empty or contains only whitespaces
+     */
+    private function validateNotWhitespaceOnly(array $values) : void
+    {
+        foreach($values as $v)
+        {
+            if(!empty($v) && empty(trim($v)))
+            {
+                throw new InvalidArgumentException('Whitespace-only parameter value not allowed');
+            }
+        }
+    }    
+
     private $m_connected;
     private $m_readOnly;
 }

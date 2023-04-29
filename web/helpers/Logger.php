@@ -118,6 +118,18 @@ class Logger
         $this->m_selectTypeStmt = null;
         $this->m_insertLogEntryStmt = null;
         $this->m_insertExtendedInfoStmt = null;
+        // when unit-testing, we do not have a REQUEST_URI 
+        // nor a REMOTE_ADDR: Dont fail completely in that case
+        $this->m_clientIp = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
+        if($this->m_clientIp === null)
+        {
+            $this->m_clientIp = "::1";
+        }
+        $this->m_requestUri = filter_input(INPUT_SERVER, 'REQUEST_URI');
+        if($this->m_requestUri === null)
+        {
+            $this->m_requestUri = "phpunit";
+        }
     }
 
     public function LogMessageWithUserId(string $logType, int $userId, 
@@ -178,10 +190,7 @@ class Logger
                     . ':request_uri, :ip_address, :admin_iduser)';
             $this->m_insertLogEntryStmt = $this->m_db->prepare($query);
         }
-        
-        $clientIp = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
-        $requestUri = filter_input(INPUT_SERVER, 'REQUEST_URI');
-        
+                
         $adminIdUser = null;
         if(isset($_SESSION['adminuserid']))
         {
@@ -199,8 +208,8 @@ class Logger
             ':iduser' => $userId,
             ':historic_user_context' => $historicUserContext,
             ':message' => $msg,
-            ':request_uri' => $requestUri,
-            ':ip_address' => $clientIp,
+            ':request_uri' => $this->m_requestUri,
+            ':ip_address' => $this->m_clientIp,
             ':admin_iduser' => $adminIdUser
         ));
         

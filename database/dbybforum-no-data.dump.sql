@@ -274,6 +274,7 @@ CREATE TABLE `user_table` (
 -- Dumping routines for database 'dbybforum'
 --
 /*!50003 DROP PROCEDURE IF EXISTS `insert_reply` */;
+DROP PROCEDURE IF EXISTS `insert_reply`;
 ALTER DATABASE `dbybforum` CHARACTER SET utf8 COLLATE utf8_general_ci ;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -284,7 +285,7 @@ ALTER DATABASE `dbybforum` CHARACTER SET utf8 COLLATE utf8_general_ci ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-CREATE DEFINER=`dbybforum_usr`@`%` PROCEDURE `insert_reply`(IN `idparentpost` BIGINT, IN `iduser` INT, IN `title` VARCHAR(100) CHARSET utf8mb4, IN `content` TEXT CHARSET utf8mb4, IN `ipaddress` VARCHAR(45) CHARSET utf8mb4, IN `email` VARCHAR(255) CHARSET utf8mb4, IN `link_url` VARCHAR(255) CHARSET utf8mb4, IN `link_text` VARCHAR(255) CHARSET utf8mb4, IN `img_url` VARCHAR(255) CHARSET utf8mb4)
+CREATE DEFINER=CURRENT_USER() PROCEDURE `insert_reply`(IN `idparentpost` BIGINT, IN `iduser` INT, IN `title` VARCHAR(100) CHARSET utf8mb4, IN `content` TEXT CHARSET utf8mb4, IN `ipaddress` VARCHAR(45) CHARSET utf8mb4, IN `email` VARCHAR(255) CHARSET utf8mb4, IN `link_url` VARCHAR(255) CHARSET utf8mb4, IN `link_text` VARCHAR(255) CHARSET utf8mb4, IN `img_url` VARCHAR(255) CHARSET utf8mb4)
     MODIFIES SQL DATA
     SQL SECURITY INVOKER
 BEGIN
@@ -295,8 +296,8 @@ BEGIN
   FROM post_table WHERE idpost = idparentpost;
  IF @idthread IS NOT NULL THEN
     START TRANSACTION;
-  UPDATE post_table SET rank = rank + 1 WHERE idthread = @idthread AND rank >= @rank;
-  INSERT INTO post_table (idthread, parent_idpost, iduser, title, content, rank, indent, 
+  UPDATE post_table SET `rank` = `rank` + 1 WHERE idthread = @idthread AND `rank` >= @rank;
+  INSERT INTO post_table (idthread, parent_idpost, iduser, title, content, `rank`, indent, 
    email, link_url, link_text, img_url, ip_address)
    VALUES(@idthread, idparentpost, iduser, title, content, @rank, @indent, 
    email, link_url, link_text, img_url, ipaddress);
