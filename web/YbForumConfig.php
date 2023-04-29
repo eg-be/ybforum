@@ -78,11 +78,11 @@ class YbForumConfig
     const MIN_SEARCH_LENGTH = 4;
     
     /**
-     * @var boolean If set, the Mailer does not use -f and the MAIL_FROM address
-     * Useful for debugging if mail is redirected to a file
+     * @var boolean If set, the Mailer will not try to send a mail,
+     * but just log to syslog and stderr what would be sent as a mail.
      */
-    const MAIL_DEBUG = false;
-    
+    const MAIL_DEBUG = true;
+
     /**
     * @var string Address to use as mail from address
     */
@@ -102,7 +102,7 @@ class YbForumConfig
     /**
      * @var bool Use captcha verification while registering new users.
      */
-    const CAPTCHA_VERIFY = true;
+    const CAPTCHA_VERIFY = false;
     
     /**
      * @var string Captcha secret code
