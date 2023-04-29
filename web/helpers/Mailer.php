@@ -190,7 +190,7 @@ class Mailer
      * @param mixed $registrationMsg A string with the Registration message or null
      * @return boolean True if sending succeeds
      */
-    public function NotifyAdminUserConfirmedRegistraion(string $confirmedNick, 
+    public function NotifyAdminUserConfirmedRegistration(string $confirmedNick, 
             string $adminEmail, $registrationMsg)
     {
         $subject = 'Benutzer wartet auf Freischaltung';
