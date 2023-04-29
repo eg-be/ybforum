@@ -731,7 +731,7 @@ class ForumDb extends PDO
      * @param string $requestClientIpAddress
      * @return string Confirmation code.
      */
-    public function RequestPasswortResetCode(User $user, 
+    public function RequestPasswordResetCode(User $user, 
             string $requestClientIpAddress) : string
     {
         // Delete any already existing entry first
@@ -775,7 +775,7 @@ class ForumDb extends PDO
      * @throws Exception If removing a used code fails, or any other 
      * database operation fails.
      */
-    public function VerifyPasswortResetCode(string $code, bool $remove) : int
+    public function VerifyPasswordResetCode(string $code, bool $remove) : int
     {
         // get entry in reset_password_table
         $query = 'SELECT iduser, request_date '
