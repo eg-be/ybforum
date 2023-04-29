@@ -671,7 +671,7 @@ final class ForumDbTest extends BaseTest
         $now = new DateTime();
         $user = User::LoadUserById($this->db, 52);
         $this->assertNotNull($user);
-        $code = $this->db->RequestPasswortResetCode($user, '::1');
+        $code = $this->db->RequestPasswordResetCode($user, '::1');
         // verify returned value is in the db
         $query = 'SELECT iduser, request_date '
                 . 'FROM reset_password_table '
@@ -685,7 +685,7 @@ final class ForumDbTest extends BaseTest
         $this->assertEqualsWithDelta($now->getTimestamp(), 
             $ts->getTimestamp(), 2);
         // check that there is only one entry, even if we create a second one:
-        $newCode = $this->db->RequestPasswortResetCode($user, '::1');
+        $newCode = $this->db->RequestPasswordResetCode($user, '::1');
         $this->assertNotSame($code, $newCode);
         $query = 'SELECT confirm_code FROM reset_password_table '
             . 'WHERE iduser = :iduser';
@@ -705,8 +705,8 @@ final class ForumDbTest extends BaseTest
         $user102 = User::LoadUserById($this->db, 102);
         $this->assertNotNull($user101);
         $this->assertNotNull($user102);
-        $validCode = $this->db->RequestPasswortResetCode($user101, '::1');        
-        $elapsedCode = $this->db->RequestPasswortResetCode($user102, '::1');        
+        $validCode = $this->db->RequestPasswordResetCode($user101, '::1');        
+        $elapsedCode = $this->db->RequestPasswordResetCode($user102, '::1');        
 
         // modify the timestamps in the db:
         $elapsedDate = new DateTime();
@@ -726,10 +726,10 @@ final class ForumDbTest extends BaseTest
             ':confirm_code' => $validCode));        
 
         // test that an unknown code fails to validate
-        $this->assertSame(0, $this->db->VerifyPasswortResetCode('AB12', true));
+        $this->assertSame(0, $this->db->VerifyPasswordResetCode('AB12', true));
 
         // test for known, but invalid codes (time has elapsed by one minute)
-        $this->assertSame(0, $this->db->VerifyPasswortResetCode($elapsedCode, false));
+        $this->assertSame(0, $this->db->VerifyPasswordResetCode($elapsedCode, false));
         // test that those entries are removed always (despite we set remove to false)
         $query = 'SELECT confirm_code FROM reset_password_table '
             . 'WHERE confirm_code = BINARY :confirm_code';
@@ -739,14 +739,14 @@ final class ForumDbTest extends BaseTest
         $this->assertFalse($result);
         
         // test for known valid codes: one that will elapse in one minute
-        $iduser = $this->db->VerifyPasswortResetCode($validCode, false);
+        $iduser = $this->db->VerifyPasswordResetCode($validCode, false);
         $this->assertSame(101, $iduser);
         // test it is not removed if not specified
         $stmt->execute(array(':confirm_code' => $validCode));
         $result = $stmt->fetch();
         $this->assertIsArray($result);        
         // test that it is removed if specified
-        $values = $this->db->VerifyPasswortResetCode($validCode, true);
+        $values = $this->db->VerifyPasswordResetCode($validCode, true);
         $this->assertSame(101, $iduser);
         $stmt->execute(array(':confirm_code' => $validCode));
         $result = $stmt->fetch();
@@ -758,7 +758,7 @@ final class ForumDbTest extends BaseTest
         // insert some entries, test they are removed
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);        
-        $this->db->RequestPasswortResetCode($user101, '::1');
+        $this->db->RequestPasswordResetCode($user101, '::1');
         $this->assertSame(1, $this->db->RemoveResetPasswordCode($user101->getId()));
         $this->assertSame(0, $this->db->RemoveResetPasswordCode($user101->getId()));
         // not existing entry works
