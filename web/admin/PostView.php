@@ -31,7 +31,7 @@ class PostView {
         }
     }    
     
-    public function HandleActionsAndGetResultDiv(ForumDb $db)
+    public function HandleActionsAndGetResultDiv(ForumDb $db) : string
     {
         try
         {
@@ -40,6 +40,10 @@ class PostView {
             {
                 return $this->HandleHideShowAction($db);
             }
+            else
+            {
+                return '';
+            }
         }
         catch(InvalidArgumentException $ex)
         {
@@ -47,7 +51,7 @@ class PostView {
         }
     }
     
-    private function HandleHideShowAction(ForumDb $db)
+    private function HandleHideShowAction(ForumDb $db) : string
     {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_POSTACTION, FILTER_UNSAFE_RAW);
         if($userActionValue === self::VALUE_SHOW && $this->m_postId)
@@ -64,7 +68,7 @@ class PostView {
     }
     
     
-    private function GetToggleHiddenForm(Post $post)
+    private function GetToggleHiddenForm(Post $post) : string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
                 . '<input type="hidden" name="' . self::PARAM_POSTID . '" value="' . $post->GetId() . '"/>';
@@ -82,7 +86,7 @@ class PostView {
         return $htmlStr;
     }    
     
-    public function RenderHtmlDiv(ForumDb $db)
+    public function RenderHtmlDiv(ForumDb $db) : string
     {
         if(!$this->m_postId)
         {
