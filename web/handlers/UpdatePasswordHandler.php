@@ -55,14 +55,14 @@ class UpdatePasswordHandler extends BaseHandler
         $this->confirmNewPassword = null;
     }
     
-    protected function ReadParams()
+    protected function ReadParams() : void
     {
         // Read params
         $this->newPassword = $this->ReadStringParam(self::PARAM_NEWPASS);
         $this->confirmNewPassword = $this->ReadStringParam(self::PARAM_CONFIRMNEWPASS);
     }
     
-    protected function ValidateParams()
+    protected function ValidateParams() : void
     {
         $this->ValidateStringParam($this->newPassword, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
         // passwords must match
@@ -73,7 +73,7 @@ class UpdatePasswordHandler extends BaseHandler
         }
     }
     
-    protected function HandleRequestImpl(ForumDb $db) 
+    protected function HandleRequestImpl(ForumDb $db) : void
     {
         $logger = new Logger($db);
         // dummy user cannot have a password set

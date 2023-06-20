@@ -63,7 +63,7 @@ class RegisterUserHandler extends BaseHandler
         $this->m_captchaVerifier = null;
     }
     
-    protected function ReadParams()
+    protected function ReadParams() : void
     {
         $this->nick = $this->ReadStringParam(self::PARAM_NICK);
         $this->email = $this->ReadEmailParam(self::PARAM_EMAIL);
@@ -77,7 +77,7 @@ class RegisterUserHandler extends BaseHandler
         }
     }
     
-    protected function ValidateParams()
+    protected function ValidateParams() : void
     { 
         // Validate where we cannot accept null values:
         $this->ValidateStringParam($this->nick, self::MSG_NICK_TOO_SHORT, YbForumConfig::MIN_NICK_LENGTH);
@@ -98,7 +98,7 @@ class RegisterUserHandler extends BaseHandler
         }        
     }
 
-    protected function HandleRequestImpl(ForumDb $db) 
+    protected function HandleRequestImpl(ForumDb $db) : string
     {
         $logger = new Logger($db);
         // Check that nick and email are unique
@@ -141,17 +141,17 @@ class RegisterUserHandler extends BaseHandler
         return $this->email;
     }
     
-    public function GetNick()
+    public function GetNick() : string
     {
         return $this->nick;
     }
     
-    public function GetEmail()
+    public function GetEmail() : string
     {
         return $this->email;
     }
     
-    public function GetRegMsg()
+    public function GetRegMsg() : string
     {
         return $this->regMsg;
     }

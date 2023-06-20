@@ -31,7 +31,7 @@ require_once __DIR__.'/../helpers/Logger.php';
  * a value PARAM_CODE to update a password. If the code is valid, the 
  * corresponding User is returned from the handler implementation.
  * This handler does not modify any data, but will fail with the same
- * IllegalArgumentException if one of the parameters fails validation.
+ * InvalidArgumentException if one of the parameters fails validation.
  *
  * @author Elias Gerber
  */

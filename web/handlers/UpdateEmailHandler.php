@@ -53,13 +53,13 @@ class UpdateEmailHandler extends BaseHandler
         $this->newEmail = null;
     }
     
-    protected function ReadParams()
+    protected function ReadParams() : void
     {
         // Read params
         $this->newEmail = $this->ReadEmailParam(self::PARAM_NEWEMAIL);
     }
     
-    protected function ValidateParams()
+    protected function ValidateParams() : void
     {
         $this->ValidateEmailValue($this->newEmail);
         // Email must be different from current email
@@ -69,7 +69,7 @@ class UpdateEmailHandler extends BaseHandler
         }
     }
     
-    protected function HandleRequestImpl(ForumDb $db) 
+    protected function HandleRequestImpl(ForumDb $db) : string
     {
         // Check that this email address is not already used within some other 
         // account
@@ -94,7 +94,7 @@ class UpdateEmailHandler extends BaseHandler
         return $this->newEmail;
     }
         
-    public function GetNewEmail()
+    public function GetNewEmail() : string
     {
         return $this->newEmail;
     }

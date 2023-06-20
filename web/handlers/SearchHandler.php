@@ -57,7 +57,7 @@ class SearchHandler extends BaseHandler
         $this->m_noReplies = false;
     }
     
-    protected function ReadParams()
+    protected function ReadParams() : void
     {
         $this->m_searchString = $this->ReadStringParam(self::PARAM_SEARCH_STRING);
         $this->m_searchNick = $this->ReadStringParam(self::PARAM_NICK);
@@ -75,7 +75,7 @@ class SearchHandler extends BaseHandler
         }
     }
     
-    protected function ValidateParams()
+    protected function ValidateParams() : void
     {
         // Either a nick or a search string is required
         if(!$this->m_searchString && !$this->m_searchNick)
@@ -115,7 +115,7 @@ class SearchHandler extends BaseHandler
     }
     
     
-    public function GetValidSortFields()
+    public function GetValidSortFields() : array
     {
         $sortFields = array(
             SearchResult::SORT_FIELD_DATE,
@@ -129,7 +129,7 @@ class SearchHandler extends BaseHandler
         return $sortFields;
     }
     
-    protected function HandleRequestImpl(ForumDb $db) 
+    protected function HandleRequestImpl(ForumDb $db) : void
     {
         // clear any pending results
         $this->m_results = null;
@@ -168,43 +168,43 @@ class SearchHandler extends BaseHandler
         }
     }
     
-    public function GetSearchNick()
+    public function GetSearchNick() : string
     {
         return $this->m_searchNick;
     }
     
-    public function GetSearchString()
+    public function GetSearchString() : string
     {
         return $this->m_searchString;
     }
     
-    public function HasResults()
+    public function HasResults() : bool
     {
         return !is_null($this->m_results);
     }
     
-    public function GetResults()
+    public function GetResults() : array
     {
         return $this->m_results;
     }
     
-    public function GetResultOffset()
+    public function GetResultOffset() : int
     {
         return $this->m_resultOffset;
     }
     
-    public function MoreRecordsAvailable()
+    public function MoreRecordsAvailable() : bool
     {
         return $this->m_moreRecordsAvailable;
     }
     
-    public function GetNextOffset()
+    public function GetNextOffset() : int
     {
         $nextOffset = $this->m_resultOffset + $this->GetLimit();
         return $nextOffset;
     }
     
-    public function GetPreviousOffset()
+    public function GetPreviousOffset() : int
     {
         $prevOffset = $this->m_resultOffset - $this->GetLimit();
         if($prevOffset < 0)
@@ -214,27 +214,27 @@ class SearchHandler extends BaseHandler
         return $prevOffset;
     }
     
-    public function IsFirstRecordBlock()
+    public function IsFirstRecordBlock() : bool
     {
         return $this->m_resultOffset == 0;
     }
     
-    public function GetLimit()
+    public function GetLimit() : int
     {
         return YbForumConfig::MAX_SEARCH_ENTRIES;
     }
     
-    public function GetSortField()
+    public function GetSortField() : string
     {
         return $this->m_sortField;        
     }
     
-    public function GetSortOrder()
+    public function GetSortOrder() : string
     {
         return $this->m_sortOrder;
     }
     
-    public function GetNoReplies()
+    public function GetNoReplies() : bool
     {
         return $this->m_noReplies;
     }

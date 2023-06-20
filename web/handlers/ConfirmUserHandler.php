@@ -32,7 +32,7 @@ require_once __DIR__.'/../helpers/Logger.php';
  * If the REQUEST_METHOD associated with this ConfirmHandler is GET,
  * this handler does not modify any data, but will return as soon as
  * all parameters have been verified (but will fail with the same
- * IllegalArgumentException if one of the parameters fails validation.).
+ * InvalidArgumentException if one of the parameters fails validation.).
  * 
  * @author Elias Gerber 
  */
