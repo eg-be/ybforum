@@ -1190,7 +1190,7 @@ class ForumDb extends PDO
      * confirmation_ts to null. Also sets active and admin to 0 and
      * removes all entries from the user_deactivated_reason_table
      * @param int $userId
-     * @throws IllegalArgumentException If no user with passed $userId exists
+     * @throws InvalidArgumentException If no user with passed $userId exists
      */
     public function MakeDummy(int $userId) : void
     {
@@ -1222,7 +1222,7 @@ class ForumDb extends PDO
      * This method will fail if there are
      * already post entries from that user, or no such user is known.
      * @param int $userId
-     * @throws IllegalArgumentException If no user with passed $userId exists
+     * @throws InvalidArgumentException If no user with passed $userId exists
      * or if the user has already posted something
      */
     public function DeleteUser(int $userId) : void
