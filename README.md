@@ -7,8 +7,8 @@ This page provides some information on how to setup your own forum.
 ## Install
 1. Follow the instructions in [database](database) to setup the required database.
 2. Copy the content of [web](web) to the httpdoc-folder of your webserver.
-3. Adjust the database-connection parameters in file [web/model/DbConfig.php](model/DbConfig.php).
-4. Adjust the settings in file [web/YbForumConfig.php](YbForum.php). Most defaults are okay, but update the values for:
+3. Adjust the database-connection parameters in file [web/model/DbConfig.php](web/model/DbConfig.php).
+4. Adjust the settings in file [web/YbForumConfig.php](web/YbForumConfig.php). Most defaults are okay, but update the values for:
    - `BASE_URL`
    - `MAIL_FROM`
    - `MAIL_ALL_BCC`
