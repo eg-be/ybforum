@@ -16,7 +16,7 @@ require_once __DIR__.'/../model/ForumDb.php';
  */
 class AdminList {
 
-    public function RenderHtmlDiv(ForumDb $db)
+    public function RenderHtmlDiv(ForumDb $db): string
     {
         $haveSome = false;
         $query = 'SELECT iduser, nick, email FROM user_table '

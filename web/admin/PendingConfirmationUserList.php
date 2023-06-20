@@ -27,7 +27,7 @@ class PendingConfirmationUserList
         
     }
     
-    public function HandleActionsAndGetResultDiv(ForumDb $db)
+    public function HandleActionsAndGetResultDiv(ForumDb $db) : string
     {
         try
         {
@@ -117,7 +117,7 @@ class PendingConfirmationUserList
         }
     }    
     
-    public function RenderHtmlDiv(ForumDb $db)
+    public function RenderHtmlDiv(ForumDb $db) : string
     {
         $haveSome = false;
         $query = 'SELECT cut.iduser AS iduser, u.nick AS nick, '
