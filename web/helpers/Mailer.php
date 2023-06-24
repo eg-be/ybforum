@@ -50,7 +50,7 @@ class Mailer
      * @return bool True if sending the mail succeeded
      */
     public function SendMigrateUserConfirmMessage(string $email, string $nick,
-            string $confirmationCode)
+            string $confirmationCode) : bool
     {
         assert(!empty($email));
         assert(!empty($confirmationCode));
@@ -77,7 +77,7 @@ class Mailer
      * @return type
      */
     public function SendRegisterUserConfirmMessage(string $email, string $nick,
-            string $confirmationCode)
+            string $confirmationCode) : bool
     {
         assert(!empty($email));
         assert(!empty($confirmationCode));
@@ -103,7 +103,7 @@ class Mailer
      * @return type
      */
     public function SendUpdateEmailConfirmMessage(string $email, string $nick,
-            string $confirmationCode)
+            string $confirmationCode) : bool
     {
         assert(!empty($email));
         assert(!empty($confirmationCode));
@@ -130,7 +130,7 @@ class Mailer
      * @return type
      */
     public function SendResetPasswordMessage(string $email, string $nick,
-            string $confirmationCode)
+            string $confirmationCode) : bool
     {
         assert(!empty($email));
         assert(!empty($confirmationCode));
@@ -154,7 +154,7 @@ class Mailer
      * @param string $email
      * @return type
      */
-    public function SendNotifyUserAcceptedEmail(string $email, string $nick)
+    public function SendNotifyUserAcceptedEmail(string $email, string $nick) : bool
     {
         $subject = 'Stammposter freigeschaltet';
         $mailBody = 'Willkommen im YB-Forum. Deine Registrierung wurde '
@@ -175,7 +175,7 @@ class Mailer
      * @param string $email
      * @return type
      */
-    public function SendNotifyUserDeniedEmail(string $email)
+    public function SendNotifyUserDeniedEmail(string $email) : bool
     {
         $subject = 'Registrierung abgelehnt';
         $mailBody = 'Deine Registrierung wurde abgelehnt.';
@@ -191,7 +191,7 @@ class Mailer
      * @return boolean True if sending succeeds
      */
     public function NotifyAdminUserConfirmedRegistration(string $confirmedNick, 
-            string $adminEmail, $registrationMsg)
+            string $adminEmail, $registrationMsg) : bool
     {
         $subject = 'Benutzer wartet auf Freischaltung';
         $mailBody = 'Der Benutzer ' . $confirmedNick . ' hat seine '
@@ -216,7 +216,7 @@ class Mailer
      */
     private function SendConfirmMail(string $email, string $subject,
             string $page, array $args, 
-            string $messageText)
+            string $messageText) : bool
     {
         assert(!empty($email));
         assert(!empty($messageText));
@@ -267,7 +267,7 @@ class Mailer
      * Format some string holding some reasonable email header values.
      * @return string
      */
-    private function GetHeaderString()
+    private function GetHeaderString() : string
     {
         $headers = array(
             'From' => $this->m_mailFrom,
