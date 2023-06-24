@@ -252,18 +252,18 @@ class PostEntryHandler extends BaseHandler
         return $this->imgUrl;
     }
     
-    public function GetParentPostId() : int
+    public function GetParentPostId() : ?int
     {
         return $this->parentPostId;
     }
     
-    private $parentPostId;
-    private $title;
-    private $nick;
-    private $password;
-    private $content;
-    private $email;
-    private $linkUrl;
-    private $linkText;
-    private $imgUrl;
+    private ?int $parentPostId;
+    private ?string $title;
+    private ?string $nick;
+    private ?string $password;
+    private ?string $content;
+    private ?string $email;
+    private ?string $linkUrl;
+    private ?string $linkText;
+    private ?string $imgUrl;
 }

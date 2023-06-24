@@ -108,7 +108,7 @@ class CaptchaVerifier {
         }
     }
     
-    private $m_captchaResponse;
-    private $m_m_clientIp;
-    private $m_captchaSecret;
+    private ?string $m_captchaResponse;
+    private string $m_m_clientIp;
+    private string $m_captchaSecret;
 }
