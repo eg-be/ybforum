@@ -37,7 +37,7 @@ class ErrorHandler
      * Error logs the exception and calls die().
      * @param Exception $e
      */
-    public static function OnException(Exception $e)
+    public static function OnException(Exception $e) : void
     {
         $msg = $e->getFile() . '(' . $e->getLine() . '): ' . $e->getMessage();
         if(self::PRINT_STACKTRACE_ON_ERROR)

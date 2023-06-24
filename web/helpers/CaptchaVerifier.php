@@ -66,7 +66,7 @@ class CaptchaVerifier {
      * or if the read answer cannot be decoded.
      * @throws InvalidArgumentException
      */
-    public function VerifyResponse()
+    public function VerifyResponse() : void
     {
         if(!$this->m_captchaResponse)
         {

@@ -133,14 +133,14 @@ class Logger
     }
 
     public function LogMessageWithUserId(string $logType, int $userId, 
-            string $msg = null, string $extendedInfo = null)
+            string $msg = null, string $extendedInfo = null) : void
     {
         $logTypeId = $this->GetLogTypeId($logType);
         $this->InsertLogEntry($logTypeId, $userId, $msg, $extendedInfo);
     }
     
     public function LogMessage(string $logType, string $msg, 
-            string $extendedInfo = null)
+            string $extendedInfo = null) : void
     {
         $logTypeId = $this->GetLogTypeId($logType);
         $this->InsertLogEntry($logTypeId, null, $msg, $extendedInfo);
@@ -152,7 +152,7 @@ class Logger
      * @param int $userId
      * @return string
      */
-    private function GetHistoricUserContext(int $userId)
+    private function GetHistoricUserContext(int $userId) : string
     {
         $context = '';
         $user = User::LoadUserById($this->m_db, $userId);
@@ -178,7 +178,7 @@ class Logger
      * @throws Exception
      */
     private function InsertLogEntry(int $logTypeId, int $userId = null, 
-            string $msg = null, string $extendedInfo = null)
+            string $msg = null, string $extendedInfo = null) : void
     {
         if(!$this->m_insertLogEntryStmt)
         {
@@ -245,7 +245,7 @@ class Logger
      * @return int value of column idlog_type
      * @throws InvalidArgumentException If no matching row is found
      */
-    private function GetLogTypeId(string $logType)
+    private function GetLogTypeId(string $logType) : int
     {
         if(!$this->m_selectTypeStmt)
         {
