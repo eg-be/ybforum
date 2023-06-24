@@ -143,12 +143,12 @@ class MigrateUserHandler extends BaseHandler
         return $this->newEmail;
     }
         
-    public function GetNick() : string
+    public function GetNick() : ?string
     {
         return $this->nick;
     }
     
-    public function GetNewEmail() : string
+    public function GetNewEmail() : ?string
     {
         return $this->newEmail;
     }

@@ -212,42 +212,42 @@ class PostEntryHandler extends BaseHandler
 
     }
     
-    public function GetTitle() : string
+    public function GetTitle() : ?string
     {
         return $this->title;
     }
     
-    public function GetNick() : string
+    public function GetNick() : ?string
     {
         return $this->nick;
     }
     
-    public function GetPassword() : string
+    public function GetPassword() : ?string
     {
         return $this->password;
     }
     
-    public function GetContent() : string
+    public function GetContent() : ?string
     {
         return $this->content;
     }
     
-    public function GetEmail() : string
+    public function GetEmail() : ?string
     {
         return $this->email;
     }
     
-    public function GetLinkUrl() : string
+    public function GetLinkUrl() : ?string
     {
         return $this->linkUrl;
     }
     
-    public function GetLinkText() : string
+    public function GetLinkText() : ?string
     {
         return $this->linkText;
     }
     
-    public function GetImgUrl() : string
+    public function GetImgUrl() : ?string
     {
         return $this->imgUrl;
     }
