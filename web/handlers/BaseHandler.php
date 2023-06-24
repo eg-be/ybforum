@@ -29,8 +29,8 @@ require_once __DIR__.'/../helpers/Logger.php';
  * ValiateParams() and HandleRequestImpl(ForumDb $db). 
  * If the public HandleRequest(ForumDb $db) of the BaseHandler is called,
  * the BaseHandler will call ReadParams(), ValidateParams() and then 
- * HandleRequestImpl(ForumDb $db). If in any of these methods an IllegalArgumentException
- * occurs, the IllegalArgumentException is stored internally as last exception and then
+ * HandleRequestImpl(ForumDb $db). If in any of these methods an InvalidArgumentException
+ * occurs, the InvalidArgumentException is stored internally as last exception and then
  * re-thrown. As a general rule the method ReadParams() should not throw, 
  * but simply stored the parameter values for later use or set them to
  * null if the values are invalid: A form working with a handler can
@@ -66,7 +66,7 @@ abstract class BaseHandler
      * FILTER_VALIDATE_IP.
      * @return string or null if not a valid IP address.
      */
-    protected function ReadClientIpParam()
+    protected function ReadClientIpParam() :?string
     {
         $clientIp = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
         if(!$clientIp)
@@ -82,7 +82,7 @@ abstract class BaseHandler
      * @param type $value
      * @throws InvalidArgumentException
      */
-    protected function ValidateClientIpValue($value)
+    protected function ValidateClientIpValue($value) : void
     {
         if(!$value || filter_var($value, FILTER_VALIDATE_IP) === false)
         {
@@ -95,7 +95,7 @@ abstract class BaseHandler
      * @param string $paramName
      * @return string or null if value is not a valid email address.
      */
-    protected function ReadEmailParam(string $paramName)
+    protected function ReadEmailParam(string $paramName) : ?string
     {
         assert(!empty($paramName));
         $email = trim(filter_input(INPUT_POST, $paramName, FILTER_VALIDATE_EMAIL));
@@ -114,7 +114,7 @@ abstract class BaseHandler
      * @param string $errMessage
      * @throws InvalidArgumentException
      */
-    protected function ValidateEmailValue($value, string $errMessage = null)
+    protected function ValidateEmailValue($value, string $errMessage = null) : void
     {
         if(!$value || filter_var($value, FILTER_VALIDATE_EMAIL) === false)
         {
@@ -135,7 +135,7 @@ abstract class BaseHandler
      * @throws InvalidArgumentException
      */
     protected function ValidateEmailAgainstBlacklist(string $email, ForumDb $db, 
-            Logger $logger)
+            Logger $logger) : void
     {
         $mailOnBlacklistExactly = $db->IsEmailOnBlacklistExactly($email);
         if($mailOnBlacklistExactly)
@@ -167,7 +167,7 @@ abstract class BaseHandler
      * @param string $paramName
      * @return string or null. 
      */
-    protected function ReadUrlParam(string $paramName)
+    protected function ReadUrlParam(string $paramName) : ?string
     {
         assert(!empty($paramName));
         $url = trim(filter_input(INPUT_POST, $paramName, FILTER_VALIDATE_URL));
@@ -188,7 +188,7 @@ abstract class BaseHandler
      * @throws InvalidArgumentException
      */
     protected function ValidateHttpUrlValue($value, string $errMessage = null, 
-            bool $requirePath = false)
+            bool $requirePath = false) : void
     {
         if(!$errMessage)
         {
@@ -217,7 +217,7 @@ abstract class BaseHandler
      * @param string $paramName
      * @return int or null.
      */
-    protected function ReadIntParam(string $paramName)
+    protected function ReadIntParam(string $paramName) : ?int
     {
         assert(!empty($paramName));
         $value = filter_input(INPUT_POST, $paramName, FILTER_VALIDATE_INT);
@@ -235,7 +235,7 @@ abstract class BaseHandler
      * @param type $errorMsg
      * @throws InvalidArgumentException
      */
-    protected function ValidateIntParam($value, $errorMsg)
+    protected function ValidateIntParam($value, $errorMsg) : void
     {
         assert(!empty($errorMsg));
         if(!is_int($value))
@@ -250,7 +250,7 @@ abstract class BaseHandler
      * @return string or null if no such parameter exists, or the value is 
      * empty.
      */
-    protected function ReadStringParam(string $paramName)
+    protected function ReadStringParam(string $paramName) : ?string
     {
         assert(!empty($paramName));
         $value = trim(filter_input(INPUT_POST, $paramName, FILTER_UNSAFE_RAW));
@@ -270,7 +270,7 @@ abstract class BaseHandler
      * @param int $minLength
      * @throws InvalidArgumentException
      */
-    protected function ValidateStringParam($value, string $errorMsg, int $minLength = 0)
+    protected function ValidateStringParam($value, string $errorMsg, int $minLength = 0) : void
     {
         assert(!empty($errorMsg));
         if(!is_string($value) || !$value)
@@ -286,7 +286,7 @@ abstract class BaseHandler
     /**
      * Reads the client IP address, then calls ReadParams() and 
      * ValidateParams(), followed by HandleRequestImpl().
-     * If any of the methods throws an IllegalArgumentException, that
+     * If any of the methods throws an InvalidArgumentException, that
      * IllegalArgumentExeption is remembered as member lastException and then
      * re-thrown.
      * If HandleRequestImpl() succeeds, the internal lastException member
@@ -324,10 +324,10 @@ abstract class BaseHandler
     
     /**
      * @return boolean True if during last run of HandleRequest an
-     * IllegalArgumentException was thrown and that Exception was not cleared
+     * InvalidArgumentException was thrown and that Exception was not cleared
      * using ClearLastException().
      */
-    public function HasException()
+    public function HasException() : bool
     {
         return $this->lastException !== null;
     }
@@ -335,7 +335,7 @@ abstract class BaseHandler
     /**
      * @return IllegalArgumentExeption or null 
      */
-    public function GetLastException()
+    public function GetLastException() : ?InvalidArgumentException
     {
         return $this->lastException;
     }
@@ -343,7 +343,7 @@ abstract class BaseHandler
     /**
      * Sets internal member lastExeption to null
      */
-    public function ClearLastException()
+    public function ClearLastException() : void
     {
         $this->lastException = null;
     }
@@ -351,13 +351,13 @@ abstract class BaseHandler
     /**
      * Read all parameters required, but avoid throwing an Exception.
      */
-    protected abstract function ReadParams();
+    protected abstract function ReadParams() : void;
     
     /**
      * Check that parameters are (syntactically) valid, throw an 
-     * IllegalArgumentException if not.
+     * InvalidArgumentException if not.
      */
-    protected abstract function ValidateParams();
+    protected abstract function ValidateParams() : void;
     
     /**
      * Handle the request using the previously read and validated 

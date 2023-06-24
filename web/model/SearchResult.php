@@ -49,7 +49,7 @@ class SearchResult
             string $searchString, string $nick, 
             int $limit, int $offset, 
             string $sortField, string $sortOrder,
-            bool $noReplies)
+            bool $noReplies) : array
     {
         // check that we have a valid sort field
         if(!array_key_exists($sortField, self::SORT_FIELDS))
@@ -150,7 +150,7 @@ class SearchResult
     /**
      * @return int Field idpost.
      */
-    public function GetPostId()
+    public function GetPostId() : int
     {
         return $this->idpost;
     }
@@ -158,7 +158,7 @@ class SearchResult
     /**
      * @return string Field title.
      */
-    public function GetTitle()
+    public function GetTitle() : string
     {
         return $this->title;
     }
@@ -166,7 +166,7 @@ class SearchResult
     /**
      * @return string Non empty nick (field user_table.nick) who wrote this post. 
      */
-    public function GetNick()
+    public function GetNick() : string
     {
         return $this->nick;
     }
@@ -174,7 +174,7 @@ class SearchResult
     /**
      * @return DateTime of the field creation_ts.
      */
-    public function GetPostTimestamp()
+    public function GetPostTimestamp() : DateTime
     {
         return $this->creation_ts;
     }    

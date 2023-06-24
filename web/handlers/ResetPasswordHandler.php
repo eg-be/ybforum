@@ -50,7 +50,7 @@ class ResetPasswordHandler extends BaseHandler
         $this->nick = null;
     }
     
-    protected function ReadParams()
+    protected function ReadParams() : void
     {
         // Try to read email or nick param as email first
         $this->email = $this->ReadEmailParam(self::PARAM_EMAIL_OR_NICK);
@@ -61,7 +61,7 @@ class ResetPasswordHandler extends BaseHandler
         }
     }
     
-    protected function ValidateParams()
+    protected function ValidateParams() : void
     {
         // need either email or password
         if(!$this->email && !$this->nick)
@@ -70,7 +70,7 @@ class ResetPasswordHandler extends BaseHandler
         }
     }
     
-    protected function HandleRequestImpl(ForumDb $db) 
+    protected function HandleRequestImpl(ForumDb $db) : void
     {
         $logger = new Logger($db);
         // First: Check if there is a matching user:

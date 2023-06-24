@@ -31,7 +31,7 @@ require_once __DIR__.'/../helpers/Logger.php';
  * a value PARAM_CODE to update a password. If the code is valid, the 
  * corresponding User is returned from the handler implementation.
  * This handler does not modify any data, but will fail with the same
- * IllegalArgumentException if one of the parameters fails validation.
+ * InvalidArgumentException if one of the parameters fails validation.
  *
  * @author Elias Gerber
  */
@@ -48,7 +48,7 @@ class ConfirmResetPasswordHandler extends BaseHandler implements ConfirmHandler
         $this->user = null;
     }
     
-    protected function ReadParams()
+    protected function ReadParams() : void
     {
         // Read params - depending on the invocation using GET or through base-handler
         if(filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET')
@@ -65,13 +65,13 @@ class ConfirmResetPasswordHandler extends BaseHandler implements ConfirmHandler
         }
     }
     
-    protected function ValidateParams()
+    protected function ValidateParams() : void
     {
         // Check for the parameters required to authenticate
         $this->ValidateStringParam($this->code, self::MSG_CODE_UNKNOWN);
     }
     
-    protected function HandleRequestImpl(ForumDb $db) 
+    protected function HandleRequestImpl(ForumDb $db) : User
     {
         // reset the internal values first
         $this->user = null;
@@ -94,24 +94,24 @@ class ConfirmResetPasswordHandler extends BaseHandler implements ConfirmHandler
         return $this->user;   
     }
     
-    public function GetCode()
+    public function GetCode() : string
     {
         return $this->code;
     }
     
-    public function GetType()
+    public function GetType() : string
     {
         return ConfirmHandler::VALUE_TYPE_RESETPASS;
     }
     
-    public function GetConfirmText() 
+    public function GetConfirmText() : string
     {
         return 'Wähle ein neues Passwort. Das Passwort muss mindestens '
                 . YbForumConfig::MIN_PASSWWORD_LENGTH 
                 . ' Zeichen enthalten:';
     }
     
-    public function GetSuccessText()
+    public function GetSuccessText() : string
     {
         return 'Passwort erfolgreich aktualisiert';
     }

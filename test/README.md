@@ -15,3 +15,5 @@ www-data: eg-be
 Exim will refuse any mail targeting a remote-domain and respond with a failure notice, which will be forwarded to your local user-account.
 
 A proper solution would be to configure exim to redirect all outgoing mail to a specific user or a local file. But I dont remember how to..
+
+And really proper would be to use a mock-mailer during the tests, see #36.

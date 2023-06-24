@@ -65,29 +65,29 @@ class PageNavigationView
     }
     
     
-    private function CreatePageNavElement($pageNr)
+    private function CreatePageNavElement($pageNr) : string
     {
         return '<span class="navelement"><a href="index.php?page=' . $pageNr . '">'
                 . $pageNr .'</a></span>';
     }
     
-    private function CreateFirstPageNavElement()
+    private function CreateFirstPageNavElement() : string
     {
         return '<a href="index.php?page=1">&lt;&lt;</a>';
     }
     
-    private function CreateCurrentPagElement()
+    private function CreateCurrentPagElement() : string
     {
         return '<span class="navelement fbold">' . $this->m_currentPage 
                 . '</span>';
     }
     
-    private function CreateLastPageNavElement()
+    private function CreateLastPageNavElement() : string
     {
         return '<a href="index.php?page=' . $this->m_totalPages . '">&gt;&gt;</a>';        
     }
     
-    private function CreateSkipLeftNavElement()
+    private function CreateSkipLeftNavElement() : string
     {
         $destinationPageNr = 
                 $this->m_currentPage - YbForumConfig::NAV_SKIP_NR_OF_PAGES;
@@ -99,7 +99,7 @@ class PageNavigationView
                 . $destinationPageNr . '">&lt;</a></span>';
     }    
     
-    private function CreateSkipRightNavElement()
+    private function CreateSkipRightNavElement() : string
     {
         $destinationPageNr = 
                 $this->m_currentPage + YbForumConfig::NAV_SKIP_NR_OF_PAGES;
@@ -115,7 +115,7 @@ class PageNavigationView
      * Renders a HTML string with the page navigation content.
      * @return string HTML with a content like <a href="index.php?pagenr=xx">
      */
-    public function renderHtmlDivContent()
+    public function renderHtmlDivContent() : string
     {
         $htmlStr = '';
         // Navigate towards left (only possible if we are not on newest page)

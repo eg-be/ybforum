@@ -30,7 +30,7 @@ require_once __DIR__.'/../helpers/Logger.php';
  * If the REQUEST_METHOD associated with this ConfirmHandler is GET,
  * this handler does not modify any data, but will return as soon as
  * all parameters have been verified (but will fail with the same
- * IllegalArgumentException if one of the parameters fails validation.).
+ * InvalidArgumentException if one of the parameters fails validation.).
  *
  * @author Elias Gerber
  */
@@ -51,7 +51,7 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         $this->newEmail = null;
     }
     
-    protected function ReadParams()
+    protected function ReadParams() : void
     {
         // Read params - depending on the invocation using GET or through base-handler
         $this->simulate = (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET');
@@ -69,13 +69,13 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         }
     }
     
-    protected function ValidateParams()
+    protected function ValidateParams() : void
     {
         // Check for the parameters required to authenticate
         $this->ValidateStringParam($this->code, self::MSG_CODE_UNKNOWN);
     }
 
-    protected function HandleRequestImpl(ForumDb $db) 
+    protected function HandleRequestImpl(ForumDb $db) : void
     {
         // reset the internal values first
         $this->user = null;
@@ -114,24 +114,24 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
                 $this->clientIpAddress);        
     }
     
-    public function GetCode()
+    public function GetCode() : string
     {
         return $this->code;
     }
     
-    public function GetType()
+    public function GetType() : string
     {
         return ConfirmHandler::VALUE_TYPE_UPDATEEMAIL;
     }
     
-    public function GetConfirmText() 
+    public function GetConfirmText() : string
     {
         return 'Klicke auf Bestätigen um die Mailadresse '
                 . $this->newEmail . ' für den Benutzer ' 
                 . $this->user->GetNick() . ' zu bestätigen:';
     }
     
-    public function GetSuccessText()
+    public function GetSuccessText() : string
     {
         return 'Emailadresse erfolgreich aktualisiert';
     }
