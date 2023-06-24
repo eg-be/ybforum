@@ -38,7 +38,7 @@ class StandWithUkr {
     /**
      * Render a div for a UKR flag
      */
-    public function renderHtmlDiv() : String
+    public function renderHtmlDiv() : string
     {
         $htmlStr = '<div class="standwithukr" title="We stand with Ukraine" id="we-stand-with-ukraine"></div>';
         return $htmlStr;

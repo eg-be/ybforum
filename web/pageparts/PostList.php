@@ -40,7 +40,7 @@ class PostList
      * construction as p element.
      * @return string
      */
-    public function RenderListDiv()
+    public function RenderListDiv() : string
     {
         $htmlStr = '<div class="fullwidth">';
         foreach($this->m_postIndexEntries as $indexEntry)
