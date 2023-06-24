@@ -35,7 +35,7 @@ class ConfirmForm
         $this->m_confirmHandler = $confirmHandler;
     }
     
-    public function RenderHtmlDiv()
+    public function RenderHtmlDiv() : string
     {
         $html = '<div>';
         $html.= '<span class="fbold">';

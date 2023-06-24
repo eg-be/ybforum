@@ -47,7 +47,7 @@ class PostEntryForm
      * function 'preview()' that can create a preview of the post.
      * @return string
      */
-    public function renderHtmlForm()
+    public function renderHtmlForm() : string
     {
         // If the parent post has a link and/or img, re-use that value
         // but allow the value to be overridden by the current user-values
@@ -113,7 +113,7 @@ class PostEntryForm
      * objects on to the post.
      * @return string
      */
-    public function renderUsageTable()
+    public function renderUsageTable() : string
     {
         $html = 
            '<table style="margin: auto">
@@ -160,7 +160,7 @@ class PostEntryForm
      * default value. Else the default value is empty.
      * @return string
      */
-    private function renderHtmlFormTitleInput()
+    private function renderHtmlFormTitleInput() : string
     {
         // If a title was already set, use that one
         $title = '';
@@ -193,7 +193,7 @@ class PostEntryForm
      * Else, the default value is empty.
      * @return string
      */
-    private function renderHtmlFormContentTextArea()
+    private function renderHtmlFormContentTextArea() : string
     {
         // Reuse an old content sent before
         $content = '';
@@ -216,7 +216,7 @@ class PostEntryForm
      * parent post (if set during construction), or 0 otherwise.
      * @return string
      */
-    private function renderHtmlFormParentPostIdInput()
+    private function renderHtmlFormParentPostIdInput() : string
     {
         $parentPostId = 0;
         // If this form has been created as a direct consequence of a reply,

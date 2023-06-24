@@ -34,7 +34,7 @@ class SearchResultsView
     }
     
     private function GetHiddenSearchForm(string $id, int $offset,
-            string $sortField, string $sortOrder)
+            string $sortField, string $sortOrder) : string
     {
         $html= '<form id="' . $id .'" style="display: inline-block;" method="post" action="search.php?search=1" accept-charset="utf-8">';
         $html.= '<input type="hidden" name="' 
@@ -66,7 +66,7 @@ class SearchResultsView
         return $html;
     }
     
-    public function RenderResultsNavigationDiv()
+    public function RenderResultsNavigationDiv() : string
     {
         $html = '<div>';
         if(!$this->m_sh->IsFirstRecordBlock())
@@ -97,7 +97,7 @@ class SearchResultsView
         return $html;
     }
     
-    public function RenderSortDiv()
+    public function RenderSortDiv() : string
     {
         $html = '<div style="padding-bottom: 1em; padding-top: 1em;">';
         $html.= '<span class="fbold">Sortieren nach: </span>';
@@ -141,7 +141,7 @@ class SearchResultsView
         return $html;
     }
     
-    public function RenderResultsDiv()
+    public function RenderResultsDiv() : string
     {
         $html = '<div>';
         $results = $this->m_sh->GetResults();

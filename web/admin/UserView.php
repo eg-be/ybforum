@@ -51,7 +51,7 @@ class UserView {
         }
     }
     
-    public function HandleActionsAndGetResultDiv(ForumDb $db, int $adminUserId)
+    public function HandleActionsAndGetResultDiv(ForumDb $db, int $adminUserId) : string
     {
         try
         {
@@ -72,6 +72,9 @@ class UserView {
             {
                 return $this->HandleDeleteAction($db);
             }
+            else {
+                return '';
+            }
         }
         catch(InvalidArgumentException $ex)
         {
@@ -79,7 +82,7 @@ class UserView {
         }
     }
     
-    private function HandleDummyAction(ForumDb $db)
+    private function HandleDummyAction(ForumDb $db) : string
     {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if($userActionValue === self::VALUE_MAKEDUMMY && $this->m_userId)
@@ -108,7 +111,7 @@ class UserView {
         }
     }
     
-    private function HandleDeleteAction(ForumDb $db)
+    private function HandleDeleteAction(ForumDb $db) : string
     {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if($userActionValue === self::VALUE_DELETE && $this->m_userId)
@@ -129,7 +132,7 @@ class UserView {
         }
     }
     
-    private function HandleAdminAction(ForumDb $db)
+    private function HandleAdminAction(ForumDb $db) : string
     {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if($userActionValue === self::VALUE_SETADMIN && $this->m_userId)
@@ -148,7 +151,7 @@ class UserView {
         }
     }
     
-    private function HandleActivateAction(ForumDb $db, int $adminUserId)
+    private function HandleActivateAction(ForumDb $db, int $adminUserId) : string
     {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if($userActionValue === self::VALUE_ACTIVATE && $this->m_userId)
@@ -173,7 +176,7 @@ class UserView {
         }        
     }
     
-    private function LoadUser(ForumDb $db)
+    private function LoadUser(ForumDb $db) : ?User
     {
         $user = null;
         if($this->m_userId)
@@ -191,7 +194,7 @@ class UserView {
         return $user;        
     }
     
-    private function GetTurnIntoDummyForm(User $user)
+    private function GetTurnIntoDummyForm(User $user) : string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
                 . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
@@ -201,7 +204,7 @@ class UserView {
         return $htmlStr;
     }
     
-    private function GetDeleteUserForm(User $user)
+    private function GetDeleteUserForm(User $user) : string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
                 . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
@@ -211,7 +214,7 @@ class UserView {
         return $htmlStr;
     }
     
-    private function GetConfirmTurnInfoDummyForm(User $user)
+    private function GetConfirmTurnInfoDummyForm(User $user) : string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
                 . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
@@ -221,7 +224,7 @@ class UserView {
         return $htmlStr;        
     }
     
-    private function GetToggleActiveForm(User $user)
+    private function GetToggleActiveForm(User $user) : string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
                 . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
@@ -246,7 +249,7 @@ class UserView {
         return $htmlStr;
     }
     
-    private function GetToggleAdminForm(User $user)
+    private function GetToggleAdminForm(User $user) : string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
                 . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
@@ -271,7 +274,7 @@ class UserView {
         return $htmlStr;
     }
     
-    public function RenderHtmlDiv(ForumDb $db)
+    public function RenderHtmlDiv(ForumDb $db) : string
     {
         if(!$this->m_userId && !$this->m_email && !$this->m_nick)
         {

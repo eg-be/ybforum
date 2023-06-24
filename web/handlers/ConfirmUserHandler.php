@@ -32,7 +32,7 @@ require_once __DIR__.'/../helpers/Logger.php';
  * If the REQUEST_METHOD associated with this ConfirmHandler is GET,
  * this handler does not modify any data, but will return as soon as
  * all parameters have been verified (but will fail with the same
- * IllegalArgumentException if one of the parameters fails validation.).
+ * InvalidArgumentException if one of the parameters fails validation.).
  * 
  * @author Elias Gerber 
  */
@@ -54,7 +54,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         $this->simulate = null;
     }
     
-    protected function ReadParams()
+    protected function ReadParams() : void
     {
         // Read params - depending on the invocation using GET or through base-handler
         $this->simulate = (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET');
@@ -72,13 +72,13 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         }
     }
     
-    protected function ValidateParams()
+    protected function ValidateParams() : void
     {
         // Check for the parameters required
         $this->ValidateStringParam($this->code, self::MSG_CODE_UNKNOWN);
     }
     
-    protected function HandleRequestImpl(ForumDb $db) 
+    protected function HandleRequestImpl(ForumDb $db) : string
     {
         // reset internal values first
         $this->user = null;
@@ -145,17 +145,17 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         return $this->confirmSource;
     }
     
-    public function GetCode()
+    public function GetCode() : string
     {
         return $this->code;
     }
     
-    public function GetType()
+    public function GetType() : string
     {
         return ConfirmHandler::VALUE_TYPE_CONFIRM_USER;
     }
     
-    public function GetConfirmText() 
+    public function GetConfirmText() : string
     {
         $txt = '';
         if($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER)
@@ -169,7 +169,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         return $txt;
     }
     
-    public function GetSuccessText()
+    public function GetSuccessText() : string
     {
         $txt = '';
         if($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER)

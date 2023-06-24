@@ -67,7 +67,7 @@ class PostEntryHandler extends BaseHandler
         $this->imgUrl = null;
     }
     
-    protected function ReadParams()
+    protected function ReadParams() : void
     {
         $this->parentPostId = $this->ReadIntParam(self::PARAM_PARENTPOSTID);
         $this->nick = $this->ReadStringParam(self::PARAM_NICK);
@@ -82,7 +82,7 @@ class PostEntryHandler extends BaseHandler
         $this->imgUrl = $this->ReadStringParam(self::PARAM_IMGURL);
     }
     
-    protected function ValidateParams()
+    protected function ValidateParams() : void
     {
         // validate what we cannot accept null values for:
         $this->ValidateIntParam($this->parentPostId, parent::MSG_GENERIC_INVALID);
@@ -121,7 +121,7 @@ class PostEntryHandler extends BaseHandler
      * Build a message containing all values of this post
      * @return string
      */
-    private function GetExtendedLogMsg()
+    private function GetExtendedLogMsg() : string
     {
         $extMsg = 'Title: ' . $this->title;
         if($this->content)
@@ -148,7 +148,7 @@ class PostEntryHandler extends BaseHandler
     }
 
 
-    protected function HandleRequestImpl(ForumDb $db)
+    protected function HandleRequestImpl(ForumDb $db) : int
     {        
         // Authenticate
         $logger = new Logger($db);
@@ -212,47 +212,47 @@ class PostEntryHandler extends BaseHandler
 
     }
     
-    public function GetTitle()
+    public function GetTitle() : ?string
     {
         return $this->title;
     }
     
-    public function GetNick()
+    public function GetNick() : ?string
     {
         return $this->nick;
     }
     
-    public function GetPassword()
+    public function GetPassword() : ?string
     {
         return $this->password;
     }
     
-    public function GetContent()
+    public function GetContent() : ?string
     {
         return $this->content;
     }
     
-    public function GetEmail()
+    public function GetEmail() : ?string
     {
         return $this->email;
     }
     
-    public function GetLinkUrl()
+    public function GetLinkUrl() : ?string
     {
         return $this->linkUrl;
     }
     
-    public function GetLinkText()
+    public function GetLinkText() : ?string
     {
         return $this->linkText;
     }
     
-    public function GetImgUrl()
+    public function GetImgUrl() : ?string
     {
         return $this->imgUrl;
     }
     
-    public function GetParentPostId()
+    public function GetParentPostId() : int
     {
         return $this->parentPostId;
     }

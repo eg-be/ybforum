@@ -35,7 +35,7 @@ class ResetPasswordForm
         $this->m_confirmHandler = $confirmHandler;
     }
     
-    public function RenderHtmlDiv()
+    public function RenderHtmlDiv() : string
     {
         $html = '<div class="fullwidthcenter">';
         $html.= '<span class="fbold">';

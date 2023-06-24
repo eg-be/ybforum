@@ -63,7 +63,7 @@ class MigrateUserHandler extends BaseHandler
         $this->newEmail = null;
     }
     
-    protected function ReadParams()
+    protected function ReadParams() : void
     {
         // Read params
         $this->nick = $this->ReadStringParam(self::PARAM_NICK);
@@ -73,7 +73,7 @@ class MigrateUserHandler extends BaseHandler
         $this->newEmail = $this->ReadEmailParam(self::PARAM_NEWEMAIL);
     }
     
-    protected function ValidateParams()
+    protected function ValidateParams() : void
     {
         // And validate the params
         $this->ValidateStringParam($this->nick, self::MSG_AUTH_FAIL);
@@ -88,7 +88,8 @@ class MigrateUserHandler extends BaseHandler
         }
     }
     
-    protected function HandleRequestImpl(ForumDb $db) {
+    protected function HandleRequestImpl(ForumDb $db) : string 
+    {
         // First: Check if there is a matching (real) user:
         $user = User::LoadUserByNick($db, $this->nick);
         $logger = new Logger($db);
@@ -142,12 +143,12 @@ class MigrateUserHandler extends BaseHandler
         return $this->newEmail;
     }
         
-    public function GetNick()
+    public function GetNick() : ?string
     {
         return $this->nick;
     }
     
-    public function GetNewEmail()
+    public function GetNewEmail() : ?string
     {
         return $this->newEmail;
     }

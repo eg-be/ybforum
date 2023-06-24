@@ -60,7 +60,7 @@ class ThreadIndexView {
      * @param callable $htmlPerThreadCallback Callable that accepts as
      * argument the HTML string content to display one single thread.
      */
-    public function renderHtmlDivPerThread(callable $htmlPerThreadCallback)
+    public function renderHtmlDivPerThread(callable $htmlPerThreadCallback) : void
     {
         PostIndexEntry::LoadThreadIndexEntries($this->m_forumDb,
             $this->m_nrOfThreads, 

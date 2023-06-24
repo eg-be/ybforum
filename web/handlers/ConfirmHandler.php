@@ -65,22 +65,22 @@ interface ConfirmHandler
     /**
      * @return string Get the confirmation code.
      */
-    public function GetCode();
+    public function GetCode() : string;
     
     /**
      * @return string Get the confirmation type.
      */
-    public function GetType();
+    public function GetType() : string;
     
     /**
      * @return string Get the text to display to the user, asking him to
      * trigger some button to complete the confirmation process.
      */
-    public function GetConfirmText();
+    public function GetConfirmText() : string;
     
     /**
      * @return string Get the text to display to the user once confirmation
      * process has completed with success.
      */
-    public function GetSuccessText();
+    public function GetSuccessText() : string;
 }

@@ -34,7 +34,7 @@ class SearchForm {
         $this->m_sh = $searchHandler;
     }
     
-    public function RenderHtmlForm()
+    public function RenderHtmlForm() : string
     {
         $html = 
            '<form method="post" action="search.php?search=1" accept-charset="utf-8">

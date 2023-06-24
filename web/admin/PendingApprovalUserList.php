@@ -27,7 +27,7 @@ class PendingApprovalUserList
         $this->m_clientIpAddress = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
     }
     
-    public function HandleActionsAndGetResultDiv(ForumDb $db)
+    public function HandleActionsAndGetResultDiv(ForumDb $db) : string
     {
         try
         {
@@ -71,7 +71,7 @@ class PendingApprovalUserList
         }
     }
 
-    public function RenderHtmlDiv(ForumDb $db)
+    public function RenderHtmlDiv(ForumDb $db) : string
     {
         $haveSome = false;
         $query = 'SELECT user_table.iduser, nick, email, registration_ts, '
