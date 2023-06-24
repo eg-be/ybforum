@@ -50,7 +50,7 @@ class PostIndexEntry
      */  
     public static function LoadThreadIndexEntries(ForumDb $db, 
         int $maxThreads, int $maxThreadId, 
-        callable $threadIndexCallback)
+        callable $threadIndexCallback) : void
     {
         assert($maxThreads > 0);
         assert($maxThreadId > 0);
@@ -118,7 +118,7 @@ class PostIndexEntry
      * @param Post $post A post to load children for.
      * @return array Holding PostIndexEntry objects.
      */
-    public static function LoadPostReplies(ForumDb $db, Post $post, bool $includeHidden = false)
+    public static function LoadPostReplies(ForumDb $db, Post $post, bool $includeHidden = false) : array
     {
         $query = 'SELECT idpost, idthread, parent_idpost, nick, '
                 . 'title, indent, creation_ts, '
@@ -175,7 +175,7 @@ class PostIndexEntry
      * @return array An array of PostIndexEntry objects. Hold max. 
      * $maxEntries of PostIndexEntry objects, sorted by idpost descending.
      */
-    public static function LoadRecentPosts(ForumDb $db, int $maxEntries)
+    public static function LoadRecentPosts(ForumDb $db, int $maxEntries) : array
     {
         $query = 'SELECT idpost, idthread, parent_idpost, nick, '
                 . 'title, indent, creation_ts, '
@@ -226,7 +226,7 @@ class PostIndexEntry
     /**
      * @return int Field idpost.
      */
-    public function GetPostId()
+    public function GetPostId() : int
     {
         return $this->idpost;
     }
@@ -234,7 +234,7 @@ class PostIndexEntry
     /**
      * @return int Field indent.
      */
-    public function GetIndent()
+    public function GetIndent() : int
     {
         return $this->indent;
     }
@@ -242,7 +242,7 @@ class PostIndexEntry
     /**
      * @return string Field title.
      */
-    public function GetTitle()
+    public function GetTitle() : string
     {
         return $this->title;
     }
@@ -250,7 +250,7 @@ class PostIndexEntry
     /**
      * @return bool True if field content of this post is not null.
      */
-    public function HasContent()
+    public function HasContent() : bool
     {
         return $this->has_content > 0;
     }
@@ -258,7 +258,7 @@ class PostIndexEntry
     /**
      * @return string Non empty nick (field user_table.nick) who wrote this post. 
      */
-    public function GetNick()
+    public function GetNick() : string
     {
         return $this->nick;
     }
@@ -266,7 +266,7 @@ class PostIndexEntry
     /**
      * @return DateTime of the field creation_ts.
      */
-    public function GetPostTimestamp()
+    public function GetPostTimestamp() : DateTime
     {
         return $this->creation_ts;
     }
@@ -274,7 +274,7 @@ class PostIndexEntry
     /**
      * @return boolean True if field hidden is > 0.
      */
-    public function IsHidden()
+    public function IsHidden() : bool
     {
         return $this->hidden > 0;
     }
