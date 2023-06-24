@@ -153,9 +153,9 @@ class MigrateUserHandler extends BaseHandler
         return $this->newEmail;
     }
         
-    private $nick;
-    private $oldPassword;
-    private $newPassword;
-    private $confirmNewPassword;
-    private $newEmail;    
+    private ?string $nick;
+    private ?string $oldPassword;
+    private ?string $newPassword;
+    private ?string $confirmNewPassword;
+    private ?string $newEmail;    
 }

@@ -290,8 +290,8 @@ class Mailer
         return $str;
     }
     
-    private $m_mailFrom;
-    private $m_returnPath;
-    private $m_contentType;
-    private $m_allMailBcc;
+    private string $m_mailFrom;
+    private string $m_returnPath;
+    private string $m_contentType;
+    private string $m_allMailBcc;
 }

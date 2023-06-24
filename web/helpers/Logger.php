@@ -120,15 +120,23 @@ class Logger
         $this->m_insertExtendedInfoStmt = null;
         // when unit-testing, we do not have a REQUEST_URI 
         // nor a REMOTE_ADDR: Dont fail completely in that case
-        $this->m_clientIp = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
-        if($this->m_clientIp === null)
+        $clientIp = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
+        if($clientIp === null)
         {
             $this->m_clientIp = "::1";
         }
-        $this->m_requestUri = filter_input(INPUT_SERVER, 'REQUEST_URI');
-        if($this->m_requestUri === null)
+        else 
+        {
+            $this->m_clientIp = $clientIp;
+        }
+        $requestUri = filter_input(INPUT_SERVER, 'REQUEST_URI');
+        if($equestUri === null)
         {
             $this->m_requestUri = "phpunit";
+        }
+        else 
+        {
+            $this->m_requestUri = $requestUri;
         }
     }
 
@@ -264,9 +272,12 @@ class Logger
         return $row['idlog_type'];
     }
     
-    private $m_selectTypeStmt;
-    private $m_insertLogEntryStmt;
-    private $m_insertExtendedInfoStmt;
+    private PDOStatement $m_selectTypeStmt;
+    private PDOStatement $m_insertLogEntryStmt;
+    private PDOStatement $m_insertExtendedInfoStmt;
     
-    private $m_db;
+    private string $m_clientIp;
+    private string $m_requestUri;
+
+    private ForumDb $m_db;
 }

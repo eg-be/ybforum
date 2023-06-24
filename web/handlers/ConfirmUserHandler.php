@@ -51,7 +51,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         $this->code = null;
         $this->user = null;
         $this->confirmSource = null;
-        $this->simulate = null;
+        $this->simulate = false;
     }
     
     protected function ReadParams() : void
@@ -145,7 +145,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         return $this->confirmSource;
     }
     
-    public function GetCode() : string
+    public function GetCode() : ?string
     {
         return $this->code;
     }
@@ -188,8 +188,8 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         return $txt;
     }    
 
-    private $code;
-    private $confirmSource;
-    private $user;
-    private $simulate;
+    private ?string $code;
+    private ?string $confirmSource;
+    private ?User $user;
+    private bool $simulate;
 }
