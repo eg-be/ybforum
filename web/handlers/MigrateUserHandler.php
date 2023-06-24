@@ -88,7 +88,8 @@ class MigrateUserHandler extends BaseHandler
         }
     }
     
-    protected function HandleRequestImpl(ForumDb $db) : string {
+    protected function HandleRequestImpl(ForumDb $db) : string 
+    {
         // First: Check if there is a matching (real) user:
         $user = User::LoadUserByNick($db, $this->nick);
         $logger = new Logger($db);

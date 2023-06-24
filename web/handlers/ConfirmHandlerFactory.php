@@ -33,7 +33,7 @@ require_once __DIR__.'/ConfirmResetPasswordHandler.php';
  */
 class ConfirmHandlerFactory 
 {
-    public static function CreateHandler()
+    public static function CreateHandler() : ConfirmHandler
     {
         $type = null;
         if(filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET')
