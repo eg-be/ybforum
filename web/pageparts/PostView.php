@@ -48,7 +48,7 @@ class PostView
      * included in the title.
      * @return string
      */
-    public function renderHtmlTitleDivContent()
+    public function renderHtmlTitleDivContent() : string
     {
         $htmlStr = '<div class="fullwidthcenter generictitle">'
             . htmlspecialchars($this->m_post->GetTitle());
@@ -83,7 +83,7 @@ class PostView
      * this post is empty is set as content.
      * @return string
      */
-    public function renderHtmlPostContentDivContent()
+    public function renderHtmlPostContentDivContent() : string
     {
         $extraData = '';
         // Add all extra data as data-tags
@@ -136,7 +136,7 @@ class PostView
      * a list of HTML p elements.
      * @return string
      */
-    public function renderHtmlThreadDivContent()
+    public function renderHtmlThreadDivContent() : string
     {
         // if this post is already hidden, do not display any children at all
         if($this->m_post->IsHidden())

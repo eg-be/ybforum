@@ -50,7 +50,7 @@ class MigrateUserForm
      * 'migrateuser.php?migrate=1'.
      * @return string
      */
-    public function renderHtmlDiv()
+    public function renderHtmlDiv() : string
     {
         $returnValue = 'index.php';
         if($this->m_source)
