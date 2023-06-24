@@ -94,7 +94,7 @@ class UpdateEmailHandler extends BaseHandler
         return $this->newEmail;
     }
         
-    public function GetNewEmail() : string
+    public function GetNewEmail() : ?string
     {
         return $this->newEmail;
     }

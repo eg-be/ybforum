@@ -168,12 +168,12 @@ class SearchHandler extends BaseHandler
         }
     }
     
-    public function GetSearchNick() : string
+    public function GetSearchNick() : ?string
     {
         return $this->m_searchNick;
     }
     
-    public function GetSearchString() : string
+    public function GetSearchString() : ?string
     {
         return $this->m_searchString;
     }

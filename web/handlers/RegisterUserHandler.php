@@ -141,17 +141,17 @@ class RegisterUserHandler extends BaseHandler
         return $this->email;
     }
     
-    public function GetNick() : string
+    public function GetNick() : ?string
     {
         return $this->nick;
     }
     
-    public function GetEmail() : string
+    public function GetEmail() : ?string
     {
         return $this->email;
     }
     
-    public function GetRegMsg() : string
+    public function GetRegMsg() : ?string
     {
         return $this->regMsg;
     }
