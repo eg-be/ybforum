@@ -130,7 +130,7 @@ class Logger
             $this->m_clientIp = $clientIp;
         }
         $requestUri = filter_input(INPUT_SERVER, 'REQUEST_URI');
-        if($equestUri === null)
+        if($requestUri === null)
         {
             $this->m_requestUri = "phpunit";
         }
@@ -272,9 +272,9 @@ class Logger
         return $row['idlog_type'];
     }
     
-    private PDOStatement $m_selectTypeStmt;
-    private PDOStatement $m_insertLogEntryStmt;
-    private PDOStatement $m_insertExtendedInfoStmt;
+    private ?PDOStatement $m_selectTypeStmt;
+    private ?PDOStatement $m_insertLogEntryStmt;
+    private ?PDOStatement $m_insertExtendedInfoStmt;
     
     private string $m_clientIp;
     private string $m_requestUri;

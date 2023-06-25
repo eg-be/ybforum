@@ -158,5 +158,5 @@ class SearchResultsView
         return $html;
     }
     
-    private $m_sh;
+    private SearchHandler $m_sh;
 }

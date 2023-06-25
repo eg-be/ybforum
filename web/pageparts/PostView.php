@@ -30,10 +30,10 @@ class PostView
      * Display a single post.
      * @param ForumDb $forumDb A database instance
      * @param Post $post The post to display.
-     * @param type $parentPost The parent post of this post, or null if this
+     * @param ?Post $parentPost The parent post of this post, or null if this
      * post has no parent post.
      */
-    public function __construct(ForumDb $forumDb, Post $post, $parentPost)
+    public function __construct(ForumDb $forumDb, Post $post, ?Post $parentPost)
     {
         assert($forumDb->IsConnected());
         assert(is_null($parentPost) || $parentPost->GetId() === $post->GetParentPostId());
@@ -167,8 +167,8 @@ class PostView
         return $htmlStr;
     }
     
-    private $m_forumDb;
-    private $m_post;
-    private $m_parentPost;
+    private ForumDb $m_forumDb;
+    private Post $m_post;
+    private ?Post $m_parentPost;
     
 }

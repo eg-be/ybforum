@@ -71,5 +71,5 @@ class ResetPasswordForm
         return $html;
     }
     
-    private $m_confirmHandler;
+    private ConfirmResetPasswordHandler $m_confirmHandler;
 }
