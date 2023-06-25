@@ -31,11 +31,11 @@ class PostEntryForm
     /**
      * Create a form that will optionally use values from the passed 
      * PostEntryHandler instance.
-     * @param type $parentPost Null or a Post, holding the parent post of
+     * @param ?Post $parentPost Null or a Post, holding the parent post of
      * this post.
-     * @param type $postEntryHandler Null or a PostEntryHandler.
+     * @param ?PostEntryHandler $postEntryHandler Null or a PostEntryHandler.
      */
-    public function __construct($parentPost, $postEntryHandler) 
+    public function __construct(?Post $parentPost, ?PostEntryHandler $postEntryHandler) 
     {
         $this->m_parentPost = $parentPost;
         $this->m_peh = $postEntryHandler;
@@ -235,6 +235,6 @@ class PostEntryForm
         return $htmlString;
     }
     
-    private $m_parentPost;
-    private $m_peh;
+    private ?Post $m_parentPost;
+    private ?PostEntryHandler $m_peh;
 }

@@ -50,5 +50,5 @@ class ConfirmForm
         return $html;
     }
     
-    private $m_confirmHandler;
+    private ConfirmHandler $m_confirmHandler;
 }
