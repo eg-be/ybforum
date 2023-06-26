@@ -30,7 +30,7 @@ namespace profile;
 class Timings 
 {
     
-    public function __construct($msgPrefix = '') 
+    public function __construct(string $msgPrefix = '') 
     {
         $this->m_msgPrefix = $msgPrefix;
         $this->m_start = microtime(true);

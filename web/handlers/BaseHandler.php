@@ -79,10 +79,10 @@ abstract class BaseHandler
     /**
      * Throws InvalidArgumentException with MSG_INVALID_CLIENT_IPADDRESS if
      * $value is not a IP address
-     * @param type $value
+     * @param ?string $value
      * @throws InvalidArgumentException
      */
-    protected function ValidateClientIpValue($value) : void
+    protected function ValidateClientIpValue(?string $value) : void
     {
         if(!$value || filter_var($value, FILTER_VALIDATE_IP) === false)
         {
@@ -110,11 +110,11 @@ abstract class BaseHandler
      * Throw InvalidArgumentException if $value is not an email address.
      * If $errMessage is null, the message for the InvalidArgumentException
      * will be with MSG_EMAIL_INVALID , else it is the passed $errMessage
-     * @param mixed $value
+     * @param ?string $value
      * @param string $errMessage
      * @throws InvalidArgumentException
      */
-    protected function ValidateEmailValue($value, string $errMessage = null) : void
+    protected function ValidateEmailValue(?string $value, string $errMessage = null) : void
     {
         if(!$value || filter_var($value, FILTER_VALIDATE_EMAIL) === false)
         {
@@ -183,11 +183,11 @@ abstract class BaseHandler
      * and if it does not start with either 'http://' or 'https://'.
      * If $errMessage is null, the message for the InvalidArgumentException
      * will be with MSG_HTTPURL_INVALID , else it is the passed $errMessage
-     * @param mixed $value
+     * @param ?string $value
      * @param string $errMessage
      * @throws InvalidArgumentException
      */
-    protected function ValidateHttpUrlValue($value, string $errMessage = null, 
+    protected function ValidateHttpUrlValue(?string $value, string $errMessage = null, 
             bool $requirePath = false) : void
     {
         if(!$errMessage)
