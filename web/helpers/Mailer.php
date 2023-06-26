@@ -187,11 +187,11 @@ class Mailer
      * Sends a mail to an admin informing that a user has confirmed his registration
      * @param string $confirmedNick nickname of the user who completed registration
      * @param string $adminEmail destination email
-     * @param mixed $registrationMsg A string with the Registration message or null
+     * @param ?string $registrationMsg A string with the Registration message or null
      * @return boolean True if sending succeeds
      */
     public function NotifyAdminUserConfirmedRegistration(string $confirmedNick, 
-            string $adminEmail, $registrationMsg) : bool
+            string $adminEmail, ?string $registrationMsg) : bool
     {
         $subject = 'Benutzer wartet auf Freischaltung';
         $mailBody = 'Der Benutzer ' . $confirmedNick . ' hat seine '

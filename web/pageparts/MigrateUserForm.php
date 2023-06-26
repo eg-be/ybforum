@@ -31,9 +31,9 @@ class MigrateUserForm
     /**
      * Create a form that will use the passed values as initial values for
      * the input fields and for the return address.
-     * @param mixed $initialNick String or null. Initial value for nick field.
-     * @param mixed $initialEmail String or null. Initial value for email field.
-     * @param mixed $source String or null. URL to use as location if the user
+     * @param ?string $initialNick String or null. Initial value for nick field.
+     * @param ?string $initialEmail String or null. Initial value for email field.
+     * @param ?string $source String or null. URL to use as location if the user
      * chooses to cancel migration. A 'migrationended=1' parameter will be 
      * appended to the URL. If null is passed, the user will be 
      * redirected to index.php, without any additional arguments.
