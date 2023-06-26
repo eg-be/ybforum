@@ -64,5 +64,5 @@ class PostList
         return $htmlStr;
     }
     
-    private $m_postIndexEntries;
+    private array $m_postIndexEntries;
 }

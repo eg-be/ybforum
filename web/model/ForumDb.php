@@ -1440,6 +1440,6 @@ class ForumDb extends PDO
         }
     }    
 
-    private $m_connected;
-    private $m_readOnly;
+    private bool $m_connected;
+    private bool $m_readOnly;
 }

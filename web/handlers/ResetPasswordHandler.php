@@ -128,6 +128,6 @@ class ResetPasswordHandler extends BaseHandler
         }
     }
     
-    private $nick;
-    private $email;
+    private ?string $nick;
+    private ?string $email;
 }

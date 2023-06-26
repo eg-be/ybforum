@@ -103,8 +103,8 @@ class UpdatePasswordHandler extends BaseHandler
         }
     }
     
-    private $newPassword;
-    private $confirmNewPassword;
+    private ?string $newPassword;
+    private ?string $confirmNewPassword;
     
-    private $user;
+    private User $user;
 }

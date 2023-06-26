@@ -239,13 +239,13 @@ class SearchHandler extends BaseHandler
         return $this->m_noReplies;
     }
     
-    private $m_searchNick;
-    private $m_searchString;
-    private $m_resultOffset;
-    private $m_sortField;
-    private $m_sortOrder;
-    private $m_noReplies;
+    private ?string $m_searchNick;
+    private ?string $m_searchString;
+    private ?int $m_resultOffset;
+    private ?string $m_sortField;
+    private ?string $m_sortOrder;
+    private bool $m_noReplies;
     
-    private $m_results;
-    private $m_moreRecordsAvailable;
+    private ?array $m_results;
+    private bool $m_moreRecordsAvailable;
 }

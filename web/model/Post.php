@@ -65,42 +65,44 @@ class Post
      */
     protected function __construct()
     {
-        assert(is_int($this->idthread) && $this->idthread > 0);
-        assert(is_null($this->parent_idpost) || (is_int($this->parent_idpost) && $this->parent_idpost > 0));
-        assert(is_string($this->nick) && !empty($this->nick));
-        assert(is_int($this->iduser) && $this->iduser > 0);
-        assert(is_string($this->title) && !empty($this->title));
-        assert(is_null($this->content) ||(is_string($this->content) && !empty($this->content)));
-        assert(is_int($this->rank) && $this->rank >= 0);
-        assert(is_int($this->indent) && $this->indent >= 0);
+        assert($this->idpost > 0);
+        assert($this->idthread > 0);
+        assert(is_null($this->parent_idpost) || $this->parent_idpost > 0);
+        assert(!empty($this->nick));
+        assert($this->iduser > 0);
+        assert(!empty($this->title));
+        assert(is_null($this->content) || !empty($this->content));
+        assert($this->rank >= 0);
+        assert($this->indent >= 0);
         assert(is_string($this->creation_ts) && !empty($this->creation_ts));
-        assert(is_null($this->email) ||(is_string($this->email) && !empty($this->email)));
-        assert(is_null($this->link_url) ||(is_string($this->link_url) && !empty($this->link_url)));
-        assert(is_null($this->link_text) ||(is_string($this->link_text) && !empty($this->link_text)));
-        assert(is_null($this->img_url) ||(is_string($this->img_url) && !empty($this->img_url)));
-        assert(is_null($this->old_no) ||(is_int($this->old_no) && $this->old_no > 0));
-        assert(is_int($this->hidden));
-        assert(is_string($this->ip_address) && !empty($this->ip_address));
-        $this->creation_ts = new DateTime($this->creation_ts);
+        assert(is_null($this->email) ||!empty($this->email));
+        assert(is_null($this->link_url) || !empty($this->link_url));
+        assert(is_null($this->link_text) || !empty($this->link_text));
+        assert(is_null($this->img_url) || !empty($this->img_url));
+        assert(is_null($this->old_no) || $this->old_no > 0);
+        assert(!empty($this->ip_address));
+        $this->creation_ts_dt = new DateTime($this->creation_ts);
     }
   
-    protected $idpost;
-    protected $idthread;
-    protected $parent_idpost;
-    protected $nick;
-    protected $iduser;
-    protected $title;
-    protected $content;
-    protected $rank;
-    protected $indent;
-    protected $creation_ts;
-    protected $email;
-    protected $link_url;
-    protected $link_text;
-    protected $img_url;
-    protected $old_no;
-    protected $hidden;
-    protected $ip_address;
+    protected int $idpost;
+    protected int $idthread;
+    protected ?int $parent_idpost;
+    protected string $nick;
+    protected int $iduser;
+    protected string $title;
+    protected ?string $content;
+    protected int $rank;
+    protected int $indent;
+    protected string $creation_ts; // this is just the value from the corresponding field post_table class="creation_ts
+                                    // pdo->fetchObject() injects a string-value
+    protected DateTime $creation_ts_dt; // the same but converted to a DateTime
+    protected ?string $email;
+    protected ?string $link_url;
+    protected ?string $link_text;
+    protected ?string $img_url;
+    protected ?int $old_no;
+    protected int $hidden;
+    protected string $ip_address;
   
     /**
      * @return int Field idpost
@@ -171,7 +173,7 @@ class Post
      */
     public function GetPostTimestamp() : DateTime
     {
-        return $this->creation_ts;
+        return $this->creation_ts_dt;
     }
   
     /**
@@ -314,7 +316,7 @@ class Post
             && $this->content === $other->content
             && $this->rank === $other->rank
             && $this->indent === $other->indent
-            && $this->creation_ts == $other->creation_ts
+            && $this->creation_ts_dt == $other->creation_ts_dt
             && $this->email === $other->email
             && $this->link_url === $other->link_url
             && $this->link_text === $other->link_text

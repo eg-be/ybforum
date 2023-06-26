@@ -97,7 +97,7 @@ class ThreadIndexView {
         });
     }
     
-    private $m_forumDb;
-    private $m_nrOfThreads;
-    private $m_lastThreadId;
+    private ForumDb $m_forumDb;
+    private int $m_nrOfThreads;
+    private int $m_lastThreadId;
 }

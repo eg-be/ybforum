@@ -150,8 +150,8 @@ class PageNavigationView
         return $htmlStr;
     }
     
-    private $m_currentPage;
-    private $m_totalPages;
-    private $m_leftmostPage;
-    private $m_rightmostPage;
+    private int $m_currentPage;
+    private int $m_totalPages;
+    private int $m_leftmostPage;
+    private int $m_rightmostPage;
 }
