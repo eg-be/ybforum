@@ -63,7 +63,7 @@ class Memory
         return '<div>' . $this->GetMessage() . '</div>';
     }    
 
-    private $m_msgPrefix;
-    private $m_peakBytes;
-    private $m_currentBytes;
+    private string $m_msgPrefix;
+    private int $m_peakBytes;
+    private int $m_currentBytes;
 }

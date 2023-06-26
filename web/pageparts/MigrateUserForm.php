@@ -38,7 +38,7 @@ class MigrateUserForm
      * appended to the URL. If null is passed, the user will be 
      * redirected to index.php, without any additional arguments.
      */
-    public function __construct($initialNick, $initialEmail, $source) 
+    public function __construct(?string $initialNick, ?string $initialEmail, ?string $source) 
     {
         $this->m_initialNick = $initialNick;
         $this->m_initialEmail = $initialEmail;
@@ -107,7 +107,7 @@ class MigrateUserForm
         return $html;
     }
     
-    private $m_initialNick;
-    private $m_initialEmail;
-    private $m_source;
+    private ?string $m_initialNick;
+    private ?string $m_initialEmail;
+    private ?string $m_source;
 }

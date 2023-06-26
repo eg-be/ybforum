@@ -109,31 +109,34 @@ class User
      */
     protected function __construct()
     {
-        assert(is_int($this->iduser) && $this->iduser > 0);
-        assert(is_string($this->nick) && !empty($this->nick));
-        assert(is_null($this->email) || (is_string($this->email) && !empty($this->email)));
-        assert(is_int($this->admin));
-        assert(is_int($this->active));
-        assert(is_string($this->registration_ts) && !empty($this->registration_ts));
-        assert(is_null($this->registration_msg) || (is_string($this->registration_msg) && !empty($this->registration_msg)));
-        assert(is_null($this->confirmation_ts) || (is_string($this->confirmation_ts) && !empty($this->confirmation_ts)));
-        $this->registration_ts = new DateTime($this->registration_ts);
+        assert($this->iduser > 0);
+        assert(!empty($this->nick));
+        assert(is_null($this->email) || !empty($this->email));
+        assert(!empty($this->registration_ts));
+        assert(is_null($this->registration_msg) || !empty($this->registration_msg));
+        assert(is_null($this->confirmation_ts) || !empty($this->confirmation_ts));
+        assert(!empty($this->password));
+        assert(is_null($this->old_passwd || !empty($this->old_passwd)));
+        $this->registration_ts_dt = new DateTime($this->registration_ts);
+        $this->confirmation_ts_dt = null;
         if($this->confirmation_ts)
         {
-            $this->confirmation_ts = new DateTime($this->confirmation_ts);
+            $this->confirmation_ts_dt = new DateTime($this->confirmation_ts);
         }
     }
 
-    protected $iduser;
-    protected $nick;
-    protected $email;
-    protected $admin;
-    protected $active;
-    protected $registration_ts;
-    protected $registration_msg;
-    protected $confirmation_ts;
-    protected $password;
-    protected $old_passwd;
+    protected int $iduser;
+    protected string $nick;
+    protected ?string $email;
+    protected int $admin;
+    protected int $active;
+    protected string $registration_ts;
+    protected DateTime $registration_ts_dt;
+    protected ?string $registration_msg;
+    protected ?string $confirmation_ts;
+    protected ?DateTime $confirmation_ts_dt;
+    protected string $password;
+    protected ?string $old_passwd;
     
     /**
      * Build a string containing userId, nick, email,
@@ -252,7 +255,7 @@ class User
      */
     public function GetRegistrationTimestamp() : DateTime
     {
-        return $this->registration_ts;
+        return $this->registration_ts_dt;
     }
     
     /**
@@ -276,7 +279,7 @@ class User
      */
     public function IsConfirmed() : bool
     {
-        return !is_null($this->confirmation_ts);
+        return !is_null($this->confirmation_ts_dt);
     }
     
     /**
@@ -284,7 +287,7 @@ class User
      */    
     public function GetConfirmationTimestamp() : ?DateTime
     {
-        return $this->confirmation_ts;
+        return $this->confirmation_ts_dt;
     }
     
     /**
@@ -309,7 +312,7 @@ class User
      */
     public function NeedsConfirmation() : bool
     {
-        return is_null($this->confirmation_ts);
+        return is_null($this->confirmation_ts_dt);
     }
     
     /**
@@ -378,9 +381,9 @@ class User
             && $this->email === $other->email
             && $this->admin === $other->admin
             && $this->active === $other->active
-            && $this->registration_ts == $other->registration_ts
+            && $this->registration_ts_dt == $other->registration_ts_dt
             && $this->registration_msg == $other->registration_msg
-            && $this->confirmation_ts == $other->confirmation_ts
+            && $this->confirmation_ts_dt == $other->confirmation_ts_dt
             && $this->password === $other->password
             && $this->old_passwd === $other->old_passwd
             ;

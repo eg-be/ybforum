@@ -156,10 +156,10 @@ class RegisterUserHandler extends BaseHandler
         return $this->regMsg;
     }
     
-    private $nick;
-    private $password;
-    private $confirmpassword;
-    private $email;
-    private $regMsg;
-    private $m_captchaVerifier;
+    private ?string $nick;
+    private ?string $password;
+    private ?string $confirmpassword;
+    private ?string $email;
+    private ?string $regMsg;
+    private ?CaptchaVerifier $m_captchaVerifier;
 }

@@ -46,7 +46,7 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         
         // Set defaults explicitly
         $this->code = null;
-        $this->simulate = null;
+        $this->simulate = false;
         $this->user = null;
         $this->newEmail = null;
     }
@@ -114,7 +114,7 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
                 $this->clientIpAddress);        
     }
     
-    public function GetCode() : string
+    public function GetCode() : ?string
     {
         return $this->code;
     }
@@ -136,8 +136,8 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         return 'Emailadresse erfolgreich aktualisiert';
     }
     
-    private $code;
-    private $simulate;
-    private $user;
-    private $newEmail;
+    private ?string $code;
+    private bool $simulate;
+    private ?User $user;
+    private ?string $newEmail;
 }

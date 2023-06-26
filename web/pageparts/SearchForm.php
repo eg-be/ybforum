@@ -29,7 +29,7 @@ require_once __DIR__.'/../handlers/SearchHandler.php';
  */
 class SearchForm {
     
-    public function __construct($searchHandler)
+    public function __construct(?SearchHandler $searchHandler)
     {
         $this->m_sh = $searchHandler;
     }
@@ -56,5 +56,5 @@ class SearchForm {
         return $html;
     }
     
-    private $m_sh;
+    private ?SearchHandler $m_sh;
 }

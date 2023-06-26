@@ -365,7 +365,7 @@ abstract class BaseHandler
      */
     protected abstract function HandleRequestImpl(ForumDb $db);
     
-    protected $clientIpAddress;
+    protected string $clientIpAddress;
     
-    protected $lastException;
+    protected ?InvalidArgumentException $lastException;
 }

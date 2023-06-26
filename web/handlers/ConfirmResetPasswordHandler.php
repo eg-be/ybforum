@@ -94,7 +94,7 @@ class ConfirmResetPasswordHandler extends BaseHandler implements ConfirmHandler
         return $this->user;   
     }
     
-    public function GetCode() : string
+    public function GetCode() : ?string
     {
         return $this->code;
     }
@@ -116,6 +116,6 @@ class ConfirmResetPasswordHandler extends BaseHandler implements ConfirmHandler
         return 'Passwort erfolgreich aktualisiert';
     }
     
-    private $code;
-    private $user;
+    private ?string $code;
+    private ?User $user;
 }

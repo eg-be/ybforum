@@ -201,27 +201,27 @@ class PostIndexEntry
      */
     private function __construct()
     {
-        assert(is_int($this->idpost) && $this->idpost > 0);
-        assert(is_int($this->idthread) && $this->idthread > 0);
-        assert(is_null($this->parent_idpost) ||(is_int($this->parent_idpost) && $this->parent_idpost > 0));
-        assert(is_string($this->nick) && !empty($this->nick));
-        assert(is_string($this->title) && !empty($this->title));
-        assert(is_int($this->indent) && $this->indent >= 0);
-        assert(is_string($this->creation_ts) && !empty($this->creation_ts));
-        assert(is_int($this->has_content));
-        assert(is_int($this->hidden));    
-        $this->creation_ts = new DateTime($this->creation_ts);
+        assert($this->idpost > 0);
+        assert($this->idthread > 0);
+        assert(is_null($this->parent_idpost) || $this->parent_idpost > 0);
+        assert(!empty($this->nick));
+        assert(empty($this->title));
+        assert($this->indent >= 0);
+        assert(!empty($this->creation_ts));
+        $this->creation_ts_dt = new DateTime($this->creation_ts);
     }
     
-    private $idpost;
-    private $idthread;
-    private $parent_idpost;
-    private $nick;
-    private $title;
-    private $indent;
-    private $creation_ts;
-    private $has_content;
-    private $hidden;
+    private int $idpost;
+    private int $idthread;
+    private ?int $parent_idpost;
+    private string $nick;
+    private string $title;
+    private int $indent;
+    private string $creation_ts; // this is just the value from the corresponding field post_table class="creation_ts
+                                    // pdo->fetchObject() injects a string-value
+    private DateTime $creation_ts_dt; // the same but converted to a DateTime
+    private int $has_content;
+    private int $hidden;
 
     /**
      * @return int Field idpost.
@@ -268,7 +268,7 @@ class PostIndexEntry
      */
     public function GetPostTimestamp() : DateTime
     {
-        return $this->creation_ts;
+        return $this->creation_ts_dt;
     }
     
     /**

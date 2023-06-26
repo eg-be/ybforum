@@ -138,13 +138,11 @@ class SearchResult
      */    
     private function __construct()
     {
-        assert(is_int($this->idpost) && $this->idpost > 0);
-        assert(is_string($this->title) && !empty($this->title));
-        assert(is_int($this->has_content));
-        assert(is_int($this->iduser));
-        assert(is_string($this->nick) && !empty($this->nick));
-        assert(is_string($this->creation_ts));
-        $this->creation_ts = new DateTime($this->creation_ts);
+        assert($this->idpost > 0);
+        assert(!empty($this->title));
+        assert(!empty($this->nick));
+        assert(!empty($this->creation_ts));
+        $this->creation_ts_dt = new DateTime($this->creation_ts);
     }
     
     /**
@@ -176,13 +174,15 @@ class SearchResult
      */
     public function GetPostTimestamp() : DateTime
     {
-        return $this->creation_ts;
+        return $this->creation_ts_dt;
     }    
     
-    private $idpost;
-    private $title;
-    private $has_content;
-    private $iduser;
-    private $nick;
-    private $creation_ts;
+    private int $idpost;
+    private string $title;
+    private int $has_content;
+    private int $iduser;
+    private string $nick;
+    private string $creation_ts; // this is just the value from the corresponding field post_table class="creation_ts
+                                    // pdo->fetchObject() injects a string-value
+    private DateTime $creation_ts_dt; // the same but converted to a DateTime    
 }

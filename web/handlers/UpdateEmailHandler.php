@@ -99,7 +99,7 @@ class UpdateEmailHandler extends BaseHandler
         return $this->newEmail;
     }
         
-    private $newEmail;
+    private ?string $newEmail;
 
-    private $user;
+    private User $user;
 }
