@@ -65,7 +65,7 @@ class PageNavigationView
     }
     
     
-    private function CreatePageNavElement($pageNr) : string
+    private function CreatePageNavElement(int $pageNr) : string
     {
         return '<span class="navelement"><a href="index.php?page=' . $pageNr . '">'
                 . $pageNr .'</a></span>';
