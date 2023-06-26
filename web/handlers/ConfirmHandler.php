@@ -65,7 +65,7 @@ interface ConfirmHandler
     /**
      * @return string Get the confirmation code.
      */
-    public function GetCode() : string;
+    public function GetCode() : ?string;
     
     /**
      * @return string Get the confirmation type.
