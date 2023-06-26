@@ -356,11 +356,11 @@ class ForumDb extends PDO
             ?string $imgUrl, string $clientIpAddress) : int
     {        
         assert(!empty($title));
-        assert(is_null($content) || (is_string($content) && !empty($content)));        
-        assert(is_null($email) || (is_string($email) && !empty($email)));
-        assert(is_null($linkUrl) || (is_string($linkUrl) && !empty($linkUrl)));
-        assert(is_null($linkText) || (is_string($linkText) && !empty($linkText)));
-        assert(is_null($imgUrl) || (is_string($imgUrl) && !empty($imgUrl)));
+        assert(is_null($content) || !empty($content));        
+        assert(is_null($email) || !empty($email));
+        assert(is_null($linkUrl) || !empty($linkUrl));
+        assert(is_null($linkText) || !empty($linkText));
+        assert(is_null($imgUrl) || !empty($imgUrl));
         assert(!empty($clientIpAddress));
         
         if(!$user->IsActive())
