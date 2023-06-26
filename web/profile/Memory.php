@@ -29,7 +29,7 @@ namespace profile;
 class Memory 
 {
 
-    public function __construct($msgPrefix = '') 
+    public function __construct(string $msgPrefix = '') 
     {
         $this->m_msgPrefix = $msgPrefix;
     }

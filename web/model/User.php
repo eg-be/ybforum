@@ -135,7 +135,7 @@ class User
     protected ?string $registration_msg;
     protected ?string $confirmation_ts;
     protected ?DateTime $confirmation_ts_dt;
-    protected string $password;
+    protected ?string $password; // note: dummy-users do not have a password, email or old-password
     protected ?string $old_passwd;
     
     /**
