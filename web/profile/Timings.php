@@ -61,7 +61,7 @@ class Timings
         return '<div>'. $this->GetMessage() . '</div>';
     }
     
-    private $m_start;
-    private $m_time_elapsed_secs;
-    private $m_msgPrefix;
+    private float $m_start;
+    private float $m_time_elapsed_secs;
+    private string $m_msgPrefix;
 }
