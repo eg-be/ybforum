@@ -531,7 +531,7 @@ class ForumDb extends PDO
         // delete an eventually already existing entry first
         $this->RemoveConfirmUserCode($userId);        
         // generate some random bytes to be used as confirmation code
-        $bytes = random_bytes(64);
+        $bytes = random_bytes(YbForumConfig::CONFIRMATION_CODE_LENGTH);
         $confirmCode = mb_strtoupper(bin2hex($bytes), 'UTF-8');
         // and hash the new password
         $hashedPass = password_hash($newPasswordClearText, PASSWORD_DEFAULT);
@@ -737,7 +737,7 @@ class ForumDb extends PDO
         // Delete any already existing entry first
         $this->RemoveResetPasswordCode($user->GetId());
         // Create some randomness and insert as new entry
-        $bytes = random_bytes(64);
+        $bytes = random_bytes(YbForumConfig::CONFIRMATION_CODE_LENGTH);
         $confirmCode = mb_strtoupper(bin2hex($bytes), 'UTF-8');
         // insert it into the reset password table
         $insertQuery = 'INSERT INTO reset_password_table '
@@ -864,7 +864,7 @@ class ForumDb extends PDO
         $this->RemoveUpdateEmailCode($userId);
         
         // generate some random bytes to be used as confirmation code
-        $bytes = random_bytes(64);
+        $bytes = random_bytes(YbForumConfig::CONFIRMATION_CODE_LENGTH);
         $confirmCode = mb_strtoupper(bin2hex($bytes), 'UTF-8');
         
         // insert it into the update_email_table
