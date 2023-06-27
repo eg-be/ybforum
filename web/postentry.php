@@ -43,7 +43,8 @@ try
         try
         {
             $postEntryHandler = new PostEntryHandler();
-            $newPostId = $postEntryHandler->HandleRequest($db);
+            $postEntryHandler->HandleRequest($db);
+            $newPostId = $postEntryHandler->GetNewPostId();
             // posting succeeded
             session_destroy();
             header('Location: showentry.php?idpost=' . $newPostId);
