@@ -35,6 +35,8 @@ require_once __DIR__.'/../helpers/Logger.php';
  * but simply stored the parameter values for later use or set them to
  * null if the values are invalid: A form working with a handler can
  * re-read the values passed from the user and set them again.
+ * Implementing Handlers can store an eventually later required object internally
+ * and then provide a corresponding getter for clients.
  *
  * The BaseHandler will always read the client IP address as a parameter.
  * 
@@ -295,7 +297,7 @@ abstract class BaseHandler
      * @return mixed The return value of HandleRequestImpl()
      * @throws InvalidArgumentException
      */
-    public function HandleRequest(ForumDb $db)
+    public function HandleRequest(ForumDb $db) : void
     {
         try
         {
@@ -310,10 +312,8 @@ abstract class BaseHandler
             $this->ValidateParams();
             
             // And handle. remember an eventually occuring exception
-            // else return the result
-            $result = $this->HandleRequestImpl($db);
+            $this->HandleRequestImpl($db);
             $this->lastException = null;
-            return $result;
         } 
         catch (InvalidArgumentException $ex) 
         {
@@ -363,7 +363,7 @@ abstract class BaseHandler
      * Handle the request using the previously read and validated 
      * parameters.
      */
-    protected abstract function HandleRequestImpl(ForumDb $db);
+    protected abstract function HandleRequestImpl(ForumDb $db) : void;
     
     protected ?string $clientIpAddress;
     

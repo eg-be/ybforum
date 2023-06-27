@@ -65,6 +65,7 @@ class PostEntryHandler extends BaseHandler
         $this->linkUrl = null;
         $this->linkText = null;
         $this->imgUrl = null;
+        $this->newPostId = null;
     }
     
     protected function ReadParams() : void
@@ -148,8 +149,10 @@ class PostEntryHandler extends BaseHandler
     }
 
 
-    protected function HandleRequestImpl(ForumDb $db) : int
-    {        
+    protected function HandleRequestImpl(ForumDb $db) : void
+    {
+        // reset internal values
+        $this->newPostId = null;
         // Authenticate
         $logger = new Logger($db);
         // note: The AuthUser of the db will do loggin in case of failure
@@ -192,24 +195,20 @@ class PostEntryHandler extends BaseHandler
             $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user->GetId());
             throw new InvalidArgumentException(self::MSG_MIGRATION_REQUIRED, parent::MSGCODE_AUTH_FAIL);
         }
-        $newPostId = null;
         if($this->parentPostId === 0)
         {
-            $newPostId = $db->CreateThread($user, 
+            $this->newPostId = $db->CreateThread($user, 
                     $this->title, $this->content, $this->email, 
                     $this->linkUrl, $this->linkText, $this->imgUrl, 
                     $this->clientIpAddress);
         }
         else
         {
-            $newPostId = $db->CreateReplay($this->parentPostId, $user, 
+            $this->newPostId = $db->CreateReplay($this->parentPostId, $user, 
                     $this->title, $this->content, $this->email, 
                     $this->linkUrl, $this->linkText, $this->imgUrl, 
                     $this->clientIpAddress);
         }
-
-        return $newPostId;
-
     }
     
     public function GetTitle() : ?string
@@ -257,6 +256,11 @@ class PostEntryHandler extends BaseHandler
         return $this->parentPostId;
     }
     
+    public function GetNewPostId() : int
+    {
+        return $this->newPostId;
+    }
+    
     private ?int $parentPostId;
     private ?string $title;
     private ?string $nick;
@@ -266,4 +270,6 @@ class PostEntryHandler extends BaseHandler
     private ?string $linkUrl;
     private ?string $linkText;
     private ?string $imgUrl;
+
+    private ?int $newPostId;    ///< Set once HandleRequestImpl has executed successfully
 }

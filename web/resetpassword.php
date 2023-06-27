@@ -52,8 +52,8 @@ require_once __DIR__.'/pageparts/ResetPasswordForm.php';
             
             // let the handler validate the code
             $db = new ForumDb(false);
-            $user = $handler->HandleRequest($db);
-            
+            $handler->HandleRequest($db);
+
             // If this is a POST request, we might have data to update 
             // the password, else simply display the form
             // also display the form if changing the password failed, 
@@ -65,6 +65,7 @@ require_once __DIR__.'/pageparts/ResetPasswordForm.php';
                 // try to execute the change
                 try
                 {
+                    $user = $handler->GetUser();
                     $updatePasswordHandler = new UpdatePasswordHandler($user);
                     $updatePasswordHandler->HandleRequest($db);
                     // changing succeeded, show the success state

@@ -88,7 +88,7 @@ class MigrateUserHandler extends BaseHandler
         }
     }
     
-    protected function HandleRequestImpl(ForumDb $db) : string 
+    protected function HandleRequestImpl(ForumDb $db) : void 
     {
         // First: Check if there is a matching (real) user:
         $user = User::LoadUserByNick($db, $this->nick);
@@ -139,8 +139,6 @@ class MigrateUserHandler extends BaseHandler
         {
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
-        // and return the address we have sent the mail to:
-        return $this->newEmail;
     }
         
     public function GetNick() : ?string
