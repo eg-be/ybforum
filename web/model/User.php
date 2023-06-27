@@ -44,7 +44,7 @@ class User
                 . 'WHERE iduser = :iduser';
         $stmt = $db->prepare($query);
         $stmt->execute(array(':iduser' => $userId));
-        $user = $stmt->fetchObject('User');
+        $user = $stmt->fetchObject(User::class);
         if($user === false)
         {
             $user = null;

@@ -125,7 +125,7 @@ class SearchResult
         $stmt = $db->prepare($query);
         $stmt->execute($params);
         $results = array();
-        while($searchResult = $stmt->fetchObject('SearchResult'))
+        while($searchResult = $stmt->fetchObject(SearchResult::class))
         {
             array_push($results, $searchResult);
         }
