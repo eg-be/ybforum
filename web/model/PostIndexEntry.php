@@ -71,7 +71,7 @@ class PostIndexEntry
         $lastThreadId = 0;
         $inHiddenPath = false;
         $hiddenStartedAtIndent = 0;        
-        while($indexEntry = $stmt->fetchObject('PostIndexEntry'))
+        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
         {
             // whenever a new thread starts, notify the user about the 
             // previous entries.
@@ -138,7 +138,7 @@ class PostIndexEntry
         $ourPostId = $post->GetId();
         $inHiddenPath = false;
         $hiddenStartedAtIndent = 0;
-        while($indexEntry = $stmt->fetchObject('PostIndexEntry'))
+        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
         {
             // check if entry with indent + 1 are direct ancestors of our post:
             if($indexEntry->indent === $ourPostIndent + 1)
@@ -188,7 +188,7 @@ class PostIndexEntry
         $stmt = $db->prepare($query);
         $stmt->execute(array( ':maxEntries' => $maxEntries));
         $replies = array();
-        while($indexEntry = $stmt->fetchObject('PostIndexEntry'))
+        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
         {
             array_push($replies, $indexEntry);
         }
