@@ -81,7 +81,7 @@ class YbForumConfig
      * @var boolean If set, the Mailer will not try to send a mail,
      * but just log to syslog and stderr what would be sent as a mail.
      */
-    const MAIL_DEBUG = true;
+    const MAIL_DEBUG = false;
 
     /**
     * @var string Address to use as mail from address
@@ -121,6 +121,11 @@ class YbForumConfig
      * like 20min are trying to post..
      */
     const LOG_EXT_POST_DATA_ON_AUTH_FAILURE = true;
+
+    /**
+     * Number of random bytes to use for all confirmation codes generated
+     */
+    const CONFIRMATION_CODE_LENGTH = 32;
 
     /**
      * @var bool If true, a stand with ukraine logo is rendered
