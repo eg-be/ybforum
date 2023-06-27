@@ -51,7 +51,7 @@ class Post
                 . 'WHERE idpost = :idpost';
         $stmt = $db->prepare($query);
         $stmt->execute(array('idpost' => $idPost));
-        $post = $stmt->fetchObject('Post');
+        $post = $stmt->fetchObject(Post::class);
         if($post === false)
         {
             $post = null;
