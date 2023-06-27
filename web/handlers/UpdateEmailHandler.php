@@ -69,7 +69,7 @@ class UpdateEmailHandler extends BaseHandler
         }
     }
     
-    protected function HandleRequestImpl(ForumDb $db) : string
+    protected function HandleRequestImpl(ForumDb $db) : void
     {
         // Check that this email address is not already used within some other 
         // account
@@ -89,9 +89,6 @@ class UpdateEmailHandler extends BaseHandler
         {
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
-        
-        // and return the address we have sent the mail to:
-        return $this->newEmail;
     }
         
     public function GetNewEmail() : ?string

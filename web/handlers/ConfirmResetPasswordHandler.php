@@ -71,7 +71,7 @@ class ConfirmResetPasswordHandler extends BaseHandler implements ConfirmHandler
         $this->ValidateStringParam($this->code, self::MSG_CODE_UNKNOWN);
     }
     
-    protected function HandleRequestImpl(ForumDb $db) : User
+    protected function HandleRequestImpl(ForumDb $db) : void
     {
         // reset the internal values first
         $this->user = null;
@@ -90,8 +90,7 @@ class ConfirmResetPasswordHandler extends BaseHandler implements ConfirmHandler
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
         
-        // fine, return that user
-        return $this->user;   
+        // fine, internal member $this->user is set now
     }
     
     public function GetCode() : ?string
@@ -116,6 +115,15 @@ class ConfirmResetPasswordHandler extends BaseHandler implements ConfirmHandler
         return 'Passwort erfolgreich aktualisiert';
     }
     
+    /**
+     * Can be called if HandleRequestImpl succeeded, only
+     * in that case an internal user is set.
+     */
+    public function GetUser() : User 
+    {
+        return $this->user;
+    }
+
     private ?string $code;
     private ?User $user;
 }

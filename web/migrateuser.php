@@ -43,7 +43,7 @@ try
         try
         {
             $migrateUserHandler = new MigrateUserHandler();
-            $newPostId = $migrateUserHandler->HandleRequest($db);
+            $migrateUserHandler->HandleRequest($db);
             $migrationSucceeded = true;
            // migration succeeded, show some info
         }
