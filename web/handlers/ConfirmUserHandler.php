@@ -34,6 +34,12 @@ require_once __DIR__.'/../helpers/Logger.php';
  * all parameters have been verified (but will fail with the same
  * InvalidArgumentException if one of the parameters fails validation.).
  * 
+ * Note: Simulate used internally here is set if the request method
+ * is GET and means that the process is not * finished (confirm user, etc.). 
+ * Callers should display a button to  trigger a POST action with the
+ * same confirm-values again. This makes it a little bit harder for
+ * dumb bots.
+ * 
  * @author Elias Gerber 
  */
 class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
@@ -78,7 +84,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         $this->ValidateStringParam($this->code, self::MSG_CODE_UNKNOWN);
     }
     
-    protected function HandleRequestImpl(ForumDb $db) : string
+    protected function HandleRequestImpl(ForumDb $db) : void
     {
         // reset internal values first
         $this->user = null;
@@ -116,7 +122,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         if($this->simulate)
         {
             // okay, return in simulation mode now
-            return $this->confirmSource;
+            return;
         }
         $activate = ($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE);
         // And migrate that user:
@@ -140,9 +146,6 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
                 }
             }
         }
-
-        // return the type of confirmation executed
-        return $this->confirmSource;
     }
     
     public function GetCode() : ?string

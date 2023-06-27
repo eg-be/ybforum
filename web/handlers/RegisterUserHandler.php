@@ -98,7 +98,7 @@ class RegisterUserHandler extends BaseHandler
         }        
     }
 
-    protected function HandleRequestImpl(ForumDb $db) : string
+    protected function HandleRequestImpl(ForumDb $db) : void
     {
         $logger = new Logger($db);
         // Check that nick and email are unique
@@ -137,8 +137,6 @@ class RegisterUserHandler extends BaseHandler
             // And fail
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
-        // and return the address we have sent the mail to:
-        return $this->email;
     }
     
     public function GetNick() : ?string
