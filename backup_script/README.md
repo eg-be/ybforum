@@ -1,5 +1,5 @@
 # Backup
-This folder contains some helpers to create a backup of the database and restore it again.
+This folder contains some helpers and mostrly notes to create a backup of the database and restore it again.
 
 ## Create dump
 Note: The user needs to have sufficient privileges to dump stored procedures (EXECUTE), else the stored procedures will not be included in the dump.
@@ -54,4 +54,12 @@ To recreate the `FULLTEXT INDEX` on the `post_table` execute the following SQL:
 
 ```
 ALTER TABLE post_table ADD FULLTEXT INDEX fulltext_title_content (title, content);
+```
+
+# Export database structure and minimal required data
+To export only the database structure and the required entries from `log_type_table` execute the following:
+
+```
+mysqldump --no-data --routines --host=<server> --port=<port> -u <user> -p<password> dbybforum > dbybforum-no-data.dump.sql
+ mysqldump --no-create-info --host=<server> --port=<port> -u <user> -p<password> dbybforum log_type_table > log_type_table_data.dump.sql
 ```
