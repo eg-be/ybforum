@@ -87,3 +87,22 @@ mysql> SELECT * FROM user_table;
 1 row in set (0.00 sec)
 ```
 
+## FULLTEXT INDEX
+The table `post_table` has a FULLTEXT index to speed up searching. The following SQL can be used to drop and recreate that index:
+
+Drop: 
+```
+ALTER TABLE post_table DROP INDEX fulltext_title_content;
+```
+
+Create: 
+```
+ALTER TABLE post_table ADD FULLTEXT INDEX fulltext_title_content (title, content);
+``` 
+
+## Collation
+If, for whatever reason, the collations get mixed up, execute the following to update the collation of a column:
+
+```
+ALTER TABLE `post_table` CHANGE `title` `title` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL;
+```
