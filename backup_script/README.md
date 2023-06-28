@@ -31,7 +31,27 @@ If there is any output like ```CREATE DEFINER=`dbybforum_usr`@`%` PROCEDURE `ins
 sed -i.bak s/DEFINER=\`dbybforum_usr\`@\`%\`//g YYYYMMDD_dbybforum.dump.sql
 ```
 
-Checking again using `grep DEFINER YYYYMMDD_dbybforum.dump.sql` should report nothing now.
+Checking again should report nothing now.
 
 ### FULLTEXT KEY
 Restoring a dump that contains a `FULLTEXT INDEX`is extremly slow. Its much faster to delete the `FULLTEXT KEY`in the dump before restoring it, and then recreating the `FULLTEXT INDEX`on the database once the dump has been imported.
+
+Check for a `FULLTEXT KEY`:
+
+```
+cat YYYYMMDD_dbybforum.sql.dump | grep FULLTEXT
+```
+
+If there is any output like ```FULLTEXT KEY `fulltext_title_content` (`title`,`content`),``` the dump does contain such keys. Simply remove them using `sed`:
+
+```
+sed -i.bak '/FULLTEXT/d' dbybforum_2018-03-10.sql.dump
+```
+
+Checking again should report nothing now.
+
+To recreate the `FULLTEXT INDEX` on the `post_table` execute the following SQL:
+
+```
+ALTER TABLE post_table ADD FULLTEXT INDEX fulltext_title_content (title, content);
+```
