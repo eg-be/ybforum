@@ -1,5 +1,5 @@
-# Database
-All data is stored in a mysql database. This page describes the required step to setup a new, empty database and import the required initial data.
+# Create required database
+All data is stored in a mysql database. This section describes the required step to setup a new, empty database and import the required initial data.
 
 ## Prerequisites
 - A working installation of [MySQL](https://www.mysql.com).
@@ -86,6 +86,9 @@ mysql> SELECT * FROM user_table;
 +--------+-------+--------------------------------------------------------------+-----------+-------+--------+---------------------+--------------------+---------------------+------------+
 1 row in set (0.00 sec)
 ```
+
+# Hints
+Just some hints - nothing from here is required to setup the database.
 
 ## FULLTEXT INDEX
 The table `post_table` has a FULLTEXT index to speed up searching. The following SQL can be used to drop and recreate that index:
