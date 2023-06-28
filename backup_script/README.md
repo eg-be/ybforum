@@ -18,7 +18,8 @@ gunzip YYYYMMDD_dbybforum.dump.sql.gz
 mysql --host=<server> --port=<port> -u <user> -p<password> dbybforum < YYYYMMDD_dbybforum.dump.sql
 ```
 
-Restoring the dump may fail if it contains `DEFINER` clauses. Check for `DEFINER` statements:
+### DEFINER clause
+Restoring the dump may fail if it contains `DEFINER` clauses. Check for `DEFINER` clauses:
 
 ```
 grep DEFINER YYYYMMDD_dbybforum.dump.sql
@@ -31,3 +32,6 @@ sed -i.bak s/DEFINER=\`dbybforum_usr\`@\`%\`//g YYYYMMDD_dbybforum.dump.sql
 ```
 
 Checking again using `grep DEFINER YYYYMMDD_dbybforum.dump.sql` should report nothing now.
+
+### FULLTEXT KEY
+Restoring a dump that contains a `FULLTEXT INDEX`is extremly slow. Its much faster to delete the `FULLTEXT KEY`in the dump before restoring it, and then recreating the `FULLTEXT INDEX`on the database once the dump has been imported.
