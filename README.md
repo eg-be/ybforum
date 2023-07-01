@@ -16,7 +16,7 @@ This page provides some information on how to setup your own ybforum.
 
 Thats it, now point your browser to the URL serving the content of httpdoc. You should see the index-page with zero posts for now:
 
-![Empty index](doc/index.png)
+![Empty index](index.png)
 
 You are ready to post your first entry now.
 
