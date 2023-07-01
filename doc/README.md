@@ -41,6 +41,14 @@ Dummies do not have a email address nor a password. Turn users that have been bl
 UPDATE user_table SET email = NULL, old_passwd = NULL WHERE email LIKE '%sperre%'
 ```
 
+### Copy unused accounts into the unused_user_table and delete from user_table
+```
+INSERT into unused_user_table 
+SELECT iduser, nick, email, admin, active, registration_ts, registration_msg, old_passwd FROM ybforum.user_table where iduser not in (select iduser from post_table)
+DELETE FROM ybforum.user_table where iduser not in (select iduser from post_table)
+```
+(Why did we copy them to the unused_user_table? Can we remove that table? Its nowhere used, see #46)
+
 ### Resolve duplicates
 Find duplicates:
 ```
