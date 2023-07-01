@@ -1,6 +1,6 @@
 -- MySQL dump 10.15  Distrib 10.0.22-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: ***REMOVED***    Database: dbybforum
+-- Host: server09.hostfactory.ch    Database: dbybforum
 -- ------------------------------------------------------
 -- Server version	10.0.32-MariaDB-0+deb8u1
 
