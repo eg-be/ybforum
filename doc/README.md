@@ -11,7 +11,7 @@ Setup the new database as decsribed in [database](../database), but:
 - only one user is required (but with full access)
 - do not create the initial admin account
 
-Important: Check that the collation is set to `utf8mb4` (note: Probably only relevant for the new database??)
+Important: Check that the default collation is set to `utf8mb4` (note: Probably only relevant for the new database??)
 
 Restore the original database from a dump:
 ```
@@ -54,4 +54,21 @@ Find duplicates:
 ```
 SELECT * FROM user_table WHERE email LIKE '%duplicate%'
 ```
+
+Manually decide which account must be turned into a dummy.
+
+### Update collation of column nick
+The collation of the column `nick` must be set to `utf8mb4_german2_ci`:
+```
+ALTER TABLE `user_table` CHANGE `nick` `nick` VARCHAR(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL;
+```
+
+Updating the collation may fail if there are more duplicates that are found now (for example with `utf8mb4_german2_ci` the two nicknames `Globi` and `GLOBI` will be identified as equal, the same for nicknames with `ä` and `ae`, etc.).
+
+Mark one of the problematic accounts with a `_` at the end:
+```
+UPDATE user_table SET nick = 'Problem_' WHERE nick = 'Problem'
+```
+and re-run the update of the collation until it works. Then turn all accounts with `_` at the end into dummies.
+
 
