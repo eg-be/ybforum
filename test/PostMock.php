@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__.'/../web/model/Post.php';
+require_once __DIR__.'/../src/model/Post.php';
 
 /**
  * The real Post class is intentend to be constructed only

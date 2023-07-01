@@ -3,7 +3,7 @@ use PHPUnit\Framework\TestCase;
 
 require_once __DIR__.'/BaseTest.php';
 require_once __DIR__.'/UserMock.php';
-require_once __DIR__.'/../web/model/User.php';
+require_once __DIR__.'/../src/model/User.php';
 
 
 /**

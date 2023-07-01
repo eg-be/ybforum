@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__.'/../web/model/ForumDb.php';
+require_once __DIR__.'/../src/model/ForumDb.php';
 
 /**
  * Tests requiring a database can just derive from this class.

@@ -4,7 +4,7 @@ use PHPUnit\Framework\TestCase;
 require_once __DIR__.'/BaseTest.php';
 require_once __DIR__.'/PostMock.php';
 require_once __DIR__.'/UserMock.php';
-require_once __DIR__.'/../web/model/ForumDb.php';
+require_once __DIR__.'/../src/model/ForumDb.php';
 
 /**
  * Requires a valid database to connect to, as we
