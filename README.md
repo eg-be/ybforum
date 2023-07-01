@@ -2,7 +2,7 @@
 
 A forum with a user-interface stuck in the 90s, but with a modern implementation from the 21 century.
 
-This page provides some information on how to setup your own forum.
+This page provides some information on how to setup your own ybforum.
 
 ## Install
 1. Follow the instructions in [database](database) to setup the required database.
