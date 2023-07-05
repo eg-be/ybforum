@@ -1346,10 +1346,10 @@ class ForumDb extends PDO
      * that row is returned.
      * Else false is found.
      * @param string $email
-     * @return mixed false if no entry is found, else the value of the 
+     * @return bool|string false if no entry is found, else the value of the 
      * description field.
      */
-    public function IsEmailOnBlacklistExactly(string $email) : mixed
+    public function IsEmailOnBlacklistExactly(string $email) : bool|string
     {
         $query = 'SELECT description FROM blacklist_table '
                 . 'WHERE email = :email';
@@ -1369,10 +1369,10 @@ class ForumDb extends PDO
      * description field of that row is returned.
      * Else false is found.
      * @param string $email
-     * @return mixed false if no matching entry is found, else the value of the 
+     * @return bool|string false if no matching entry is found, else the value of the 
      * description field.
      */
-    public function IsEmailOnBlacklistRegex(string $email) : mixed
+    public function IsEmailOnBlacklistRegex(string $email) : bool|string
     {
         $query = 'SELECT email_regex, description FROM blacklist_table '
                 . 'WHERE email_regex IS NOT NULL';
