@@ -81,7 +81,7 @@ class YbForumConfig
      * @var boolean If set, the Mailer will not try to send a mail,
      * but just log to syslog and stderr what would be sent as a mail.
      */
-    const MAIL_DEBUG = true;
+    const MAIL_DEBUG = false;
 
     /**
     * @var string Address to use as mail from address
