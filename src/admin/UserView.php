@@ -166,8 +166,7 @@ class UserView {
             {
                 return '<div class="actionFailed">Es muss ein Grund angegeben werden</div>';
             }
-            $db->DeactivateUser($this->m_userId);
-            $db->SetDeactivationReason($this->m_userId, $reason, $adminUserId);
+            $db->DeactivateUser($this->m_userId, $reason, $adminUserId);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' deaktiviert</div>';
         }
         else 
