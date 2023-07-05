@@ -294,7 +294,6 @@ abstract class BaseHandler
      * If HandleRequestImpl() succeeds, the internal lastException member
      * is cleared.
      * @param ForumDb $db Database.
-     * @return mixed The return value of HandleRequestImpl()
      * @throws InvalidArgumentException
      */
     public function HandleRequest(ForumDb $db) : void
