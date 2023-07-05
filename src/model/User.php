@@ -308,14 +308,6 @@ class User
     }
     
     /**
-     * @return bool True if field confirmation_ts is set to null.
-     */
-    public function NeedsConfirmation() : bool
-    {
-        return is_null($this->confirmation_ts_dt);
-    }
-    
-    /**
      * Authenticates using the new password field and checks that the
      * user is active.
      * @param string $password

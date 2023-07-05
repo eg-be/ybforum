@@ -106,19 +106,16 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
         $this->confirmSource = $values['confirm_source'];
-        if(!($this->user->NeedsConfirmation() || $this->user->NeedsMigration()))
+        if($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER && $this->user->IsConfirmed())
         {
-            if($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER)
-            {
-                $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_ALREADY_CONFIRMED, $this->user->GetId());
-                throw new InvalidArgumentException(self::MSG_ALREADY_CONFIRMED, parent::MSGCODE_BAD_PARAM);
-            }
-            if($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE)
-            {
-                $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $this->user->GetId());
-                throw new InvalidArgumentException(self::MSG_ALREADY_MIGRATED, parent::MSGCODE_BAD_PARAM);
-            }        
+            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_ALREADY_CONFIRMED, $this->user->GetId());
+            throw new InvalidArgumentException(self::MSG_ALREADY_CONFIRMED, parent::MSGCODE_BAD_PARAM);
         }
+        if($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE && !$this->user->NeedsMigration())
+        {
+            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $this->user->GetId());
+            throw new InvalidArgumentException(self::MSG_ALREADY_MIGRATED, parent::MSGCODE_BAD_PARAM);
+        }        
         if($this->simulate)
         {
             // okay, return in simulation mode now
