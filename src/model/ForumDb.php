@@ -1295,6 +1295,22 @@ class ForumDb extends PDO
      */
     public function SetPostVisible(int $postId, bool $show = true) : void
     {
+        // The underlying implementation is recursive. Start an outer
+        // transaction from up there
+        $this->beginTransaction();
+        try
+        {
+            $this->SetPostVisibleImpl($postId, $show);
+            $this->commit();
+        }
+        catch(Exception $e) {
+            $this->rollBack();
+            throw $e;
+        }
+    }
+
+    private function SetPostVisibleImpl(int $postId, bool $show = true) : void
+    {
         $post = Post::LoadPost($this, $postId);
         if(!$post)
         {
@@ -1317,7 +1333,7 @@ class ForumDb extends PDO
             ':hidden' => ($show ? 0 : 1),
             ':idpost' => $postId
         ));
-        // And hide all children
+        // And recursively hide all children
         $childrenQuery = 'SELECT idpost FROM post_table '
                 . 'WHERE parent_idpost = :idpost';
         $childrenStmt = $this->prepare($childrenQuery);
@@ -1325,7 +1341,7 @@ class ForumDb extends PDO
         while($childRow = $childrenStmt->fetch())
         {
             $childPostId = $childRow['idpost'];
-            $this->SetPostVisible($childPostId, $show);
+            $this->SetPostVisibleImpl($childPostId, $show);
         }
         $logger = new Logger($this);
         $logger->LogMessage(($show ? Logger::LOG_POST_SHOW : Logger::LOG_POST_HIDDEN), 'PostId: ' . $postId);
