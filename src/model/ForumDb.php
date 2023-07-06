@@ -1001,19 +1001,28 @@ class ForumDb extends PDO
         {
             return;
         }
-        $query = 'UPDATE user_table SET active = 1 '
-                . 'WHERE iduser = :iduser';
-        $stmt = $this->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));
-        if($stmt->rowCount() !== 1)
-        {
-            throw new Exception('Not exactly one row was updated in table '
-                    . 'user_table matching iduser ' . $userId);
+        $this->beginTransaction();
+        try {
+            $query = 'UPDATE user_table SET active = 1 '
+                    . 'WHERE iduser = :iduser';
+            $stmt = $this->prepare($query);
+            $stmt->execute(array(':iduser' => $userId));
+            if($stmt->rowCount() !== 1)
+            {
+                throw new Exception('Not exactly one row was updated in table '
+                        . 'user_table matching iduser ' . $userId);
+            }
+            // remove entry from the deactivated reasons table
+            $this->ClearDeactivationReason($userId);
+            // log what happened
+            $logger = new Logger($this);
+            $logger->LogMessageWithUserId(Logger::LOG_USER_ACTIVED, $userId);  
+            $this->commit();
         }
-        $logger = new Logger($this);
-        $logger->LogMessageWithUserId(Logger::LOG_USER_ACTIVED, $userId);  
-        // remove entry from the deactivated reasons table
-        $this->ClearDeactivationReason($userId);
+        catch(Exception $e) {
+            $this->rollBack();
+            throw $e;
+        }        
     }
 
     /**
