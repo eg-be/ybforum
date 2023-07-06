@@ -18,5 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
-echo '<img style="max-width: 100%; height: auto;" src="logo.jpg?r=8" alt="YB Forum"/>';
+
+require_once __DIR__.'/YbForumConfig.php';
+
+echo '<img style="max-width: 100%; height: auto;" src="'
+        . YbForumConfig::LOGO_FILE
+        . '" alt="YB Forum"/>';
 ?>
