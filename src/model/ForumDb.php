@@ -1121,14 +1121,16 @@ class ForumDb extends PDO
     }    
 
     /**
-     * Makes a user an admin  if that user exists and has confirmed 
-     * the email address.
-     * If user is already admin, this method does nothing.
-     * @param int $userId
-     * @throws InvalidArgumentException If no user with passed $userId exists
+     * Sets or unsets the admin-flag on a user that exists 
+     * and has confirmed the email address.
+     * If the user-flag is already set to the passed value, 
+     * this method does nothing.
+     * @param int $userId User to modify
+     * @param bool $admin Enable the admin-flag or remove it
+     * @throws InvalidArgumentException If no user with passed $userId exists,
      * or if the user has no value in the field confirmed_ts
      */
-    public function SetAdmin(int $userId) : void
+    public function SetAdmin(int $userId, bool $admin) : void
     {
         // Get the user first
         $user = User::LoadUserById($this, $userId);
@@ -1143,53 +1145,27 @@ class ForumDb extends PDO
                     . 'to an admin who '
                     . 'has not confiremd his email address');
         }
-        if($user->IsAdmin())
+        if(($admin && $user->IsAdmin()) || (!$admin && !$user->IsAdmin()))
         {
-            return;
+            return; // nothing to do
         }
-        $query = 'UPDATE user_table SET admin = 1 '
+        $query = 'UPDATE user_table SET admin = :admin '
                 . 'WHERE iduser = :iduser';
         $stmt = $this->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));
+        $stmt->execute(array(
+            ':iduser' => $userId,
+            ':admin' => ($admin ? 1 : 0)
+        ));
         if($stmt->rowCount() !== 1)
         {
             throw new Exception('Not exactly one row was updated in table '
                     . 'user_table matching iduser ' . $userId);
         }
         $logger = new Logger($this);
-        $logger->LogMessageWithUserId(Logger::LOG_USER_ADMIN_SET, $userId);        
-    }
-    
-    /**
-     * Remove admin flag from a user if that user exists.
-     * If user is already not an admin, this method does nothing.
-     * @param int $userId
-     * @throws InvalidArgumentException If no user with passed $userId exists
-     */
-    public function RemoveAdmin(int $userId) : void
-    {
-        // Get the user first
-        $user = User::LoadUserById($this, $userId);
-        if(!$user)
-        {
-            throw new InvalidArgumentException('No user with id ' . $userId . 
-                    ' was found');
-        }
-        if(!$user->IsAdmin())
-        {
-            return;
-        }
-        $query = 'UPDATE user_table SET admin = 0 '
-                . 'WHERE iduser = :iduser';
-        $stmt = $this->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));
-        if($stmt->rowCount() !== 1)
-        {
-            throw new Exception('Not exactly one row was updated in table '
-                    . 'user_table matching iduser ' . $userId);
-        }
-        $logger = new Logger($this);
-        $logger->LogMessageWithUserId(Logger::LOG_USER_ADMIN_REMOVED, $userId);        
+        $logger->LogMessageWithUserId(
+            $admin ? Logger::LOG_USER_ADMIN_SET : Logger::LOG_USER_ADMIN_REMOVED,
+            $userId
+        );
     }
     
     /**

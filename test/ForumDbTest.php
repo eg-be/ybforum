@@ -1002,19 +1002,28 @@ final class ForumDbTest extends BaseTest
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
         $this->assertFalse($user101->IsAdmin());
-        $this->db->SetAdmin($user101->GetId());
+        $this->db->SetAdmin($user101->GetId(), true);
         // must reload, see #21
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertTrue($user101->IsAdmin());
 
         // promote an admin to an admin again, nothing changes
-        $admin = User::LoadUserById($this->db, 1);
-        $this->assertNotNull($admin);
-        $this->assertTrue($admin->IsAdmin());
-        $this->db->SetAdmin($admin->GetId());
+        $this->db->SetAdmin($user101->GetId(), true);
         // must reload, see #21
-        $admin = User::LoadUserById($this->db, 1);
-        $this->assertTrue($admin->IsAdmin());
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertTrue($user101->IsAdmin());
+
+        // and remove admin
+        $this->db->SetAdmin($user101->GetId(), false);
+        // must reload, see #21
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertFalse($user101->IsAdmin());
+
+        // remove admin again, nothing changes
+        $this->db->SetAdmin($user101->GetId(), false);
+        // must reload, see #21
+        $user101 = User::LoadUserById($this->db, 101);
+        $this->assertFalse($user101->IsAdmin());        
     }
 
     /**
@@ -1024,34 +1033,7 @@ final class ForumDbTest extends BaseTest
     public function testSetAdminFails(int $userId) : void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->db->SetAdmin($userId);
-    }    
-
-    public function testRemoveAdmin() : void
-    {
-        // rely on a test-database
-        self::createTestDatabase();
-        // unset admin from an admin
-        $admin = User::LoadUserById($this->db, 1);
-        $this->assertNotNull($admin);
-        $this->assertTrue($admin->IsAdmin());
-        $this->db->RemoveAdmin($admin->GetId());
-        // must reload, see #21
-        $admin = User::LoadUserById($this->db, 1);
-        $this->assertFalse($admin->IsAdmin());
-
-        // remove admin from one who is not admin, does nothing
-        $user101 = User::LoadUserById($this->db, 101);
-        $this->assertNotNull($user101);
-        $this->assertFalse($user101->IsAdmin());
-        $this->db->RemoveAdmin($user101->GetId());
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
-        $this->assertFalse($user101->IsAdmin());
-
-        // not-existing cant be deactivated
-        $this->expectException(InvalidArgumentException::class);
-        $this->db->RemoveAdmin(333);
+        $this->db->SetAdmin($userId, true);
     }
 
     public function testMakeDummy() : void
