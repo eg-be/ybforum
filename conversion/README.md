@@ -19,7 +19,7 @@ mysql -p -u ybforum old1898 < 1898admin.sql
 ```
 
 ## Run the Converter
-Configure the database connection parameters for the old and the new database in [ImportConfig.php](ImportConfig.php)
+Configure the database connection parameters for the old and the new database in [ImporterConfig.php](ImporterConfig.php)
 
 From inside the directory `conversion`, start the process:
 

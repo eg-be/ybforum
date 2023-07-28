@@ -16,4 +16,16 @@ Exim will refuse any mail targeting a remote-domain and respond with a failure n
 
 A proper solution would be to configure exim to redirect all outgoing mail to a specific user or a local file. But I dont remember how to..
 
-And really proper would be to use a mock-mailer during the tests, see #36.
+And really proper would be to use a mock-mailer during the tests, see [#36](../../../issues/36).
+
+And there is also the configuration option `MAIL_DEBUG`:
+
+```
+    /**
+     * @var boolean If set, the Mailer will not try to send a mail,
+     * but just log to syslog and stderr what would be sent as a mail.
+     */
+    const MAIL_DEBUG = false;
+```
+
+This is all a little bit messy. Address with [#36](../../../issues/36)

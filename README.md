@@ -1,6 +1,6 @@
-# ybforum
+# YB Forum 1898
 
-A forum with a user-interface stuck in the 90s, but with a modern implementation from the 21 century.
+A forum with a user-interface stuck in the 90s, but with an implementation from the 21 century.
 
 This page provides some information on how to setup your own ybforum.
 

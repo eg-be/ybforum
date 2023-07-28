@@ -123,7 +123,7 @@ class YbForumConfig
     const LOG_EXT_POST_DATA_ON_AUTH_FAILURE = true;
 
     /**
-     * Number of random bytes to use for all confirmation codes generated
+     * @var int Number of random bytes to use for all confirmation codes generated
      */
     const CONFIRMATION_CODE_LENGTH = 32;
 
@@ -131,4 +131,9 @@ class YbForumConfig
      * @var bool If true, a stand with ukraine logo is rendered
      */
     const STAND_WITH_UKR = true;
+
+    /**
+     * @var string Path to the logo to display on top. Relative to this file.
+     */
+    const LOGO_FILE = 'logo/yb_forum.jpg';
 }
