@@ -137,12 +137,12 @@ class UserView {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if($userActionValue === self::VALUE_SETADMIN && $this->m_userId)
         {
-            $db->SetAdmin($this->m_userId);
+            $db->SetAdmin($this->m_userId, true);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' ist jetzt Admin</div>';
         }
         else if($userActionValue === self::VALUE_REMOVEADMIN && $this->m_userId)
         {
-            $db->RemoveAdmin($this->m_userId);
+            $db->SetAdmin($this->m_userId, false);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' wurden Admin-Rechte entzogen</div>';
         }
         else
@@ -166,8 +166,7 @@ class UserView {
             {
                 return '<div class="actionFailed">Es muss ein Grund angegeben werden</div>';
             }
-            $db->DeactivateUser($this->m_userId);
-            $db->SetDeactivationReason($this->m_userId, $reason, $adminUserId);
+            $db->DeactivateUser($this->m_userId, $reason, $adminUserId);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' deaktiviert</div>';
         }
         else 

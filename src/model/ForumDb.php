@@ -1001,30 +1001,43 @@ class ForumDb extends PDO
         {
             return;
         }
-        $query = 'UPDATE user_table SET active = 1 '
-                . 'WHERE iduser = :iduser';
-        $stmt = $this->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));
-        if($stmt->rowCount() !== 1)
-        {
-            throw new Exception('Not exactly one row was updated in table '
-                    . 'user_table matching iduser ' . $userId);
+        $this->beginTransaction();
+        try {
+            $query = 'UPDATE user_table SET active = 1 '
+                    . 'WHERE iduser = :iduser';
+            $stmt = $this->prepare($query);
+            $stmt->execute(array(':iduser' => $userId));
+            if($stmt->rowCount() !== 1)
+            {
+                throw new Exception('Not exactly one row was updated in table '
+                        . 'user_table matching iduser ' . $userId);
+            }
+            // remove entry from the deactivated reasons table
+            $this->ClearDeactivationReason($userId);
+            // log what happened
+            $logger = new Logger($this);
+            $logger->LogMessageWithUserId(Logger::LOG_USER_ACTIVED, $userId);  
+            $this->commit();
         }
-        $logger = new Logger($this);
-        $logger->LogMessageWithUserId(Logger::LOG_USER_ACTIVED, $userId);  
-        // remove entry from the deactivated reasons table
-        $this->ClearDeactivationReason($userId);
+        catch(Exception $e) {
+            $this->rollBack();
+            throw $e;
+        }        
     }
 
     /**
      * Deactivate a user. If user is already deactivated, this method
      * does nothing.
-     * @param int $userId
-     * @throws InvalidArgumentException If no user with passed userid exists
+     * @param int $userId User to deactivate
+     * @param string $reason The reason why to deactivate
+     * @param int $deactivatedByUserId Must be an active admin 
+     * @throws InvalidArgumentException If no user with passed $userId exists
+     * or if $deactivatedByUserId is not an active admin
      */
-    public function DeactivateUser(int $userId) : void
+    public function DeactivateUser(int $userId, string $reason,
+            int $deactivatedByUserId) : void
     {
-        // Get the user first
+        // Get the user to deactivate first
         $user = User::LoadUserById($this, $userId);
         if(!$user)
         {
@@ -1034,20 +1047,37 @@ class ForumDb extends PDO
         if(!$user->IsActive())
         {
             return;
-        }        
-        // Deactivate the user
-        $query = 'UPDATE user_table SET active = 0 '
-                . 'WHERE iduser = :iduser';
-        $stmt = $this->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));
-        if($stmt->rowCount() !== 1)
-        {
-            throw new Exception('Not exactly one row was updated in table '
-                    . 'user_table matching iduser ' . $userId);
         }
-        // There was a modification, create the corresponding log entry
-        $logger = new Logger($this);
-        $logger->LogMessageWithUserId(Logger::LOG_USER_DEACTIVATED, $userId);
+        // Check that the user who is trying to deactivate, is an admin:
+        $adminUser = User::LoadUserById($this, $deactivatedByUserId);
+        if(!$adminUser || !($adminUser->IsAdmin() && $adminUser->IsActive())) {
+            throw new InvalidArgumentException('Only active admins can deactivate');
+        }
+        $this->beginTransaction();
+        try 
+        {
+            // Deactivate the user
+            $query = 'UPDATE user_table SET active = 0 '
+                    . 'WHERE iduser = :iduser';
+            $stmt = $this->prepare($query);
+            $stmt->execute(array(':iduser' => $userId));
+            if($stmt->rowCount() !== 1)
+            {
+                throw new Exception('Not exactly one row was updated in table '
+                        . 'user_table matching iduser ' . $userId);
+            }
+            // And create the corresponding entry in deactivated_reason_table
+            $this->SetDeactivationReason($userId, $reason, $deactivatedByUserId);
+            // There was a modification, create the corresponding log entry
+            $logger = new Logger($this);
+            $logger->LogMessageWithUserId(Logger::LOG_USER_DEACTIVATED, $userId, 
+                'Reason: ' . $reason);
+            $this->commit();
+        }
+        catch(Exception $e) {
+            $this->rollBack();
+            throw $e;
+        }
     }
     
     /**
@@ -1059,7 +1089,7 @@ class ForumDb extends PDO
      * @param int $deactivatedByUserId Value for the field 
      * deactivated_by_iduser
      */
-    public function SetDeactivationReason(int $userId, string $reason,
+    private function SetDeactivationReason(int $userId, string $reason,
             int $deactivatedByUserId) : void
     {
         // delete any existing entry in the reasons-table
@@ -1100,14 +1130,16 @@ class ForumDb extends PDO
     }    
 
     /**
-     * Makes a user an admin  if that user exists and has confirmed 
-     * the email address.
-     * If user is already admin, this method does nothing.
-     * @param int $userId
-     * @throws InvalidArgumentException If no user with passed $userId exists
+     * Sets or unsets the admin-flag on a user that exists 
+     * and has confirmed the email address.
+     * If the user-flag is already set to the passed value, 
+     * this method does nothing.
+     * @param int $userId User to modify
+     * @param bool $admin Enable the admin-flag or remove it
+     * @throws InvalidArgumentException If no user with passed $userId exists,
      * or if the user has no value in the field confirmed_ts
      */
-    public function SetAdmin(int $userId) : void
+    public function SetAdmin(int $userId, bool $admin) : void
     {
         // Get the user first
         $user = User::LoadUserById($this, $userId);
@@ -1118,57 +1150,31 @@ class ForumDb extends PDO
         }
         if(!$user->IsConfirmed())
         {
-            throw new InvalidArgumentException('Cannot propage a user '
+            throw new InvalidArgumentException('Cannot propagate a user '
                     . 'to an admin who '
                     . 'has not confiremd his email address');
         }
-        if($user->IsAdmin())
+        if(($admin && $user->IsAdmin()) || (!$admin && !$user->IsAdmin()))
         {
-            return;
+            return; // nothing to do
         }
-        $query = 'UPDATE user_table SET admin = 1 '
+        $query = 'UPDATE user_table SET admin = :admin '
                 . 'WHERE iduser = :iduser';
         $stmt = $this->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));
+        $stmt->execute(array(
+            ':iduser' => $userId,
+            ':admin' => ($admin ? 1 : 0)
+        ));
         if($stmt->rowCount() !== 1)
         {
             throw new Exception('Not exactly one row was updated in table '
                     . 'user_table matching iduser ' . $userId);
         }
         $logger = new Logger($this);
-        $logger->LogMessageWithUserId(Logger::LOG_USER_ADMIN_SET, $userId);        
-    }
-    
-    /**
-     * Remove admin flag from a user if that user exists.
-     * If user is already not an admin, this method does nothing.
-     * @param int $userId
-     * @throws InvalidArgumentException If no user with passed $userId exists
-     */
-    public function RemoveAdmin(int $userId) : void
-    {
-        // Get the user first
-        $user = User::LoadUserById($this, $userId);
-        if(!$user)
-        {
-            throw new InvalidArgumentException('No user with id ' . $userId . 
-                    ' was found');
-        }
-        if(!$user->IsAdmin())
-        {
-            return;
-        }
-        $query = 'UPDATE user_table SET admin = 0 '
-                . 'WHERE iduser = :iduser';
-        $stmt = $this->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));
-        if($stmt->rowCount() !== 1)
-        {
-            throw new Exception('Not exactly one row was updated in table '
-                    . 'user_table matching iduser ' . $userId);
-        }
-        $logger = new Logger($this);
-        $logger->LogMessageWithUserId(Logger::LOG_USER_ADMIN_REMOVED, $userId);        
+        $logger->LogMessageWithUserId(
+            $admin ? Logger::LOG_USER_ADMIN_SET : Logger::LOG_USER_ADMIN_REMOVED,
+            $userId
+        );
     }
     
     /**
@@ -1289,6 +1295,22 @@ class ForumDb extends PDO
      */
     public function SetPostVisible(int $postId, bool $show = true) : void
     {
+        // The underlying implementation is recursive. Start an outer
+        // transaction from up there
+        $this->beginTransaction();
+        try
+        {
+            $this->SetPostVisibleImpl($postId, $show);
+            $this->commit();
+        }
+        catch(Exception $e) {
+            $this->rollBack();
+            throw $e;
+        }
+    }
+
+    private function SetPostVisibleImpl(int $postId, bool $show = true) : void
+    {
         $post = Post::LoadPost($this, $postId);
         if(!$post)
         {
@@ -1311,7 +1333,7 @@ class ForumDb extends PDO
             ':hidden' => ($show ? 0 : 1),
             ':idpost' => $postId
         ));
-        // And hide all children
+        // And recursively hide all children
         $childrenQuery = 'SELECT idpost FROM post_table '
                 . 'WHERE parent_idpost = :idpost';
         $childrenStmt = $this->prepare($childrenQuery);
@@ -1319,7 +1341,7 @@ class ForumDb extends PDO
         while($childRow = $childrenStmt->fetch())
         {
             $childPostId = $childRow['idpost'];
-            $this->SetPostVisible($childPostId, $show);
+            $this->SetPostVisibleImpl($childPostId, $show);
         }
         $logger = new Logger($this);
         $logger->LogMessage(($show ? Logger::LOG_POST_SHOW : Logger::LOG_POST_HIDDEN), 'PostId: ' . $postId);
@@ -1346,10 +1368,10 @@ class ForumDb extends PDO
      * that row is returned.
      * Else false is found.
      * @param string $email
-     * @return mixed false if no entry is found, else the value of the 
+     * @return bool|string false if no entry is found, else the value of the 
      * description field.
      */
-    public function IsEmailOnBlacklistExactly(string $email) : mixed
+    public function IsEmailOnBlacklistExactly(string $email) : bool|string
     {
         $query = 'SELECT description FROM blacklist_table '
                 . 'WHERE email = :email';
@@ -1369,10 +1391,10 @@ class ForumDb extends PDO
      * description field of that row is returned.
      * Else false is found.
      * @param string $email
-     * @return mixed false if no matching entry is found, else the value of the 
+     * @return bool|string false if no matching entry is found, else the value of the 
      * description field.
      */
-    public function IsEmailOnBlacklistRegex(string $email) : mixed
+    public function IsEmailOnBlacklistRegex(string $email) : bool|string
     {
         $query = 'SELECT email_regex, description FROM blacklist_table '
                 . 'WHERE email_regex IS NOT NULL';

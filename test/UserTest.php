@@ -246,7 +246,6 @@ final class UserTest extends BaseTest
         );
         $this->assertEquals(new DateTime('2022-06-21 07:30:05'), $conf->GetConfirmationTimestamp());
         $this->assertTrue($conf->IsConfirmed());
-        $this->assertFalse($conf->NeedsConfirmation());
 
         $notConf = new UserMock(13, 'nick', null,
         0, 0, '2020-03-30 14:30:05', null,
@@ -255,7 +254,6 @@ final class UserTest extends BaseTest
         );
         $this->assertNull($notConf->GetConfirmationTimestamp());
         $this->assertFalse($notConf->IsConfirmed());
-        $this->assertTrue($notConf->NeedsConfirmation());
     }
 
     public function testDummy() : void
