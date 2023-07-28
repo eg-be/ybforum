@@ -81,7 +81,7 @@ class CaptchaVerifier {
                     http_build_query(array(
                         self::VERIFY_PARAM_NAME_RESPONSE => $this->m_captchaResponse,
                         self::VERIFY_PARAM_NAME_SECRET => $this->m_captchaSecret,
-                        self::VERIFY_PARAM_NAME_REMOTEIP => $this->m_clientIp)));
+                        self::VERIFY_PARAM_NAME_REMOTEIP => $this->m_m_clientIp)));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $serverResponse = curl_exec ($ch);
         curl_close ($ch);
@@ -109,6 +109,6 @@ class CaptchaVerifier {
     }
     
     private ?string $m_captchaResponse;
-    private string $m_clientIp;
+    private string $m_m_clientIp;
     private string $m_captchaSecret;
 }
