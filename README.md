@@ -4,6 +4,10 @@ A forum with a user-interface stuck in the 90s, but with an implementation from 
 
 This page provides some information on how to setup your own ybforum.
 
+## Requirements
+- PHP 8.1
+- MariaDB or MySQL
+
 ## Install
 1. Follow the instructions in [database](database) to setup the required database.
 2. Copy the content of [src](src) to the httpdoc-folder of your webserver.
