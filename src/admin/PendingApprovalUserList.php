@@ -102,7 +102,7 @@ class PendingApprovalUserList
             $htmlTable.= '<td>' . htmlspecialchars($row['email']) . '</td>';
             $htmlTable.= '<td>' . $registrationDate->format('d.m.Y H:i:s') . '</td>';
             $htmlTable.= '<td>' . $confirmationDate->format('d.m.Y H:i:s') . '</td>';
-            $htmlTable.= '<td>' . htmlspecialchars($row['registration_msg']) . '</td>';
+            $htmlTable.= '<td>' . (is_null($row['registration_msg']) ? '' : htmlspecialchars($row['registration_msg'])) . '</td>';
             $htmlTable.= '<td>';
             $htmlTable.= '<form method="post" action="" accept-charset="utf-8">'
                     . '<input type="submit" value="Freischalten"/>'
