@@ -28,8 +28,8 @@ final class DbConfig
     const RW_USERNAME = 'dbybforum_rw';
     const RW_PASSWORD = 'rw-password';
 	
-	const RO_USERNAME = 'dbybforum_ro';
-	const RO_PASSWORD = 'ro-password';
+    const RO_USERNAME = 'dbybforum_ro';
+    const RO_PASSWORD = 'ro-password';
 	
     const DEFAULT_DB = 'dbybforum';
     const CHARSET = 'utf8mb4';
