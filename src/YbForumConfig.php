@@ -19,7 +19,7 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-class YbForumConfig
+final class YbForumConfig
 {
     /**
      * @var int Maximum number of threads displayed on the index page
