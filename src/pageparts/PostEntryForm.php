@@ -207,7 +207,7 @@ class PostEntryForm
         }
         $htmlString = '<textarea name="' . PostEntryHandler::PARAM_CONTENT . '" '
             . 'id="post_content" cols="85" rows="10">'
-            . htmlspecialchars($content) . '</textarea>';
+            . (is_null($content) ? '' : htmlspecialchars($content)) . '</textarea>';
         return $htmlString;
     }
     

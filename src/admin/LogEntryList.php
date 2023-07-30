@@ -97,7 +97,14 @@ class LogEntryList {
             {
                 $htmlTable.= '<td></td>';
             }
-            $htmlTable.= '<td>' . htmlspecialchars($row['message']) . '</td>';
+            if($row['message'])
+            {
+                $htmlTable.= '<td>' . htmlspecialchars($row['message']) . '</td>';
+            }
+            else
+            {
+                $htmlTable.= '<td></td>';
+            }
             $htmlTable.= '<td>' . $row['ip_address'] . '</td>';
             $htmlTable.= '<td>' . htmlspecialchars($row['request_uri']) . '</td>';
             $htmlTable.= '</tr>';
