@@ -44,15 +44,15 @@ require_once __DIR__.'/../helpers/Logger.php';
  */
 abstract class BaseHandler 
 {
-    const MSG_INVALID_CLIENT_IPADDRESS = 'Invalid REMOTE_ADDR';
-    const MSG_EMAIL_INVALID = 'Ungültige Mailadresse.';
-    const MSG_HTTPURL_INVALID = 'Ungültige (http(s)) URL.';
-    const MSG_EMAIL_BLACKLISTED = 'Mailadresse ist nicht zugelassen: ';
+    final const MSG_INVALID_CLIENT_IPADDRESS = 'Invalid REMOTE_ADDR';
+    final const MSG_EMAIL_INVALID = 'Ungültige Mailadresse.';
+    final const MSG_HTTPURL_INVALID = 'Ungültige (http(s)) URL.';
+    final const MSG_EMAIL_BLACKLISTED = 'Mailadresse ist nicht zugelassen: ';
     
-    const MSG_GENERIC_INVALID = 'Invalid or missing parameter value';
-    const MSGCODE_BAD_PARAM = 400;
-    const MSGCODE_AUTH_FAIL = 401;
-    const MSGCODE_INTERNAL_ERROR = 500;
+    final const MSG_GENERIC_INVALID = 'Invalid or missing parameter value';
+    final const MSGCODE_BAD_PARAM = 400;
+    final const MSGCODE_AUTH_FAIL = 401;
+    final const MSGCODE_INTERNAL_ERROR = 500;
     
     /**
      * Create a new instance, sets clientIpAddress and lastException to null.

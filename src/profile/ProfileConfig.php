@@ -28,7 +28,7 @@ namespace profile;
  *
  * @author Elias Gerber
  */
-class ProfileConfig 
+final class ProfileConfig 
 {
     /**
      * @var int Set to 1 to enable timing profiling.

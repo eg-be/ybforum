@@ -37,30 +37,30 @@ interface ConfirmHandler
     /**
      * @var string Parameter name for confirmation type.
      */
-    const PARAM_TYPE = 'type';
+    final const PARAM_TYPE = 'type';
     
     /**
      * @var string Parameter name for confirmation code.
      */
-    const PARAM_CODE = 'code';
+    final const PARAM_CODE = 'code';
     
     /**
      * @var string Parameter value for the confirm type of confirming
      * a user (migration / registration)
      */
-    const VALUE_TYPE_CONFIRM_USER = 'confirmuser';
+    final const VALUE_TYPE_CONFIRM_USER = 'confirmuser';
     
     /**
      * @var string Parameter value for the confirm type of confirming a
      * new email address for a user.
      */
-    const VALUE_TYPE_UPDATEEMAIL = 'updateemail';    
+    final const VALUE_TYPE_UPDATEEMAIL = 'updateemail';    
     
     /**
      * @var string Parameter value for the confirmation link to reset a 
      * password.
      */    
-    const VALUE_TYPE_RESETPASS = 'resetpass';
+    final const VALUE_TYPE_RESETPASS = 'resetpass';
     
     /**
      * @return string Get the confirmation code.

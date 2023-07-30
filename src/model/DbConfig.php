@@ -22,7 +22,7 @@
 /**
  * The configuration to connect to the database.
  */
-class DbConfig 
+final class DbConfig 
 {
     const SERVERNAME = 'localhost';
     const RW_USERNAME = 'dbybforum_rw';
