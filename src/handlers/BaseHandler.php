@@ -255,7 +255,11 @@ abstract class BaseHandler
     protected function ReadStringParam(string $paramName) : ?string
     {
         assert(!empty($paramName));
-        $value = trim(filter_input(INPUT_POST, $paramName, FILTER_UNSAFE_RAW));
+        $value = filter_input(INPUT_POST, $paramName, FILTER_UNSAFE_RAW);
+        if(!is_null($value))
+        {
+            $value = trim($value);
+        }
         if(!$value)
         {
             return null;
