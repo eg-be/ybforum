@@ -433,6 +433,20 @@ final class ForumDbTest extends BaseTest
     /**
      * @dataProvider providerRequestConfirmUserCode
      * @test
+     * note: This tests will only work if MariaDB and PHP both have
+     * the the same Timezone set. To check the timezone with php:
+     *  php -a
+     *  php > echo date_default_timezone_get();
+     *  Europe/Zurich
+     * MariaDB will probably just use the SYSTEM timezone:
+     *  MariaDB [(none)]> SHOW GLOBAL VARIABLES LIKE 'time_zone';
+     *  +---------------+--------+
+     *  | Variable_name | Value  |
+     *  +---------------+--------+
+     *  | time_zone     | SYSTEM |
+     *  +---------------+--------+
+     *  1 row in set (0.000 sec)
+     * so, just check /etc/timezone
      */       
     public function testRequestConfirmUserCodeCreateEntries(int $userId, 
         string $newPass, string $newMail, string $confSource, 
