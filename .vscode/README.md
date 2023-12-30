@@ -123,4 +123,36 @@ From the Test-Explorer, run the test (it should fail).
 2. From "Run and Debug", start the debugger ("Listen for Xdebug").
 3. Run the test again (from the test-explorer). Breakpoint should be hit. -> OK
 
-   
+## MariaDB
+### Required Debian packages
+```
+sudo apt-get install mariadb-server
+sudo apt-get install php-pdo php-mysql
+```
+### Start service
+```
+sudo service mariadb start
+```
+### Test Connection
+```
+sudo mariadb
+```
+### Setup database for the tests
+```
+MariaDB [(none)]> CREATE DATABASE IF NOT EXISTS dbybforum CHARACTER SET utf8mb4;
+Query OK, 1 row affected (0.000 sec)
+
+MariaDB [(none)]> CREATE USER 'dbybforum_ro'@'localhost' IDENTIFIED BY 'ro-password';
+Query OK, 0 rows affected (0.004 sec)
+
+MariaDB [(none)]> GRANT SELECT,SHOW VIEW ON dbybforum.* TO 'dbybforum_ro'@'localhost';
+Query OK, 0 rows affected (0.003 sec)
+
+MariaDB [(none)]> CREATE USER 'dbybforum_rw'@'localhost' IDENTIFIED BY 'rw-password';
+Query OK, 0 rows affected (0.003 sec)
+
+MariaDB [(none)]> GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER ON dbybforum.* TO 'dbybforum_rw'@'localhost';
+Query OK, 0 rows affected (0.001 sec)
+```
+### Run some tests from within TestExplorer
+If running the tests work, everything is fine.
