@@ -156,3 +156,34 @@ Query OK, 0 rows affected (0.001 sec)
 ```
 ### Run some tests from within TestExplorer
 If running the tests work, everything is fine.
+
+## Apache Setup
+To manually test things from a Browser, while the debugger will break into vscode.
+
+### Required Debian packages
+```
+sudo apt-get install apache2 libapache2-mod-php
+
+```
+### Test Apache is working
+```
+sudo service apache2 start
+```
+Browse to http://localhost where the apache2 default page must appear.
+
+#### Configure Apache
+Edit `/etc/apache2/sites-available/000-default.conf` and add a section like the following:
+```
+        Alias /ybforum "/home/eg/dev/ybforum/src"
+        <Directory /home/eg/dev/ybforum/src>
+                Options FollowSymLinks
+                Options Indexes
+                AllowOverride None
+                Require all granted
+        </Directory>
+```
+The whole path needs `+x` permission, else apache fails with an error similar to `Permission denied: [client ::1:42068] AH00035: access to /dev/ denied (filesystem path '/home/eg/dev') because search permissions are missing on a component of the path`. Therefore give your home-directory `+x`: `chmod +x /home/eg`
+
+Restart apache: `sudo service apache2 restart` and browse to http://localhost/ybforum -> you should see the forum with the data from the unit-tests (note: if everything is empty, run the unit-tests).
+
+Note: Make sure that mariadb is running, or you will get an error like `[php:notice] [pid 5204] [client ::1:34030] /home/eg/dev/ybforum/src/model/ForumDb.php(68): SQLSTATE[HY000] [2002] No such file or directory` in the apache2 error-log.
