@@ -171,7 +171,7 @@ sudo service apache2 start
 ```
 Browse to http://localhost where the apache2 default page must appear.
 
-#### Configure Apache
+### Configure Apache
 Edit `/etc/apache2/sites-available/000-default.conf` and add a section like the following:
 ```
         Alias /ybforum "/home/eg/dev/ybforum/src"
@@ -185,5 +185,8 @@ Edit `/etc/apache2/sites-available/000-default.conf` and add a section like the 
 The whole path needs `+x` permission, else apache fails with an error similar to `Permission denied: [client ::1:42068] AH00035: access to /dev/ denied (filesystem path '/home/eg/dev') because search permissions are missing on a component of the path`. Therefore give your home-directory `+x`: `chmod +x /home/eg`
 
 Restart apache: `sudo service apache2 restart` and browse to http://localhost/ybforum -> you should see the forum with the data from the unit-tests (note: if everything is empty, run the unit-tests).
+
+### Test a breakpoint
+If vscode, start debugging with `Listen for Xdebug`. Set a breakpoint somewhere, for example in the constructor of class `ForumDb`. Browse to http://localhost/ybforum and the breakpoint must be hit.
 
 Note: Make sure that mariadb is running, or you will get an error like `[php:notice] [pid 5204] [client ::1:34030] /home/eg/dev/ybforum/src/model/ForumDb.php(68): SQLSTATE[HY000] [2002] No such file or directory` in the apache2 error-log.
