@@ -20,8 +20,8 @@ xdebug.mode=debug
 xdebug.start_with_request=yes
 ``` 
 
-### Visual Studio Code packages
-- PHP Debug
+### Visual Studio Code Extensions:
+- PHP Debug (Debug support for PHP with Xdebug): https://marketplace.visualstudio.com/items?itemName=xdebug.php-debug 
 
 #### Test PHP Debug
 Create file `dummy.php` and debug it:
