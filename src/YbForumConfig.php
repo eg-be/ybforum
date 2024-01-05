@@ -98,16 +98,6 @@ final class YbForumConfig
     * be sent using BCC to this address
     */
     const MAIL_ALL_BCC = 'mail-monitor@1898.ch';
- 
-    /**
-     * @var bool Use captcha verification while registering new users.
-     */
-    const CAPTCHA_VERIFY = false;
-    
-    /**
-     * @var string Captcha secret code
-     */
-    const CAPTCHA_SECRET = '6Lc3HksUAAAAAPRM08dQUlqZaekbxr47GMzW4m1Y';
     
     /**
      * @var bool If true, post content is logged as extended log if

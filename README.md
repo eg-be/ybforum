@@ -16,7 +16,10 @@ This page provides some information on how to setup your own ybforum.
    - `BASE_URL`
    - `MAIL_FROM`
    - `MAIL_ALL_BCC`
-   - `CAPTCHA_VERIFY` and / or `CAPTCHA_SECRET`
+5. Adjust the values for the google captcha-verify in file [src/helpers/CaptchaV3Config.php], if you enable captcha.
+   - `CAPTCHA_VERIFY`
+   - `CAPTCHA_SITE_KEY`
+   - `CAPTCHA_SECRET`
 
 Thats it, now point your browser to the URL serving the content of httpdoc. You should see the index-page with zero posts for now:
 

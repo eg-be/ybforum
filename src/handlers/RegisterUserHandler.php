@@ -23,7 +23,8 @@ require_once __DIR__.'/BaseHandler.php';
 require_once __DIR__.'/../model/ForumDb.php';
 require_once __DIR__.'/../helpers/Mailer.php';
 require_once __DIR__.'/../helpers/Logger.php';
-require_once __DIR__.'/../helpers/CaptchaVerifier.php';
+require_once __DIR__.'/../helpers/CaptchaV3Verifier.php';
+require_once __DIR__.'/../helpers/CaptchaV3Config.php';
 require_once __DIR__.'/../YbForumConfig.php';
 
 /**
@@ -71,9 +72,9 @@ class RegisterUserHandler extends BaseHandler
         $this->confirmpassword = $this->ReadStringParam(self::PARAM_CONFIRMPASS);
         $this->regMsg = $this->ReadStringParam(self::PARAM_REGMSG);        
         
-        if(YbForumConfig::CAPTCHA_VERIFY)
+        if(CaptchaV3Config::CAPTCHA_VERIFY)
         {
-            $this->m_captchaVerifier = new CaptchaVerifier(YbForumConfig::CAPTCHA_SECRET);
+            $this->m_captchaVerifier = new CaptchaV3Verifier(CaptchaV3Config::CAPTCHA_SECRET);
         }
     }
     
@@ -92,7 +93,7 @@ class RegisterUserHandler extends BaseHandler
         }
 
         // Verify captcha
-        if(YbForumConfig::CAPTCHA_VERIFY)
+        if(CaptchaV3Config::CAPTCHA_VERIFY)
         {
             $this->m_captchaVerifier->VerifyResponse();
         }        
@@ -159,5 +160,5 @@ class RegisterUserHandler extends BaseHandler
     private ?string $confirmpassword;
     private ?string $email;
     private ?string $regMsg;
-    private ?CaptchaVerifier $m_captchaVerifier;
+    private ?CaptchaV3Verifier $m_captchaVerifier;
 }

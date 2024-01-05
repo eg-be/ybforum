@@ -30,7 +30,7 @@ require_once __DIR__.'/Logger.php';
  * if the read response is verified.
  * @author eli
  */
-class CaptchaVerifier {
+class CaptchaV3Verifier {
     
     const PARAM_CAPTCHA = 'g-recaptcha-response';    
     
@@ -95,9 +95,9 @@ class CaptchaVerifier {
         {
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
         }
+        $logger = new Logger();
         if(!$decodedResp['success'])
         {
-            $logger = new Logger();
             $errcodes = '';
             if(is_array($decodedResp['error-codes']))
             {
@@ -105,6 +105,15 @@ class CaptchaVerifier {
             }
             $logger->LogMessage(Logger::LOG_CAPTCHA_TOKEN_INVALID, $errcodes);
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
+        }
+        if($decodedResp['score'] < CaptchaV3Config::MIN_REQUIRED_SCORE)
+        {
+            $logger->LogMessage(Logger::LOG_CAPTCHA_SCORE_TOO_LOW, $decodedResp['score']);
+            throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
+        }
+        else
+        {
+            $logger->LogMessage(Logger::LOG_CAPTCHA_SCORE_PASSED, $decodedResp['score']);
         }
     }
     
