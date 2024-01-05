@@ -89,8 +89,8 @@ Create a `launch.json` using the provided link, it will look similar to the foll
 sudo apt-get install phpunit
 ```
 
-### Visual Studio Code packages
-- PHP Unit Test Explorer
+### Visual Studio Code Extensions
+- PHP Unit Test Explorer (PHPUnit Test Explorer for VSCode): https://marketplace.visualstudio.com/items?itemName=recca0120.vscode-phpunit
 
 #### Configure PHP Unit Test Explorer
 Create file `.vscode/settings.json` and define the path to phpunit:
