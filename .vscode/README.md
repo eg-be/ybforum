@@ -5,6 +5,12 @@ First install Xdebug and the php extensions for vscode, test that debugging basi
 Then go on with phpunit.
 And finally setup the db to debug ybforum.
 
+## php-curl
+Note: php-curl is required for re-captcha to work. Install it using
+```
+sudo apt-get install php-curl
+```
+
 ## Xdebug
 ### Required Debian packages
 ```
