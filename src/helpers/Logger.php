@@ -97,7 +97,9 @@ class Logger
     
     // captcha
     const LOG_CAPTCHA_TOKEN_INVALID = 'CaptchaTokenInvalid';
-    
+    const LOG_CAPTCHA_SCORE_PASSED = 'CaptchaScorePassed';
+    const LOG_CAPTCHA_SCORE_TOO_LOW = 'CaptchaScoreTooLow';
+
     // Blacklist
     const LOG_BLACKLIST_EMAIL_ADDED = 'BlacklistEmailAdded';
     

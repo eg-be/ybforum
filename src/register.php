@@ -24,6 +24,7 @@ require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 require_once __DIR__.'/handlers/RegisterUserHandler.php';
 require_once __DIR__.'/YbForumConfig.php';
+require_once __DIR__.'/helpers/CaptchaV3Config.php';
 
 try
 {
@@ -61,7 +62,17 @@ catch(Exception $ex)
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="theme-color" content="#FFCC00">
-        <script src='https://www.google.com/recaptcha/api.js'></script>        
+        <?php
+        if(CaptchaV3Config::CAPTCHA_VERIFY)
+        {
+            echo '<script src=\'https://www.google.com/recaptcha/api.js\'></script>' . PHP_EOL;
+            echo '<script>
+            function onSubmit(token) {
+              document.getElementById("register-form").submit();
+            }
+          </script>' . PHP_EOL;
+        }
+        ?>
     </head>
     <body>
         <div  style="max-width: 700px; margin: auto;">
@@ -102,7 +113,7 @@ catch(Exception $ex)
         }
         ?>
         <div>
-            <form method="post" action="register.php?register=1" accept-charset="utf-8">
+            <form id="register-form" method="post" action="register.php?register=1" accept-charset="utf-8">
                 <?php
                 $nickValue = '';
                 $emailValue = '';
@@ -139,21 +150,21 @@ catch(Exception $ex)
                             <textarea name="<?php echo RegisterUserHandler::PARAM_REGMSG; ?>" cols="85" rows="10"><?php echo $regMsgValue; ?></textarea>
                         </td>
                     </tr>
-                    <?php
-                    if(YbForumConfig::CAPTCHA_VERIFY)
-                    {
-                        echo 
-                        '<tr>
-                            <td colspan="2">
-                                <div class="g-recaptcha" data-sitekey="6Lc3HksUAAAAACle5q5Mi8qKlpJQVZJ5roh-bIVw"></div>                            
-                            </td>
-                        </tr>';
-                    }
-                    ?>
                     <tr>
                         <td>
-<!--                            <input type="submit" value="Registrieren" disabled/><span class="fbold failcolor">Registrierung zurzeit geschlossen</span> -->
-                            <input type="submit" value="Registrieren"/>
+                            <?php
+                            if(CaptchaV3Config::CAPTCHA_VERIFY)
+                            {
+                                echo '<button class="g-recaptcha" 
+                                data-sitekey="'. CaptchaV3Config::CAPTCHA_SITE_KEY .'" 
+                                data-callback=\'onSubmit\' 
+                                data-action=\'submit\'>Registrieren</button>' . PHP_EOL;
+                            }
+                            else
+                            {
+                                echo '<input type="submit" value="Registrieren"/>' . PHP_EOL;
+                            }
+                            ?>
                         </td>
                         <td>
                             <input type="reset" value="Eingaben löschen"/>
