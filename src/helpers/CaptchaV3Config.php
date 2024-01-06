@@ -28,7 +28,7 @@ final class CaptchaV3Config
     /**
      * @var bool Use captcha verification while registering new users.
      */
-    const CAPTCHA_VERIFY = true;
+    const CAPTCHA_VERIFY = false;
 
     /**
      * @var number Minimal required score of the captcha-process (0.0 - 1.0), 0.0 is bad, 1.0 is good
