@@ -308,6 +308,49 @@ BEGIN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "No post with matching idparentpost found";
  END IF;
 END ;;
+
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+ALTER DATABASE `dbybforum` CHARACTER SET utf8 COLLATE utf8_german2_ci ;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!50003 DROP PROCEDURE IF EXISTS `insert_thread` */;
+DROP PROCEDURE IF EXISTS `insert_thread`;
+ALTER DATABASE `dbybforum` CHARACTER SET utf8 COLLATE utf8_general_ci ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+CREATE DEFINER=CURRENT_USER() PROCEDURE `insert_thread`(IN `iduser` INT, IN `title` VARCHAR(100) CHARSET utf8mb4, IN `content` TEXT CHARSET utf8mb4, IN `ipaddress` VARCHAR(45) CHARSET utf8mb4, IN `email` VARCHAR(255) CHARSET utf8mb4, IN `link_url` VARCHAR(255) CHARSET utf8mb4, IN `link_text` VARCHAR(255) CHARSET utf8mb4, IN `img_url` VARCHAR(255) CHARSET utf8mb4)
+    MODIFIES SQL DATA
+    SQL SECURITY INVOKER
+BEGIN
+ IF iduser IS NULL THEN
+  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "iduser must be set";
+ END IF;
+ IF title IS NULL THEN
+  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "title must be set";
+ END IF;
+ START TRANSACTION;
+ SET @idthread = NULL;
+ INSERT INTO thread_table () VALUES();
+ SELECT LAST_INSERT_ID() INTO @idthread;
+ INSERT INTO post_table (idthread, parent_idpost, iduser, title, content, `rank`, indent, 
+  email, link_url, link_text, img_url, ip_address)
+  VALUES(@idthread, NULL, iduser, title, content, 1, 0, 
+  email, link_url, link_text, img_url, ipaddress);
+ COMMIT;
+ SELECT LAST_INSERT_ID();
+END ;;
+
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
