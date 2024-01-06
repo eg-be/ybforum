@@ -126,4 +126,9 @@ final class YbForumConfig
      * @var string Path to the logo to display on top. Relative to this file.
      */
     const LOGO_FILE = 'logo/yb_forum.jpg';
+
+    /**
+     * @var bool If set to false, no registration is possible.
+     */
+    const REGISTRATION_OPEN = true;
 }

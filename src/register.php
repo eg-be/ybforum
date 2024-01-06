@@ -36,7 +36,7 @@ try
     $db = new ForumDb(false);
     
     $registerUserHandler = null;
-    if(filter_input(INPUT_GET, 'register', FILTER_VALIDATE_INT) > 0)
+    if(YbForumConfig::REGISTRATION_OPEN && filter_input(INPUT_GET, 'register', FILTER_VALIDATE_INT) > 0)
     {
         $registerUserHandler = new RegisterUserHandler();
         try
@@ -153,16 +153,23 @@ catch(Exception $ex)
                     <tr>
                         <td>
                             <?php
-                            if(CaptchaV3Config::CAPTCHA_VERIFY)
+                            if(YbForumConfig::REGISTRATION_OPEN)
                             {
-                                echo '<button class="g-recaptcha" 
-                                data-sitekey="'. CaptchaV3Config::CAPTCHA_SITE_KEY .'" 
-                                data-callback=\'onSubmit\' 
-                                data-action=\'submit\'>Registrieren</button>' . PHP_EOL;
+                                if(CaptchaV3Config::CAPTCHA_VERIFY)
+                                {
+                                    echo '<button class="g-recaptcha" 
+                                    data-sitekey="'. CaptchaV3Config::CAPTCHA_SITE_KEY .'" 
+                                    data-callback=\'onSubmit\' 
+                                    data-action=\'submit\'>Registrieren</button>' . PHP_EOL;
+                                }
+                                else
+                                {
+                                    echo '<input type="submit" value="Registrieren"/>' . PHP_EOL;
+                                }
                             }
                             else
                             {
-                                echo '<input type="submit" value="Registrieren"/>' . PHP_EOL;
+                                echo '<input type="submit" value="Registrieren" disabled/><span class="fbold failcolor">Registrierung zurzeit geschlossen</span>' . PHP_EOL;
                             }
                             ?>
                         </td>
