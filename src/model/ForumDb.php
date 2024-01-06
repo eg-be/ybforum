@@ -445,12 +445,12 @@ class ForumDb extends PDO
         {
             throw new InvalidArgumentException('No post exists for passed parent postid ' . $parentPostId);                        
         }
-        $newPostId = 'foo';
+        $newPostId = 0;
         $userId = $user->GetId();
         $query = 'CALL insert_reply(:parent_idpost, :iduser, '
                 . ':title, :content, :ip_address, '
                 . ':email, :link_url, :link_text, :img_url, '
-                . ':newPostId)';
+                . '@newPostId)';
         $stmt = $this->prepare($query);
         $stmt->bindParam(':parent_idpost', $parentPostId);
         $stmt->bindParam(':iduser', $userId);
@@ -461,9 +461,13 @@ class ForumDb extends PDO
         $stmt->bindParam(':link_url', $linkUrl);
         $stmt->bindParam(':link_text', $linkText);
         $stmt->bindParam(':img_url', $imgUrl);
-        $stmt->bindParam(':newPostId', $newPostId, PDO::PARAM_STR|PDO::PARAM_INPUT_OUTPUT, 64);
+        //$stmt->bindParam(':newPostId', $newPostId, PDO::PARAM_INT, 64);
+        // hacky, see: https://itecnote.com/tecnote/php-pdo-cannot-get-out-parameter-value/
         $stmt->execute();
-        return $newPostId;
+        $stmt->closeCursor();
+        $res = $this->query("SELECT @newPostId")->fetch(PDO::FETCH_ASSOC);
+        return $res['@newPostId'];
+        //return $newPostId;
 /*        $newPostId = 0;
         $stmt->execute(array(':parent_idpost' => $parentPostId,
             ':iduser' => $user->GetId(), ':title' => $title,
