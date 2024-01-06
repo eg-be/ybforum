@@ -16,7 +16,7 @@ This page provides some information on how to setup your own ybforum.
    - `BASE_URL`
    - `MAIL_FROM`
    - `MAIL_ALL_BCC`
-5. Adjust the values for the google captcha-verify in file [src/helpers/CaptchaV3Config.php], if you enable captcha.
+5. Adjust the values for the google captcha-verify in file [src/helpers/CaptchaV3Config.php](src/helpers/CaptchaV3Config.php), if you want to enable captcha.
    - `CAPTCHA_VERIFY`
    - `CAPTCHA_SITE_KEY`
    - `CAPTCHA_SECRET`
