@@ -295,7 +295,8 @@ BEGIN
  SELECT `idthread`, `rank` + 1, `indent` + 1 INTO @idthread, @rank, @indent 
   FROM post_table WHERE idpost = idparentpost;
  IF @idthread IS NOT NULL THEN
-    START TRANSACTION;
+  START TRANSACTION;
+  SELECT * FROM post_table WHERE idthread = @idthread FOR UPDATE;
   UPDATE post_table SET `rank` = `rank` + 1 WHERE idthread = @idthread AND `rank` >= @rank;
   INSERT INTO post_table (idthread, parent_idpost, iduser, title, content, `rank`, indent, 
    email, link_url, link_text, img_url, ip_address)
@@ -304,7 +305,7 @@ BEGIN
   COMMIT;
   SELECT LAST_INSERT_ID();
  ELSE
-   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "No post with matching idparentpost found";
+  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "No post with matching idparentpost found";
  END IF;
 END ;;
 DELIMITER ;
