@@ -302,8 +302,8 @@ BEGIN
    email, link_url, link_text, img_url, ip_address)
    VALUES(@idthread, idparentpost, iduser, title, content, @rank, @indent, 
    email, link_url, link_text, img_url, ipaddress);
-  SELECT LAST_INSERT_ID() INTO newPostId;
   COMMIT;
+  SELECT LAST_INSERT_ID() INTO newPostId;
  ELSE
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "No post with matching idparentpost found";
  END IF;
@@ -329,7 +329,7 @@ ALTER DATABASE `dbybforum` CHARACTER SET utf8 COLLATE utf8_general_ci ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-CREATE DEFINER=CURRENT_USER() PROCEDURE `insert_thread`(IN `iduser` INT, IN `title` VARCHAR(100) CHARSET utf8mb4, IN `content` TEXT CHARSET utf8mb4, IN `ipaddress` VARCHAR(45) CHARSET utf8mb4, IN `email` VARCHAR(255) CHARSET utf8mb4, IN `link_url` VARCHAR(255) CHARSET utf8mb4, IN `link_text` VARCHAR(255) CHARSET utf8mb4, IN `img_url` VARCHAR(255) CHARSET utf8mb4)
+CREATE DEFINER=CURRENT_USER() PROCEDURE `insert_thread`(IN `iduser` INT, IN `title` VARCHAR(100) CHARSET utf8mb4, IN `content` TEXT CHARSET utf8mb4, IN `ipaddress` VARCHAR(45) CHARSET utf8mb4, IN `email` VARCHAR(255) CHARSET utf8mb4, IN `link_url` VARCHAR(255) CHARSET utf8mb4, IN `link_text` VARCHAR(255) CHARSET utf8mb4, IN `img_url` VARCHAR(255) CHARSET utf8mb4, OUT newPostId BIGINT)
     MODIFIES SQL DATA
     SQL SECURITY INVOKER
 BEGIN
@@ -348,7 +348,7 @@ BEGIN
   VALUES(@idthread, NULL, iduser, title, content, 1, 0, 
   email, link_url, link_text, img_url, ipaddress);
  COMMIT;
- SELECT LAST_INSERT_ID();
+ SELECT LAST_INSERT_ID() INTO newPostId;
 END ;;
 
 DELIMITER ;
