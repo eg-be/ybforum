@@ -431,24 +431,25 @@ class ForumDb extends PDO
     {
         assert($parentPostId > 0);
         $this->validateNonEmpty([$title, $clientIpAddress]);
-        $this->validateNotWhitespaceOnly([$content, $email, $linkUrl, $linkText, $imgUrl, $clientIpAddress ]);  
+        $this->validateNotWhitespaceOnly([$content, $email, $linkUrl, $linkText, $imgUrl, $clientIpAddress ]);
         if(!$user->IsActive())
         {
             throw new InvalidArgumentException('User ' . $user->GetNick() . ' is not active');
         }
         if($user->IsDummyUser())
         {
-            throw new InvalidArgumentException('User ' . $user->GetNick() . ' is a dummy');            
+            throw new InvalidArgumentException('User ' . $user->GetNick() . ' is a dummy');
         }
         $parentPost = Post::LoadPost($this, $parentPostId);
         if(!$parentPost)
         {
-            throw new InvalidArgumentException('No post exists for passed parent postid ' . $parentPostId);                        
+            throw new InvalidArgumentException('No post exists for passed parent postid ' . $parentPostId);
         }
-        
+        $userId = $user->GetId();
         $query = 'CALL insert_reply(:parent_idpost, :iduser, '
                 . ':title, :content, :ip_address, '
-                . ':email, :link_url, :link_text, :img_url)';
+                . ':email, :link_url, :link_text, :img_url, '
+                . '@newPostId)';
         $stmt = $this->prepare($query);
         $stmt->execute(array(':parent_idpost' => $parentPostId,
             ':iduser' => $user->GetId(), ':title' => $title,
@@ -456,8 +457,13 @@ class ForumDb extends PDO
             ':email' => $email, ':link_url' => $linkUrl,
             ':link_text' => $linkText, ':img_url' => $imgUrl
         ));
-        $row = $stmt->fetch(PDO::FETCH_NUM);
-        return $row[0];
+        // reading an out-parameter is somewhat stupid with PDO + mariaDb, or I dont get it
+        // close to discard any result from the stmt. If not, no new query can be executed
+        // and the query holds as result the rows that have been selected for update
+        $stmt->closeCursor();
+        $res = $this->query("SELECT @newPostId")->fetch(PDO::FETCH_ASSOC);
+        $newPostId = $res['@newPostId'];
+        return $newPostId;
     }
     
     /**
