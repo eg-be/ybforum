@@ -431,55 +431,39 @@ class ForumDb extends PDO
     {
         assert($parentPostId > 0);
         $this->validateNonEmpty([$title, $clientIpAddress]);
-        $this->validateNotWhitespaceOnly([$content, $email, $linkUrl, $linkText, $imgUrl, $clientIpAddress ]);  
+        $this->validateNotWhitespaceOnly([$content, $email, $linkUrl, $linkText, $imgUrl, $clientIpAddress ]);
         if(!$user->IsActive())
         {
             throw new InvalidArgumentException('User ' . $user->GetNick() . ' is not active');
         }
         if($user->IsDummyUser())
         {
-            throw new InvalidArgumentException('User ' . $user->GetNick() . ' is a dummy');            
+            throw new InvalidArgumentException('User ' . $user->GetNick() . ' is a dummy');
         }
         $parentPost = Post::LoadPost($this, $parentPostId);
         if(!$parentPost)
         {
-            throw new InvalidArgumentException('No post exists for passed parent postid ' . $parentPostId);                        
+            throw new InvalidArgumentException('No post exists for passed parent postid ' . $parentPostId);
         }
-        $newPostId = 0;
         $userId = $user->GetId();
         $query = 'CALL insert_reply(:parent_idpost, :iduser, '
                 . ':title, :content, :ip_address, '
                 . ':email, :link_url, :link_text, :img_url, '
                 . '@newPostId)';
         $stmt = $this->prepare($query);
-        $stmt->bindParam(':parent_idpost', $parentPostId);
-        $stmt->bindParam(':iduser', $userId);
-        $stmt->bindParam(':title', $title);
-        $stmt->bindParam(':content', $content);
-        $stmt->bindParam(':ip_address', $clientIpAddress);
-        $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':link_url', $linkUrl);
-        $stmt->bindParam(':link_text', $linkText);
-        $stmt->bindParam(':img_url', $imgUrl);
-        //$stmt->bindParam(':newPostId', $newPostId, PDO::PARAM_INT, 64);
-        // hacky, see: https://itecnote.com/tecnote/php-pdo-cannot-get-out-parameter-value/
-        $stmt->execute();
-        $stmt->closeCursor();
-        $res = $this->query("SELECT @newPostId")->fetch(PDO::FETCH_ASSOC);
-        return $res['@newPostId'];
-        //return $newPostId;
-/*        $newPostId = 0;
         $stmt->execute(array(':parent_idpost' => $parentPostId,
             ':iduser' => $user->GetId(), ':title' => $title,
             ':content' => $content, ':ip_address' => $clientIpAddress,
             ':email' => $email, ':link_url' => $linkUrl,
-            ':link_text' => $linkText, ':img_url' => $imgUrl,
-            ':newPostId' => $newPostId
+            ':link_text' => $linkText, ':img_url' => $imgUrl
         ));
+        // reading an out-parameter is somewhat stupid with PDO + mariaDb, or I dont get it
+        // close to discard any result from the stmt. If not, no new query can be executed
+        // and the query holds as result the rows that have been selected for update
+        $stmt->closeCursor();
+        $res = $this->query("SELECT @newPostId")->fetch(PDO::FETCH_ASSOC);
+        $newPostId = $res['@newPostId'];
         return $newPostId;
-        //$foo = $this->lastInsertId();
-        //$row = $stmt->fetch(PDO::FETCH_NUM);
-        //return $row[0];*/
     }
     
     /**
