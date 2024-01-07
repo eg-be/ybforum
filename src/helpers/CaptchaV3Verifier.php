@@ -42,9 +42,11 @@ class CaptchaV3Verifier {
     const VERIFY_PARAM_NAME_RESPONSE = 'response';
     const VERIFY_PARAM_NAME_REMOTEIP = 'remoteip';
     
-    public function __construct(string $captchaSecret)
+    public function __construct(string $captchaSecret, float $requiredScore, string $action)
     {
         $this->m_captchaSecret = $captchaSecret;
+        $this->m_requiredScore = $requiredScore;
+        $this->m_action = $action;
         
         $this->m_clientIp = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
         $value = trim(filter_input(INPUT_POST, self::PARAM_CAPTCHA, FILTER_UNSAFE_RAW));
@@ -106,18 +108,25 @@ class CaptchaV3Verifier {
             $logger->LogMessage(Logger::LOG_CAPTCHA_TOKEN_INVALID, $errcodes);
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
         }
+        if($decodedResp['action'] !== $this->m_action)
+        {
+            $logger->LogMessage(Logger::LOG_CAPTCHA_WRONG_ACTION, 'expected action \''. $this->m_action . '\' but received \'' .  $decodedResp['action'] .'\'');
+            throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
+        }
         if($decodedResp['score'] < CaptchaV3Config::MIN_REQUIRED_SCORE)
         {
-            $logger->LogMessage(Logger::LOG_CAPTCHA_SCORE_TOO_LOW, $decodedResp['score']);
+            $logger->LogMessage(Logger::LOG_CAPTCHA_SCORE_TOO_LOW, 'min required ' . $this->m_requiredScore . ', received ' . $decodedResp['score']);
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
         }
         else
         {
-            $logger->LogMessage(Logger::LOG_CAPTCHA_SCORE_PASSED, $decodedResp['score']);
+            $logger->LogMessage(Logger::LOG_CAPTCHA_SCORE_PASSED, 'min required ' . $this->m_requiredScore . ', received ' . $decodedResp['score']);
         }
     }
     
     private ?string $m_captchaResponse;
     private string $m_clientIp;
     private string $m_captchaSecret;
+    private string $m_action;
+    private float $m_requiredScore;
 }

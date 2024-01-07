@@ -74,7 +74,11 @@ class RegisterUserHandler extends BaseHandler
         
         if(CaptchaV3Config::CAPTCHA_VERIFY)
         {
-            $this->m_captchaVerifier = new CaptchaV3Verifier(CaptchaV3Config::CAPTCHA_SECRET);
+            $this->m_captchaVerifier = new CaptchaV3Verifier(
+                CaptchaV3Config::CAPTCHA_SECRET, 
+                CaptchaV3Config::MIN_REQUIRED_SCORE,
+                CaptchaV3Config::CAPTCHA_REGISTER_USER_ACTION
+            );
         }
     }
     

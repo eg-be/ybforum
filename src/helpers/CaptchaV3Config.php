@@ -28,7 +28,7 @@ final class CaptchaV3Config
     /**
      * @var bool Use captcha verification while registering new users.
      */
-    const CAPTCHA_VERIFY = false;
+    const CAPTCHA_VERIFY = true;
 
     /**
      * @var number Minimal required score of the captcha-process (0.0 - 1.0), 0.0 is bad, 1.0 is good
@@ -41,7 +41,12 @@ final class CaptchaV3Config
     const CAPTCHA_SITE_KEY = '';
 
     /**
-     * @var string ecret-key, from the admin-console
+     * @var string Secret-key, from the admin-console
      */
     const CAPTCHA_SECRET = '';
+
+    /**
+     * @var string Action name for registering user action
+     */
+    const CAPTCHA_REGISTER_USER_ACTION = 'register';
 }

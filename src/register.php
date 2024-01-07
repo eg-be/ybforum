@@ -160,7 +160,7 @@ catch(Exception $ex)
                                     echo '<button class="g-recaptcha" 
                                     data-sitekey="'. CaptchaV3Config::CAPTCHA_SITE_KEY .'" 
                                     data-callback=\'onSubmit\' 
-                                    data-action=\'submit\'>Registrieren</button>' . PHP_EOL;
+                                    data-action=\'' . CaptchaV3Config::CAPTCHA_REGISTER_USER_ACTION . '\'>Registrieren</button>' . PHP_EOL;
                                 }
                                 else
                                 {
