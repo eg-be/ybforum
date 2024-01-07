@@ -371,39 +371,24 @@ class ForumDb extends PDO
         {
             throw new InvalidArgumentException('User ' . $user->GetNick() . ' is a dummy');            
         }
-        
-        // Start a transaction, insert the thread first
-        $this->beginTransaction();
-        $query = 'INSERT INTO thread_table () VALUES()';
-        $this->query($query);
-        $threadId = $this->lastInsertId();
-        if($threadId <= 0)
-        {
-            // should never happen, but rollback and fail
-            $this->rollBack ();
-            throw new Exception('Newly created thread has an invalid idthread '
-                    . 'value of ' . $threadId);
-        }
-        // and now the actual post
-        $query = 'INSERT INTO post_table (idthread, iduser, title, '
-                . 'content, `rank`, indent, email, '
-                . 'link_url, link_text, img_url, '
-                . 'ip_address) '
-                . 'VALUES(:idthread, :iduser, :title, '
-                . ':content, 1, 0, :email, '
-                . ':link_url, :link_text, :img_url, '
-                . ':ip_address)';
+        $query = 'CALL insert_thread(:iduser, '
+                . ':title, :content, :ip_address, '
+                . ':email, :link_url, :link_text, :img_url, '
+                . '@newPostId)';
         $stmt = $this->prepare($query);
-        $stmt->execute(array(':idthread' => $threadId, 
+        $stmt->execute(array(
             ':iduser' => $user->GetId(), ':title' => $title,
-            ':content' => $content, ':email' => $email,
-            ':link_url' => $linkUrl, ':link_text' => $linkText, ':img_url' => $imgUrl,
-            ':ip_address' => $clientIpAddress
+            ':content' => $content, ':ip_address' => $clientIpAddress, 
+            ':email' => $email, ':link_url' => $linkUrl, 
+            ':link_text' => $linkText, ':img_url' => $imgUrl
         ));
-        $postId = $this->lastInsertId();
-        // and commit
-        $this->commit();
-        return $postId;
+        // reading an out-parameter is somewhat stupid with PDO + mariaDb, or I dont get it
+        // close to discard any result from the stmt. If not, no new query can be executed
+        // and the query holds as result the rows that have been selected for update
+        $stmt->closeCursor();
+        $res = $this->query("SELECT @newPostId")->fetch(PDO::FETCH_ASSOC);
+        $newPostId = $res['@newPostId'];
+        return $newPostId;
     }
     
     /**
