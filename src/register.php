@@ -25,6 +25,7 @@ require_once __DIR__.'/helpers/ErrorHandler.php';
 require_once __DIR__.'/handlers/RegisterUserHandler.php';
 require_once __DIR__.'/YbForumConfig.php';
 require_once __DIR__.'/helpers/CaptchaV3Config.php';
+require_once __DIR__.'/pageparts/TopNavigation.php';
 
 try
 {
@@ -80,13 +81,17 @@ catch(Exception $ex)
         </div>
         <div class="fullwidthcenter generictitle">Stammposter Registrierungsantrag</div>    
         <hr>
-        <div class="fullwidthcenter">
-            [ <a href="index.php">Forum</a> ] 
-            [ <a href="recent.php">Neue Beiträge</a> ] 
-            [ <a href="search.php">Suchen</a> ] 
-            [ <a href="textformatierung.php">Textformatierung</a> ] 
-            [ <a href="stammposter.php">Stammposter</a> ]            
-        </div>
+        <?php
+        try
+        {
+            $topNav = new TopNavigation();
+            echo $topNav->renderHtmlDiv();
+        }
+        catch(Exception $ex)
+        {
+            ErrorHandler::OnException($ex);
+        }
+        ?>
         <hr>
         <div class="fullwidthcenter" style="padding-bottom: 2em;">
             Ihre hier angebenen Emailadresse wird nicht im Forum gezeigt. Sie 

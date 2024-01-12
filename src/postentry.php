@@ -23,6 +23,7 @@
 require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/pageparts/PostEntryForm.php';
 require_once __DIR__.'/pageparts/MigrateUserForm.php';
+require_once __DIR__.'/pageparts/TopNavigation.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 require_once __DIR__.'/handlers/PostEntryHandler.php';
 
@@ -125,14 +126,17 @@ catch(Exception $ex)
         </div>    
         <div class="fullwidthcenter generictitle">Beitrag schreiben</div>
         <hr>
-        <div class="fullwidthcenter">
-            [ <a href="index.php">Forum</a> ] 
-            [ <a href="recent.php">Neue Beiträge</a> ] 
-            [ <a href="search.php">Suchen</a> ] 
-            [ <a href="textformatierung.php">Textformatierung</a> ] 
-            [ <a href="stammposter.php">Stammposter</a> ] 
-            [ <a href="register.php">Registrieren</a> ]             
-        </div>
+        <?php
+        try
+        {
+            $topNav = new TopNavigation();
+            echo $topNav->renderHtmlDiv();
+        }
+        catch(Exception $ex)
+        {
+            ErrorHandler::OnException($ex);
+        }
+        ?>
         <hr>
         <?php
         try

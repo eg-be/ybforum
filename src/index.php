@@ -24,6 +24,7 @@ require_once __DIR__.'/YbForumConfig.php';
 require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/pageparts/PageNavigationView.php';
 require_once __DIR__.'/pageparts/ThreadIndexView.php';
+require_once __DIR__.'/pageparts/TopNavigation.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 include __DIR__.'/profile/profile_start.php';
 
@@ -60,14 +61,17 @@ catch(Exception $ex)
             <?php include __DIR__.'/logo.php'; ?>
         </div>
         <hr>
-        <div class="fullwidthcenter">
-            [ <a href="postentry.php">Beitrag Schreiben</a> ] 
-            [ <a href="recent.php">Neue Beiträge</a> ] 
-            [ <a href="search.php">Suchen</a> ] 
-            [ <a href="textformatierung.php">Textformatierung</a> ] 
-            [ <a href="stammposter.php">Stammposter</a> ]
-            [ <a href="register.php">Registrieren</a> ]
-        </div>
+        <?php
+        try
+        {
+            $topNav = new TopNavigation();
+            echo $topNav->renderHtmlDiv();
+        }
+        catch(Exception $ex)
+        {
+            ErrorHandler::OnException($ex);
+        }
+        ?>
         <hr>
         <div class="fullwidthcenter fbold">Seiten des Forums</div>
         <div class="fullwidthcenter">

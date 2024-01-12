@@ -24,6 +24,7 @@ require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 require_once __DIR__.'/helpers/Logger.php';
 require_once __DIR__.'/handlers/ResetPasswordHandler.php';
+require_once __DIR__.'/pageparts/TopNavigation.php';
 
 try
 {
@@ -103,13 +104,17 @@ catch(Exception $ex)
         </div>
         <div class="fullwidthcenter generictitle">Stammposter-Bereich</div>    
         <hr>
-        <div class="fullwidthcenter">
-            [ <a href="index.php">Forum</a> ] 
-            [ <a href="recent.php">Neue Beiträge</a> ]  
-            [ <a href="search.php">Suchen</a> ] 
-            [ <a href="textformatierung.php">Textformatierung</a> ] 
-            [ <a href="register.php">Registrieren</a> ]
-        </div>
+        <?php
+        try
+        {
+            $topNav = new TopNavigation();
+            echo $topNav->renderHtmlDiv();
+        }
+        catch(Exception $ex)
+        {
+            ErrorHandler::OnException($ex);
+        }
+        ?>
         <hr>
         <div class="fullwidthcenter">Als Stammposter kannst du hier deine
         Einstellungen ändern oder dir einen Link zum Setzen eines neuen 

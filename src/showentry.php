@@ -23,6 +23,7 @@
 require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/pageparts/PostView.php';
 require_once __DIR__.'/pageparts/ThreadIndexView.php';
+require_once __DIR__.'/pageparts/TopNavigation.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 
 try
@@ -77,26 +78,17 @@ catch(Exception $ex)
         </div>       
         <hr>
         <!-- The page header is really simple, in line that -->
-        <div class="fullwidthcenter">
         <?php
         try
         {
-            echo '[ <a href="postentry.php?idparentpost='
-                . $idPost . '">Antworten</a> ]';
+            $topNav = new TopNavigation($post->GetId());
+            echo $topNav->renderHtmlDiv();
         }
         catch(Exception $ex)
         {
             ErrorHandler::OnException($ex);
         }
         ?>
-            [ <a href="index.php">Forum</a> ] 
-            [ <a href="recent.php">Neue Beiträge</a> ] 
-            [ <a href="search.php">Suchen</a> ] 
-            [ <a href="textformatierung.php">Textformatierung</a> ] 
-            [ <a href="stammposter.php">Stammposter</a> ] 
-            [ <a href="register.php">Registrieren</a> ]
-        </div>
-        <hr>
         <div>
         <?php
         try
@@ -143,27 +135,6 @@ catch(Exception $ex)
             }
             ?>
             </div>
-        </div>
-        <hr>
-        <!-- And a footer that is the same as the header -->
-        <div class="fullwidthcenter">
-            <?php
-            try
-            {
-                echo '[ <a href="postentry.php?idparentpost='
-                        . $idPost . '">Antworten</a> ]';
-            }
-            catch(Exception $ex)
-            {
-                ErrorHandler::OnException($ex);
-            }
-            ?>
-            [ <a href="index.php">Forum</a> ] 
-            [ <a href="recent.php">Neue Beiträge</a> ] 
-            [ <a href="search.php">Suchen</a> ] 
-            [ <a href="textformatierung.php">Textformatierung</a> ] 
-            [ <a href="stammposter.php">Stammposter</a> ] 
-            [ <a href="register.php">Registrieren</a> ] 
         </div>
         <hr>
         <?php
