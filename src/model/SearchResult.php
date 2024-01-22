@@ -143,6 +143,10 @@ class SearchResult
         assert(!empty($this->nick));
         assert(!empty($this->creation_ts));
         $this->creation_ts_dt = new DateTime($this->creation_ts);
+        if(isset($this->relevance) === false)
+        {
+            $this->relevance = 0.0;
+        }
     }
     
     /**
@@ -184,5 +188,6 @@ class SearchResult
     private string $nick;
     private string $creation_ts; // this is just the value from the corresponding field post_table class="creation_ts
                                     // pdo->fetchObject() injects a string-value
-    private DateTime $creation_ts_dt; // the same but converted to a DateTime    
+    private DateTime $creation_ts_dt; // the same but converted to a DateTime
+    private float $relevance;
 }
