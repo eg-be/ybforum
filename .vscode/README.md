@@ -196,3 +196,6 @@ Restart apache: `sudo service apache2 restart` and browse to http://localhost/yb
 If vscode, start debugging with `Listen for Xdebug`. Set a breakpoint somewhere, for example in the constructor of class `ForumDb`. Browse to http://localhost/ybforum and the breakpoint must be hit.
 
 Note: Make sure that mariadb is running, or you will get an error like `[php:notice] [pid 5204] [client ::1:34030] /home/eg/dev/ybforum/src/model/ForumDb.php(68): SQLSTATE[HY000] [2002] No such file or directory` in the apache2 error-log.
+
+### Configure error-logging
+Edit `/etc/php/8.2/apache2/php.ini` and set `error_reporting = E_ALL` and `display_errors = On`
