@@ -1224,4 +1224,15 @@ final class ForumDbTest extends BaseTest
         $desc = $this->db->IsEmailOnBlacklistExactly('hans@wurst.com');
         $this->assertSame('hans wurst', $desc);
     }
+
+    public function testGetAdminUsers() : void
+    {
+        $admins = $this->db->GetAdminUsers();
+        $this->assertEquals(1, count($admins));
+        $adminUser = $admins[0];
+        $this->assertEquals(1, $adminUser->GetId());
+        $this->assertEquals('admin', $adminUser->GetNick());
+        $this->assertTrue($adminUser->IsAdmin());
+        $this->assertTrue($adminUser->IsActive());
+    }
 }
