@@ -36,13 +36,20 @@ class SearchResultsView
     private function GetHiddenSearchForm(string $id, int $offset,
             string $sortField, string $sortOrder) : string
     {
+        $searchString = null;
+        $searchNick = null;
+        if($this->m_sh)
+        {
+            $searchString = $this->m_sh->GetSearchString();
+            $searchNick = $this->m_sh->GetSearchNick();
+        }        
         $html= '<form id="' . $id .'" style="display: inline-block;" method="post" action="search.php?search=1" accept-charset="utf-8">';
         $html.= '<input type="hidden" name="' 
                 . SearchHandler::PARAM_SEARCH_STRING . '" value="'
-                . $this->m_sh->GetSearchString() . '"/>';
+                . (is_null($searchString) ? '' : htmlspecialchars($searchString)) . '"/>';
         $html.= '<input type="hidden" name="'
                 . SearchHandler::PARAM_NICK . '" value="'
-                . $this->m_sh->GetSearchNick() . '"/>';
+                . (is_null($searchNick) ? '' : htmlspecialchars($searchNick)) . '"/>';
         $html.= '<input type="hidden" name="'
                 . SearchHandler::PARAM_RESULT_OFFSET . '" value="'
                 . $offset
