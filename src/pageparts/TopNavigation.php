@@ -29,6 +29,7 @@ enum Page
     case STAMMPOSTER;
     case REGISTER;
     case SHOW_ENTRY;
+    case CONTACT;
 };
 
 /**
@@ -47,7 +48,8 @@ class TopNavigation
         array(Page::FORMATING, 'Textformatierung', 'textformatierung.php'),
         array(Page::STAMMPOSTER, 'Stammposter', 'stammposter.php'),
         array(Page::REGISTER, 'Registrieren', 'register.php'),
-        array(Page::SHOW_ENTRY, '', 'showentry.php')    // empty title, shall never appear as entry in the top-navigation
+        array(Page::SHOW_ENTRY, '', 'showentry.php'),    // empty title, shall never appear as entry in the top-navigation
+        array(Page::CONTACT, 'Kontakt', 'contact.php')
     );
 
     public function __construct(int $postId = null)
@@ -116,7 +118,7 @@ class TopNavigation
         foreach(self::PAGES as $page) 
         {
             if($this->m_page != $page[0] // dont link to ourself
-                && empty($page[2]) === false // dont show empty entries
+                && empty($page[1]) === false // dont show empty entries
                 && !($this->m_page == Page::SHOW_ENTRY && $page[0] == Page::POST_ENTRY)) // dont add 'Beitrag schreiben', we already provided 'Antworten'
             {
                 $htmlStr.= ' [ <a href="' . $page[2] . '">' . $page[1] . '</a> ]' . PHP_EOL;

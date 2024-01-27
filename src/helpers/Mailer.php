@@ -202,6 +202,25 @@ class Mailer
         $sent = mail($adminEmail, $subject, $mailBody, $this->GetHeaderString());
         return $sent;
     }
+
+    /**
+     * Sends an email to an admin informing that a generic
+     * contact message was sent
+     * @param string $contactMsg Message to send
+     * @param string $contactEmail Email address provided with the contact message
+     * @param string $adminEmail destination email
+     */
+    public function SendAdminContactMessage(string $contactEmail,
+            string $contactMsg, string $adminEmail) : bool
+    {
+        $subject = 'Kontaktnachricht erhalten';
+        $mailBody = 'Von der Email ' . $contactEmail . ' wurde '
+                . 'eine Kontaktanfrage gesendet: '
+                . "\r\n\r\n";
+        $mailBody.= $contactMsg . "\r\n";
+        $sent = mail($adminEmail, $subject, $mailBody, $this->GetHeaderString());
+        return $sent;
+    }
     
     /**
      * Sends a mail with a confirmation link using the passed values.

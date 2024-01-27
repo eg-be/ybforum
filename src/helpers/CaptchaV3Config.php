@@ -49,4 +49,9 @@ final class CaptchaV3Config
      * @var string Action name for registering user action
      */
     const CAPTCHA_REGISTER_USER_ACTION = 'register';
+
+    /**
+     * @var string Action name for contacting action
+     */
+    const CAPTCHA_CONTACT_ACTION = 'contact';
 }
