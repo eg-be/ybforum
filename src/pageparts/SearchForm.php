@@ -36,11 +36,18 @@ class SearchForm {
     
     public function RenderHtmlForm() : string
     {
+        $searchString = null;
+        $searchNick = null;
+        if($this->m_sh)
+        {
+            $searchString = $this->m_sh->GetSearchString();
+            $searchNick = $this->m_sh->GetSearchNick();
+        }
         $html = 
            '<form method="post" action="search.php?search=1" accept-charset="utf-8">
             <table style="margin: auto;">
-                <tr><td class="fbold">Suchbegriff:</td><td><input type="text" value="' . ($this->m_sh ? $this->m_sh->GetSearchString() : '') .'" name="' . SearchHandler::PARAM_SEARCH_STRING . '" size="50" maxlength="100"/></td></tr>
-                <tr><td class="fbold">Stammposter:</td><td><input type="text" value="' . ($this->m_sh ? $this->m_sh->GetSearchNick() : '') .'" name="' . SearchHandler::PARAM_NICK . '" size="20" maxlength="60"/></td></tr>
+                <tr><td class="fbold">Suchbegriff:</td><td><input type="text" value="' . (is_null($searchString) ? '' : htmlspecialchars($searchString)) .'" name="' . SearchHandler::PARAM_SEARCH_STRING . '" size="50" maxlength="100"/></td></tr>
+                <tr><td class="fbold">Stammposter:</td><td><input type="text" value="' . (is_null($searchNick) ? '' : htmlspecialchars($searchNick)) .'" name="' . SearchHandler::PARAM_NICK . '" size="20" maxlength="60"/></td></tr>
                 <tr><td class="fbold">Keine Antworten:</td>';
         $html.= '<td><input type="checkbox" value="' . SearchHandler::PARAM_NO_REPLIES .'" name="' . SearchHandler::PARAM_NO_REPLIES . '"';
         if($this->m_sh && $this->m_sh->GetNoReplies() === true)
