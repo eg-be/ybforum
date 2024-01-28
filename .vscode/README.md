@@ -201,7 +201,7 @@ Note: Make sure that mariadb is running, or you will get an error like `[php:not
 Edit `/etc/php/8.2/apache2/php.ini` and set `error_reporting = E_ALL` and `display_errors = On`
 
 ## Mail setup
-If you want to mailing by sending real mails, just setup an alternative for `sendmail` that will deliver mails to addresses starting with `test` to a local user:
+If you want to mailing by sending real mails, just setup an alternative for `sendmail` that will deliver mails to a local user:
 
 ### Required Debian packages
 ```
@@ -242,7 +242,7 @@ eg@TITANUS-3113:~$
 ```
 
 ### Configure regex to redirect mails for `test`
-Configure postfix to deliver all starting with `test` to my local user: Add a corresponding entry in `/etc/postfix/main.cf`:
+Configure postfix to deliver mails for the admin-addresses and the mail-monitor address to a local user: Add a corresponding entry in `/etc/postfix/main.cf`:
 
 ```
 # The file can hold a regex for virtual aliases. put the following
@@ -255,4 +255,6 @@ virtual_alias_maps = regexp:/etc/postfix/virtual_alias
 And add the following entry in `/etc/postfix/virtual_alias`:
 ```
 /^test/ eg@TITANUS-3113
+/eg-be@dev/ eg@TITANUS-3113
+/mail-monitor@1898.ch/ eg@TITANUS-3113
 ```
