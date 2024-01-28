@@ -199,3 +199,60 @@ Note: Make sure that mariadb is running, or you will get an error like `[php:not
 
 ### Configure error-logging
 Edit `/etc/php/8.2/apache2/php.ini` and set `error_reporting = E_ALL` and `display_errors = On`
+
+## Mail setup
+If you want to mailing by sending real mails, just setup an alternative for `sendmail` that will deliver mails to addresses starting with `test` to a local user:
+
+### Required Debian packages
+```
+sudo apt-get install postfix
+sudo apt-get install mailutils
+```
+choose `internet site` when configuring postfix, altough other settings will work as well
+   
+### Test sending a mail works 
+test that sending a mail to a local user works using the `mail` command and check that this message is delivered:
+```
+eg@TITANUS-3113:~$ mail eg@TITANUS-3113
+Cc:
+Subject: test
+hello
+
+eg@TITANUS-3113:~$ mail
+"/var/mail/eg": 1 message 1 new
+>N   1 TITANUS-3113       Sun Jan 28 20:24  13/407   test
+? 1
+Return-Path: <eg@TITANUS-3113>
+X-Original-To: eg@TITANUS-3113
+Delivered-To: eg@TITANUS-3113
+Received: by TITANUS-3113 (Postfix, from userid 1000)
+        id 4C7619C8D; Sun, 28 Jan 2024 20:24:46 +0100 (CET)
+To: <eg@TITANUS-3113>
+Subject: test
+User-Agent: mail (GNU Mailutils 3.15)
+Date: Sun, 28 Jan 2024 20:24:46 +0100
+Message-Id: <20240128192446.4C7619C8D@TITANUS-3113>
+From: TITANUS-3113 <eg@TITANUS-3113>
+
+hello
+? q
+Saved 1 message in /home/eg/mbox
+Held 0 messages in /var/mail/eg
+eg@TITANUS-3113:~$
+```
+
+### Configure regex to redirect mails for `test`
+Configure postfix to deliver all starting with `test` to my local user: Add a corresponding entry in `/etc/postfix/main.cf`:
+
+```
+# The file can hold a regex for virtual aliases. put the following
+# in the file:
+# /^test/ eg@TITANUS-3113
+# to get all mails starting with 'test' being sent to ourself
+virtual_alias_maps = regexp:/etc/postfix/virtual_alias
+```
+
+And add the following entry in `/etc/postfix/virtual_alias`:
+```
+/^test/ eg@TITANUS-3113
+```
