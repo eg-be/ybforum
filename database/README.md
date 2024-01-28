@@ -1,17 +1,17 @@
 # Create required database
-All data is stored in a mysql database. This section describes the required step to setup a new, empty database and import the required initial data.
+All data is stored in a mysql / mariadb database. This section describes the required step to setup a new, empty database and import the required initial data.
 
 ## Prerequisites
-- A working installation of [MySQL](https://www.mysql.com).
+- A working installation of [MariaDB](https://mariadb.org/) or [MySQL](https://www.mysql.com).
 
 ## Create empty database with two users
 - An empty database
 - A user with read-only access to the database
 - A user with read-write access to the database
 
-Depending on your MySQL-version, this will be similar to:
+Depending on your MariaDB / MySQL-version, this will be similar to:
 ```
-# connect to MySQL:
+# connect to MariaDB / MySQL:
 eg-be@dev:~$ mysql -u root -p
 
 # Create the database:
