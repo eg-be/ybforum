@@ -92,10 +92,8 @@ catch(Exception $ex)
         ?>
         <hr>
         <div class="fullwidthcenter" style="padding-bottom: 2em;">
-            Für alle administrativen Anfragen.
-        </div>
-        <div class="fullwidthcenter">
-        <div>Für alle administrativen oder technischen Fragen</div>
+        Für alle administrativen oder technischen Fragen kann folgendes Kontaktformular benutzt werden.<br>
+        Bitte gib eine <span class="fbold">gültige Mailadresse</span> an, ansonsten kann die Anfrage nicht beantwortet werden.
         </div>
         <?php 
         if($contactHandler && $contactHandler->HasException())
@@ -110,20 +108,26 @@ catch(Exception $ex)
             <form id="contact-form" method="post" action="contact.php?contact=1" accept-charset="utf-8">
                 <?php
                 $emailValue = '';
+                $emailValueRepeat = '';
                 $msgValue = '';
                 if($contactHandler)
                 {
                     $emailValue = $contactHandler->GetEmail();
+                    $emailValueRepeat = $contactHandler->GetEmailRepeat();
                     $msgValue = $contactHandler->GetMsg();
                 }
                 ?>
                 <table style="margin: auto;">
                     <tr>
-                        <td class="fbold">Mailadresse</td>
+                        <td class="fbold">Mailadresse:</td>
                         <td><input type="text" value="<?php echo $emailValue; ?>" name="<?php echo ContactHandler::PARAM_EMAIL; ?>" size="30" maxlength="191"/></td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="fbold">Nachricht an die Forenadministration</td>
+                        <td class="fbold">Mailadresse wiederholen:</td>
+                        <td><input type="text" value="<?php echo $emailValueRepeat; ?>" name="<?php echo ContactHandler::PARAM_EMAIL_REPEAT; ?>" size="30" maxlength="191"/></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="fbold">Nachricht an die Forenadministration:</td>
                     </tr>
                     <tr>
                         <td colspan="2">

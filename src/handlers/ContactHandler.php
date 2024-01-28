@@ -36,9 +36,11 @@ require_once __DIR__.'/../YbForumConfig.php';
 class ContactHandler extends BaseHandler 
 {
     const PARAM_EMAIL = 'contact_emailaddress';
+    const PARAM_EMAIL_REPEAT = 'contact_emailaddress_repeat';
     const PARAM_MSG = 'contact_message';
 
     const MSG_EMPTY = 'Nachricht kann nicht leer sein.';
+    const MSG_EMAIL_DO_NOT_MATCH = 'Mailadressen stimmen nicht überein.';
     const MSG_SENDING_CONTACTMAIL_FAILED = 'Die Anfrage konnnte nicht gesendet werden.';
     
     public function __construct()
@@ -54,6 +56,7 @@ class ContactHandler extends BaseHandler
     protected function ReadParams() : void
     {
         $this->email = $this->ReadEmailParam(self::PARAM_EMAIL);
+        $this->emailRepeat = $this->ReadEmailParam(self::PARAM_EMAIL_REPEAT);
         $this->msg = $this->ReadStringParam(self::PARAM_MSG);        
         
         if(CaptchaV3Config::CAPTCHA_VERIFY)
@@ -71,7 +74,14 @@ class ContactHandler extends BaseHandler
         // Validate where we cannot accept null values:
         $this->ValidateStringParam($this->msg, self::MSG_EMPTY);
         $this->ValidateEmailValue($this->email);
+        $this->ValidateEmailValue($this->emailRepeat);
         
+        // check that mail-addresses match:
+        if($this->email !== $this->emailRepeat)
+        {
+            throw new InvalidArgumentException(self::MSG_EMAIL_DO_NOT_MATCH, parent::MSGCODE_BAD_PARAM);
+        }
+
         // Verify captcha
         if(CaptchaV3Config::CAPTCHA_VERIFY)
         {
@@ -100,6 +110,11 @@ class ContactHandler extends BaseHandler
     {
         return $this->email;
     }
+
+    public function GetEmailRepeat() : ?string
+    {
+        return $this->emailRepeat;
+    }    
     
     public function GetMsg() : ?string
     {
@@ -107,6 +122,7 @@ class ContactHandler extends BaseHandler
     }
     
     private ?string $email;
+    private ?string $emailRepeat;
     private ?string $msg;
     private ?CaptchaV3Verifier $m_captchaVerifier;
 }
