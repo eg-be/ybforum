@@ -1420,6 +1420,25 @@ class ForumDb extends PDO
         $logger->LogMessage(Logger::LOG_BLACKLIST_EMAIL_ADDED,
                 'Email: ' . $email . ' Reason: ' . $reason);
     }
+
+    /**
+     * Return all Users that have the admin-flag set and are active
+     */
+    public function GetAdminUsers() : array
+    {
+        $query = 'SELECT iduser FROM user_table '
+            . 'WHERE admin > 0 AND active > 0';
+        $admins = array();
+        $stmt = $this->prepare($query);
+        $stmt->execute();
+        while($row = $stmt->fetch())
+        {
+            $userId = $row['iduser'];
+            $user = User::LoadUserById($this, $userId);
+            array_push($admins, $user);
+        }
+        return $admins;
+    }
     
     /**
      * @param array values

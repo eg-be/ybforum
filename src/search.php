@@ -25,6 +25,7 @@ require_once __DIR__.'/helpers/ErrorHandler.php';
 require_once __DIR__.'/pageparts/PostList.php';
 require_once __DIR__.'/pageparts/SearchForm.php';
 require_once __DIR__.'/pageparts/SearchResultsView.php';
+require_once __DIR__.'/pageparts/TopNavigation.php';
 require_once __DIR__.'/handlers/SearchHandler.php';
 
 include __DIR__.'/profile/profile_start.php';
@@ -71,13 +72,17 @@ catch(Exception $ex)
         </div>
         <div class="fullwidthcenter generictitle">Beitragssuche</div>    
         <hr>
-        <div class="fullwidthcenter">
-            [ <a href="index.php">Forum</a> ] 
-            [ <a href="recent.php">Neue Beiträge</a> ] 
-            [ <a href="textformatierung.php">Textformatierung</a> ] 
-            [ <a href="stammposter.php">Stammposter</a> ]            
-            [ <a href="register.php">Registrieren</a> ]
-        </div>
+        <?php
+        try
+        {
+            $topNav = new TopNavigation();
+            echo $topNav->renderHtmlDiv();
+        }
+        catch(Exception $ex)
+        {
+            ErrorHandler::OnException($ex);
+        }
+        ?>
         <hr>
         <?php
         // render an error from a previous search run

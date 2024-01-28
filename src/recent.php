@@ -23,6 +23,7 @@
 require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 require_once __DIR__.'/pageparts/PostList.php';
+require_once __DIR__.'/pageparts/TopNavigation.php';
 
 try
 {
@@ -53,19 +54,29 @@ catch(Exception $ex)
         </div>
         <div class="fullwidthcenter generictitle">Neue Beiträge</div>    
         <hr>
-        <div class="fullwidthcenter">
-            [ <a href="postentry.php">Beitrag Schreiben</a> ] 
-            [ <a href="index.php">Forum</a> ] 
-            [ <a href="search.php">Suchen</a> ] 
-            [ <a href="textformatierung.php">Textformatierung</a> ] 
-            [ <a href="stammposter.php">Stammposter</a> ]            
-            [ <a href="register.php">Registrieren</a> ]
-        </div>
+        <?php
+        try
+        {
+            $topNav = new TopNavigation();
+            echo $topNav->renderHtmlDiv();
+        }
+        catch(Exception $ex)
+        {
+            ErrorHandler::OnException($ex);
+        }
+        ?>
         <hr>
         <?php
-        $replies = PostIndexEntry::LoadRecentPosts($db, YbForumConfig::RECENT_ENTRIES_COUNT);
-        $pl = new PostList($replies);
-        echo $pl->RenderListDiv();
+        try
+        {
+            $replies = PostIndexEntry::LoadRecentPosts($db, YbForumConfig::RECENT_ENTRIES_COUNT);
+            $pl = new PostList($replies);
+            echo $pl->RenderListDiv();
+        }
+        catch(Exception $ex)
+        {
+            ErrorHandler::OnException($ex);
+        }
         ?>
         <?php
         include __DIR__.'/pageparts/StandWithUkr.php';
