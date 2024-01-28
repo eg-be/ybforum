@@ -101,6 +101,9 @@ class Logger
     const LOG_CAPTCHA_SCORE_TOO_LOW = 'CaptchaScoreTooLow';
     const LOG_CAPTCHA_WRONG_ACTION = 'CaptchaWrongAction';
 
+    // contact
+    const LOG_CONTACT_FORM_SUBMITTED = 'ContactFormSubmitted';
+
     // Blacklist
     const LOG_BLACKLIST_EMAIL_ADDED = 'BlacklistEmailAdded';
     

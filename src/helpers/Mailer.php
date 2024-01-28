@@ -218,7 +218,16 @@ class Mailer
                 . 'eine Kontaktanfrage gesendet: '
                 . "\r\n\r\n";
         $mailBody.= $contactMsg . "\r\n";
-        $sent = mail($adminEmail, $subject, $mailBody, $this->GetHeaderString());
+        $sent = mail($adminEmail, $subject, $mailBody, $this->GetHeaderString(), '-f ' . YbForumConfig::MAIL_FROM);
+        $logger = new Logger();
+        if($sent)
+        {
+            $logger->LogMessage(Logger::LOG_MAIL_SENT, 'Mail sent to: ' . $adminEmail);
+        }
+        else
+        {
+            $logger->LogMessage(Logger::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $adminEmail);
+        }
         return $sent;
     }
     
