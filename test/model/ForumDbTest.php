@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__.'/BaseTest.php';
+require_once __DIR__.'/../BaseTest.php';
 require_once __DIR__.'/PostMock.php';
 require_once __DIR__.'/UserMock.php';
-require_once __DIR__.'/../src/model/ForumDb.php';
+require_once __DIR__.'/../../src/model/ForumDb.php';
 
 /**
  * Requires a valid database to connect to, as we
@@ -226,7 +226,7 @@ final class ForumDbTest extends BaseTest
             null, null, null, null, null, '::1');
     }
 
-    public function providerInactiveDummy() : array 
+    public static function providerInactiveDummy() : array 
     {
         $db = new ForumDb();
         $deactivated = User::LoadUserByNick($db, 'deactivated');
@@ -307,7 +307,7 @@ final class ForumDbTest extends BaseTest
             null, null, null, '::1');
     }
 
-    public function providerInvalidParentPostId() : array 
+    public static function providerInvalidParentPostId() : array 
     {
         return array(
             [-1], 
@@ -331,13 +331,11 @@ final class ForumDbTest extends BaseTest
             null, null, null, '::1');
     }
 
-    public function providerInvalidPostValues() : array 
+    public static function providerInvalidPostValues() : array 
     {
         $db = new ForumDb();
         $user = User::LoadUserByNick($db, 'user2');
-        $this->assertNotNull($user);
         $parentPost = Post::LoadPost($db, 26);
-        $this->assertNotNull($parentPost);        
         return array(
             [$parentPost->GetId(), $user, '', null, null, null, null, null, '::1'], 
             [$parentPost->GetId(), $user, ' ', null, null, null, null, null, '::1'], 
@@ -365,9 +363,9 @@ final class ForumDbTest extends BaseTest
         $this->db->CreateReplay($parentPostId, $user, 
             $title, $content, $email, 
             $linkUrl, $linkText, $imgUrl, $clientIpAddress);
-    }    
+    }
 
-    public function providerNewUserData() : array
+    public static function providerNewUserData() : array
     {
         return array(
             ['foo', 'foo@mail.com', null],      // registration-msg is not required
@@ -399,7 +397,7 @@ final class ForumDbTest extends BaseTest
         $this->assertObjectEquals($newUserRef, $newUser);
     }
 
-    public function providerNewUserDataFail() : array
+    public static function providerNewUserDataFail() : array
     {
         return array(
             ['user1', 'foo@mail.com'],      // nick already set
@@ -422,7 +420,7 @@ final class ForumDbTest extends BaseTest
         $newId = $this->db->CreateNewUser($nick, $mail, null);
     }
 
-    public function providerRequestConfirmUserCode() : array
+    public static function providerRequestConfirmUserCode() : array
     {
         return array(
             [101, 'new-pass', 'mail@dev', ForumDb::CONFIRM_SOURCE_MIGRATE, '::1'],
@@ -514,7 +512,7 @@ final class ForumDbTest extends BaseTest
         $this->assertSame(1, $result[0]);
     }
 
-    public function providerRequestConfirmUserCodeFails() : array
+    public static function providerRequestConfirmUserCodeFails() : array
     {
         return array(
             [999, 'new-pass', 'mail@dev', ForumDb::CONFIRM_SOURCE_MIGRATE, '::1'],
@@ -951,7 +949,7 @@ final class ForumDbTest extends BaseTest
         $this->assertFalse($result);
     }
 
-    public function providerNotExistingNotConfirmed() : array 
+    public static function providerNotExistingNotConfirmed() : array 
     {
         return array(
             [333], // not existing in db
@@ -1077,7 +1075,7 @@ final class ForumDbTest extends BaseTest
     }
 
 
-    public function providerZeroPosts() : array 
+    public static function providerZeroPosts() : array 
     {
         return array(
             [1],
@@ -1090,7 +1088,7 @@ final class ForumDbTest extends BaseTest
     }
 
 
-    public function providerHasPostsAndNotExisting() : array
+    public static function providerHasPostsAndNotExisting() : array
     {
         return array(
             [101],

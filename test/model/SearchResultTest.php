@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__.'/BaseTest.php';
-require_once __DIR__.'/../src/model/SearchResult.php';
+require_once __DIR__.'/../BaseTest.php';
+require_once __DIR__.'/../../src/model/SearchResult.php';
 
 
 /**
@@ -32,7 +32,7 @@ final class SearchResultTest extends BaseTest
         $this->assertTrue($this->db->IsConnected());
     }
 
-    public function providerSearchStrings() : array 
+    public static function providerSearchStrings() : array 
     {
         return array(
             ['"Thread 3"', null, false, 8],

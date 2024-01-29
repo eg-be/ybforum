@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__.'/BaseTest.php';
+require_once __DIR__.'/../BaseTest.php';
 require_once __DIR__.'/PostMock.php';
-require_once __DIR__.'/../src/model/Post.php';
+require_once __DIR__.'/../../src/model/Post.php';
 
 
 /**
@@ -33,7 +33,7 @@ final class PostTest extends BaseTest
         $this->assertTrue($this->db->IsConnected());
     }
 
-    public function providerPostMock() : array
+    public static function providerPostMock() : array
     {
         // one simple post with no parent:
         $p8 = new PostMock(8, 8, null,

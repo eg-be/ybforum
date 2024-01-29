@@ -1,0 +1,52 @@
+name: PHPUnit Tests
+run-name: ${{ github.actor }} pushed, running PHPUnit Tests
+on:
+  push:
+    branches:
+      - 'issue/**'
+jobs:
+  Run-PHPUnit-Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - name: Shutdown Ubuntu MySQL (SUDO)
+        run: sudo service mysql stop
+      - name: Start MariaDB
+        uses: getong/mariadb-action@v1.1
+        with:
+          character set server: 'utf8mb4'
+          collation server: 'utf8mb4_german2_ci'
+          mysql database: dbybforum
+          mysql root password: root
+      - name: Install mariadb-client
+        run: sudo apt install mariadb-client
+      - name: Setup Test database users
+        run: |
+          mariadb -h localhost -P 3306 -u root -proot dbybforum -e "CREATE USER 'dbybforum_ro'@'%' IDENTIFIED BY 'ro-password'"
+          mariadb -h localhost -P 3306 -u root -proot dbybforum -e "GRANT SELECT,SHOW VIEW ON dbybforum.* TO 'dbybforum_ro'@'%'"
+          mariadb -h localhost -P 3306 -u root -proot dbybforum -e "CREATE USER 'dbybforum_rw'@'%' IDENTIFIED BY 'rw-password'"
+          mariadb -h localhost -P 3306 -u root -proot dbybforum -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER ON dbybforum.* TO 'dbybforum_rw'@'%'"
+      - name: Setup PHP with pdo-mysql
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql
+          tools: phpunit:9.6.7
+      - name: Run PHPUnit Tests
+        run: phpunit
+#      - name: PHPUnit Tests
+#        uses: php-actions/phpunit@master
+#        with:
+#          php_version: 8.2
+#          php_extensions: pdo_mysql
+#          testsuite: unit-model
+#      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+#      - name: List files in the repository
+#        run: |
+#          ls ${{ github.workspace }}
+      - run: echo "🍏 This job's status is ${{ job.status }}."

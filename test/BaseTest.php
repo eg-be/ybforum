@@ -28,7 +28,7 @@ class BaseTest extends TestCase
         // restore an empty database for the tests
         foreach(self::TEST_DB as $file)
         {
-            $cmd = sprintf('mysql -h localhost -u %s -p%s %s < %s 2>&1', 
+            $cmd = sprintf('mariadb -h localhost -P 3306 -u %s -p%s %s < %s 2>&1', 
             DbConfig::RW_USERNAME, DbConfig::RW_PASSWORD, DbConfig::DEFAULT_DB, $file);
             $output = null;
             $result_code = null;

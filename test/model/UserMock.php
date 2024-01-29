@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__.'/../src/model/User.php';
+require_once __DIR__.'/../../src/model/User.php';
 
 /**
  * The real User class is intentend to be constructed only
