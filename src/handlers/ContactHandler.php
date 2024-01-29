@@ -64,7 +64,7 @@ class ContactHandler extends BaseHandler
             $this->m_captchaVerifier = new CaptchaV3Verifier(
                 CaptchaV3Config::CAPTCHA_SECRET, 
                 CaptchaV3Config::MIN_REQUIRED_SCORE,
-                CaptchaV3Config::CAPTCHA_REGISTER_USER_ACTION
+                CaptchaV3Config::CAPTCHA_CONTACT_ACTION
             );
         }
     }

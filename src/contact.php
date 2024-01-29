@@ -67,7 +67,7 @@ catch(Exception $ex)
             echo '<script src=\'https://www.google.com/recaptcha/api.js\'></script>' . PHP_EOL;
             echo '<script>
             function onSubmit(token) {
-              document.getElementById("register-form").submit();
+              document.getElementById("contact-form").submit();
             }
           </script>' . PHP_EOL;
         }
