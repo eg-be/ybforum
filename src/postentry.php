@@ -111,6 +111,7 @@ catch(Exception $ex)
 <html lang="de-ch">
     <head>
         <link rel="stylesheet" type="text/css" href="ybforum.css?v=r183">
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
         <title>Beitrag schreiben</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
