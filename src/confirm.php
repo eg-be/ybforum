@@ -32,7 +32,7 @@ require_once __DIR__.'/pageparts/ConfirmForm.php';
 
 <html lang="de-ch">
     <head>
-        <link rel="stylesheet" type="text/css" href="ybforum.css">
+        <link rel="stylesheet" type="text/css" href="ybforum.css?v=<?php echo YbForumConfig::CSS_REV ?>">
         <link rel="icon" type="image/x-icon" href="favicon.ico">
         <title>YB Forum</title>
         <meta charset="UTF-8">
