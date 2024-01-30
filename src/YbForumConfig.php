@@ -131,4 +131,9 @@ final class YbForumConfig
      * @var bool If set to false, no registration is possible.
      */
     const REGISTRATION_OPEN = true;
+
+    /**
+     * @var string Revision-string to append to the CSS to enforce reloading on update.
+     */
+    const CSS_REV = 'r185';
 }
