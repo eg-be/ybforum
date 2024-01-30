@@ -74,6 +74,17 @@ class TopNavigation
             // assume we are on the default-page
             $this->m_page = Page::INDEX;
         }
+        else if(str_ends_with($pageUri, '.php') !== true)
+        {
+            // we are sometimes getting request like
+            // recent.php/favicon.ico, recent.php/ybforum.css, recent.php/logo/yb_forum.jpg, etc.
+            // sees some browser are reading the received header from 'page.php' and then just
+            // append things to the end (?)
+            // lets just ignore such cases, there is no reason why any of this php-scripts should
+            // be executed from such an url, not?
+            http_response_code(404);
+            exit;
+        }
         else
         {
             $pageKnown = false;
