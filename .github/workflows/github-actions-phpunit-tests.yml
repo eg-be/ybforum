@@ -36,7 +36,7 @@ jobs:
         with:
           php-version: '8.2'
           extensions: pdo_mysql
-          tools: phpunit:9.6.7
+          tools: phpunit
       - name: Run PHPUnit Tests
         run: phpunit
 #      - name: PHPUnit Tests
