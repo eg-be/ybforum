@@ -214,10 +214,7 @@ final class ForumDbTest extends BaseTest
         $this->assertObjectEquals($allPostRef, $allPost);        
     }
 
-    /**
-     * @dataProvider providerInactiveDummy
-     * @test
-     */
+    #[DataProvider('providerInactiveDummy')]
     public function testCreateThreadFails(User $u) : void
     {
         $this->assertTrue($u->IsDummyUser() || $u->IsActive() === false);
