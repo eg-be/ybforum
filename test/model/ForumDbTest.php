@@ -332,19 +332,17 @@ final class ForumDbTest extends BaseTest
 
     public static function providerInvalidPostValues() : array 
     {
-        $db = new ForumDb();
-        $user = User::LoadUserByNick($db, 'user2');
-        $parentPost = Post::LoadPost($db, 26);
+        $user = new UserMock(102, 'user2', 'user2@dev', 0, 1, '2021-03-30 14:30:05', null, '2021-03-30 14:30:15', '$2y$10$U2nazhRAEhg1JkXu2Uls0.pnH5Wi9QsyXbmoJMBC2KNYGPN8fezfe', null);
         return array(
-            [$parentPost->GetId(), $user, '', null, null, null, null, null, '::1'], 
-            [$parentPost->GetId(), $user, ' ', null, null, null, null, null, '::1'], 
-            [$parentPost->GetId(), $user, 'cont', ' ', null, null, null, null, '::1'], 
-            [$parentPost->GetId(), $user, 'cont', null, ' ', null, null, null, '::1'], 
-            [$parentPost->GetId(), $user, 'cont', null, null, ' ', null, null, '::1'], 
-            [$parentPost->GetId(), $user, 'cont', null, null, null, ' ', null, '::1'], 
-            [$parentPost->GetId(), $user, 'cont', null, null, null, null, ' ', '::1'], 
-            [$parentPost->GetId(), $user, 'cont', null, null, null, null, null, ''], 
-            [$parentPost->GetId(), $user, 'cont', null, null, null, null, null, ' '], 
+            [26, $user, '', null, null, null, null, null, '::1'], 
+            [26, $user, ' ', null, null, null, null, null, '::1'], 
+            [26, $user, 'cont', ' ', null, null, null, null, '::1'], 
+            [26, $user, 'cont', null, ' ', null, null, null, '::1'], 
+            [26, $user, 'cont', null, null, ' ', null, null, '::1'], 
+            [26, $user, 'cont', null, null, null, ' ', null, '::1'], 
+            [26, $user, 'cont', null, null, null, null, ' ', '::1'], 
+            [26, $user, 'cont', null, null, null, null, null, ''], 
+            [26, $user, 'cont', null, null, null, null, null, ' '], 
         );
     }    
 
