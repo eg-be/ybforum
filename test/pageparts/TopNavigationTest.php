@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__.'/BaseTest.php';
-require_once __DIR__.'/../src/pageparts/TopNavigation.php';
+require_once __DIR__.'/../BaseTest.php';
+require_once __DIR__.'/../../src/pageparts/TopNavigation.php';
 
 
 /**
@@ -23,7 +23,7 @@ final class TopNavigationTest extends TestCase
 
     }
 
-    public function providerPageUris() : array 
+    public static function providerPageUris() : array 
     {
         return array(
             ['index.php', Page::INDEX, null],

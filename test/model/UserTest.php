@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__.'/BaseTest.php';
+require_once __DIR__.'/../BaseTest.php';
 require_once __DIR__.'/UserMock.php';
-require_once __DIR__.'/../src/model/User.php';
+require_once __DIR__.'/../../src/model/User.php';
 
 
 /**
@@ -33,7 +33,7 @@ final class UserTest extends BaseTest
         $this->assertTrue($this->db->IsConnected());
     }       
 
-    public function providerUserMock() : array
+    public static function providerUserMock() : array
     {
         $admin = new UserMock(1, 'admin', 'eg-be@dev',
             1, 1, '2020-03-30 14:30:05', 'initial admin-user',

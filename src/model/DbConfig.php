@@ -24,7 +24,7 @@
  */
 final class DbConfig 
 {
-    const SERVERNAME = 'localhost';
+    const SERVERNAME = '127.0.0.1';
     const RW_USERNAME = 'dbybforum_rw';
     const RW_PASSWORD = 'rw-password';
 	

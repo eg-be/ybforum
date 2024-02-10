@@ -1,4 +1,5 @@
 # YB Forum 1898
+[![PHPUnit Tests](https://github.com/eg-be/ybforum/actions/workflows/github-actions-phpunit-tests.yml/badge.svg)](https://github.com/eg-be/ybforum/actions/workflows/github-actions-phpunit-tests.yml)
 
 A forum with a user-interface stuck in the 90s, but with an implementation from the 21 century.
 
