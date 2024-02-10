@@ -228,9 +228,8 @@ final class ForumDbTest extends BaseTest
 
     public static function providerInactiveDummy() : array 
     {
-        $db = new ForumDb();
-        $deactivated = User::LoadUserByNick($db, 'deactivated');
-        $dummy = User::LoadUserByNick($db, 'dummy');
+        $deactivated = new UserMock(50, 'deactivated', 'deactivated@dev', 0, 0, '2021-03-30 14:30:05', null, '2021-03-30 14:30:15', '$2y$10$U2nazhRAEhg1JkXu2Uls0.pnH5Wi9QsyXbmoJMBC2KNYGPN8fezfe', null);
+        $dummy = new UserMock(66, 'dummy', null, 0, 0, '2021-03-30 14:30:05', null, null, null, null);
         return array(
             [$deactivated], 
             [$dummy]
