@@ -3,6 +3,7 @@ run-name: ${{ github.actor }} pushed, running PHPUnit Tests
 on:
   push:
     branches:
+      - master
       - 'issue/**'
 jobs:
   Run-PHPUnit-Tests:
