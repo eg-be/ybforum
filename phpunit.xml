@@ -5,8 +5,8 @@
     <testsuites>
         <testsuite name="unit-model">
 <!--            <file>test/model/PostTest.php</file> -->
-            <file>test/model/ForumDbTest.php</file>
-<!--            <directory>test/model</directory> -->
+<!--            <file>test/model/ForumDbTest.php</file> -->
+            <directory>test/model</directory>
         </testsuite>
         <testsuite name="unit-pageparts">
             <directory>test/pageparts</directory>
