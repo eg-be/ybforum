@@ -94,20 +94,24 @@ catch(Exception $ex)
         }
         ?>
         <hr>
+        <div class="fullwidthcenter" style="padding-top:1em">
+			<div><span class="fbold">Weitergabe von Tickets</span></div>
+			<div>
+            Tickets können über die <a href="https://www.ostkurve.be/abo-boerse/">ABO-BÖRSE</a> 
+			der Ostkurve weitergeben werden.
+			</div>
+		</div>
+        <div class="fullwidthcenter" style="padding-top: 1em">
+			<div><span class="fbold" >Bitte verwende eine gültige Emailadresse</span></div>
+			<div>
+            Die hier angebenen Emailadresse wird nicht im Forum gezeigt. Sie 
+            dient lediglich dem Forenadministrator als Kontaktadresse. 
+			Um die Registrierung abzuschliessen, muss die Emailadresse bestätigt werden.
+			</div>
+		</div>
         <div class="fullwidthcenter" style="padding-bottom: 2em;">
-            Ihre hier angebenen Emailadresse wird nicht im Forum gezeigt. Sie 
-            dient lediglich dem Forenadministrator dazu einen Anhaltspunkt zu 
-            haben, wer seine Stammposter eigentlich sind. Bevor Ihr Antrag vom 
-            Forenadministrator überhaupt betrachtet wird, wird Ihre Emailadresse verifiziert. 
-            An Ihre Emailadresse sendet das System Ihnen einen Link, den Sie 
-            besuchen müssen. Damit wird die Korrektheit Ihrer Emailadresse 
-            bestätigt.
-        </div>
-        <div class="fullwidthcenter">
-        <div><span class="fbold">Die Freischaltung kann einige Zeit dauern.</span></div>
-        <div>Ob ein Benutzer überhaupt freigeschaltet wird, 
-        hängt massgeblich vom Inhalt der Registrierungsnachricht ab 
-        (Referenz auf existierende Stammposter, kurzes Aufführen der allseits bekannten 1898-Forenregeln, etc.).</div>
+			<div><span class="fbold">Die Freischaltung kann einige Zeit dauern.</span></div>
+			<div >Bitte hinterlasse uns im Feld Nachricht eine kurze Nachricht.</div>
         </div>
         <?php 
         if($registerUserHandler && $registerUserHandler->HasException())
