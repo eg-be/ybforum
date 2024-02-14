@@ -109,7 +109,7 @@ catch(Exception $ex)
 			Um die Registrierung abzuschliessen, muss die Emailadresse bestätigt werden.
 			</div>
 		</div>
-        <div class="fullwidthcenter" style="padding-bottom: 2em;">
+        <div class="fullwidthcenter" style="padding-bottom: 2em; padding-top: 1em">
 			<div><span class="fbold">Die Freischaltung kann einige Zeit dauern.</span></div>
 			<div >Bitte hinterlasse uns im Feld Nachricht eine kurze Nachricht.</div>
         </div>
