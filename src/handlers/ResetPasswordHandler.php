@@ -94,26 +94,26 @@ class ResetPasswordHandler extends BaseHandler
             {
                 $passedValue = $this->email;
             }
-            $logger->LogMessage(Logger::LOG_OPERATION_FAILED_NO_MATCHING_NICK_OR_EMAIL, 'Passed nick or email: ' . $passedValue);
+            $logger->LogMessage(LogType::LOG_OPERATION_FAILED_NO_MATCHING_NICK_OR_EMAIL, 'Passed nick or email: ' . $passedValue);
             throw new InvalidArgumentException(self::MSG_UNKNOWN_EMAIL_OR_NICK, parent::MSGCODE_BAD_PARAM);
         }
         // we only need an email
         if(!$user->HasEmail())
         {
-            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_USER_HAS_NO_EMAIL, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_HAS_NO_EMAIL, $user->GetId());
             throw new InvalidArgumentException(self::MSG_USER_HAS_NO_EMAIL, parent::MSGCODE_BAD_PARAM);
         }
         // A dummy never has an email, but check anyway
         if($user->IsDummyUser())
         {
-            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_USER_IS_DUMMY, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $user->GetId());
             throw new InvalidArgumentException(self::MSG_DUMMY_USER, parent::MSGCODE_BAD_PARAM);            
         }
         // Do not allow requesting a password for an inactive user, exept this
         // is a user who needs to migrate:
         if(!$user->IsActive() && !$user->NeedsMigration())
         {
-            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_USER_IS_INACTIVE, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_INACTIVE, $user->GetId());
             throw new InvalidArgumentException(self::MSG_USER_INACTIVE, parent::MSGCODE_BAD_PARAM);
         }
         // okay, init the request to change the password

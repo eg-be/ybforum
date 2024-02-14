@@ -22,97 +22,100 @@
 require_once __DIR__.'/../model/ForumDb.php';
 require_once __DIR__.'/../model/User.php';
 
+enum LogType : string {
+    
+    // Auth logs
+    case LOG_AUTH_FAILED_NO_SUCH_USER = 'AuthFailedNoSuchUser';
+    case LOG_AUTH_FAILED_USER_IS_DUMMY = 'AuthFailedUserIsDummy';
+    case LOG_AUTH_FAILED_PASSWORD_INVALID = 'AuthFailedPassInvalid';
+    case LOG_AUTH_FAILED_USER_INACTIVE = 'AuthFailedUserInactive';
+    case LOG_AUTH_FAILED_USING_OLD_PASSWORD = 'AuthFailedOldPassInvalid';
+    case LOG_AUTH_USING_OLD_PASSWORD = 'AuthUsingOldPassword';
+
+    // Generic operations that fail
+    case LOG_OPERATION_FAILED_MIGRATION_REQUIRED = 'OperationFailedMigrationRequired';
+    case LOG_OPERATION_FAILED_USER_IS_DUMMY = 'OperationFailedUserIsDummy';
+    case LOG_OPERATION_FAILED_ALREADY_MIGRATED = 'OperationFailedAlreadyMigrated';
+    case LOG_OPERATION_FAILED_ALREADY_CONFIRMED = 'OperationFailedAlreadyConfirmed';
+    case LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE = 'OperationFailedEmailNotUnique';
+    case LOG_OPERATION_FAILED_NICK_NOT_UNIQUE = 'OperationFailedNickNotUnique';
+    case LOG_OPERATION_FAILED_NO_MATCHING_NICK_OR_EMAIL = 'OperationFailedNoMatchingNickOrEmail';
+    case LOG_OPERATION_FAILED_USER_HAS_NO_EMAIL = 'OperationFailedUserHasNoEmail';
+    case LOG_OPERATION_FAILED_USER_IS_INACTIVE = 'OperationFailedUserIsInactive';
+    case LOG_OPERATION_FAILED_EMAIL_BLACKLISTED = 'OperationFailedEmailBlacklisted';
+    case LOG_OPERATION_FAILED_EMAIL_REGEX_BLACKLISTED = 'OperationFailedEmailRegexBlacklisted';
+    
+    // confirmation codes requested and created with success
+    case LOG_CONFIRM_MIGRATION_CODE_CREATED = 'ConfirmMigrationCodeCreated';
+    case LOG_CONFIRM_REGISTRATION_CODE_CREATED = 'ConfirmRegistrationCodeCreated';
+    case LOG_PASS_RESET_CODE_CREATED = 'ConfirmResetPasswordCodeCreated';
+    case LOG_CONFIRM_EMAIL_CODE_CREATED = 'ConfirmEmailCodeCreated';
+    
+    // confirm code failures
+    case LOG_CONFIRM_CODE_FAILED_CODE_INVALID = 'ConfirmFailedCodeInvalid';
+    case LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER = 'ConfirmFailedNoMatchingUser';
+    case LOG_CONFIRM_REQUEST_IGNORED_IS_PREVIEW = 'ConfirmRequestIgnoredIsPreview';
+    
+    // user modified with success
+    case LOG_USER_PASSWORD_UPDATED = 'UserPasswordUpdated';
+    case LOG_USER_EMAIL_UPDATED = 'UserEmailUpdated';
+    case LOG_USER_ACTIVED = 'UserActived';
+    case LOG_USER_DEACTIVATED = 'UserDeactivated';
+    case LOG_USER_MIGRATION_CONFIRMED = 'UserMigrationConfirmed';
+    case LOG_USER_REGISTRATION_CONFIRMED = 'UserRegistrationConfirmed';
+    case LOG_USER_ADMIN_SET = 'UserAdminSet';
+    case LOG_USER_ADMIN_REMOVED = 'UserAdminRemoved';
+    case LOG_USER_ACCECPTED = 'UserAccepted';
+    case LOG_USER_CREATED = 'UserCreated';
+    case LOG_USER_DELETED = 'UserDeleted';
+    case LOG_USER_TURNED_INTO_DUMMY = 'UserTurnedIntoDummy';
+    
+    // notifications sent not related to confirm code
+    case LOG_NOTIFIED_USER_ACCEPTED = 'NotifiedUserAccepted';
+    case LOG_NOTIFIED_USER_DENIED = 'NotifiedUserDenied';
+    case LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED = 'NotifiedAdminUserConfiremdRegistration';
+    
+    // stammposter
+    case LOG_STAMMPOSTER_LOGIN = 'StammposterLogin';
+    
+    // admin functions
+    case LOG_ADMIN_LOGIN = 'AdminLogin';
+    case LOG_ADMIN_LOGIN_FAILED_USER_IS_NOT_ADMIN = 'AdminLoginFailedUserIsNoAdmin';
+    
+    // post modifications
+    case LOG_POST_HIDDEN = 'PostHidden';
+    case LOG_POST_SHOW = 'PostShow';
+    
+    // generic mailing failure
+    case LOG_MAIL_FAILED = 'MailFailed';
+    case LOG_MAIL_SENT = 'MailSent';
+    
+    // captcha
+    case LOG_CAPTCHA_TOKEN_INVALID = 'CaptchaTokenInvalid';
+    case LOG_CAPTCHA_SCORE_PASSED = 'CaptchaScorePassed';
+    case LOG_CAPTCHA_SCORE_TOO_LOW = 'CaptchaScoreTooLow';
+    case LOG_CAPTCHA_WRONG_ACTION = 'CaptchaWrongAction';
+
+    // contact
+    case LOG_CONTACT_FORM_SUBMITTED = 'ContactFormSubmitted';
+
+    // Blacklist
+    case LOG_BLACKLIST_EMAIL_ADDED = 'BlacklistEmailAdded';
+    
+    // Extended log
+    case LOG_EXT_POST_DISCARDED = 'ExtLogPostDiscarded';
+    
+    // Fatal errors
+    case LOG_ERROR_EXCEPTION_THROWN =  'ErrorExceptionThrown';
+}
+
 /**
  * Helper to do all log-handling
  *
  * @author Elias Gerber
  */
 class Logger 
-{
-    // Auth logs
-    const LOG_AUTH_FAILED_NO_SUCH_USER = 'AuthFailedNoSuchUser';
-    const LOG_AUTH_FAILED_USER_IS_DUMMY = 'AuthFailedUserIsDummy';
-    const LOG_AUTH_FAILED_PASSWORD_INVALID = 'AuthFailedPassInvalid';
-    const LOG_AUTH_FAILED_USER_INACTIVE = 'AuthFailedUserInactive';
-    const LOG_AUTH_FAILED_USING_OLD_PASSWORD = 'AuthFailedOldPassInvalid';
-    const LOG_AUTH_USING_OLD_PASSWORD = 'AuthUsingOldPassword';
-
-    // Generic operations that fail
-    const LOG_OPERATION_FAILED_MIGRATION_REQUIRED = 'OperationFailedMigrationRequired';
-    const LOG_OPERATION_FAILED_USER_IS_DUMMY = 'OperationFailedUserIsDummy';
-    const LOG_OPERATION_FAILED_ALREADY_MIGRATED = 'OperationFailedAlreadyMigrated';
-    const LOG_OPERATION_FAILED_ALREADY_CONFIRMED = 'OperationFailedAlreadyConfirmed';
-    const LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE = 'OperationFailedEmailNotUnique';
-    const LOG_OPERATION_FAILED_NICK_NOT_UNIQUE = 'OperationFailedNickNotUnique';
-    const LOG_OPERATION_FAILED_NO_MATCHING_NICK_OR_EMAIL = 'OperationFailedNoMatchingNickOrEmail';
-    const LOG_OPERATION_FAILED_USER_HAS_NO_EMAIL = 'OperationFailedUserHasNoEmail';
-    const LOG_OPERATION_FAILED_USER_IS_INACTIVE = 'OperationFailedUserIsInactive';
-    const LOG_OPERATION_FAILED_EMAIL_BLACKLISTED = 'OperationFailedEmailBlacklisted';
-    const LOG_OPERATION_FAILED_EMAIL_REGEX_BLACKLISTED = 'OperationFailedEmailRegexBlacklisted';
-    
-    // confirmation codes requested and created with success
-    const LOG_CONFIRM_MIGRATION_CODE_CREATED = 'ConfirmMigrationCodeCreated';
-    const LOG_CONFIRM_REGISTRATION_CODE_CREATED = 'ConfirmRegistrationCodeCreated';
-    const LOG_PASS_RESET_CODE_CREATED = 'ConfirmResetPasswordCodeCreated';
-    const LOG_CONFIRM_EMAIL_CODE_CREATED = 'ConfirmEmailCodeCreated';
-    
-    // confirm code failures
-    const LOG_CONFIRM_CODE_FAILED_CODE_INVALID = 'ConfirmFailedCodeInvalid';
-    const LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER = 'ConfirmFailedNoMatchingUser';
-    const LOG_CONFIRM_REQUEST_IGNORED_IS_PREVIEW = 'ConfirmRequestIgnoredIsPreview';
-    
-    // user modified with success
-    const LOG_USER_PASSWORD_UPDATED = 'UserPasswordUpdated';
-    const LOG_USER_EMAIL_UPDATED = 'UserEmailUpdated';
-    const LOG_USER_ACTIVED = 'UserActived';
-    const LOG_USER_DEACTIVATED = 'UserDeactivated';
-    const LOG_USER_MIGRATION_CONFIRMED = 'UserMigrationConfirmed';
-    const LOG_USER_REGISTRATION_CONFIRMED = 'UserRegistrationConfirmed';
-    const LOG_USER_ADMIN_SET = 'UserAdminSet';
-    const LOG_USER_ADMIN_REMOVED = 'UserAdminRemoved';
-    const LOG_USER_ACCECPTED = 'UserAccepted';
-    const LOG_USER_CREATED = 'UserCreated';
-    const LOG_USER_DELETED = 'UserDeleted';
-    const LOG_USER_TURNED_INTO_DUMMY = 'UserTurnedIntoDummy';
-    
-    // notifications sent not related to confirm code
-    const LOG_NOTIFIED_USER_ACCEPTED = 'NotifiedUserAccepted';
-    const LOG_NOTIFIED_USER_DENIED = 'NotifiedUserDenied';
-    const LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED = 'NotifiedAdminUserConfiremdRegistration';
-    
-    // stammposter
-    const LOG_STAMMPOSTER_LOGIN = 'StammposterLogin';
-    
-    // admin functions
-    const LOG_ADMIN_LOGIN = 'AdminLogin';
-    const LOG_ADMIN_LOGIN_FAILED_USER_IS_NOT_ADMIN = 'AdminLoginFailedUserIsNoAdmin';
-    
-    // post modifications
-    const LOG_POST_HIDDEN = 'PostHidden';
-    const LOG_POST_SHOW = 'PostShow';
-    
-    // generic mailing failure
-    const LOG_MAIL_FAILED = 'MailFailed';
-    const LOG_MAIL_SENT = 'MailSent';
-    
-    // captcha
-    const LOG_CAPTCHA_TOKEN_INVALID = 'CaptchaTokenInvalid';
-    const LOG_CAPTCHA_SCORE_PASSED = 'CaptchaScorePassed';
-    const LOG_CAPTCHA_SCORE_TOO_LOW = 'CaptchaScoreTooLow';
-    const LOG_CAPTCHA_WRONG_ACTION = 'CaptchaWrongAction';
-
-    // contact
-    const LOG_CONTACT_FORM_SUBMITTED = 'ContactFormSubmitted';
-
-    // Blacklist
-    const LOG_BLACKLIST_EMAIL_ADDED = 'BlacklistEmailAdded';
-    
-    // Extended log
-    const LOG_EXT_POST_DISCARDED = 'ExtLogPostDiscarded';
-    
-    // Fatal errors
-    const LOG_ERROR_EXCEPTION_THROWN =  'ErrorExceptionThrown';
-    
+{  
     public function __construct(ForumDb $db = null)
     {
         if(!$db || $db->IsReadOnly())
@@ -146,14 +149,14 @@ class Logger
         }
     }
 
-    public function LogMessageWithUserId(string $logType, int $userId, 
+    public function LogMessageWithUserId(LogType $logType, int $userId, 
             string $msg = null, string $extendedInfo = null) : void
     {
         $logTypeId = $this->GetLogTypeId($logType);
         $this->InsertLogEntry($logTypeId, $userId, $msg, $extendedInfo);
     }
     
-    public function LogMessage(string $logType, string $msg, 
+    public function LogMessage(LogType $logType, string $msg, 
             string $extendedInfo = null) : void
     {
         $logTypeId = $this->GetLogTypeId($logType);
@@ -255,11 +258,11 @@ class Logger
     
     /**
      * Lookup an entry in log_type_table where name matches the passed string
-     * @param string $logType value for column name
+     * @param LogType $logType value for column name
      * @return int value of column idlog_type
      * @throws InvalidArgumentException If no matching row is found
      */
-    private function GetLogTypeId(string $logType) : int
+    public function GetLogTypeId(LogType $logType) : int
     {
         if(!$this->m_selectTypeStmt)
         {
@@ -267,12 +270,12 @@ class Logger
             $this->m_selectTypeStmt = $this->m_db->prepare($query);
         }
         $this->m_selectTypeStmt->execute(array(
-            ':name' => $logType
+            ':name' => $logType->value
         ));
         $row = $this->m_selectTypeStmt->fetch();
         if(!$row)
         {
-            throw new InvalidArgumentException('LogType ' . $logType . ' is not '
+            throw new InvalidArgumentException('LogType ' . $logType->value . ' is not '
                     . 'defined in log_type_table');
         }
         return $row['idlog_type'];

@@ -93,7 +93,7 @@ class ContactHandler extends BaseHandler
     {
         $logger = new Logger($db);
         // try to log what we have received
-        $logger->LogMessage(Logger::LOG_CONTACT_FORM_SUBMITTED, 'Mail: ' . $this->email . '; Msg: ' . $this->msg);
+        $logger->LogMessage(LogType::LOG_CONTACT_FORM_SUBMITTED, 'Mail: ' . $this->email . '; Msg: ' . $this->msg);
 
         // Send a mail to all admins
         $mailer = new Mailer();

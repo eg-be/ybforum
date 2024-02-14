@@ -51,14 +51,14 @@ try
                 if($user->IsAdmin())
                 {
                     // Lgin succeeded, move on toe index page
-                    $logger->LogMessageWithUserId(Logger::LOG_ADMIN_LOGIN, $user->GetId());
+                    $logger->LogMessageWithUserId(LogType::LOG_ADMIN_LOGIN, $user->GetId());
                     $_SESSION['adminuserid'] = $user->GetId();
                     header('Location: index.php');
                     exit;
                 }
                 else
                 {
-                    $logger->LogMessageWithUserId(Logger::LOG_ADMIN_LOGIN_FAILED_USER_IS_NOT_ADMIN, $user->GetId());
+                    $logger->LogMessageWithUserId(LogType::LOG_ADMIN_LOGIN_FAILED_USER_IS_NOT_ADMIN, $user->GetId());
                 }
             }
         }

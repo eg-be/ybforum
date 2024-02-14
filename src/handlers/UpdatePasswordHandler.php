@@ -79,14 +79,14 @@ class UpdatePasswordHandler extends BaseHandler
         // dummy user cannot have a password set
         if($this->user->IsDummyUser())
         {
-            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_USER_IS_DUMMY, $this->user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $this->user->GetId());
             throw new InvalidArgumentException(self::MSG_DUMMY_USER, parent::MSGCODE_BAD_PARAM);
         }
         // inactive users cannot change their password, 
         // except they are inactive because they need to migrate
         if(!$this->user->IsActive() && !$this->user->NeedsMigration())
         {
-            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_USER_IS_INACTIVE, $this->user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_INACTIVE, $this->user->GetId());
             throw new InvalidArgumentException(self::MSG_USER_INACTIVE, parent::MSGCODE_BAD_PARAM);
         }
         // if we need to migrate, migrate
