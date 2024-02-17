@@ -155,6 +155,7 @@ final class LoggerTest extends BaseTest
         // todo: setting it here does not work, whats wrong?
         //$_SERVER['REMOTE_ADDR'] = '1.1.1.1';
         //$_SERVER['REQUEST_URI'] = 'some-uri';
+        $_SERVER['REMOTE_ADDR'] = '192.168.1.15';
 
         $l = new Logger($this->db);
         $l->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, 101, "testLogMessageWithUserId-msg1");
@@ -176,5 +177,16 @@ final class LoggerTest extends BaseTest
         $this->assertEquals(101, $result['iduser']);
         $this->assertNotNull($result['historic_user_context']);
         $this->assertSame('testLogMessageWithUserId-msg1', $result['message']);
-    }       
+    }
+
+    public function testAllLogTypesDefinedInDb(): void
+    {
+        $l = new Logger($this->db);
+
+        foreach(LogType::cases() as $lt)
+        {
+            $id = $l->GetLogTypeId($lt);
+            $this->assertGreaterThan(0, $id);
+        }
+    }
 }
