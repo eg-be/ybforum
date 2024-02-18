@@ -127,26 +127,14 @@ class Logger
         $this->m_selectTypeStmt = null;
         $this->m_insertLogEntryStmt = null;
         $this->m_insertExtendedInfoStmt = null;
-        // when unit-testing, we do not have a REQUEST_URI 
-        // nor a REMOTE_ADDR: Dont fail completely in that case
-        $clientIp = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
-        if($clientIp === null)
-        {
-            $this->m_clientIp = "::1";
-        }
-        else 
-        {
-            $this->m_clientIp = $clientIp;
-        }
-        $requestUri = filter_input(INPUT_SERVER, 'REQUEST_URI');
-        if($requestUri === null)
-        {
-            $this->m_requestUri = "phpunit";
-        }
-        else 
-        {
-            $this->m_requestUri = $requestUri;
-        }
+
+        // we must always have an ip and a request_uri
+        $values = filter_var_array($_SERVER, array(
+            'REMOTE_ADDR' => FILTER_VALIDATE_IP,
+            'REQUEST_URI' => FILTER_SANITIZE_STRING
+        ), true);
+        $this->m_clientIp = $values['REMOTE_ADDR'];
+        $this->m_requestUri = $values['REQUEST_URI'];
     }
 
     public function LogMessageWithUserId(LogType $logType, int $userId, 

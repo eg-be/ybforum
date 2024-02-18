@@ -151,12 +151,6 @@ final class LoggerTest extends BaseTest
     public function testLogMessageWithUserId(): void
     {
         // just log a test-message with some user-info
-        // some properties are set from INPUT_SERVER, what is probably not so nice
-        // todo: setting it here does not work, whats wrong?
-        //$_SERVER['REMOTE_ADDR'] = '1.1.1.1';
-        //$_SERVER['REQUEST_URI'] = 'some-uri';
-        $_SERVER['REMOTE_ADDR'] = '192.168.1.15';
-
         $l = new Logger($this->db);
         $l->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, 101, "testLogMessageWithUserId-msg1");
 
@@ -176,7 +170,10 @@ final class LoggerTest extends BaseTest
         $this->assertNotNull($result['ts']);
         $this->assertEquals(101, $result['iduser']);
         $this->assertNotNull($result['historic_user_context']);
+        $this->assertStringContainsString('IdUser: 101;', $result['historic_user_context']);
         $this->assertSame('testLogMessageWithUserId-msg1', $result['message']);
+        $this->assertSame('phpunit', $result['request_uri']);       // configured in bootstrap.php for the uni-tests
+        $this->assertSame('13.13.13.13', $result['ip_address']);
     }
 
     public function testAllLogTypesDefinedInDb(): void
