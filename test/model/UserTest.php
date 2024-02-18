@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__.'/../BaseTest.php';
 require_once __DIR__.'/UserMock.php';
@@ -16,6 +17,8 @@ require_once __DIR__.'/../../src/model/User.php';
  */
 final class UserTest extends BaseTest
 {
+    private ForumDb $db;
+
     public static function setUpBeforeClass(): void
     {
         // This tests will not modify the db, its enough to re-create
@@ -55,10 +58,7 @@ final class UserTest extends BaseTest
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerUserMock
-     */
+    #[DataProvider('providerUserMock')]
     public function testLoadUserById(User $ref) : void
     {
         $user = User::LoadUserById($this->db, $ref->GetId());
@@ -72,10 +72,7 @@ final class UserTest extends BaseTest
         $this->assertNull(User::LoadUserById($this->db, 12));
     }
 
-    /**
-     * @test
-     * @dataProvider providerUserMock
-     */
+    #[DataProvider('providerUserMock')]
     public function testLoadUserByNick(User $ref) : void
     {
         $user = User::LoadUserByNick($this->db, $ref->GetNick());
@@ -92,10 +89,7 @@ final class UserTest extends BaseTest
         $this->assertNotNull(User::LoadUserByNick($this->db, 'admin '));
     }
 
-        /**
-     * @test
-     * @dataProvider providerUserMock
-     */
+    #[DataProvider('providerUserMock')]
     public function testLoadUserByEmail(User $ref) : void
     {
         $user = User::LoadUserByEmail($this->db, $ref->GetEmail());

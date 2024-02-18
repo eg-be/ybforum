@@ -90,7 +90,16 @@ Create a `launch.json` using the provided link, it will look similar to the foll
 
 
 ## Phpunit
-### Required Debian packages
+### Install phar
+Download the corresponding PHP archive from https://phar.phpunit.de into the folder of the project, make it executable and test what version is reported:
+```
+ wget -O phpunit.phar https://phar.phpunit.de/phpunit-11.0.3.phar
+ chmod +x phpunit.phar
+ ./phpunit.phar --version
+```
+
+### Deprecated - Required Debian packages
+Unfortunately, the packages shipped with Debian bookworm are version 9.x, what is a little bit too old. Better install it from the phar, as described above
 ```
 sudo apt-get install phpunit
 ```
@@ -103,7 +112,10 @@ Create file `.vscode/settings.json` and define the path to phpunit:
 
 ```
 {
-    "phpunit.phpunit": "/usr/bin/phpunit"
+    // use the downloaded PHP Archive:
+    "phpunit.phpunit": "phpunit.phar"
+    // the following was for the debian binary:
+    // "phpunit.phpunit": "/usr/bin/phpunit" 
 }
 ```
 

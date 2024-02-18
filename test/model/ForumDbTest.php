@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__.'/../BaseTest.php';
 require_once __DIR__.'/PostMock.php';
@@ -16,7 +17,7 @@ require_once __DIR__.'/../../src/model/ForumDb.php';
  */
 final class ForumDbTest extends BaseTest
 {
-    private $db;
+    private ForumDb $db;
 
     public static function setUpBeforeClass(): void
     {
@@ -31,14 +32,6 @@ final class ForumDbTest extends BaseTest
     {
         $this->db = new ForumDb(false);
     }
-
-/*    protected function setUp(): void
-    {
-        // some of the tests will modify the db, 
-        // just re-create from scratch on every test
-        BaseTest::createTestDatabase();        
-        $this->db = new ForumDb(false);
-    }*/
 
     protected function assertPreConditions(): void
     {
@@ -214,10 +207,7 @@ final class ForumDbTest extends BaseTest
         $this->assertObjectEquals($allPostRef, $allPost);        
     }
 
-    /**
-     * @dataProvider providerInactiveDummy
-     * @test
-     */
+    #[DataProvider('providerInactiveDummy')]
     public function testCreateThreadFails(User $u) : void
     {
         $this->assertTrue($u->IsDummyUser() || $u->IsActive() === false);
@@ -293,10 +283,7 @@ final class ForumDbTest extends BaseTest
         $this->assertObjectEquals($allPostRef, $allPost);
     }
 
-    /**
-     * @dataProvider providerInactiveDummy
-     * @test
-     */
+    #[DataProvider('providerInactiveDummy')]
     public function testCreateReplyFailsBecauseOfUser(User $u) : void
     {
         $this->assertTrue($u->IsDummyUser() || $u->IsActive() === false);
@@ -314,10 +301,7 @@ final class ForumDbTest extends BaseTest
         );
     }    
 
-    /**
-     * @dataProvider providerInvalidParentPostId
-     * @test
-     */
+    #[DataProvider('providerInvalidParentPostId')]
     public function testCreateReplyFailsBecauseOfParent(int $parentPostId) : void
     {
         $user = User::LoadUserByNick($this->db, 'user2');
@@ -346,10 +330,7 @@ final class ForumDbTest extends BaseTest
         );
     }    
 
-    /**
-     * @dataProvider providerInvalidPostValues
-     * @test
-     */
+    #[DataProvider('providerInvalidPostValues')]
     public function testCreateReplyFailsBecauseOfValues(int $parentPostId,
         User $user, string $title, 
         ?string $content, ?string $email, 
@@ -370,10 +351,7 @@ final class ForumDbTest extends BaseTest
         );
     }
 
-    /**
-     * @dataProvider providerNewUserData
-     * @test
-     */
+    #[DataProvider('providerNewUserData')]
     public function testCreateNewUser(string $nick, string $mail, ?string $regMsg) : void
     {
         // Creating a user works, if neither nick nor email is already set:
@@ -407,10 +385,7 @@ final class ForumDbTest extends BaseTest
         );
     }    
 
-    /**
-     * @dataProvider providerNewUserDataFail
-     * @test
-     */    
+    #[DataProvider('providerNewUserDataFail')]
     public function testCreateNewUserFail(string $nick, string $mail) : void
     {
         $this->expectException(InvalidArgumentException::class);        
@@ -426,8 +401,6 @@ final class ForumDbTest extends BaseTest
     }
 
     /**
-     * @dataProvider providerRequestConfirmUserCode
-     * @test
      * note: This tests will only work if MariaDB and PHP both have
      * the the same Timezone set. To check the timezone with php:
      *  php -a
@@ -442,7 +415,8 @@ final class ForumDbTest extends BaseTest
      *  +---------------+--------+
      *  1 row in set (0.000 sec)
      * so, just check /etc/timezone
-     */       
+     */
+    #[DataProvider('providerRequestConfirmUserCode')]
     public function testRequestConfirmUserCodeCreateEntries(int $userId, 
         string $newPass, string $newMail, string $confSource, 
         string $clientIp) : void
@@ -480,11 +454,8 @@ final class ForumDbTest extends BaseTest
         $this->assertEqualsWithDelta($now->getTimestamp(), 
             $reqDate->getTimestamp(), 2);
     }
-
-    /**
-     * @dataProvider providerRequestConfirmUserCode
-     * @test
-     */       
+     
+    #[DataProvider('providerRequestConfirmUserCode')]
     public function testRequestConfirmUserCodeEntriesRemoved(int $userId, 
         string $newPass, string $newMail, string $confSource, 
         string $clientIp) : void
@@ -520,10 +491,7 @@ final class ForumDbTest extends BaseTest
         );
     }
 
-    /**
-     * @dataProvider providerRequestConfirmUserCodeFails
-     * @test
-     */       
+    #[DataProvider('providerRequestConfirmUserCodeFails')]
     public function testRequestConfirmUserCodeFails(int $userId, 
         string $newPass, string $newMail, string $confSource, 
         string $clientIp) : void
@@ -954,10 +922,7 @@ final class ForumDbTest extends BaseTest
         );
     }    
 
-    /**
-     * @test
-     * @dataProvider providerNotExistingNotConfirmed
-     */
+    #[DataProvider('providerNotExistingNotConfirmed')]
     public function testActivateUserFails(int $userId) : void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -1035,10 +1000,7 @@ final class ForumDbTest extends BaseTest
         $this->assertFalse($user101->IsAdmin());        
     }
 
-    /**
-     * @test
-     * @dataProvider providerNotExistingNotConfirmed
-     */
+    #[DataProvider('providerNotExistingNotConfirmed')]
     public function testSetAdminFails(int $userId) : void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -1095,10 +1057,7 @@ final class ForumDbTest extends BaseTest
         );
     }
 
-    /**
-    * @test
-    * @dataProvider providerZeroPosts
-    */
+    #[DataProvider('providerZeroPosts')]
     public function testDeleteUser(int $userId) : void
     {
         // rely on a test-database
@@ -1118,10 +1077,7 @@ final class ForumDbTest extends BaseTest
         $this->assertNull($reason);
     }
 
-    /**
-    * @test
-    * @dataProvider providerHasPostsAndNotExisting
-    */
+    #[DataProvider('providerHasPostsAndNotExisting')]
     public function testDeleteUserFails(int $userId) : void
     {
         // rely on a test-database

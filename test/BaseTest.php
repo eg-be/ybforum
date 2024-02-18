@@ -4,16 +4,12 @@ use PHPUnit\Framework\TestCase;
 require_once __DIR__.'/../src/model/ForumDb.php';
 
 /**
- * Tests requiring a database can just derive from this class.
- * This class extends itself from TestCase and will create 
- * the initial test-database in its setUp() method,
- * ensuring a fresh instance for every test.
- * 
+ * Can be used as base-class for tests requiring a DB.
+ * Provides a static helper method to re-create a fresh
+ * copy for the tests.
  */
 class BaseTest extends TestCase
 {
-    //protected $db;
-
     const TEST_DB = [
         __DIR__.'/../database/dbybforum-no-data.dump.sql',
         __DIR__.'/../database/log_type_table_data.dump.sql',
@@ -23,7 +19,11 @@ class BaseTest extends TestCase
         __DIR__.'/data/blacklist.sql'
     ];
 
-    protected static function createTestDatabase() : void
+    /**
+     * Run the scripts defined in TEST_DB
+     * @param bool $verbose If true, the cmd executed and all output is printed
+     */
+    protected static function createTestDatabase(bool $verbose = false) : void
     {
         // restore an empty database for the tests
         foreach(self::TEST_DB as $file)
@@ -32,30 +32,24 @@ class BaseTest extends TestCase
             DbConfig::RW_USERNAME, DbConfig::RW_PASSWORD, DbConfig::DEFAULT_DB, $file);
             $output = null;
             $result_code = null;
-            fwrite(STDOUT, 'Executing: ' . $cmd . PHP_EOL);
+            if($verbose === true)
+            {
+                fwrite(STDOUT, 'Executing: ' . $cmd . PHP_EOL);
+            }
             $res = exec($cmd, $output, $result_code);
             if($res === false || $result_code !== 0)
             {
-                throw new Exception('Failed to init test-datase: ' . implode(PHP_EOL, $output));
+                $msg = 'Failed to init test-datase [cmd-executed: ' . $cmd . ']: ' . implode(PHP_EOL, $output);
+                fwrite(STDOUT, $msg);
+                throw new Exception($msg);
             }
-            foreach($output as $res)
+            if($verbose === true)
             {
-                fwrite(STDOUT, $res . PHP_EOL);
+                foreach($output as $res)
+                {
+                    fwrite(STDOUT, $res . PHP_EOL);
+                }
             }
         }
     }
-
-
-/*
-    protected function setUp(): void
-    {
-        //$this->createTestDatabase();
-        //$this->db = new ForumDb();
-    }
-
-    protected function assertPreConditions(): void
-    {
-        //$this->assertTrue($this->db->IsConnected());
-    }    
-    */
 }

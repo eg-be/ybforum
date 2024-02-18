@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__.'/../BaseTest.php';
 require_once __DIR__.'/../../src/helpers/Logger.php';
@@ -11,6 +12,8 @@ require_once __DIR__.'/../../src/helpers/Logger.php';
  */
 final class LoggerTest extends BaseTest
 {
+    private ForumDb $db;
+
     public static function setUpBeforeClass(): void
     {
         // The tests shall not rely on a given state of the db,

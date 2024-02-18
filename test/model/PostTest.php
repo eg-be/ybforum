@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__.'/../BaseTest.php';
 require_once __DIR__.'/PostMock.php';
@@ -16,6 +17,8 @@ require_once __DIR__.'/../../src/model/Post.php';
  */
 final class PostTest extends BaseTest
 {
+    private ForumDb $db;
+
     public static function setUpBeforeClass(): void
     {
         // This tests will not modify the db, its enough to re-create
@@ -93,10 +96,7 @@ final class PostTest extends BaseTest
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerPostMock
-     */
+    #[DataProvider('providerPostMock')]
     public function testLoadPost(Post $ref) : void
     {
         $post = Post::LoadPost($this->db, $ref->GetId());
