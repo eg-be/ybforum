@@ -4,16 +4,12 @@ use PHPUnit\Framework\TestCase;
 require_once __DIR__.'/../src/model/ForumDb.php';
 
 /**
- * Tests requiring a database can just derive from this class.
- * This class extends itself from TestCase and will create 
- * the initial test-database in its setUp() method,
- * ensuring a fresh instance for every test.
- * 
+ * Can be used as base-class for tests requiring a DB.
+ * Provides a static helper method to re-create a fresh
+ * copy for the tests.
  */
 class BaseTest extends TestCase
 {
-    //protected $db;
-
     const TEST_DB = [
         __DIR__.'/../database/dbybforum-no-data.dump.sql',
         __DIR__.'/../database/log_type_table_data.dump.sql',
@@ -44,18 +40,4 @@ class BaseTest extends TestCase
             }
         }
     }
-
-
-/*
-    protected function setUp(): void
-    {
-        //$this->createTestDatabase();
-        //$this->db = new ForumDb();
-    }
-
-    protected function assertPreConditions(): void
-    {
-        //$this->assertTrue($this->db->IsConnected());
-    }    
-    */
 }

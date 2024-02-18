@@ -17,7 +17,7 @@ require_once __DIR__.'/../../src/model/ForumDb.php';
  */
 final class ForumDbTest extends BaseTest
 {
-    private $db;
+    private ForumDb $db;
 
     public static function setUpBeforeClass(): void
     {
@@ -32,14 +32,6 @@ final class ForumDbTest extends BaseTest
     {
         $this->db = new ForumDb(false);
     }
-
-/*    protected function setUp(): void
-    {
-        // some of the tests will modify the db, 
-        // just re-create from scratch on every test
-        BaseTest::createTestDatabase();        
-        $this->db = new ForumDb(false);
-    }*/
 
     protected function assertPreConditions(): void
     {

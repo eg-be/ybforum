@@ -12,6 +12,8 @@ require_once __DIR__.'/../../src/helpers/Logger.php';
  */
 final class LoggerTest extends BaseTest
 {
+    private ForumDb $db;
+
     public static function setUpBeforeClass(): void
     {
         // The tests shall not rely on a given state of the db,

@@ -17,6 +17,8 @@ require_once __DIR__.'/../../src/model/User.php';
  */
 final class UserTest extends BaseTest
 {
+    private ForumDb $db;
+
     public static function setUpBeforeClass(): void
     {
         // This tests will not modify the db, its enough to re-create
