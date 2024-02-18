@@ -4,6 +4,8 @@
          failOnWarning="true" 
          failOnDeprecation="true"
          testdox="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
          bootstrap="test/bootstrap.php">
     <testsuites>
         <testsuite name="model">
