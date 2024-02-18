@@ -43,10 +43,7 @@ final class TopNavigationTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider providerPageUris
-     */
+    #[DataProvider('providerPageUris')]
     public function testConstructTopNavigation(string $pageUri, Page $page, ?int $postId) 
     {
         $_SERVER['REQUEST_URI'] = 'https://somewhere.com/' . $pageUri;
