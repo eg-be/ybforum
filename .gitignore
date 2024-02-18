@@ -1,2 +1,3 @@
 **.cache
 src/phpinfo.php
+phpunit.phar

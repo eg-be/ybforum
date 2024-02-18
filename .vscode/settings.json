@@ -1,3 +1,4 @@
 {
-    "phpunit.phpunit": "/usr/bin/phpunit"
+    //"phpunit.phpunit": "/usr/bin/phpunit"
+    "phpunit.phpunit": "phpunit.phar"
 }
