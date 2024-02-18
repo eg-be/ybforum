@@ -105,22 +105,22 @@ class CaptchaV3Verifier {
             {
                 $errcodes = implode($decodedResp['error-codes']);
             }
-            $logger->LogMessage(Logger::LOG_CAPTCHA_TOKEN_INVALID, $errcodes);
+            $logger->LogMessage(LogType::LOG_CAPTCHA_TOKEN_INVALID, $errcodes);
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
         }
         if($decodedResp['action'] !== $this->m_action)
         {
-            $logger->LogMessage(Logger::LOG_CAPTCHA_WRONG_ACTION, 'expected action \''. $this->m_action . '\' but received \'' .  $decodedResp['action'] .'\'');
+            $logger->LogMessage(LogType::LOG_CAPTCHA_WRONG_ACTION, 'expected action \''. $this->m_action . '\' but received \'' .  $decodedResp['action'] .'\'');
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
         }
         if($decodedResp['score'] < CaptchaV3Config::MIN_REQUIRED_SCORE)
         {
-            $logger->LogMessage(Logger::LOG_CAPTCHA_SCORE_TOO_LOW, 'min required ' . $this->m_requiredScore . ', received ' . $decodedResp['score']);
+            $logger->LogMessage(LogType::LOG_CAPTCHA_SCORE_TOO_LOW, 'min required ' . $this->m_requiredScore . ', received ' . $decodedResp['score']);
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
         }
         else
         {
-            $logger->LogMessage(Logger::LOG_CAPTCHA_SCORE_PASSED, 'min required ' . $this->m_requiredScore . ', received ' . $decodedResp['score']);
+            $logger->LogMessage(LogType::LOG_CAPTCHA_SCORE_PASSED, 'min required ' . $this->m_requiredScore . ', received ' . $decodedResp['score']);
         }
     }
     

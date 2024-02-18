@@ -143,7 +143,7 @@ abstract class BaseHandler
         if($mailOnBlacklistExactly)
         {
             $logger->LogMessage(
-                    Logger::LOG_OPERATION_FAILED_EMAIL_BLACKLISTED, 
+                    LogType::LOG_OPERATION_FAILED_EMAIL_BLACKLISTED, 
                     $mailOnBlacklistExactly
                     . '(Mail: ' . $email . ')');
             throw new InvalidArgumentException(
@@ -154,7 +154,7 @@ abstract class BaseHandler
         if($mailMatchesBlacklistRegex)
         {
             $logger->LogMessage(
-                    Logger::LOG_OPERATION_FAILED_EMAIL_REGEX_BLACKLISTED, 
+                    LogType::LOG_OPERATION_FAILED_EMAIL_REGEX_BLACKLISTED, 
                     $mailMatchesBlacklistRegex 
                     . '(Mail: ' . $email . ')');
             throw new InvalidArgumentException(

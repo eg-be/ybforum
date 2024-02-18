@@ -94,7 +94,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         $values = $db->VerifyConfirmUserCode($this->code, !$this->simulate);
         if(!$values)
         {
-            $logger->LogMessage(Logger::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);
+            $logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
         // First: Check if there is a matching user who actually needs 
@@ -102,18 +102,18 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         $this->user = User::LoadUserById($db, $values['iduser']);
         if(!$this->user)
         {
-            $logger->LogMessage(Logger::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found : ' . $values['iduser']);
+            $logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found : ' . $values['iduser']);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
         $this->confirmSource = $values['confirm_source'];
         if($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER && $this->user->IsConfirmed())
         {
-            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_ALREADY_CONFIRMED, $this->user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_CONFIRMED, $this->user->GetId());
             throw new InvalidArgumentException(self::MSG_ALREADY_CONFIRMED, parent::MSGCODE_BAD_PARAM);
         }
         if($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE && !$this->user->NeedsMigration())
         {
-            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $this->user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $this->user->GetId());
             throw new InvalidArgumentException(self::MSG_ALREADY_MIGRATED, parent::MSGCODE_BAD_PARAM);
         }        
         if($this->simulate)
@@ -139,7 +139,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
                 if($mailer->NotifyAdminUserConfirmedRegistration($this->user->GetNick(), 
                         $adminEmail, $this->user->GetRegistrationMsg()))
                 {
-                    $logger->LogMessageWithUserId(Logger::LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED, $this->user->GetId(), 'Mail sent to: ' . $adminEmail);
+                    $logger->LogMessageWithUserId(LogType::LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED, $this->user->GetId(), 'Mail sent to: ' . $adminEmail);
                 }
             }
         }

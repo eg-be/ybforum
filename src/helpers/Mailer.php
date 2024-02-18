@@ -222,11 +222,11 @@ class Mailer
         $logger = new Logger();
         if($sent)
         {
-            $logger->LogMessage(Logger::LOG_MAIL_SENT, 'Mail sent to: ' . $adminEmail);
+            $logger->LogMessage(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $adminEmail);
         }
         else
         {
-            $logger->LogMessage(Logger::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $adminEmail);
+            $logger->LogMessage(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $adminEmail);
         }
         return $sent;
     }
@@ -282,11 +282,11 @@ class Mailer
         $logger = new Logger();
         if($sent)
         {
-            $logger->LogMessage(Logger::LOG_MAIL_SENT, 'Mail sent to: ' . $email);
+            $logger->LogMessage(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $email);
         }
         else
         {
-            $logger->LogMessage(Logger::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $email);
+            $logger->LogMessage(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $email);
         }
         return $sent;
     }

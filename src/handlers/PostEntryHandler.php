@@ -183,7 +183,7 @@ class PostEntryHandler extends BaseHandler
             // Maybe log the data of the post that has been discarded
             if(YbForumConfig::LOG_EXT_POST_DATA_ON_AUTH_FAILURE)
             {
-                $logger->LogMessage(Logger::LOG_EXT_POST_DISCARDED, 
+                $logger->LogMessage(LogType::LOG_EXT_POST_DISCARDED, 
                         $authFailMsg, $this->GetExtendedLogMsg());
             }
             
@@ -192,7 +192,7 @@ class PostEntryHandler extends BaseHandler
         // Check if migration is required
         if($user->NeedsMigration())
         {
-            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user->GetId());
             throw new InvalidArgumentException(self::MSG_MIGRATION_REQUIRED, parent::MSGCODE_AUTH_FAIL);
         }
         if($this->parentPostId === 0)

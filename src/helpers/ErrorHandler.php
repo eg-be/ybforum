@@ -48,7 +48,7 @@ class ErrorHandler
         {
             // Try to log to log-table too
             $logger = new Logger();
-            $logger->LogMessage(Logger::LOG_ERROR_EXCEPTION_THROWN, $msg);
+            $logger->LogMessage(LogType::LOG_ERROR_EXCEPTION_THROWN, $msg);
         } 
         catch (Exception $ex) { 
             // Do nothing, $mg will be error_log'ed later anyway

@@ -95,33 +95,33 @@ class MigrateUserHandler extends BaseHandler
         $logger = new Logger($db);
         if(!$user)
         {
-            $logger->LogMessage(Logger::LOG_AUTH_FAILED_NO_SUCH_USER, 'Passed nick: ' . $this->nick);
+            $logger->LogMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, 'Passed nick: ' . $this->nick);
             throw new InvalidArgumentException(self::MSG_AUTH_FAIL, parent::MSGCODE_AUTH_FAIL);
         }
         if($user->IsDummyUser())
         {
-            $logger->LogMessageWithUserId(Logger::LOG_AUTH_FAILED_USER_IS_DUMMY, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_USER_IS_DUMMY, $user->GetId());
             throw new InvalidArgumentException(self::MSG_AUTH_FAIL, parent::MSGCODE_AUTH_FAIL);            
         }
         // Check if user still needs to migrate:
         if(!$user->NeedsMigration())
         {
-            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $user->GetId());
             throw new InvalidArgumentException(self::MSG_ALREADY_MIGRATED, parent::MSGCODE_BAD_PARAM);
         }
         // Auth using old password
         if(!$user->OldAuth($this->oldPassword))
         {
-            $logger->LogMessageWithUserId(Logger::LOG_AUTH_FAILED_USING_OLD_PASSWORD, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_USING_OLD_PASSWORD, $user->GetId());
             throw new InvalidArgumentException(self::MSG_AUTH_FAIL, parent::MSGCODE_AUTH_FAIL);
         }
         // Authentication using old password succeeded
-        $logger->LogMessageWithUserId(Logger::LOG_AUTH_USING_OLD_PASSWORD, $user->GetId());
+        $logger->LogMessageWithUserId(LogType::LOG_AUTH_USING_OLD_PASSWORD, $user->GetId());
         // The given Mailaddress must be unique:
         $userByEmail = User::LoadUserByEmail($db, $this->newEmail);
         if($userByEmail && $userByEmail->GetId() !== $user->GetId())
         {
-            $logger->LogMessageWithUserId(Logger::LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE, $user->GetId(), 'New Email: ' . $this->newEmail);
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE, $user->GetId(), 'New Email: ' . $this->newEmail);
             throw new InvalidArgumentException(self::MSG_EMAIL_NOT_UNIQUE, parent::MSGCODE_BAD_PARAM);
         }
         // check that the new email is not blacklisted
