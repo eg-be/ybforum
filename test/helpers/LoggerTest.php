@@ -21,6 +21,10 @@ final class LoggerTest extends BaseTest
     protected function setUp(): void
     {
         $this->db = new ForumDb(false);
+        // the following two values are set from bootstrap.php, but any other test
+        // might overwrite it, so set them again here where we actually test for those two
+        $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
+        $_SERVER['REQUEST_URI'] = 'phpunit';
     }
 
     protected function assertPreConditions(): void
@@ -101,7 +105,7 @@ final class LoggerTest extends BaseTest
         $this->assertNull($result['iduser']);
         $this->assertNull($result['historic_user_context']);
         $this->assertSame('testLogMessage-msg1', $result['message']);
-        $this->assertSame('phpunit', $result['request_uri']);       // configured in bootstrap.php for the uni-tests
+        $this->assertSame('phpunit', $result['request_uri']);
         $this->assertSame('13.13.13.13', $result['ip_address']);
     }
 
@@ -127,7 +131,7 @@ final class LoggerTest extends BaseTest
         $this->assertNull($result['iduser']);
         $this->assertNull($result['historic_user_context']);
         $this->assertSame('testLogMessageWithExtInfo-msg1', $result['message']);
-        $this->assertSame('phpunit', $result['request_uri']);       // configured in bootstrap.php for the uni-tests
+        $this->assertSame('phpunit', $result['request_uri']);
         $this->assertSame('13.13.13.13', $result['ip_address']);
 
         $idLog = $result['idlog'];
@@ -166,7 +170,7 @@ final class LoggerTest extends BaseTest
         $this->assertNotNull($result['historic_user_context']);
         $this->assertStringContainsString('IdUser: 101;', $result['historic_user_context']);
         $this->assertSame('testLogMessageWithUserId-msg1', $result['message']);
-        $this->assertSame('phpunit', $result['request_uri']);       // configured in bootstrap.php for the uni-tests
+        $this->assertSame('phpunit', $result['request_uri']);
         $this->assertSame('13.13.13.13', $result['ip_address']);
     }
 

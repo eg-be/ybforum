@@ -54,9 +54,6 @@ final class TopNavigationTest extends TestCase
         $this->assertTrue($page === $nav->GetPage());
     }
 
-    /**
-     * @test
-     */
     public function testPageIdMustBeSetForShowPage() 
     {
         $_SERVER['REQUEST_URI'] = 'https://somewhere.com/showentry.php';
