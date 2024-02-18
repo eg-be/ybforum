@@ -5,13 +5,16 @@
          failOnDeprecation="false"
          bootstrap="test/bootstrap.php">
     <testsuites>
-        <testsuite name="unit-model">
+        <testsuite name="model">
 <!--            <file>test/model/PostTest.php</file> -->
 <!--            <file>test/model/ForumDbTest.php</file> -->
             <directory>test/model</directory>
         </testsuite>
-        <testsuite name="unit-pageparts">
+        <testsuite name="pageparts">
             <directory>test/pageparts</directory>
+        </testsuite>
+        <testsuite name="helpers">
+            <directory>test/helpers</directory>
         </testsuite>
     </testsuites>
 </phpunit>
