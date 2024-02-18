@@ -131,7 +131,7 @@ class Logger
         // we must always have an ip and a request_uri
         $values = filter_var_array($_SERVER, array(
             'REMOTE_ADDR' => FILTER_VALIDATE_IP,
-            'REQUEST_URI' => FILTER_SANITIZE_STRING
+            'REQUEST_URI' => FILTER_DEFAULT
         ), true);
         $this->m_clientIp = $values['REMOTE_ADDR'];
         $this->m_requestUri = $values['REQUEST_URI'];
