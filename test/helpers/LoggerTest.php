@@ -79,10 +79,7 @@ final class LoggerTest extends BaseTest
     public function testLogMessage(): void
     {
         // just log a test-message without ext-info
-        // some properties are set from INPUT_SERVER, what is probably not so nice
-        // todo: setting it here does not work, whats wrong?
-        //$_SERVER['REMOTE_ADDR'] = '1.1.1.1';
-        //$_SERVER['REQUEST_URI'] = 'some-uri';
+        // some properties are set from $_SERVER, what is probably not so nice
 
         $l = new Logger($this->db);
         $l->LogMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, "testLogMessage-msg1");
@@ -104,17 +101,12 @@ final class LoggerTest extends BaseTest
         $this->assertNull($result['iduser']);
         $this->assertNull($result['historic_user_context']);
         $this->assertSame('testLogMessage-msg1', $result['message']);
-        //$this->assertSame('some-uri', $result['request_uri']);
-        //$this->assertSame('some-ip', $result['ip_address']);
+        $this->assertSame('phpunit', $result['request_uri']);       // configured in bootstrap.php for the uni-tests
+        $this->assertSame('13.13.13.13', $result['ip_address']);
     }
 
     public function testLogMessageWithExtInfo(): void
     {
-        // some properties are set from INPUT_SERVER, what is probably not so nice
-        // todo: setting it here does not work, whats wrong?
-        //$_SERVER['REMOTE_ADDR'] = '1.1.1.1';
-        //$_SERVER['REQUEST_URI'] = 'some-uri';
-
         $l = new Logger($this->db);
         $l->LogMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, "testLogMessageWithExtInfo-msg1", "testLogMessageWithExtInfo-ext1");
 
@@ -135,6 +127,8 @@ final class LoggerTest extends BaseTest
         $this->assertNull($result['iduser']);
         $this->assertNull($result['historic_user_context']);
         $this->assertSame('testLogMessageWithExtInfo-msg1', $result['message']);
+        $this->assertSame('phpunit', $result['request_uri']);       // configured in bootstrap.php for the uni-tests
+        $this->assertSame('13.13.13.13', $result['ip_address']);
 
         $idLog = $result['idlog'];
         $query = 'SELECT info '
