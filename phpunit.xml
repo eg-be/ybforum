@@ -6,6 +6,7 @@
          testdox="true"
          displayDetailsOnTestsThatTriggerDeprecations="true"
          displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
          bootstrap="test/bootstrap.php">
     <testsuites>
         <testsuite name="model">
