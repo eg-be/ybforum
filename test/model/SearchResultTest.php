@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__.'/../BaseTest.php';
 require_once __DIR__.'/../../src/model/SearchResult.php';
@@ -48,10 +49,7 @@ final class SearchResultTest extends BaseTest
         );
     }     
 
-    /**
-     * @test
-     * @dataProvider providerSearchStrings
-     */
+    #[DataProvider('providerSearchStrings')]
     public function testSearchPosts(string $searchString, ?string $nick, bool $noReplies, int $numberOfResults) 
     {
 

@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__.'/../BaseTest.php';
 require_once __DIR__.'/../../src/pageparts/TopNavigation.php';
