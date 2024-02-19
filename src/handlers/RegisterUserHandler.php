@@ -128,7 +128,7 @@ class RegisterUserHandler extends BaseHandler
         // Create the user and request a confirmation code 
         $user = $db->CreateNewUser($this->nick, $this->email, 
                 $this->regMsg, $this->clientIpAddress);
-        $confirmCode = $db->RequestConfirmUserCode($user->GetId(), $this->password, 
+        $confirmCode = $db->RequestConfirmUserCode($user, $this->password, 
                 $this->email, ForumDb::CONFIRM_SOURCE_NEWUSER, 
                 $this->clientIpAddress);
 

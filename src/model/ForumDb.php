@@ -459,7 +459,6 @@ class ForumDb extends PDO
      * @return User Newly cretad User, as read from db after inserting it.
      * @throws InvalidArgumentException If nick or email already used, or if
      * empty values are passed for nick or email
-     * todo: issue #20 / #21 ?
      */
     public function CreateNewUser(string $nick, string $email,
             ?string $registrationMsg) : User
@@ -496,9 +495,9 @@ class ForumDb extends PDO
      * Creates a new entry in the confirm_user_table with the
      * hashed password and email address and a newly created confirmation code.
      * Returns the confirmation code created.
-     * Before creating a new entry, all entries matching the passed $userId 
-     * are deleted.
-     * @param int $userId id of the user that should be migrated.
+     * Before creating a new entry, all entries matching the userId of the 
+     * passed $user are deleted.
+     * @param User $user The user that should be migrated.
      * @param string $newPasswordClearText clear-text password to be used as new password
      * @param string $newEmail email to be set for the user
      * @param string $confirmSource Must be ForumDb::CONFIRM_SOURCE_NEWUSER
@@ -506,9 +505,8 @@ class ForumDb extends PDO
      * @param string $requestClientIpAddress address initiating the request
      * @return string The confirmation code created
      * @throws Exception If a database operation fails.
-     * todo: issue #20 / #21 ?
      */
-    public function RequestConfirmUserCode(int $userId, 
+    public function RequestConfirmUserCode(User $user, 
             string $newPasswordClearText, 
             string $newEmail, 
             string $confirmSource,
@@ -523,7 +521,7 @@ class ForumDb extends PDO
                     self::CONFIRM_SOURCE_NEWUSER);
         }
         // delete an eventually already existing entry first
-        $this->RemoveConfirmUserCode($userId);        
+        $this->RemoveConfirmUserCode($user->GetId());
         // generate some random bytes to be used as confirmation code
         $bytes = random_bytes(YbForumConfig::CONFIRMATION_CODE_LENGTH);
         $confirmCode = mb_strtoupper(bin2hex($bytes), 'UTF-8');
@@ -537,7 +535,7 @@ class ForumDb extends PDO
                 . 'VALUES(:iduser, :email, :password, '
                 . ':confirm_code, :request_ip_address, :confirm_source)';
         $insertStmt = $this->prepare($insertQuery);
-        $insertStmt->execute(array(':iduser' => $userId,
+        $insertStmt->execute(array(':iduser' => $user->GetId(),
             ':email' => $newEmail, ':password' => $hashedPass,
             ':confirm_code' => $confirmCode, 
             ':request_ip_address' => $requestClientIpAddress,
@@ -551,10 +549,9 @@ class ForumDb extends PDO
         {
             $logType = LogType::LOG_CONFIRM_MIGRATION_CODE_CREATED;
         }
-        $logger->LogMessageWithUserId($logType, $userId,  
+        $logger->LogMessageWithUserId($logType, $user->GetId(),  
                 'Mailaddress with entry: ' . $newEmail);
 
-        
         return $confirmCode;
     }
     

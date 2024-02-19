@@ -127,7 +127,7 @@ class MigrateUserHandler extends BaseHandler
         // check that the new email is not blacklisted
         $this->ValidateEmailAgainstBlacklist($this->newEmail, $db, $logger);
         // And prepare to migrate
-        $confirmCode = $db->RequestConfirmUserCode($user->GetId(), 
+        $confirmCode = $db->RequestConfirmUserCode($user, 
                 $this->newPassword, 
                 $this->newEmail, 
                 ForumDb::CONFIRM_SOURCE_MIGRATE,

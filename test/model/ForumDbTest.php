@@ -421,7 +421,9 @@ final class ForumDbTest extends BaseTest
     {
         // test that entries are created propery
         $now = new DateTime();
-        $code = $this->db->RequestConfirmUserCode($userId, 
+        $userMock = $this->createStub(User::class);
+        $userMock->method('GetId')->willReturn($userId);
+        $code = $this->db->RequestConfirmUserCode($userMock, 
             $newPass, $newMail, $confSource, $clientIp);
         $this->assertNotEmpty($code);
 
@@ -463,7 +465,9 @@ final class ForumDbTest extends BaseTest
         // our dataprovider uses the same user, check that
         // there is only one entry for that user
         $now = new DateTime();
-        $code = $this->db->RequestConfirmUserCode($userId, 
+        $userMock = $this->createStub(User::class);
+        $userMock->method('GetId')->willReturn($userId);
+        $code = $this->db->RequestConfirmUserCode($userMock, 
             $newPass, $newMail, $confSource, $clientIp);
         $this->assertNotEmpty($code);
         $inserted = new DateTime();
@@ -497,7 +501,9 @@ final class ForumDbTest extends BaseTest
         // fail if user is unknown, if mail or pass is empty
         // or if source is not set to a known value
         $this->expectException(Exception::class);
-        $code = $this->db->RequestConfirmUserCode($userId, 
+        $userMock = $this->createStub(User::class);
+        $userMock->method('GetId')->willReturn($userId);
+        $code = $this->db->RequestConfirmUserCode($userMock, 
             $newPass, $newMail, $confSource, $clientIp);
     }
 
@@ -505,9 +511,13 @@ final class ForumDbTest extends BaseTest
     {
         // create two entries: one that has elapsed one minute ago
         // and one that will elapse in one minute
-        $elapsedCode = $this->db->RequestConfirmUserCode(101, 'new-pw', 'new@mail', 
+        $user101 = $this->createStub(User::class);
+        $user101->method('GetId')->willReturn(101);
+        $elapsedCode = $this->db->RequestConfirmUserCode($user101, 'new-pw', 'new@mail', 
             ForumDb::CONFIRM_SOURCE_MIGRATE, '::1');
-        $validCode = $this->db->RequestConfirmUserCode(102, 'valid-pw', 'valid@mail',
+        $user102 = $this->createStub(User::class);
+        $user102->method('GetId')->willReturn(102);    
+        $validCode = $this->db->RequestConfirmUserCode($user102, 'valid-pw', 'valid@mail',
             ForumDb::CONFIRM_SOURCE_NEWUSER, '::1');
         // modify the timestamps:
         $elapsedDate = new DateTime();
@@ -564,7 +574,9 @@ final class ForumDbTest extends BaseTest
     public function testRemoveConfirmUserCode() : void
     {
         // insert some entries, test they are removed
-        $this->db->RequestConfirmUserCode(101, 'new', 'new@mail', 
+        $user101 = $this->createStub(User::class);
+        $user101->method('GetId')->willReturn(101);
+        $this->db->RequestConfirmUserCode($user101, 'new', 'new@mail', 
             ForumDb::CONFIRM_SOURCE_MIGRATE, '::1');
         $this->assertSame(1, $this->db->RemoveConfirmUserCode(101));
         $this->assertSame(0, $this->db->RemoveConfirmUserCode(101));
@@ -574,11 +586,13 @@ final class ForumDbTest extends BaseTest
 
     public function testGetConfirmReason() : void
     {
-        $this->db->RequestConfirmUserCode(101, 'new', 'new@mail', 
+        $user101 = $this->createStub(User::class);
+        $user101->method('GetId')->willReturn(101);        
+        $this->db->RequestConfirmUserCode($user101, 'new', 'new@mail', 
             ForumDb::CONFIRM_SOURCE_MIGRATE, '::1');
         $this->assertSame(ForumDb::CONFIRM_SOURCE_MIGRATE, 
             $this->db->GetConfirmReason(101));
-        $this->db->RequestConfirmUserCode(101, 'new', 'new@mail', 
+        $this->db->RequestConfirmUserCode($user101, 'new', 'new@mail', 
             ForumDb::CONFIRM_SOURCE_NEWUSER, '::1');
         $this->assertSame(ForumDb::CONFIRM_SOURCE_NEWUSER, 
         $this->db->GetConfirmReason(101));
