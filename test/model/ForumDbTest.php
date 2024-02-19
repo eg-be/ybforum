@@ -358,13 +358,11 @@ final class ForumDbTest extends BaseTest
         // registration_msg is optinal
         // new users are inactive, have no password set and no confirmation-ts
 
-        $newId = $this->db->CreateNewUser($nick, $mail, $regMsg);
-        $this->assertNotNull($newId);
-        $this->assertGreaterThan(0, $newId);
-        // read back created user and verify:
-        $newUser = User::LoadUserById($this->db, $newId);
+        $newUser = $this->db->CreateNewUser($nick, $mail, $regMsg);
         $this->assertNotNull($newUser);
-        $newUserRef = new UserMock($newId, $nick, $mail, 
+        $this->assertGreaterThan(0, $newUser->GetId());
+        $this->assertNotNull($newUser);
+        $newUserRef = new UserMock($newUser->GetId(), $nick, $mail, 
             0, 0,
             $newUser->GetRegistrationTimestamp()->Format('Y-m-d H:i:s'), $regMsg,
             null, null, null
@@ -389,7 +387,7 @@ final class ForumDbTest extends BaseTest
     public function testCreateNewUserFail(string $nick, string $mail) : void
     {
         $this->expectException(InvalidArgumentException::class);        
-        $newId = $this->db->CreateNewUser($nick, $mail, null);
+        $this->db->CreateNewUser($nick, $mail, null);
     }
 
     public static function providerRequestConfirmUserCode() : array

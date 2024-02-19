@@ -126,9 +126,9 @@ class RegisterUserHandler extends BaseHandler
         $this->ValidateEmailAgainstBlacklist($this->email, $db, $logger);
         
         // Create the user and request a confirmation code 
-        $userId = $db->CreateNewUser($this->nick, $this->email, 
+        $user = $db->CreateNewUser($this->nick, $this->email, 
                 $this->regMsg, $this->clientIpAddress);
-        $confirmCode = $db->RequestConfirmUserCode($userId, $this->password, 
+        $confirmCode = $db->RequestConfirmUserCode($user->GetId(), $this->password, 
                 $this->email, ForumDb::CONFIRM_SOURCE_NEWUSER, 
                 $this->clientIpAddress);
 
@@ -137,8 +137,8 @@ class RegisterUserHandler extends BaseHandler
         if(!$mailer->SendRegisterUserConfirmMessage($this->email, $this->nick, $confirmCode))
         {
             // Remove the just created user
-            $db->RemoveConfirmUserCode($userId);
-            $db->DeleteUser($userId);
+            $db->RemoveConfirmUserCode($user->GetId());
+            $db->DeleteUser($user->GetId());
             // And fail
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }

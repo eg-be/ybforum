@@ -456,12 +456,13 @@ class ForumDb extends PDO
      * @param string $nick Value for field nick.
      * @param string $email Value for field email.
      * @param ?string $registrationMsg Value for field registration_mgs.
-     * @return int Value of iduser field.
+     * @return User Newly cretad User, as read from db after inserting it.
      * @throws InvalidArgumentException If nick or email already used, or if
      * empty values are passed for nick or email
+     * todo: issue #20 / #21 ?
      */
     public function CreateNewUser(string $nick, string $email,
-            ?string $registrationMsg) : int
+            ?string $registrationMsg) : User
     {
         $this->validateNonEmpty([$nick, $email]);
         $existingUser = User::LoadUserByNick($this, $nick);
@@ -485,9 +486,10 @@ class ForumDb extends PDO
             ':registration_msg' => $registrationMsg
         ));
         $userId = $this->lastInsertId();
+        $user = User::LoadUserById($this, $userId);
         $logger = new Logger($this);
-        $logger->LogMessageWithUserId(LogType::LOG_USER_CREATED, $userId);
-        return $userId;
+        $logger->LogMessageWithUserId(LogType::LOG_USER_CREATED, $user->GetId());
+        return $user;
     }
     
     /**
@@ -504,6 +506,7 @@ class ForumDb extends PDO
      * @param string $requestClientIpAddress address initiating the request
      * @return string The confirmation code created
      * @throws Exception If a database operation fails.
+     * todo: issue #20 / #21 ?
      */
     public function RequestConfirmUserCode(int $userId, 
             string $newPasswordClearText, 
@@ -621,7 +624,9 @@ class ForumDb extends PDO
      * Remove entries from the confirm_user_table that match the passed 
      * iduser. 
      * @param int $userId
-     * @ return int Number of rows that have been removed
+     * @return int Number of rows that have been removed
+     * todo: issue #20 / #21 ? Probably not, as the key here is actually the iduser
+     * and we are not sure if a user-object exists
      */
     public function RemoveConfirmUserCode(int $userId) : int
     {
@@ -643,6 +648,7 @@ class ForumDb extends PDO
      * @param int $userId
      * @throw InvalidArgumentException
      * @return self::CONFIRM_SOURCE_NEWUSER or self::CONFIRM_SOURCE_MIGRATE
+     * todo: issue #20 / #21 ?
      */
     public function GetConfirmReason(int $userId) : string
     {
@@ -683,6 +689,7 @@ class ForumDb extends PDO
      * @param string $email Value for field email.
      * @param bool $activate If True, field active will be set to 1, else to 0.
      * @throws InvalidArgumentException If no row was updated
+     * todo: issue #20 / #21 ?
      */
     public function ConfirmUser(int $userId, string $hashedPassword, 
             string $email, bool $activate) : void
@@ -820,6 +827,7 @@ class ForumDb extends PDO
      * @param int $userId Identify the row in field userid
      * @param string $clearTextPassword New password to set (will be hashed)
      * @throws Exception If not exactly one row is updated.
+     * todo: issue #20 / #21 ?
      */
     public function UpdateUserPassword(int $userId, string $clearTextPassword) : void
     {
@@ -847,6 +855,7 @@ class ForumDb extends PDO
      * @param string $newEmail The email address that is awaiting confirmation.
      * @param string $requestClientIpAddress
      * @return string confirmation code created.
+     * todo: issue #20 / #21 ?
      */
     public function RequestUpdateEmailCode(int $userId, string $newEmail, 
             string $requestClientIpAddress) : string
@@ -946,6 +955,7 @@ class ForumDb extends PDO
      * @param int $userId
      * @param string $email
      * @throws Exception If not exactly one row is updated.
+     * todo: issue #20 / #21 ?
      */
     public function UpdateUserEmail(int $userId, string $email) : void
     {
@@ -973,6 +983,7 @@ class ForumDb extends PDO
      * @param int $userId
      * @throws InvalidArgumentException If no user with passed $userId exists
      * or if the user has no value in the field confirmed_ts
+     * todo: issue #20 / #21 ?
      */
     public function ActivateUser(int $userId) : void
     {
@@ -1024,6 +1035,7 @@ class ForumDb extends PDO
      * @param int $deactivatedByUserId Must be an active admin 
      * @throws InvalidArgumentException If no user with passed $userId exists
      * or if $deactivatedByUserId is not an active admin
+     * todo: issue #20 / #21 ?
      */
     public function DeactivateUser(int $userId, string $reason,
             int $deactivatedByUserId) : void
@@ -1079,6 +1091,7 @@ class ForumDb extends PDO
      * @param string $reason Value for field reason
      * @param int $deactivatedByUserId Value for the field 
      * deactivated_by_iduser
+     * todo: issue #20 / #21 ?
      */
     private function SetDeactivationReason(int $userId, string $reason,
             int $deactivatedByUserId) : void
@@ -1102,6 +1115,7 @@ class ForumDb extends PDO
     /**
      * Get the deactivation-reason for a user.
      * Returns null if there is no entry user_deactivated_reason_table
+     * todo: issue #20 / #21 ?
      */
     public function GetDeactivationReason(int $userId) : ?string
     {
@@ -1129,6 +1143,7 @@ class ForumDb extends PDO
      * @param bool $admin Enable the admin-flag or remove it
      * @throws InvalidArgumentException If no user with passed $userId exists,
      * or if the user has no value in the field confirmed_ts
+     * todo: issue #20 / #21 ?
      */
     public function SetAdmin(int $userId, bool $admin) : void
     {
@@ -1172,6 +1187,7 @@ class ForumDb extends PDO
      * Remove all entries from user_deactivated_reason_table that match
      * the passed $uesrId
      * @param int $userId
+     * todo: issue #20 / #21 ?
      */
     private function ClearDeactivationReason(int $userId) : void
     {
@@ -1188,6 +1204,7 @@ class ForumDb extends PDO
      * removes all entries from the user_deactivated_reason_table
      * @param int $userId
      * @throws InvalidArgumentException If no user with passed $userId exists
+     * todo: issue #20 / #21 ?
      */
     public function MakeDummy(int $userId) : void
     {
@@ -1221,6 +1238,7 @@ class ForumDb extends PDO
      * @param int $userId
      * @throws InvalidArgumentException If no user with passed $userId exists
      * or if the user has already posted something
+     * todo: issue #20 / #21 ?
      */
     public function DeleteUser(int $userId) : void
     {
@@ -1260,6 +1278,7 @@ class ForumDb extends PDO
      * @param int $userId
      * @return int Post-count. 0 if no such user es known
      * @throws Exception If database operation fails
+     * todo: issue #20 / #21 ?
      */
     public function GetPostByUserCount(int $userId) : int
     {
