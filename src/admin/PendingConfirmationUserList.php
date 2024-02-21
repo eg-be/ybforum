@@ -103,7 +103,7 @@ class PendingConfirmationUserList
                 $confirmSource = $result['confirm_source'];
                 $activate = ($confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE);
                 $db->RemoveConfirmUserCode($user);
-                $db->ConfirmUser($user->GetId(), $password, $email, $activate);
+                $db->ConfirmUser($user, $password, $email, $activate);
                 $resultDiv = '<div class="actionSucceeded">Benutzer ' 
                         . $user->GetNick() . ' (' . $user->GetId() . ')'
                         . 'bestätigt (Aktiviert: ' 

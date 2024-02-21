@@ -618,7 +618,7 @@ final class ForumDbTest extends BaseTest
 
     public function testConfirmUser() : void
     {
-        // need a clean database, must work with a use awaiting confirmation
+        // need a clean database, must work with a user awaiting confirmation
         self::createTestDatabase();
         $user = User::LoadUserById($this->db, 52);
         $this->assertNotNull($user);
@@ -628,7 +628,7 @@ final class ForumDbTest extends BaseTest
         $newMail = 'new@mail';
         // confirm, but dont activate:
         $now = new DateTime();
-        $this->db->ConfirmUser($user->GetId(), 
+        $this->db->ConfirmUser($user, 
             password_hash($newPass, PASSWORD_DEFAULT),
             $newMail, false);
         $user = User::LoadUserById($this->db, 52);
@@ -641,7 +641,7 @@ final class ForumDbTest extends BaseTest
             $user->GetConfirmationTimestamp()->getTimestamp(), 2);
 
         // confirm and activate:
-        $this->db->ConfirmUser($user->GetId(), 
+        $this->db->ConfirmUser($user, 
             password_hash($newPass, PASSWORD_DEFAULT),
             $newMail, true);
         $user = User::LoadUserById($this->db, 52);
@@ -654,7 +654,9 @@ final class ForumDbTest extends BaseTest
         
         // fail for unknown user-id
         $this->expectException(InvalidArgumentException::class);
-        $this->db->ConfirmUser(333, 'foo', 'foo@mail', true);
+        $user333 = $this->createStub(User::class);
+        $user333->method('GetId')->willReturn(333);
+        $this->db->ConfirmUser($user333, 'foo', 'foo@mail', true);
     }
 
     public function testRequestPasswordResetCode() : void

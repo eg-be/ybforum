@@ -677,16 +677,16 @@ class ForumDb extends PDO
     /**
      * Marks a user as confirmed, by setting the field confirmation_ts of
      * the matching row to the current timestamp and updating the row
-     * with the passed values.
+     * with the passed values for password and email
      * This will in all cases set old_passwd to NULL.
-     * @param int $userId Identify the row in user_table to update.
+     * @param User $user Identify the row in user_table to update.
      * @param string $hashedPassword Value for field password
      * @param string $email Value for field email.
      * @param bool $activate If True, field active will be set to 1, else to 0.
      * @throws InvalidArgumentException If no row was updated
      * todo: issue #20 / #21 ?
      */
-    public function ConfirmUser(int $userId, string $hashedPassword, 
+    public function ConfirmUser(User $user, string $hashedPassword, 
             string $email, bool $activate) : void
     {
         $activateQuery = 'UPDATE user_table SET password = :password, '
@@ -698,22 +698,23 @@ class ForumDb extends PDO
             ':password' => $hashedPassword, 
             ':email' => $email, 
             ':active' => ($activate ? 1 : 0),
-            ':iduser' => $userId));
+            ':iduser' => $user->GetId()));
         if($activateStmt->rowCount() === 0)
         {
-            throw new InvalidArgumentException('No row updated matching userid ' . $userId);
+            throw new InvalidArgumentException('No row updated matching userid ' . $user->GetId());
         }
         
         $logger = new Logger($this);
         if($activate)
         {
-            $logger->LogMessageWithUserId(LogType::LOG_USER_MIGRATION_CONFIRMED, $userId);
-            $logger->LogMessageWithUserId(LogType::LOG_USER_ACTIVED, $userId);
+            $logger->LogMessageWithUserId(LogType::LOG_USER_MIGRATION_CONFIRMED, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_USER_ACTIVED, $user->GetId());
         }
         else
         {
-            $logger->LogMessageWithUserId(LogType::LOG_USER_REGISTRATION_CONFIRMED, $userId);
-        }        
+            $logger->LogMessageWithUserId(LogType::LOG_USER_REGISTRATION_CONFIRMED, $user->GetId());
+        }
+        // todo: update the passed User object
     }
     
     /**
