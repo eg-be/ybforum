@@ -872,10 +872,12 @@ final class ForumDbTest extends BaseTest
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
         $this->db->RequestUpdateEmailCode($user101, 'new@mail', '::1');
-        $this->assertSame(1, $this->db->RemoveUpdateEmailCode($user101->getId()));
-        $this->assertSame(0, $this->db->RemoveUpdateEmailCode($user101->getId()));
+        $this->assertSame(1, $this->db->RemoveUpdateEmailCode($user101));
+        $this->assertSame(0, $this->db->RemoveUpdateEmailCode($user101));
         // not existing entry works
-        $this->assertSame(0, $this->db->RemoveUpdateEmailCode(33));        
+        $user33 = $this->createStub(User::class);
+        $user33->method('GetId')->willReturn(33);
+        $this->assertSame(0, $this->db->RemoveUpdateEmailCode($user33));
     }
 
     public function testUpdateUserEmail() : void
