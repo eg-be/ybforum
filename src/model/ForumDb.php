@@ -821,27 +821,27 @@ class ForumDb extends PDO
     
     /**
      * Update the password of a user by updating the value in field password
-     * in the user_table for a row matching passed $userId in field userid.
-     * @param int $userId Identify the row in field userid
+     * in the user_table for a row matching passed $user in field userid.
+     * @param User $user Identify the row in field userid
      * @param string $clearTextPassword New password to set (will be hashed)
      * @throws Exception If not exactly one row is updated.
      * todo: issue #20 / #21 ?
      */
-    public function UpdateUserPassword(int $userId, string $clearTextPassword) : void
+    public function UpdateUserPassword(User $user, string $clearTextPassword) : void
     {
         $hashedPassword = password_hash($clearTextPassword, PASSWORD_DEFAULT);
         $query = 'UPDATE user_table SET password = :password '
                 . 'WHERE iduser = :iduser';
         $stmt = $this->prepare($query);
         $stmt->execute(array(':password' => $hashedPassword,
-            ':iduser' => $userId));
+            ':iduser' => $user->GetId()));
         if($stmt->rowCount() !== 1)
         {
             throw new Exception('Not exactly one row was updated in table '
-                    . 'user_table matching iduser ' . $userId);
+                    . 'user_table matching iduser ' . $user->GetId());
         }
         $logger = new Logger($this);
-        $logger->LogMessageWithUserId(LogType::LOG_USER_PASSWORD_UPDATED, $userId);        
+        $logger->LogMessageWithUserId(LogType::LOG_USER_PASSWORD_UPDATED, $user->GetId());        
     }
     
     /**

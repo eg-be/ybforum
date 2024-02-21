@@ -98,7 +98,7 @@ class UpdatePasswordHandler extends BaseHandler
         }
         else
         {
-            $db->UpdateUserPassword($this->user->GetId(), 
+            $db->UpdateUserPassword($this->user, 
                     $this->newPassword, $this->clientIpAddress);
         }
     }
