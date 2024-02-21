@@ -953,12 +953,13 @@ class ForumDb extends PDO
     /**
      * Update the email of a user by updating the value in field email
      * in the user_table for a row matching passed $user in field userid.
-     * @param User $user
+     * @param User &$user Update the email of the passed User .The passed 
+     * reference will be updated with the newly set values, if the function 
+     * succeeds.
      * @param string $email
      * @throws Exception If not exactly one row is updated.
-     * todo: issue #20 / #21 ?
      */
-    public function UpdateUserEmail(User $user, string $email) : void
+    public function UpdateUserEmail(User &$user, string $email) : void
     {
         $activateQuery = 'UPDATE user_table SET '
                 . 'email = :email '
@@ -973,7 +974,10 @@ class ForumDb extends PDO
                     . 'user_table matching iduser ' . $user->GetId());
         }
         $logger = new Logger($this);
-        $logger->LogMessageWithUserId(LogType::LOG_USER_EMAIL_UPDATED, $user->GetId(), 'New Email: ' . $email);        
+        $logger->LogMessageWithUserId(LogType::LOG_USER_EMAIL_UPDATED, $user->GetId(), 'New Email: ' . $email);
+
+        // and reload the user
+        $user = User::LoadUserById($this, $user->GetId());
     }
 
     /**
