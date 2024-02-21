@@ -634,25 +634,24 @@ class ForumDb extends PDO
     
     /**
      * Searches for a entry in confirm_user_table matching the passed
-     * $userId, and compares the value of the field confirm_source
+     * $user, and compares the value of the field confirm_source
      * against self::CONFIRM_SOURCE_NEWUSER or 
      * self::CONFIRM_SOURCE_MIGRATE. If the value is one of that
      * defined values, the defined value is returend. Else an
      * InvalidArgumentException is thrown.
      * An InvalidArgumentException is also thrown if no such row matching
      * the passed $userId exists.
-     * @param int $userId
+     * @param User $user
      * @throw InvalidArgumentException
      * @return self::CONFIRM_SOURCE_NEWUSER or self::CONFIRM_SOURCE_MIGRATE
-     * todo: issue #20 / #21 ?
      */
-    public function GetConfirmReason(int $userId) : string
+    public function GetConfirmReason(User $user) : string
     {
         $query = 'SELECT confirm_source '
                 . 'FROM confirm_user_table '
                 . 'WHERE iduser = :iduser';
         $stmt = $this->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));
+        $stmt->execute(array(':iduser' => $user->GetId()));
         $row = $stmt->fetch();
         if(!$row)
         {
@@ -671,7 +670,7 @@ class ForumDb extends PDO
         else
         {
             throw new InvalidArgumentException('Invalid confirm_source value '
-                    . $sourceValue . ' for iduser ' . $userId);
+                    . $sourceValue . ' for iduser ' . $user->GetId());
         }
     }
     

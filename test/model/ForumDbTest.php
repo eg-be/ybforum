@@ -28,9 +28,18 @@ final class ForumDbTest extends BaseTest
         BaseTest::createTestDatabase();
     }
 
+    private $user101;
+    private $user102;
+
     protected function setUp(): void
     {
+        // an rw-db
         $this->db = new ForumDb(false);
+        // and some user-mocks that return a user-id
+        $this->user101 = $this->createStub(User::class);
+        $this->user101->method('GetId')->willReturn(101);
+        $this->user102 = $this->createStub(User::class);
+        $this->user102->method('GetId')->willReturn(102);
     }
 
     protected function assertPreConditions(): void
@@ -589,17 +598,15 @@ final class ForumDbTest extends BaseTest
     }
 
     public function testGetConfirmReason() : void
-    {
-        $user101 = $this->createStub(User::class);
-        $user101->method('GetId')->willReturn(101);        
-        $this->db->RequestConfirmUserCode($user101, 'new', 'new@mail', 
+    {   
+        $this->db->RequestConfirmUserCode($this->user101, 'new', 'new@mail', 
             ForumDb::CONFIRM_SOURCE_MIGRATE, '::1');
         $this->assertSame(ForumDb::CONFIRM_SOURCE_MIGRATE, 
-            $this->db->GetConfirmReason(101));
-        $this->db->RequestConfirmUserCode($user101, 'new', 'new@mail', 
+            $this->db->GetConfirmReason($this->user101));
+        $this->db->RequestConfirmUserCode($this->user101, 'new', 'new@mail', 
             ForumDb::CONFIRM_SOURCE_NEWUSER, '::1');
         $this->assertSame(ForumDb::CONFIRM_SOURCE_NEWUSER, 
-        $this->db->GetConfirmReason(101));
+        $this->db->GetConfirmReason($this->user101));
         // test that an invalid reason throws:
         $user102 = $this->createStub(User::class);
         $user102->method('GetId')->willReturn(102);
@@ -616,7 +623,7 @@ final class ForumDbTest extends BaseTest
             ':request_ip_address' => '::1',
             ':confirm_source' => 'Foobar'));
         $this->expectException(InvalidArgumentException::class);
-        $this->db->GetConfirmReason(102);
+        $this->db->GetConfirmReason($this->user102);
     }
 
     public function testConfirmUser() : void
