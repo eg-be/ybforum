@@ -631,10 +631,10 @@ final class ForumDbTest extends BaseTest
         $this->db->ConfirmUser($user, 
             password_hash($newPass, PASSWORD_DEFAULT),
             $newMail, false);
-        $user = User::LoadUserById($this->db, 52);
-        $this->assertNotNull($user);
+        // test that the user-object we passed now reflects the change, 
+        // without the need to explicitly reload it:
         $this->assertTrue($user->IsConfirmed());
-        $this->assertFalse($user->IsActive());
+        $this->assertFalse($user->IsActive()); // still not active, only confiremd
         $this->assertSame($newMail, $user->GetEmail());
         // confirmation-timestamp must be somewhere around now
         $this->assertEqualsWithDelta($now->getTimestamp(), 
@@ -644,8 +644,6 @@ final class ForumDbTest extends BaseTest
         $this->db->ConfirmUser($user, 
             password_hash($newPass, PASSWORD_DEFAULT),
             $newMail, true);
-        $user = User::LoadUserById($this->db, 52);
-        $this->assertNotNull($user);
         $this->assertTrue($user->IsConfirmed());
         $this->assertTrue($user->IsActive());
         // note: To verify the hashed-password, just auth

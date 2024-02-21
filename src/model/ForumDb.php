@@ -679,14 +679,14 @@ class ForumDb extends PDO
      * the matching row to the current timestamp and updating the row
      * with the passed values for password and email
      * This will in all cases set old_passwd to NULL.
-     * @param User $user Identify the row in user_table to update.
+     * @param User &$user The user that shall be confirmed. The passed reference will be
+     * updated with the newly set values, if the function succeeds
      * @param string $hashedPassword Value for field password
      * @param string $email Value for field email.
      * @param bool $activate If True, field active will be set to 1, else to 0.
      * @throws InvalidArgumentException If no row was updated
-     * todo: issue #20 / #21 ?
      */
-    public function ConfirmUser(User $user, string $hashedPassword, 
+    public function ConfirmUser(User &$user, string $hashedPassword, 
             string $email, bool $activate) : void
     {
         $activateQuery = 'UPDATE user_table SET password = :password, '
@@ -714,7 +714,8 @@ class ForumDb extends PDO
         {
             $logger->LogMessageWithUserId(LogType::LOG_USER_REGISTRATION_CONFIRMED, $user->GetId());
         }
-        // todo: update the passed User object
+        // Update the passed User object that has been passed
+        $user = User::LoadUserById($this, $user->GetId());
     }
     
     /**
