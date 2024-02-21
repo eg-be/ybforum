@@ -44,7 +44,7 @@ class PendingConfirmationUserList
                 // If this is the registration of a new user, also delete
                 // the corresponding entry in the user table
                 $confirmReason = $db->GetConfirmReason($user->GetId());
-                $db->RemoveConfirmUserCode($user->GetId());
+                $db->RemoveConfirmUserCode($user);
                 if($confirmReason == ForumDb::CONFIRM_SOURCE_NEWUSER)
                 {
                     $db->DeleteUser($user->GetId());
@@ -65,7 +65,7 @@ class PendingConfirmationUserList
                 // the corresponding entry in the user table and add it to the
                 // list of blocked emails
                 $confirmReason = $db->GetConfirmReason($user->GetId());
-                $db->RemoveConfirmUserCode($user->GetId());
+                $db->RemoveConfirmUserCode($user);
                 if($confirmReason == ForumDb::CONFIRM_SOURCE_NEWUSER)
                 {
                     $db->AddBlacklist($user->GetEmail(), 'Blocked from admin');
@@ -102,7 +102,7 @@ class PendingConfirmationUserList
                 $email = $result['email'];
                 $confirmSource = $result['confirm_source'];
                 $activate = ($confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE);
-                $db->RemoveConfirmUserCode($user->GetId());
+                $db->RemoveConfirmUserCode($user);
                 $db->ConfirmUser($user->GetId(), $password, $email, $activate);
                 $resultDiv = '<div class="actionSucceeded">Benutzer ' 
                         . $user->GetNick() . ' (' . $user->GetId() . ')'

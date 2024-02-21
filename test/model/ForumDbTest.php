@@ -578,10 +578,14 @@ final class ForumDbTest extends BaseTest
         $user101->method('GetId')->willReturn(101);
         $this->db->RequestConfirmUserCode($user101, 'new', 'new@mail', 
             ForumDb::CONFIRM_SOURCE_MIGRATE, '::1');
-        $this->assertSame(1, $this->db->RemoveConfirmUserCode(101));
-        $this->assertSame(0, $this->db->RemoveConfirmUserCode(101));
+        $this->assertSame(1, $this->db->RemoveConfirmUserCode($user101));
+        $user102 = $this->createStub(User::class);
+        $user102->method('GetId')->willReturn(102);
+        $this->assertSame(0, $this->db->RemoveConfirmUserCode($user102));
         // not existing entry works
-        $this->assertSame(0, $this->db->RemoveConfirmUserCode(33));
+        $user33 = $this->createStub(User::class);
+        $user33->method('GetId')->willReturn(33);
+        $this->assertSame(0, $this->db->RemoveConfirmUserCode($user33));
     }
 
     public function testGetConfirmReason() : void
@@ -597,7 +601,9 @@ final class ForumDbTest extends BaseTest
         $this->assertSame(ForumDb::CONFIRM_SOURCE_NEWUSER, 
         $this->db->GetConfirmReason(101));
         // test that an invalid reason throws:
-        $this->db->RemoveConfirmUserCode(102);
+        $user102 = $this->createStub(User::class);
+        $user102->method('GetId')->willReturn(102);
+        $this->db->RemoveConfirmUserCode($user102);
         $insertQuery = 'INSERT INTO confirm_user_table (iduser, email, '
             . 'password, confirm_code, request_ip_address, '
             . 'confirm_source) '

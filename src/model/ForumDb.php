@@ -521,7 +521,7 @@ class ForumDb extends PDO
                     self::CONFIRM_SOURCE_NEWUSER);
         }
         // delete an eventually already existing entry first
-        $this->RemoveConfirmUserCode($user->GetId());
+        $this->RemoveConfirmUserCode($user);
         // generate some random bytes to be used as confirmation code
         $bytes = random_bytes(YbForumConfig::CONFIRMATION_CODE_LENGTH);
         $confirmCode = mb_strtoupper(bin2hex($bytes), 'UTF-8');
@@ -598,7 +598,8 @@ class ForumDb extends PDO
         // If the code is expired, or we are requested to remove it, delete:
         if($codeExpired || $remove)
         {
-            if($this->RemoveConfirmUserCode($userId) !== 1)
+            $user = User::LoadUserById($this, $userId);
+            if($this->RemoveConfirmUserCode($user) !== 1)
             {
                 throw new Exception('Not exactly one row was deleted for used '
                         . 'confirmation code .' . $code);
@@ -619,17 +620,15 @@ class ForumDb extends PDO
     
     /**
      * Remove entries from the confirm_user_table that match the passed 
-     * iduser. 
-     * @param int $userId
+     * user
+     * @param User $user
      * @return int Number of rows that have been removed
-     * todo: issue #20 / #21 ? Probably not, as the key here is actually the iduser
-     * and we are not sure if a user-object exists
      */
-    public function RemoveConfirmUserCode(int $userId) : int
+    public function RemoveConfirmUserCode(User $user) : int
     {
         $delQuery = 'DELETE FROM confirm_user_table WHERE iduser = :iduser';
         $delStmt = $this->prepare($delQuery);
-        $delStmt->execute(array(':iduser' => $userId));
+        $delStmt->execute(array(':iduser' => $user->GetId()));
         return $delStmt->rowCount();
     }
     
