@@ -110,7 +110,7 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         }
         
         // And update the email
-        $db->UpdateUserEmail($this->user->GetId(), $this->newEmail, 
+        $db->UpdateUserEmail($this->user, $this->newEmail, 
                 $this->clientIpAddress);        
     }
     
