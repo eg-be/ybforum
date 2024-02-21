@@ -520,13 +520,9 @@ final class ForumDbTest extends BaseTest
     {
         // create two entries: one that has elapsed one minute ago
         // and one that will elapse in one minute
-        $user101 = $this->createStub(User::class);
-        $user101->method('GetId')->willReturn(101);
-        $elapsedCode = $this->db->RequestConfirmUserCode($user101, 'new-pw', 'new@mail', 
+        $elapsedCode = $this->db->RequestConfirmUserCode($this->user101, 'new-pw', 'new@mail', 
             ForumDb::CONFIRM_SOURCE_MIGRATE, '::1');
-        $user102 = $this->createStub(User::class);
-        $user102->method('GetId')->willReturn(102);    
-        $validCode = $this->db->RequestConfirmUserCode($user102, 'valid-pw', 'valid@mail',
+        $validCode = $this->db->RequestConfirmUserCode($this->user102, 'valid-pw', 'valid@mail',
             ForumDb::CONFIRM_SOURCE_NEWUSER, '::1');
         // modify the timestamps:
         $elapsedDate = new DateTime();
@@ -583,15 +579,11 @@ final class ForumDbTest extends BaseTest
     public function testRemoveConfirmUserCode() : void
     {
         // insert some entries, test they are removed
-        $user101 = $this->createStub(User::class);
-        $user101->method('GetId')->willReturn(101);
-        $this->db->RequestConfirmUserCode($user101, 'new', 'new@mail', 
+        $this->db->RequestConfirmUserCode($this->user101, 'new', 'new@mail', 
             ForumDb::CONFIRM_SOURCE_MIGRATE, '::1');
-        $this->assertSame(1, $this->db->RemoveConfirmUserCode($user101));
-        $user102 = $this->createStub(User::class);
-        $user102->method('GetId')->willReturn(102);
-        $this->assertSame(0, $this->db->RemoveConfirmUserCode($user102));
-        // not existing entry works
+        $this->assertSame(1, $this->db->RemoveConfirmUserCode($this->user101));
+        $this->assertSame(0, $this->db->RemoveConfirmUserCode($this->user102));
+        // not existing user entry works (this is rather stupid, how would you ever construct such a user?)
         $user33 = $this->createStub(User::class);
         $user33->method('GetId')->willReturn(33);
         $this->assertSame(0, $this->db->RemoveConfirmUserCode($user33));
@@ -608,9 +600,7 @@ final class ForumDbTest extends BaseTest
         $this->assertSame(ForumDb::CONFIRM_SOURCE_NEWUSER, 
         $this->db->GetConfirmReason($this->user101));
         // test that an invalid reason throws:
-        $user102 = $this->createStub(User::class);
-        $user102->method('GetId')->willReturn(102);
-        $this->db->RemoveConfirmUserCode($user102);
+        $this->db->RemoveConfirmUserCode($this->user102);
         $insertQuery = 'INSERT INTO confirm_user_table (iduser, email, '
             . 'password, confirm_code, request_ip_address, '
             . 'confirm_source) '
