@@ -751,10 +751,12 @@ final class ForumDbTest extends BaseTest
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);        
         $this->db->RequestPasswordResetCode($user101, '::1');
-        $this->assertSame(1, $this->db->RemoveResetPasswordCode($user101->getId()));
-        $this->assertSame(0, $this->db->RemoveResetPasswordCode($user101->getId()));
-        // not existing entry works
-        $this->assertSame(0, $this->db->RemoveResetPasswordCode(33));        
+        $this->assertSame(1, $this->db->RemoveResetPasswordCode($user101));
+        $this->assertSame(0, $this->db->RemoveResetPasswordCode($user101));
+        // not existing entry works (altough this is stupid, you can never get into that situation - how would you create the user object?)
+        $user33 = $this->createStub(User::class);
+        $user33->method('GetId')->willReturn(33);
+        $this->assertSame(0, $this->db->RemoveResetPasswordCode($user33));
     }
 
     public function testUpdateUserPassword() : void
