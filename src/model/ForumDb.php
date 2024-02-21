@@ -822,12 +822,13 @@ class ForumDb extends PDO
     /**
      * Update the password of a user by updating the value in field password
      * in the user_table for a row matching passed $user in field userid.
-     * @param User $user Identify the row in field userid
+     * @param User &$user Identify the row in field userid. The passed 
+     * reference will be updated with the newly set values, if the function 
+     * succeeds
      * @param string $clearTextPassword New password to set (will be hashed)
      * @throws Exception If not exactly one row is updated.
-     * todo: issue #20 / #21 ?
      */
-    public function UpdateUserPassword(User $user, string $clearTextPassword) : void
+    public function UpdateUserPassword(User &$user, string $clearTextPassword) : void
     {
         $hashedPassword = password_hash($clearTextPassword, PASSWORD_DEFAULT);
         $query = 'UPDATE user_table SET password = :password '
@@ -841,7 +842,9 @@ class ForumDb extends PDO
                     . 'user_table matching iduser ' . $user->GetId());
         }
         $logger = new Logger($this);
-        $logger->LogMessageWithUserId(LogType::LOG_USER_PASSWORD_UPDATED, $user->GetId());        
+        $logger->LogMessageWithUserId(LogType::LOG_USER_PASSWORD_UPDATED, $user->GetId());
+        // and reload the user-object
+        $user = User::LoadUserById($this, $user->GetId());
     }
     
     /**

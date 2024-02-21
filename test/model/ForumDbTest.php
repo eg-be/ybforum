@@ -764,9 +764,7 @@ final class ForumDbTest extends BaseTest
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
         $this->db->UpdateUserPassword($user101, "foobar");
-        // note: Must reload the user after a password-change
-        $user101 = User::LoadUserById($this->db, 101);
-        $this->assertNotNull($user101);
+        // User must reflect the change immediately, reload must have been triggered by UpdateUserPassword
         $this->assertTrue($user101->Auth("foobar"));
         $this->assertFalse($user101->Auth("Foobar"));
     }
