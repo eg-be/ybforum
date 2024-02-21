@@ -775,7 +775,7 @@ final class ForumDbTest extends BaseTest
         $now = new DateTime();
         $user = User::LoadUserById($this->db, 52);
         $this->assertNotNull($user);
-        $code = $this->db->RequestUpdateEmailCode($user->GetId(), 
+        $code = $this->db->RequestUpdateEmailCode($user, 
             'new-mail@mail.com', '::1');
         // verify returned value matches entry from the db
         $query = 'SELECT iduser, email, request_date '
@@ -791,7 +791,7 @@ final class ForumDbTest extends BaseTest
         $this->assertEqualsWithDelta($now->getTimestamp(), 
             $ts->getTimestamp(), 2);
         // check that there is only one entry, even if we create a second one:
-        $newCode = $this->db->RequestUpdateEmailCode($user->GetId(), 
+        $newCode = $this->db->RequestUpdateEmailCode($user, 
             'another@mail.com', '::1');
         $this->assertNotSame($code, $newCode);
         $query = 'SELECT confirm_code FROM update_email_table '
@@ -812,9 +812,9 @@ final class ForumDbTest extends BaseTest
         $user102 = User::LoadUserById($this->db, 102);
         $this->assertNotNull($user101);
         $this->assertNotNull($user102);
-        $validCode = $this->db->RequestUpdateEmailCode($user101->GetId(), 
+        $validCode = $this->db->RequestUpdateEmailCode($user101, 
             '101@mail', '::1');
-        $elapsedCode = $this->db->RequestUpdateEmailCode($user102->GetId(), 
+        $elapsedCode = $this->db->RequestUpdateEmailCode($user102, 
             '102@mail', '::1');
 
         // modify the timestamps in the db:
@@ -871,7 +871,7 @@ final class ForumDbTest extends BaseTest
         // insert some entries, test they are removed
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
-        $this->db->RequestUpdateEmailCode($user101->GetId(), 'new@mail', '::1');
+        $this->db->RequestUpdateEmailCode($user101, 'new@mail', '::1');
         $this->assertSame(1, $this->db->RemoveUpdateEmailCode($user101->getId()));
         $this->assertSame(0, $this->db->RemoveUpdateEmailCode($user101->getId()));
         // not existing entry works

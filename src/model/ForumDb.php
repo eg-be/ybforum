@@ -850,19 +850,18 @@ class ForumDb extends PDO
     /**
      * Creates a new entry in update_email_table with a confirmation code
      * to update the email address of a user. Returns the code created.
-     * Before a new entry is created, all entries matching passed $userId
+     * Before a new entry is created, all entries matching passed $user
      * are deleted from the update_email_table.
-     * @param int $userId To create an entry for.
+     * @param User $user To create an entry for.
      * @param string $newEmail The email address that is awaiting confirmation.
      * @param string $requestClientIpAddress
      * @return string confirmation code created.
-     * todo: issue #20 / #21 ?
      */
-    public function RequestUpdateEmailCode(int $userId, string $newEmail, 
+    public function RequestUpdateEmailCode(User $user, string $newEmail, 
             string $requestClientIpAddress) : string
     {        
         // delete an eventually already existing entry first
-        $this->RemoveUpdateEmailCode($userId);
+        $this->RemoveUpdateEmailCode($user->GetId());
         
         // generate some random bytes to be used as confirmation code
         $bytes = random_bytes(YbForumConfig::CONFIRMATION_CODE_LENGTH);
@@ -874,7 +873,7 @@ class ForumDb extends PDO
                 . 'VALUES(:iduser, :email, '
                 . ':confirm_code, :request_ip_address)';
         $insertStmt = $this->prepare($insertQuery);
-        $insertStmt->execute(array(':iduser' => $userId,
+        $insertStmt->execute(array(':iduser' => $user->GetId(),
             ':email' => $newEmail, 
             ':confirm_code' => $confirmCode, 
             ':request_ip_address' => $requestClientIpAddress
