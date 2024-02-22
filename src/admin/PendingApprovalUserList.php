@@ -42,7 +42,7 @@ class PendingApprovalUserList
                 $sent = false;
                 if($userActionValue === self::VALUE_ACCEPT && $user)
                 {
-                    $db->ActivateUser($user->GetId());
+                    $db->ActivateUser($user);
                     $sent = $mailer->SendNotifyUserAcceptedEmail($user->GetEmail(), $user->GetNick());
                     $logger->LogMessageWithUserId(LogType::LOG_NOTIFIED_USER_ACCEPTED, $user->GetId());
                     $resultDiv = '<div class="actionSucceeded">Benutzer ' 

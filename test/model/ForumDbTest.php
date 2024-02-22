@@ -28,8 +28,8 @@ final class ForumDbTest extends BaseTest
         BaseTest::createTestDatabase();
     }
 
-    private $user101;
-    private $user102;
+    private User $user101;
+    private User $user102;
 
     protected function setUp(): void
     {
@@ -898,7 +898,7 @@ final class ForumDbTest extends BaseTest
         $needsApproval = User::LoadUserById($this->db, 51);
         $this->assertNotNull($needsApproval);
         $this->assertFalse($needsApproval->IsActive());
-        $this->db->ActivateUser($needsApproval->GetId());
+        $this->db->ActivateUser($needsApproval);
         // must reload, see #21
         $needsApproval = User::LoadUserById($this->db, 51);
         $this->assertTrue($needsApproval->IsActive());
@@ -907,9 +907,8 @@ final class ForumDbTest extends BaseTest
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
         $this->assertTrue($user101->IsActive());
-        $this->db->ActivateUser($user101->GetId());
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->ActivateUser($user101);
+        // User must have been updated
         $this->assertTrue($user101->IsActive());
 
         // Activating one with a deactivated reason, removes that reason
@@ -922,8 +921,7 @@ final class ForumDbTest extends BaseTest
         $stmt->execute(array(':iduser' => $deactivated->GetId()));
         $result = $stmt->fetch();
         $this->assertIsArray($result);
-        $this->db->ActivateUser($deactivated->GetId());
-        $deactivated = User::LoadUserById($this->db, 50);  // must reload, see #21
+        $this->db->ActivateUser($deactivated);
         $this->assertTrue($deactivated->IsActive());
         $stmt->execute(array(':iduser' => $deactivated->GetId()));
         $result = $stmt->fetch();
@@ -941,8 +939,10 @@ final class ForumDbTest extends BaseTest
     #[DataProvider('providerNotExistingNotConfirmed')]
     public function testActivateUserFails(int $userId) : void
     {
+        $user = $this->createStub(User::class);
+        $user->method('GetId')->willReturn($userId);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->ActivateUser($userId);
+        $this->db->ActivateUser($user);
     }
 
     public function testDeactivateUser() : void

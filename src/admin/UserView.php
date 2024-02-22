@@ -156,7 +156,13 @@ class UserView {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if($userActionValue === self::VALUE_ACTIVATE && $this->m_userId)
         {
-            $db->ActivateUser($this->m_userId);
+            $user = User::LoadUserById($db, $this->m_userId);
+            if(!$user)
+            {
+                throw new InvalidArgumentException('No user with id ' . $userId . 
+                        ' was found');
+            }
+            $db->ActivateUser($user);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' aktiviert</div>';
         }
         else if($userActionValue === self::VALUE_DEACTIVATE && $this->m_userId)

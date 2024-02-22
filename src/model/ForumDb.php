@@ -953,7 +953,7 @@ class ForumDb extends PDO
     /**
      * Update the email of a user by updating the value in field email
      * in the user_table for a row matching passed $user in field userid.
-     * @param User &$user Update the email of the passed User .The passed 
+     * @param User &$user Update the email of the passed User. The passed 
      * reference will be updated with the newly set values, if the function 
      * succeeds.
      * @param string $email
@@ -985,20 +985,14 @@ class ForumDb extends PDO
      * If user is already activated, this method does nothing.
      * Also removes all entries from the user_deactivated_reason_table that
      * match the passed $userId.
-     * @param int $userId
+     * @param User $user User to active. The passed  reference will be updated
+     * with the newly set values, if the function succeeds.
      * @throws InvalidArgumentException If no user with passed $userId exists
      * or if the user has no value in the field confirmed_ts
-     * todo: issue #20 / #21 ?
      */
-    public function ActivateUser(int $userId) : void
+    public function ActivateUser(User &$user) : void
     {
         // Get the user first
-        $user = User::LoadUserById($this, $userId);
-        if(!$user)
-        {
-            throw new InvalidArgumentException('No user with id ' . $userId . 
-                    ' was found');
-        }
         if(!$user->IsConfirmed())
         {
             throw new InvalidArgumentException('Cannot activate a user which '
@@ -1013,18 +1007,21 @@ class ForumDb extends PDO
             $query = 'UPDATE user_table SET active = 1 '
                     . 'WHERE iduser = :iduser';
             $stmt = $this->prepare($query);
-            $stmt->execute(array(':iduser' => $userId));
+            $stmt->execute(array(':iduser' => $user->GetId()));
             if($stmt->rowCount() !== 1)
             {
                 throw new Exception('Not exactly one row was updated in table '
-                        . 'user_table matching iduser ' . $userId);
+                        . 'user_table matching iduser ' . $user->GetId());
             }
             // remove entry from the deactivated reasons table
-            $this->ClearDeactivationReason($userId);
+            $this->ClearDeactivationReason($user->GetId());
             // log what happened
             $logger = new Logger($this);
-            $logger->LogMessageWithUserId(LogType::LOG_USER_ACTIVED, $userId);  
+            $logger->LogMessageWithUserId(LogType::LOG_USER_ACTIVED, $user->GetId());  
             $this->commit();
+
+            // and reload the passed user
+            $user = User::LoadUserById($this, $user->GetId());
         }
         catch(Exception $e) {
             $this->rollBack();
