@@ -1032,30 +1032,23 @@ class ForumDb extends PDO
     /**
      * Deactivate a user. If user is already deactivated, this method
      * does nothing.
-     * @param int $userId User to deactivate
+     * @param User $user User to deactivate. The passed  reference will 
+     * be updated with the newly set values, if the function succeeds.
      * @param string $reason The reason why to deactivate
-     * @param int $deactivatedByUserId Must be an active admin 
+     * @param int $deactivatedByAdminUser Must be an active admin 
      * @throws InvalidArgumentException If no user with passed $userId exists
      * or if $deactivatedByUserId is not an active admin
-     * todo: issue #20 / #21 ?
      */
-    public function DeactivateUser(int $userId, string $reason,
-            int $deactivatedByUserId) : void
+    public function DeactivateUser(User &$user, string $reason,
+            User $deactivatedByAdminUser) : void
     {
-        // Get the user to deactivate first
-        $user = User::LoadUserById($this, $userId);
-        if(!$user)
-        {
-            throw new InvalidArgumentException('No user with id ' . $userId . 
-                    ' was found');
-        }
         if(!$user->IsActive())
         {
             return;
         }
         // Check that the user who is trying to deactivate, is an admin:
-        $adminUser = User::LoadUserById($this, $deactivatedByUserId);
-        if(!$adminUser || !($adminUser->IsAdmin() && $adminUser->IsActive())) {
+        if(!$deactivatedByAdminUser || !($deactivatedByAdminUser->IsAdmin() 
+            && $deactivatedByAdminUser->IsActive())) {
             throw new InvalidArgumentException('Only active admins can deactivate');
         }
         $this->beginTransaction();
@@ -1065,19 +1058,22 @@ class ForumDb extends PDO
             $query = 'UPDATE user_table SET active = 0 '
                     . 'WHERE iduser = :iduser';
             $stmt = $this->prepare($query);
-            $stmt->execute(array(':iduser' => $userId));
+            $stmt->execute(array(':iduser' => $user->GetId()));
             if($stmt->rowCount() !== 1)
             {
                 throw new Exception('Not exactly one row was updated in table '
-                        . 'user_table matching iduser ' . $userId);
+                        . 'user_table matching iduser ' . $user->GetId());
             }
             // And create the corresponding entry in deactivated_reason_table
-            $this->SetDeactivationReason($userId, $reason, $deactivatedByUserId);
+            $this->SetDeactivationReason($user->GetId(), $reason, $deactivatedByAdminUser->GetId());
             // There was a modification, create the corresponding log entry
             $logger = new Logger($this);
-            $logger->LogMessageWithUserId(LogType::LOG_USER_DEACTIVATED, $userId, 
+            $logger->LogMessageWithUserId(LogType::LOG_USER_DEACTIVATED, $user->GetId(), 
                 'Reason: ' . $reason);
             $this->commit();
+
+            // and reload the passed user
+            $user = User::LoadUserById($this, $user->GetId());            
         }
         catch(Exception $e) {
             $this->rollBack();

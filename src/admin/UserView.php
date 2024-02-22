@@ -55,10 +55,15 @@ class UserView {
     {
         try
         {
+            $admin = User::LoadUserById($db, $adminUserId);
+            if(!($admin->IsAdmin() && $admin->IsActive()))
+            {
+                throw new InvalidArgumentException('Admin user required');
+            }
             $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
             if($userActionValue === self::VALUE_ACTIVATE || $userActionValue === self::VALUE_DEACTIVATE)
             {
-                return $this->HandleActivateAction($db, $adminUserId);
+                return $this->HandleActivateAction($db, $admin);
             }
             else if($userActionValue === self::VALUE_SETADMIN || $userActionValue === self::VALUE_REMOVEADMIN)
             {
@@ -151,7 +156,7 @@ class UserView {
         }
     }
     
-    private function HandleActivateAction(ForumDb $db, int $adminUserId) : string
+    private function HandleActivateAction(ForumDb $db, User $admin) : string
     {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if($userActionValue === self::VALUE_ACTIVATE && $this->m_userId)
@@ -172,7 +177,13 @@ class UserView {
             {
                 return '<div class="actionFailed">Es muss ein Grund angegeben werden</div>';
             }
-            $db->DeactivateUser($this->m_userId, $reason, $adminUserId);
+            $user = User::LoadUserById($db, $this->m_userId);
+            if(!$user)
+            {
+                throw new InvalidArgumentException('No user with id ' . $userId . 
+                        ' was found');
+            }            
+            $db->DeactivateUser($user, $reason, $admin);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' deaktiviert</div>';
         }
         else 

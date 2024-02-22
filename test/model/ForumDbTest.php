@@ -946,31 +946,55 @@ final class ForumDbTest extends BaseTest
     }
 
     public function testDeactivateUser() : void
-    {
+    {        
         // rely on a test-database
         self::createTestDatabase();
+        // mock the admin who is deactivating
+        $admin = $this->createStub(User::class);
+        $admin->method('GetId')->willReturn(1);
+        $admin->method('IsAdmin')->willReturn(true);
+        $admin->method('IsActive')->willReturn(true);
+
         // deactivate one that is active
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
         $this->assertTrue($user101->IsActive());
-        $this->db->DeactivateUser($user101->GetId(), 'just for fun', 1);
+        $this->db->DeactivateUser($user101, 'just for fun', $admin);
         $this->assertSame($this->db->GetDeactivationReason(101), 'just for fun');
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
         $this->assertFalse($user101->IsActive());
 
         // deactivating one that is already deactivated, does nothing
         // especially, it does not alter the deactivation-reason
-        $this->db->DeactivateUser($user101->GetId(), 'deactivate again', 1);
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->DeactivateUser($user101, 'deactivate again', $admin);
         $this->assertFalse($user101->IsActive());
         $this->assertSame($this->db->GetDeactivationReason(101), 'just for fun');
-
-        // not-existing cant be deactivated
-        $this->expectException(InvalidArgumentException::class);
-        $this->db->DeactivateUser(333, 'not there', 1);
     }
+
+    public static function providerNotActiveAdmin() : array 
+    {
+        $notAdmin = TestCase::createStub(User::class);
+        $notAdmin->method('IsAdmin')->willReturn(false);
+        $notAdmin->method('IsActive')->willReturn(true);
+        $notActive = TestCase::createStub(User::class);
+        $notActive->method('IsAdmin')->willReturn(true);
+        $notActive->method('IsActive')->willReturn(false);
+
+        return array(
+            [$notAdmin],
+            [$notActive]
+        );
+    }  
+
+    #[DataProvider('providerNotActiveAdmin')]
+    public function testDeactiveUserOnlyAdminCan(User $admin) : void
+    {
+        // test that only active admins can deactivate
+        $inactive = $this->createStub(User::class);
+        $inactive->method('IsActive')->willReturn(true);
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->DeactivateUser($inactive, 'not there', $admin);
+    }
+
 
     public function testGetDeactivationReason() : void
     {
