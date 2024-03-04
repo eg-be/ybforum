@@ -1065,7 +1065,7 @@ class ForumDb extends PDO
                         . 'user_table matching iduser ' . $user->GetId());
             }
             // And create the corresponding entry in deactivated_reason_table
-            $this->SetDeactivationReason($user->GetId(), $reason, $deactivatedByAdminUser->GetId());
+            $this->SetDeactivationReason($user, $reason, $deactivatedByAdminUser->GetId());
             // There was a modification, create the corresponding log entry
             $logger = new Logger($this);
             $logger->LogMessageWithUserId(LogType::LOG_USER_DEACTIVATED, $user->GetId(), 
@@ -1089,22 +1089,21 @@ class ForumDb extends PDO
      * @param string $reason Value for field reason
      * @param int $deactivatedByUserId Value for the field 
      * deactivated_by_iduser
-     * todo: issue #20 / #21 ?
      */
-    private function SetDeactivationReason(int $userId, string $reason,
+    private function SetDeactivationReason(User $user, string $reason,
             int $deactivatedByUserId) : void
     {
         // delete any existing entry in the reasons-table
         $delQuery = 'DELETE FROM user_deactivated_reason_table '
                 . 'WHERE iduser = :iduser';
         $delStmt = $this->prepare($delQuery);
-        $delStmt->execute(array(':iduser' => $userId));
+        $delStmt->execute(array(':iduser' => $user->GetId()));
         // and insert the new reason
         $insQuery = 'INSERT INTO user_deactivated_reason_table '
                 . '(iduser, deactivated_by_iduser, reason) '
                 . 'VALUES(:iduser, :deactivated_by_iduser, :reason)';
         $insStmt = $this->prepare($insQuery);
-        $insStmt->execute(array(':iduser' => $userId, 
+        $insStmt->execute(array(':iduser' => $user->GetId(), 
             ':deactivated_by_iduser' => $deactivatedByUserId, 
             ':reason' => $reason));
     }
