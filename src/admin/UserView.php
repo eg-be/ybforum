@@ -139,15 +139,26 @@ class UserView {
     
     private function HandleAdminAction(ForumDb $db) : string
     {
+        $user = null;
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
-        if($userActionValue === self::VALUE_SETADMIN && $this->m_userId)
+        if(($userActionValue === self::VALUE_SETADMIN || $userActionValue === self::VALUE_REMOVEADMIN) 
+            && $this->m_userId)
         {
-            $db->SetAdmin($this->m_userId, true);
+            $user = User::LoadUserById($this, $this->m_userId);
+            if(!$user)
+            {
+                throw new InvalidArgumentException('No user with id ' . $userId . 
+                        ' was found');
+            }
+        }
+        if($userActionValue === self::VALUE_SETADMIN && $user)
+        {
+            $db->SetAdmin($user, true);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' ist jetzt Admin</div>';
         }
-        else if($userActionValue === self::VALUE_REMOVEADMIN && $this->m_userId)
+        else if($userActionValue === self::VALUE_REMOVEADMIN && $user)
         {
-            $db->SetAdmin($this->m_userId, false);
+            $db->SetAdmin($user, false);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' wurden Admin-Rechte entzogen</div>';
         }
         else

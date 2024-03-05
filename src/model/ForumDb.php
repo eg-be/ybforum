@@ -1073,7 +1073,7 @@ class ForumDb extends PDO
             $this->commit();
 
             // and reload the passed user
-            $user = User::LoadUserById($this, $user->GetId());            
+            $user = User::LoadUserById($this, $user->GetId());
         }
         catch(Exception $e) {
             $this->rollBack();
@@ -1112,6 +1112,7 @@ class ForumDb extends PDO
     /**
      * Get the deactivation-reason for a user.
      * Returns null if there is no entry user_deactivated_reason_table
+     * @param User $user User to reason for
      */
     public function GetDeactivationReason(User $user) : ?string
     {
@@ -1135,21 +1136,13 @@ class ForumDb extends PDO
      * and has confirmed the email address.
      * If the user-flag is already set to the passed value, 
      * this method does nothing.
-     * @param int $userId User to modify
+     * @param User $user User to modify. The passed  reference will 
+     * be updated with the newly set values, if the function succeeds.
      * @param bool $admin Enable the admin-flag or remove it
-     * @throws InvalidArgumentException If no user with passed $userId exists,
-     * or if the user has no value in the field confirmed_ts
-     * todo: issue #20 / #21 ?
+     * @throws InvalidArgumentException If the user is not confirmed
      */
-    public function SetAdmin(int $userId, bool $admin) : void
+    public function SetAdmin(User &$user, bool $admin) : void
     {
-        // Get the user first
-        $user = User::LoadUserById($this, $userId);
-        if(!$user)
-        {
-            throw new InvalidArgumentException('No user with id ' . $userId . 
-                    ' was found');
-        }
         if(!$user->IsConfirmed())
         {
             throw new InvalidArgumentException('Cannot propagate a user '
@@ -1164,7 +1157,7 @@ class ForumDb extends PDO
                 . 'WHERE iduser = :iduser';
         $stmt = $this->prepare($query);
         $stmt->execute(array(
-            ':iduser' => $userId,
+            ':iduser' => $user->GetId(),
             ':admin' => ($admin ? 1 : 0)
         ));
         if($stmt->rowCount() !== 1)
@@ -1175,8 +1168,11 @@ class ForumDb extends PDO
         $logger = new Logger($this);
         $logger->LogMessageWithUserId(
             $admin ? LogType::LOG_USER_ADMIN_SET : LogType::LOG_USER_ADMIN_REMOVED,
-            $userId
+            $user->GetId()
         );
+
+        // and reload the passed user
+        $user = User::LoadUserById($this, $user->GetId());
     }
     
     /**

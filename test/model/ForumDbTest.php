@@ -1027,35 +1027,30 @@ final class ForumDbTest extends BaseTest
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
         $this->assertFalse($user101->IsAdmin());
-        $this->db->SetAdmin($user101->GetId(), true);
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->SetAdmin($user101, true);
         $this->assertTrue($user101->IsAdmin());
 
         // promote an admin to an admin again, nothing changes
-        $this->db->SetAdmin($user101->GetId(), true);
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->SetAdmin($user101, true);
         $this->assertTrue($user101->IsAdmin());
 
         // and remove admin
-        $this->db->SetAdmin($user101->GetId(), false);
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->SetAdmin($user101, false);
         $this->assertFalse($user101->IsAdmin());
 
         // remove admin again, nothing changes
-        $this->db->SetAdmin($user101->GetId(), false);
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->SetAdmin($user101, false);
         $this->assertFalse($user101->IsAdmin());        
     }
 
-    #[DataProvider('providerNotExistingNotConfirmed')]
-    public function testSetAdminFails(int $userId) : void
+    public function testSetAdminFails() : void
     {
+        // mock a user with no confirmation_ts - it cannot become an admin
+        $user = $this->createStub(User::class);
+        $user->method('GetId')->willReturn(1313);
+        $user->method('IsConfirmed')->willReturn(false);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->SetAdmin($userId, true);
+        $this->db->SetAdmin($user, true);
     }
 
     public function testMakeDummy() : void
