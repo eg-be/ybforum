@@ -1112,16 +1112,15 @@ class ForumDb extends PDO
     /**
      * Get the deactivation-reason for a user.
      * Returns null if there is no entry user_deactivated_reason_table
-     * todo: issue #20 / #21 ?
      */
-    public function GetDeactivationReason(int $userId) : ?string
+    public function GetDeactivationReason(User $user) : ?string
     {
         // Select the matching entry in the table
         $query = 'SELECT reason '
                 . 'FROM user_deactivated_reason_table '
                 . 'WHERE iduser = :iduser';
         $stmt = $this->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));
+        $stmt->execute(array(':iduser' => $user->GetId()));
         $result = $stmt->fetch();
         if(!$result)
         {

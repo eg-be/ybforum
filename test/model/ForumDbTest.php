@@ -28,18 +28,29 @@ final class ForumDbTest extends BaseTest
         BaseTest::createTestDatabase();
     }
 
+    private User $user1;
+    private User $user50;
     private User $user101;
     private User $user102;
+    private User $user666;
 
     protected function setUp(): void
     {
         // an rw-db
         $this->db = new ForumDb(false);
         // and some user-mocks that return a user-id
+        $this->user1 = $this->createStub(User::class);
+        $this->user1->method('GetId')->willReturn(1);
+        $this->user50 = $this->createStub(User::class);
+        $this->user50->method('GetId')->willReturn(50);
         $this->user101 = $this->createStub(User::class);
         $this->user101->method('GetId')->willReturn(101);
         $this->user102 = $this->createStub(User::class);
         $this->user102->method('GetId')->willReturn(102);
+
+        // non-existing in db
+        $this->user666 = $this->createStub(User::class);
+        $this->user666->method('GetId')->willReturn(666);
     }
 
     protected function assertPreConditions(): void
@@ -960,14 +971,14 @@ final class ForumDbTest extends BaseTest
         $this->assertNotNull($user101);
         $this->assertTrue($user101->IsActive());
         $this->db->DeactivateUser($user101, 'just for fun', $admin);
-        $this->assertSame($this->db->GetDeactivationReason(101), 'just for fun');
+        $this->assertSame($this->db->GetDeactivationReason($user101), 'just for fun');
         $this->assertFalse($user101->IsActive());
 
         // deactivating one that is already deactivated, does nothing
         // especially, it does not alter the deactivation-reason
         $this->db->DeactivateUser($user101, 'deactivate again', $admin);
         $this->assertFalse($user101->IsActive());
-        $this->assertSame($this->db->GetDeactivationReason(101), 'just for fun');
+        $this->assertSame($this->db->GetDeactivationReason($user101), 'just for fun');
     }
 
     public static function providerNotActiveAdmin() : array 
@@ -999,12 +1010,12 @@ final class ForumDbTest extends BaseTest
     public function testGetDeactivationReason() : void
     {
         // check the message for our deactivated user
-        $reason = $this->db->GetDeactivationReason(50);
+        $reason = $this->db->GetDeactivationReason($this->user50);
         $this->assertSame('test deactivated by admin', $reason);
         // non-deactived, or non-existing just return null
-        $reason = $this->db->GetDeactivationReason(1);
+        $reason = $this->db->GetDeactivationReason($this->user1);
         $this->assertNull($reason);
-        $reason = $this->db->GetDeactivationReason(666);
+        $reason = $this->db->GetDeactivationReason($this->user666);
         $this->assertNull($reason);
     }
 
@@ -1108,12 +1119,11 @@ final class ForumDbTest extends BaseTest
         $this->assertNotNull($user);
         $this->db->DeleteUser($user->GetId());
         // user must be gone by now
-        $user = User::LoadUserById($this->db, $userId);
-        $this->assertNull($user);
+        $this->assertNull(User::LoadUserById($this->db, $userId));
 
         // check that deactivated_reason_table has been cleared:
         // (yes, is done by constraint of foreign key)
-        $reason = $this->db->GetDeactivationReason($userId);
+        $reason = $this->db->GetDeactivationReason($user);
         $this->assertNull($reason);
     }
 
