@@ -1061,22 +1061,14 @@ final class ForumDbTest extends BaseTest
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
         $this->assertFalse($user101->IsDummyUser());
-        $this->db->MakeDummy($user101->GetId());
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->MakeDummy($user101);
         $this->assertTrue($user101->IsDummyUser());
         // a dummy can be turned into a dummy over and over
         $dummy = User::LoadUserById($this->db, 66);
         $this->assertNotNull($dummy);
         $this->assertTrue($dummy->IsDummyUser());
-        $this->db->MakeDummy($dummy->GetId());
-        // must reload, see #21
-        $dummy = User::LoadUserById($this->db, 66);
+        $this->db->MakeDummy($dummy);
         $this->assertTrue($dummy->IsDummyUser());
-
-        // not-existing cant be turned into dummy
-        $this->expectException(InvalidArgumentException::class);
-        $this->db->MakeDummy(333);        
     }
 
 

@@ -1014,7 +1014,7 @@ class ForumDb extends PDO
                         . 'user_table matching iduser ' . $user->GetId());
             }
             // remove entry from the deactivated reasons table
-            $this->ClearDeactivationReason($user->GetId());
+            $this->ClearDeactivationReason($user);
             // log what happened
             $logger = new Logger($this);
             $logger->LogMessageWithUserId(LogType::LOG_USER_ACTIVED, $user->GetId());  
@@ -1177,16 +1177,15 @@ class ForumDb extends PDO
     
     /**
      * Remove all entries from user_deactivated_reason_table that match
-     * the passed $uesrId
-     * @param int $userId
-     * todo: issue #20 / #21 ?
+     * the passed $user
+     * @param User $user
      */
-    private function ClearDeactivationReason(int $userId) : void
+    private function ClearDeactivationReason(User $user) : void
     {
         $delQuery = 'DELETE FROM user_deactivated_reason_table '
                 . 'WHERE iduser = :iduser';
         $delStmt = $this->prepare($delQuery);
-        $delStmt->execute(array(':iduser' => $userId));
+        $delStmt->execute(array(':iduser' => $user->GetId()));
     }
     
     /**
@@ -1194,24 +1193,17 @@ class ForumDb extends PDO
      * the fields email, password and old_passwd to null and 
      * confirmation_ts to null. Also sets active and admin to 0 and
      * removes all entries from the user_deactivated_reason_table
-     * @param int $userId
-     * @throws InvalidArgumentException If no user with passed $userId exists
-     * todo: issue #20 / #21 ?
+     * @param User $user User to modify. The passed  reference will 
+     * be updated with the newly set values, if the function succeeds.
      */
-    public function MakeDummy(int $userId) : void
+    public function MakeDummy(User &$user) : void
     {
-        $user = User::LoadUserById($this, $userId);
-        if(!$user)
-        {
-            throw new InvalidArgumentException('No user with id ' . $userId . 
-                    ' was found');
-        }        
         $query = 'UPDATE user_table SET email = NULL, password = NULL, '
                 . 'old_passwd = NULL, confirmation_ts = NULL, '
                 . 'active = 0, admin = 0 '
                 . 'WHERE iduser = :iduser';
         $stmt = $this->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));
+        $stmt->execute(array(':iduser' => $user->GetId()));
         $logger = new Logger($this);
         $logger->LogMessageWithUserId(LogType::LOG_USER_TURNED_INTO_DUMMY, $user->GetId(), 
                 'Previous values: email: ' . $user->GetEmail()
@@ -1220,7 +1212,10 @@ class ForumDb extends PDO
                 . '; confirmation_ts: ' . ($user->IsConfirmed() ? $user->GetConfirmationTimestamp()->format('d.m.Y H:i:s') : 'null') 
                 . '; hadPassword: ' . ($user->HasPassword() ? 'True' : 'False')
                 . '; hadOldPasswd: ' . ($user->HasOldPassword() ? 'True' : 'False'));
-        $this->ClearDeactivationReason($userId);
+        $this->ClearDeactivationReason($user);
+
+        // and reload the passed user
+        $user = User::LoadUserById($this, $user->GetId());
     }
     
     /**

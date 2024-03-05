@@ -107,7 +107,7 @@ class UserView {
         else if($userActionValue === self::VALUE_CONFIRM_MAKE_DUMMY && $this->m_userId)
         {
             $user = User::LoadUserById($db, $this->m_userId);
-            $db->MakeDummy($user->GetId());
+            $db->MakeDummy($user);
             return '<div class="actionSucceeded">Benutzer ' . $user->GetId() . ' ist jetzt ein Dummy</div>';
         }
         else
@@ -128,7 +128,7 @@ class UserView {
         else if($userActionValue === self::VALUE_CONFIRM_MAKE_DUMMY && $this->m_userId)
         {
             $user = User::LoadUserById($db, $this->m_userId);
-            $db->MakeDummy($user->GetId());
+            $db->MakeDummy($user);
             return '<div class="actionSucceeded">Benutzer ' . $user->GetId() . ' ist jetzt ein Dummy</div>';
         }
         else
