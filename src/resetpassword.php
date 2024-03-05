@@ -71,7 +71,7 @@ require_once __DIR__.'/pageparts/ResetPasswordForm.php';
                     $updatePasswordHandler->HandleRequest($db);
                     // changing succeeded, show the success state
                     // and remove the code from the database
-                    $db->RemoveResetPasswordCode($user->GetId());
+                    $db->RemoveResetPasswordCode($user);
                     echo '<div class="fbold successcolor">';
                     echo $handler->GetSuccessText();
                     echo ' Dieses Fenster kann jetzt geschlossen werden.';

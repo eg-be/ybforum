@@ -28,9 +28,32 @@ final class ForumDbTest extends BaseTest
         BaseTest::createTestDatabase();
     }
 
+    private User $user1;
+    private User $user50;
+    private User $user101;
+    private User $user102;
+    private User $user103;
+    private User $user666;
+
     protected function setUp(): void
     {
+        // an rw-db
         $this->db = new ForumDb(false);
+        // and some user-mocks that return a user-id
+        $this->user1 = $this->createStub(User::class);
+        $this->user1->method('GetId')->willReturn(1);
+        $this->user50 = $this->createStub(User::class);
+        $this->user50->method('GetId')->willReturn(50);
+        $this->user101 = $this->createStub(User::class);
+        $this->user101->method('GetId')->willReturn(101);
+        $this->user102 = $this->createStub(User::class);
+        $this->user102->method('GetId')->willReturn(102);
+        $this->user103 = $this->createStub(User::class);
+        $this->user103->method('GetId')->willReturn(103);
+
+        // non-existing in db
+        $this->user666 = $this->createStub(User::class);
+        $this->user666->method('GetId')->willReturn(666);
     }
 
     protected function assertPreConditions(): void
@@ -358,13 +381,11 @@ final class ForumDbTest extends BaseTest
         // registration_msg is optinal
         // new users are inactive, have no password set and no confirmation-ts
 
-        $newId = $this->db->CreateNewUser($nick, $mail, $regMsg);
-        $this->assertNotNull($newId);
-        $this->assertGreaterThan(0, $newId);
-        // read back created user and verify:
-        $newUser = User::LoadUserById($this->db, $newId);
+        $newUser = $this->db->CreateNewUser($nick, $mail, $regMsg);
         $this->assertNotNull($newUser);
-        $newUserRef = new UserMock($newId, $nick, $mail, 
+        $this->assertGreaterThan(0, $newUser->GetId());
+        $this->assertNotNull($newUser);
+        $newUserRef = new UserMock($newUser->GetId(), $nick, $mail, 
             0, 0,
             $newUser->GetRegistrationTimestamp()->Format('Y-m-d H:i:s'), $regMsg,
             null, null, null
@@ -389,7 +410,7 @@ final class ForumDbTest extends BaseTest
     public function testCreateNewUserFail(string $nick, string $mail) : void
     {
         $this->expectException(InvalidArgumentException::class);        
-        $newId = $this->db->CreateNewUser($nick, $mail, null);
+        $this->db->CreateNewUser($nick, $mail, null);
     }
 
     public static function providerRequestConfirmUserCode() : array
@@ -423,7 +444,9 @@ final class ForumDbTest extends BaseTest
     {
         // test that entries are created propery
         $now = new DateTime();
-        $code = $this->db->RequestConfirmUserCode($userId, 
+        $userMock = $this->createStub(User::class);
+        $userMock->method('GetId')->willReturn($userId);
+        $code = $this->db->RequestConfirmUserCode($userMock, 
             $newPass, $newMail, $confSource, $clientIp);
         $this->assertNotEmpty($code);
 
@@ -465,7 +488,9 @@ final class ForumDbTest extends BaseTest
         // our dataprovider uses the same user, check that
         // there is only one entry for that user
         $now = new DateTime();
-        $code = $this->db->RequestConfirmUserCode($userId, 
+        $userMock = $this->createStub(User::class);
+        $userMock->method('GetId')->willReturn($userId);
+        $code = $this->db->RequestConfirmUserCode($userMock, 
             $newPass, $newMail, $confSource, $clientIp);
         $this->assertNotEmpty($code);
         $inserted = new DateTime();
@@ -499,7 +524,9 @@ final class ForumDbTest extends BaseTest
         // fail if user is unknown, if mail or pass is empty
         // or if source is not set to a known value
         $this->expectException(Exception::class);
-        $code = $this->db->RequestConfirmUserCode($userId, 
+        $userMock = $this->createStub(User::class);
+        $userMock->method('GetId')->willReturn($userId);
+        $code = $this->db->RequestConfirmUserCode($userMock, 
             $newPass, $newMail, $confSource, $clientIp);
     }
 
@@ -507,9 +534,9 @@ final class ForumDbTest extends BaseTest
     {
         // create two entries: one that has elapsed one minute ago
         // and one that will elapse in one minute
-        $elapsedCode = $this->db->RequestConfirmUserCode(101, 'new-pw', 'new@mail', 
+        $elapsedCode = $this->db->RequestConfirmUserCode($this->user101, 'new-pw', 'new@mail', 
             ForumDb::CONFIRM_SOURCE_MIGRATE, '::1');
-        $validCode = $this->db->RequestConfirmUserCode(102, 'valid-pw', 'valid@mail',
+        $validCode = $this->db->RequestConfirmUserCode($this->user102, 'valid-pw', 'valid@mail',
             ForumDb::CONFIRM_SOURCE_NEWUSER, '::1');
         // modify the timestamps:
         $elapsedDate = new DateTime();
@@ -566,26 +593,28 @@ final class ForumDbTest extends BaseTest
     public function testRemoveConfirmUserCode() : void
     {
         // insert some entries, test they are removed
-        $this->db->RequestConfirmUserCode(101, 'new', 'new@mail', 
+        $this->db->RequestConfirmUserCode($this->user101, 'new', 'new@mail', 
             ForumDb::CONFIRM_SOURCE_MIGRATE, '::1');
-        $this->assertSame(1, $this->db->RemoveConfirmUserCode(101));
-        $this->assertSame(0, $this->db->RemoveConfirmUserCode(101));
-        // not existing entry works
-        $this->assertSame(0, $this->db->RemoveConfirmUserCode(33));
+        $this->assertSame(1, $this->db->RemoveConfirmUserCode($this->user101));
+        $this->assertSame(0, $this->db->RemoveConfirmUserCode($this->user102));
+        // not existing user entry works (this is rather stupid, how would you ever construct such a user?)
+        $user33 = $this->createStub(User::class);
+        $user33->method('GetId')->willReturn(33);
+        $this->assertSame(0, $this->db->RemoveConfirmUserCode($user33));
     }
 
     public function testGetConfirmReason() : void
-    {
-        $this->db->RequestConfirmUserCode(101, 'new', 'new@mail', 
+    {   
+        $this->db->RequestConfirmUserCode($this->user101, 'new', 'new@mail', 
             ForumDb::CONFIRM_SOURCE_MIGRATE, '::1');
         $this->assertSame(ForumDb::CONFIRM_SOURCE_MIGRATE, 
-            $this->db->GetConfirmReason(101));
-        $this->db->RequestConfirmUserCode(101, 'new', 'new@mail', 
+            $this->db->GetConfirmReason($this->user101));
+        $this->db->RequestConfirmUserCode($this->user101, 'new', 'new@mail', 
             ForumDb::CONFIRM_SOURCE_NEWUSER, '::1');
         $this->assertSame(ForumDb::CONFIRM_SOURCE_NEWUSER, 
-        $this->db->GetConfirmReason(101));
+        $this->db->GetConfirmReason($this->user101));
         // test that an invalid reason throws:
-        $this->db->RemoveConfirmUserCode(102);
+        $this->db->RemoveConfirmUserCode($this->user102);
         $insertQuery = 'INSERT INTO confirm_user_table (iduser, email, '
             . 'password, confirm_code, request_ip_address, '
             . 'confirm_source) '
@@ -598,12 +627,12 @@ final class ForumDbTest extends BaseTest
             ':request_ip_address' => '::1',
             ':confirm_source' => 'Foobar'));
         $this->expectException(InvalidArgumentException::class);
-        $this->db->GetConfirmReason(102);
+        $this->db->GetConfirmReason($this->user102);
     }
 
     public function testConfirmUser() : void
     {
-        // need a clean database, must work with a use awaiting confirmation
+        // need a clean database, must work with a user awaiting confirmation
         self::createTestDatabase();
         $user = User::LoadUserById($this->db, 52);
         $this->assertNotNull($user);
@@ -613,24 +642,22 @@ final class ForumDbTest extends BaseTest
         $newMail = 'new@mail';
         // confirm, but dont activate:
         $now = new DateTime();
-        $this->db->ConfirmUser($user->GetId(), 
+        $this->db->ConfirmUser($user, 
             password_hash($newPass, PASSWORD_DEFAULT),
             $newMail, false);
-        $user = User::LoadUserById($this->db, 52);
-        $this->assertNotNull($user);
+        // test that the user-object we passed now reflects the change, 
+        // without the need to explicitly reload it:
         $this->assertTrue($user->IsConfirmed());
-        $this->assertFalse($user->IsActive());
+        $this->assertFalse($user->IsActive()); // still not active, only confiremd
         $this->assertSame($newMail, $user->GetEmail());
         // confirmation-timestamp must be somewhere around now
         $this->assertEqualsWithDelta($now->getTimestamp(), 
             $user->GetConfirmationTimestamp()->getTimestamp(), 2);
 
         // confirm and activate:
-        $this->db->ConfirmUser($user->GetId(), 
+        $this->db->ConfirmUser($user, 
             password_hash($newPass, PASSWORD_DEFAULT),
             $newMail, true);
-        $user = User::LoadUserById($this->db, 52);
-        $this->assertNotNull($user);
         $this->assertTrue($user->IsConfirmed());
         $this->assertTrue($user->IsActive());
         // note: To verify the hashed-password, just auth
@@ -639,7 +666,9 @@ final class ForumDbTest extends BaseTest
         
         // fail for unknown user-id
         $this->expectException(InvalidArgumentException::class);
-        $this->db->ConfirmUser(333, 'foo', 'foo@mail', true);
+        $user333 = $this->createStub(User::class);
+        $user333->method('GetId')->willReturn(333);
+        $this->db->ConfirmUser($user333, 'foo', 'foo@mail', true);
     }
 
     public function testRequestPasswordResetCode() : void
@@ -736,20 +765,20 @@ final class ForumDbTest extends BaseTest
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);        
         $this->db->RequestPasswordResetCode($user101, '::1');
-        $this->assertSame(1, $this->db->RemoveResetPasswordCode($user101->getId()));
-        $this->assertSame(0, $this->db->RemoveResetPasswordCode($user101->getId()));
-        // not existing entry works
-        $this->assertSame(0, $this->db->RemoveResetPasswordCode(33));        
+        $this->assertSame(1, $this->db->RemoveResetPasswordCode($user101));
+        $this->assertSame(0, $this->db->RemoveResetPasswordCode($user101));
+        // not existing entry works (altough this is stupid, you can never get into that situation - how would you create the user object?)
+        $user33 = $this->createStub(User::class);
+        $user33->method('GetId')->willReturn(33);
+        $this->assertSame(0, $this->db->RemoveResetPasswordCode($user33));
     }
 
     public function testUpdateUserPassword() : void
     {
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
-        $this->db->UpdateUserPassword($user101->GetId(), "foobar");
-        // note: Must reload the user after a password-change
-        $user101 = User::LoadUserById($this->db, 101);
-        $this->assertNotNull($user101);
+        $this->db->UpdateUserPassword($user101, "foobar");
+        // User must reflect the change immediately, reload must have been triggered by UpdateUserPassword
         $this->assertTrue($user101->Auth("foobar"));
         $this->assertFalse($user101->Auth("Foobar"));
     }
@@ -760,7 +789,7 @@ final class ForumDbTest extends BaseTest
         $now = new DateTime();
         $user = User::LoadUserById($this->db, 52);
         $this->assertNotNull($user);
-        $code = $this->db->RequestUpdateEmailCode($user->GetId(), 
+        $code = $this->db->RequestUpdateEmailCode($user, 
             'new-mail@mail.com', '::1');
         // verify returned value matches entry from the db
         $query = 'SELECT iduser, email, request_date '
@@ -776,7 +805,7 @@ final class ForumDbTest extends BaseTest
         $this->assertEqualsWithDelta($now->getTimestamp(), 
             $ts->getTimestamp(), 2);
         // check that there is only one entry, even if we create a second one:
-        $newCode = $this->db->RequestUpdateEmailCode($user->GetId(), 
+        $newCode = $this->db->RequestUpdateEmailCode($user, 
             'another@mail.com', '::1');
         $this->assertNotSame($code, $newCode);
         $query = 'SELECT confirm_code FROM update_email_table '
@@ -797,9 +826,9 @@ final class ForumDbTest extends BaseTest
         $user102 = User::LoadUserById($this->db, 102);
         $this->assertNotNull($user101);
         $this->assertNotNull($user102);
-        $validCode = $this->db->RequestUpdateEmailCode($user101->GetId(), 
+        $validCode = $this->db->RequestUpdateEmailCode($user101, 
             '101@mail', '::1');
-        $elapsedCode = $this->db->RequestUpdateEmailCode($user102->GetId(), 
+        $elapsedCode = $this->db->RequestUpdateEmailCode($user102, 
             '102@mail', '::1');
 
         // modify the timestamps in the db:
@@ -856,20 +885,21 @@ final class ForumDbTest extends BaseTest
         // insert some entries, test they are removed
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
-        $this->db->RequestUpdateEmailCode($user101->GetId(), 'new@mail', '::1');
-        $this->assertSame(1, $this->db->RemoveUpdateEmailCode($user101->getId()));
-        $this->assertSame(0, $this->db->RemoveUpdateEmailCode($user101->getId()));
+        $this->db->RequestUpdateEmailCode($user101, 'new@mail', '::1');
+        $this->assertSame(1, $this->db->RemoveUpdateEmailCode($user101));
+        $this->assertSame(0, $this->db->RemoveUpdateEmailCode($user101));
         // not existing entry works
-        $this->assertSame(0, $this->db->RemoveUpdateEmailCode(33));        
+        $user33 = $this->createStub(User::class);
+        $user33->method('GetId')->willReturn(33);
+        $this->assertSame(0, $this->db->RemoveUpdateEmailCode($user33));
     }
 
     public function testUpdateUserEmail() : void
     {
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
-        $this->db->UpdateUserEmail($user101->GetId(), 'bla@mail');
-        // note: Must reload the user after a password-change
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->UpdateUserEmail($user101, 'bla@mail');
+        // note: User object must reflect the change without reloading
         $this->assertNotNull($user101);
         $this->assertSame('bla@mail', $user101->GetEmail());
     }
@@ -882,7 +912,7 @@ final class ForumDbTest extends BaseTest
         $needsApproval = User::LoadUserById($this->db, 51);
         $this->assertNotNull($needsApproval);
         $this->assertFalse($needsApproval->IsActive());
-        $this->db->ActivateUser($needsApproval->GetId());
+        $this->db->ActivateUser($needsApproval);
         // must reload, see #21
         $needsApproval = User::LoadUserById($this->db, 51);
         $this->assertTrue($needsApproval->IsActive());
@@ -891,9 +921,8 @@ final class ForumDbTest extends BaseTest
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
         $this->assertTrue($user101->IsActive());
-        $this->db->ActivateUser($user101->GetId());
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->ActivateUser($user101);
+        // User must have been updated
         $this->assertTrue($user101->IsActive());
 
         // Activating one with a deactivated reason, removes that reason
@@ -906,8 +935,7 @@ final class ForumDbTest extends BaseTest
         $stmt->execute(array(':iduser' => $deactivated->GetId()));
         $result = $stmt->fetch();
         $this->assertIsArray($result);
-        $this->db->ActivateUser($deactivated->GetId());
-        $deactivated = User::LoadUserById($this->db, 50);  // must reload, see #21
+        $this->db->ActivateUser($deactivated);
         $this->assertTrue($deactivated->IsActive());
         $stmt->execute(array(':iduser' => $deactivated->GetId()));
         $result = $stmt->fetch();
@@ -925,46 +953,72 @@ final class ForumDbTest extends BaseTest
     #[DataProvider('providerNotExistingNotConfirmed')]
     public function testActivateUserFails(int $userId) : void
     {
+        $user = $this->createStub(User::class);
+        $user->method('GetId')->willReturn($userId);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->ActivateUser($userId);
+        $this->db->ActivateUser($user);
     }
 
     public function testDeactivateUser() : void
-    {
+    {        
         // rely on a test-database
         self::createTestDatabase();
+        // mock the admin who is deactivating
+        $admin = $this->createStub(User::class);
+        $admin->method('GetId')->willReturn(1);
+        $admin->method('IsAdmin')->willReturn(true);
+        $admin->method('IsActive')->willReturn(true);
+
         // deactivate one that is active
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
         $this->assertTrue($user101->IsActive());
-        $this->db->DeactivateUser($user101->GetId(), 'just for fun', 1);
-        $this->assertSame($this->db->GetDeactivationReason(101), 'just for fun');
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->DeactivateUser($user101, 'just for fun', $admin);
+        $this->assertSame($this->db->GetDeactivationReason($user101), 'just for fun');
         $this->assertFalse($user101->IsActive());
 
         // deactivating one that is already deactivated, does nothing
         // especially, it does not alter the deactivation-reason
-        $this->db->DeactivateUser($user101->GetId(), 'deactivate again', 1);
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->DeactivateUser($user101, 'deactivate again', $admin);
         $this->assertFalse($user101->IsActive());
-        $this->assertSame($this->db->GetDeactivationReason(101), 'just for fun');
-
-        // not-existing cant be deactivated
-        $this->expectException(InvalidArgumentException::class);
-        $this->db->DeactivateUser(333, 'not there', 1);
+        $this->assertSame($this->db->GetDeactivationReason($user101), 'just for fun');
     }
+
+    public static function providerNotActiveAdmin() : array 
+    {
+        $notAdmin = TestCase::createStub(User::class);
+        $notAdmin->method('IsAdmin')->willReturn(false);
+        $notAdmin->method('IsActive')->willReturn(true);
+        $notActive = TestCase::createStub(User::class);
+        $notActive->method('IsAdmin')->willReturn(true);
+        $notActive->method('IsActive')->willReturn(false);
+
+        return array(
+            [$notAdmin],
+            [$notActive]
+        );
+    }  
+
+    #[DataProvider('providerNotActiveAdmin')]
+    public function testDeactiveUserOnlyAdminCan(User $admin) : void
+    {
+        // test that only active admins can deactivate
+        $inactive = $this->createStub(User::class);
+        $inactive->method('IsActive')->willReturn(true);
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->DeactivateUser($inactive, 'not there', $admin);
+    }
+
 
     public function testGetDeactivationReason() : void
     {
         // check the message for our deactivated user
-        $reason = $this->db->GetDeactivationReason(50);
+        $reason = $this->db->GetDeactivationReason($this->user50);
         $this->assertSame('test deactivated by admin', $reason);
         // non-deactived, or non-existing just return null
-        $reason = $this->db->GetDeactivationReason(1);
+        $reason = $this->db->GetDeactivationReason($this->user1);
         $this->assertNull($reason);
-        $reason = $this->db->GetDeactivationReason(666);
+        $reason = $this->db->GetDeactivationReason($this->user666);
         $this->assertNull($reason);
     }
 
@@ -976,35 +1030,30 @@ final class ForumDbTest extends BaseTest
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
         $this->assertFalse($user101->IsAdmin());
-        $this->db->SetAdmin($user101->GetId(), true);
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->SetAdmin($user101, true);
         $this->assertTrue($user101->IsAdmin());
 
         // promote an admin to an admin again, nothing changes
-        $this->db->SetAdmin($user101->GetId(), true);
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->SetAdmin($user101, true);
         $this->assertTrue($user101->IsAdmin());
 
         // and remove admin
-        $this->db->SetAdmin($user101->GetId(), false);
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->SetAdmin($user101, false);
         $this->assertFalse($user101->IsAdmin());
 
         // remove admin again, nothing changes
-        $this->db->SetAdmin($user101->GetId(), false);
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->SetAdmin($user101, false);
         $this->assertFalse($user101->IsAdmin());        
     }
 
-    #[DataProvider('providerNotExistingNotConfirmed')]
-    public function testSetAdminFails(int $userId) : void
+    public function testSetAdminFails() : void
     {
+        // mock a user with no confirmation_ts - it cannot become an admin
+        $user = $this->createStub(User::class);
+        $user->method('GetId')->willReturn(1313);
+        $user->method('IsConfirmed')->willReturn(false);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->SetAdmin($userId, true);
+        $this->db->SetAdmin($user, true);
     }
 
     public function testMakeDummy() : void
@@ -1015,22 +1064,14 @@ final class ForumDbTest extends BaseTest
         $user101 = User::LoadUserById($this->db, 101);
         $this->assertNotNull($user101);
         $this->assertFalse($user101->IsDummyUser());
-        $this->db->MakeDummy($user101->GetId());
-        // must reload, see #21
-        $user101 = User::LoadUserById($this->db, 101);
+        $this->db->MakeDummy($user101);
         $this->assertTrue($user101->IsDummyUser());
         // a dummy can be turned into a dummy over and over
         $dummy = User::LoadUserById($this->db, 66);
         $this->assertNotNull($dummy);
         $this->assertTrue($dummy->IsDummyUser());
-        $this->db->MakeDummy($dummy->GetId());
-        // must reload, see #21
-        $dummy = User::LoadUserById($this->db, 66);
+        $this->db->MakeDummy($dummy);
         $this->assertTrue($dummy->IsDummyUser());
-
-        // not-existing cant be turned into dummy
-        $this->expectException(InvalidArgumentException::class);
-        $this->db->MakeDummy(333);        
     }
 
 
@@ -1046,17 +1087,6 @@ final class ForumDbTest extends BaseTest
         );
     }
 
-
-    public static function providerHasPostsAndNotExisting() : array
-    {
-        return array(
-            [101],
-            [102],
-            [103],
-            [999]
-        );
-    }
-
     #[DataProvider('providerZeroPosts')]
     public function testDeleteUser(int $userId) : void
     {
@@ -1066,26 +1096,26 @@ final class ForumDbTest extends BaseTest
         // try to delete all users with zero posts
         $user = User::LoadUserById($this->db, $userId);
         $this->assertNotNull($user);
-        $this->db->DeleteUser($user->GetId());
+        $this->db->DeleteUser($user);
         // user must be gone by now
-        $user = User::LoadUserById($this->db, $userId);
-        $this->assertNull($user);
+        $this->assertNull(User::LoadUserById($this->db, $userId));
 
         // check that deactivated_reason_table has been cleared:
         // (yes, is done by constraint of foreign key)
-        $reason = $this->db->GetDeactivationReason($userId);
+        $reason = $this->db->GetDeactivationReason($user);
         $this->assertNull($reason);
     }
 
-    #[DataProvider('providerHasPostsAndNotExisting')]
-    public function testDeleteUserFails(int $userId) : void
+    public function testDeleteUserFails() : void
     {
         // rely on a test-database
         self::createTestDatabase();   
         // only users with 0 posts can be deleted
-        // try to delete all users with zero posts
+        // try to delete a user which has posts
+        $user = $this->createStub(User::class);
+        $user->method('GetId')->willReturn(101);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->DeleteUser($userId);
+        $this->db->DeleteUser($user);
     }
 
 
@@ -1093,11 +1123,9 @@ final class ForumDbTest extends BaseTest
     {
         // rely on a test-database
         self::createTestDatabase();
-        $this->assertSame(8, $this->db->GetPostByUserCount(101));
-        $this->assertSame(6, $this->db->GetPostByUserCount(102));
-        $this->assertSame(7, $this->db->GetPostByUserCount(103));
-        $this->assertSame(0, $this->db->GetPostByUserCount(1));
-        $this->assertSame(0, $this->db->GetPostByUserCount(666));
+        $this->assertSame(8, $this->db->GetPostByUserCount($this->user101));
+        $this->assertSame(6, $this->db->GetPostByUserCount($this->user102));
+        $this->assertSame(7, $this->db->GetPostByUserCount($this->user103));
     }
 
     public function testSetPostVisible() : void

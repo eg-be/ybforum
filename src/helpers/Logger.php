@@ -137,6 +137,7 @@ class Logger
         $this->m_requestUri = $values['REQUEST_URI'];
     }
 
+    // todo: issue #20
     public function LogMessageWithUserId(LogType $logType, int $userId, 
             string $msg = null, string $extendedInfo = null) : void
     {

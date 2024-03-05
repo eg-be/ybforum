@@ -123,7 +123,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         }
         $activate = ($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE);
         // And migrate that user:
-        $db->ConfirmUser($this->user->GetId(), $values['password'],
+        $db->ConfirmUser($this->user, $values['password'],
                 $values['email'], $activate);
         // Notify the admins if a user is awaiting to get freed
         if($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER)

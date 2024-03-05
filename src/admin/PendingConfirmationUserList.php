@@ -43,11 +43,11 @@ class PendingConfirmationUserList
             {
                 // If this is the registration of a new user, also delete
                 // the corresponding entry in the user table
-                $confirmReason = $db->GetConfirmReason($user->GetId());
-                $db->RemoveConfirmUserCode($user->GetId());
+                $confirmReason = $db->GetConfirmReason($user);
+                $db->RemoveConfirmUserCode($user);
                 if($confirmReason == ForumDb::CONFIRM_SOURCE_NEWUSER)
                 {
-                    $db->DeleteUser($user->GetId());
+                    $db->DeleteUser($user);
                     $resultDiv = '<div class="actionSucceeded">Registerungs-Eintrag für Benutzer ' 
                             . $user->GetNick() . ' (' . $user->GetId() .') '
                             . 'entfernt (inkl. Benutzereintrag)</div>';
@@ -64,12 +64,12 @@ class PendingConfirmationUserList
                 // If this is the registration of a new user, also delete
                 // the corresponding entry in the user table and add it to the
                 // list of blocked emails
-                $confirmReason = $db->GetConfirmReason($user->GetId());
-                $db->RemoveConfirmUserCode($user->GetId());
+                $confirmReason = $db->GetConfirmReason($user);
+                $db->RemoveConfirmUserCode($user);
                 if($confirmReason == ForumDb::CONFIRM_SOURCE_NEWUSER)
                 {
                     $db->AddBlacklist($user->GetEmail(), 'Blocked from admin');
-                    $db->DeleteUser($user->GetId());
+                    $db->DeleteUser($user);
                     $resultDiv = '<div class="actionSucceeded">Registerungs-Eintrag für Benutzer ' 
                             . $user->GetNick() . ' (' . $user->GetId() .') '
                             . 'entfernt (inkl. Benutzereintrag), '
@@ -102,8 +102,8 @@ class PendingConfirmationUserList
                 $email = $result['email'];
                 $confirmSource = $result['confirm_source'];
                 $activate = ($confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE);
-                $db->RemoveConfirmUserCode($user->GetId());
-                $db->ConfirmUser($user->GetId(), $password, $email, $activate);
+                $db->RemoveConfirmUserCode($user);
+                $db->ConfirmUser($user, $password, $email, $activate);
                 $resultDiv = '<div class="actionSucceeded">Benutzer ' 
                         . $user->GetNick() . ' (' . $user->GetId() . ')'
                         . 'bestätigt (Aktiviert: ' 

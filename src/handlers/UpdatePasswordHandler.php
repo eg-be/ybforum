@@ -93,12 +93,12 @@ class UpdatePasswordHandler extends BaseHandler
         if($this->user->NeedsMigration())
         {
             $hashedPassword = password_hash($this->newPassword, PASSWORD_DEFAULT);
-            $db->ConfirmUser($this->user->GetId(), $hashedPassword, 
+            $db->ConfirmUser($this->user, $hashedPassword, 
                     $this->user->GetEmail(), true, $this->clientIpAddress);
         }
         else
         {
-            $db->UpdateUserPassword($this->user->GetId(), 
+            $db->UpdateUserPassword($this->user, 
                     $this->newPassword, $this->clientIpAddress);
         }
     }

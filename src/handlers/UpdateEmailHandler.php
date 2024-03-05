@@ -80,7 +80,7 @@ class UpdateEmailHandler extends BaseHandler
         }
         
         // Create a confirmation link to update the email
-        $confirmCode = $db->RequestUpdateEmailCode($this->user->GetId(), 
+        $confirmCode = $db->RequestUpdateEmailCode($this->user, 
                 $this->newEmail, $this->clientIpAddress);
 
         // send the email to the address requested

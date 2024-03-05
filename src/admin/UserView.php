@@ -55,10 +55,15 @@ class UserView {
     {
         try
         {
+            $admin = User::LoadUserById($db, $adminUserId);
+            if(!($admin->IsAdmin() && $admin->IsActive()))
+            {
+                throw new InvalidArgumentException('Admin user required');
+            }
             $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
             if($userActionValue === self::VALUE_ACTIVATE || $userActionValue === self::VALUE_DEACTIVATE)
             {
-                return $this->HandleActivateAction($db, $adminUserId);
+                return $this->HandleActivateAction($db, $admin);
             }
             else if($userActionValue === self::VALUE_SETADMIN || $userActionValue === self::VALUE_REMOVEADMIN)
             {
@@ -102,7 +107,7 @@ class UserView {
         else if($userActionValue === self::VALUE_CONFIRM_MAKE_DUMMY && $this->m_userId)
         {
             $user = User::LoadUserById($db, $this->m_userId);
-            $db->MakeDummy($user->GetId());
+            $db->MakeDummy($user);
             return '<div class="actionSucceeded">Benutzer ' . $user->GetId() . ' ist jetzt ein Dummy</div>';
         }
         else
@@ -117,13 +122,13 @@ class UserView {
         if($userActionValue === self::VALUE_DELETE && $this->m_userId)
         {
             $user = User::LoadUserById($db, $this->m_userId);
-            $db->DeleteUser($user->GetId());
+            $db->DeleteUser($user);
             return '<div class="actionSucceeded">Benutzer ' . $user->GetId() . ' gelöscht</div>';
         }
         else if($userActionValue === self::VALUE_CONFIRM_MAKE_DUMMY && $this->m_userId)
         {
             $user = User::LoadUserById($db, $this->m_userId);
-            $db->MakeDummy($user->GetId());
+            $db->MakeDummy($user);
             return '<div class="actionSucceeded">Benutzer ' . $user->GetId() . ' ist jetzt ein Dummy</div>';
         }
         else
@@ -134,15 +139,26 @@ class UserView {
     
     private function HandleAdminAction(ForumDb $db) : string
     {
+        $user = null;
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
-        if($userActionValue === self::VALUE_SETADMIN && $this->m_userId)
+        if(($userActionValue === self::VALUE_SETADMIN || $userActionValue === self::VALUE_REMOVEADMIN) 
+            && $this->m_userId)
         {
-            $db->SetAdmin($this->m_userId, true);
+            $user = User::LoadUserById($db, $this->m_userId);
+            if(!$user)
+            {
+                throw new InvalidArgumentException('No user with id ' . $userId . 
+                        ' was found');
+            }
+        }
+        if($userActionValue === self::VALUE_SETADMIN && $user)
+        {
+            $db->SetAdmin($user, true);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' ist jetzt Admin</div>';
         }
-        else if($userActionValue === self::VALUE_REMOVEADMIN && $this->m_userId)
+        else if($userActionValue === self::VALUE_REMOVEADMIN && $user)
         {
-            $db->SetAdmin($this->m_userId, false);
+            $db->SetAdmin($user, false);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' wurden Admin-Rechte entzogen</div>';
         }
         else
@@ -151,12 +167,18 @@ class UserView {
         }
     }
     
-    private function HandleActivateAction(ForumDb $db, int $adminUserId) : string
+    private function HandleActivateAction(ForumDb $db, User $admin) : string
     {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if($userActionValue === self::VALUE_ACTIVATE && $this->m_userId)
         {
-            $db->ActivateUser($this->m_userId);
+            $user = User::LoadUserById($db, $this->m_userId);
+            if(!$user)
+            {
+                throw new InvalidArgumentException('No user with id ' . $userId . 
+                        ' was found');
+            }
+            $db->ActivateUser($user);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' aktiviert</div>';
         }
         else if($userActionValue === self::VALUE_DEACTIVATE && $this->m_userId)
@@ -166,7 +188,13 @@ class UserView {
             {
                 return '<div class="actionFailed">Es muss ein Grund angegeben werden</div>';
             }
-            $db->DeactivateUser($this->m_userId, $reason, $adminUserId);
+            $user = User::LoadUserById($db, $this->m_userId);
+            if(!$user)
+            {
+                throw new InvalidArgumentException('No user with id ' . $userId . 
+                        ' was found');
+            }            
+            $db->DeactivateUser($user, $reason, $admin);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' deaktiviert</div>';
         }
         else 
@@ -299,7 +327,7 @@ class UserView {
         $htmlStr = '<div><table class="actiontable">';
         $htmlStr.= '<tr><td>Id:</td><td>' . $user->GetId() . '</td><td></td></tr>';        
         $htmlStr.= '<tr><td>Stammpostername:</td><td>' . htmlspecialchars($user->GetNick()) . '</td><td></td></tr>';
-        $htmlStr.= '<tr><td>Email:</td><td>' . htmlspecialchars($user->GetEmail()) . '</td><td></td></tr>';
+        $htmlStr.= '<tr><td>Email:</td><td>' . ($user->HasEmail() ? htmlspecialchars($user->GetEmail()) : '' ) . '</td><td></td></tr>';
         $htmlStr.= '<tr><td>Registriert seit:</td><td>' . $user->GetRegistrationTimestamp()->format('d.m.Y H:i:s') . '</td><td></td></tr>';
         $htmlStr.= '<tr><td>Registrierungsnachricht:</td><td>' . $user->GetRegistrationMsg() . '</td><td></td></tr>';
         $htmlStr.= '<tr><td>Email bestätigt am:</td><td>' . ($user->GetConfirmationTimestamp() ? $user->GetConfirmationTimestamp()->format('d.m.Y H:i:s') : '') . '</td><td></td></tr>';
@@ -314,7 +342,7 @@ class UserView {
         $htmlStr.= '<tr><td>Dummy:</td><td>' . ($user->IsDummyUser() ? 'Ja' : 'Nein') . '</td><td></td></tr>';
         $htmlStr.= '<tr><td>Hat neues Passwort</td><td>' . ($user->HasPassword() ? 'Ja' : 'Nein') . '</td><td></td></tr>';
         $htmlStr.= '<tr><td>Hat altes Passwort</td><td>' . ($user->HasOldPassword() ? 'Ja' : 'Nein') . '</td><td></td></tr>';
-        $postByUserCount = $db->GetPostByUserCount($user->GetId());
+        $postByUserCount = $db->GetPostByUserCount($user);
         $htmlStr.= '<tr><td>Anzahl Posts</td><td>' . $postByUserCount . '</td><td>';
         if($postByUserCount > 0 && !$user->IsDummyUser())
         {
