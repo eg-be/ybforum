@@ -144,7 +144,7 @@ class UserView {
         if(($userActionValue === self::VALUE_SETADMIN || $userActionValue === self::VALUE_REMOVEADMIN) 
             && $this->m_userId)
         {
-            $user = User::LoadUserById($this, $this->m_userId);
+            $user = User::LoadUserById($db, $this->m_userId);
             if(!$user)
             {
                 throw new InvalidArgumentException('No user with id ' . $userId . 
@@ -327,7 +327,7 @@ class UserView {
         $htmlStr = '<div><table class="actiontable">';
         $htmlStr.= '<tr><td>Id:</td><td>' . $user->GetId() . '</td><td></td></tr>';        
         $htmlStr.= '<tr><td>Stammpostername:</td><td>' . htmlspecialchars($user->GetNick()) . '</td><td></td></tr>';
-        $htmlStr.= '<tr><td>Email:</td><td>' . htmlspecialchars($user->GetEmail()) . '</td><td></td></tr>';
+        $htmlStr.= '<tr><td>Email:</td><td>' . ($user->HasEmail() ? htmlspecialchars($user->GetEmail()) : '' ) . '</td><td></td></tr>';
         $htmlStr.= '<tr><td>Registriert seit:</td><td>' . $user->GetRegistrationTimestamp()->format('d.m.Y H:i:s') . '</td><td></td></tr>';
         $htmlStr.= '<tr><td>Registrierungsnachricht:</td><td>' . $user->GetRegistrationMsg() . '</td><td></td></tr>';
         $htmlStr.= '<tr><td>Email bestätigt am:</td><td>' . ($user->GetConfirmationTimestamp() ? $user->GetConfirmationTimestamp()->format('d.m.Y H:i:s') : '') . '</td><td></td></tr>';
