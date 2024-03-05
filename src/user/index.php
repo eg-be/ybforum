@@ -104,8 +104,14 @@ catch(Exception $ex)
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     </head>
     <body>
-        <div  style="max-width: 700px; margin: auto;">
-            <img style="max-width: 100%; height: auto;" src="../logo.jpg" alt="YB Forum"/>
+        <div  style="max-width: 800px; margin: auto;">
+            <?php 
+            ob_start();
+            include __DIR__.'/../logo.php';
+            $logoStr = ob_get_clean();
+            $logoStr = str_replace('src="', 'src="../', $logoStr);
+            echo $logoStr;
+            ?>
         </div>
         <div class="fullwidthcenter generictitle">Stammposter-Bereich von <span class="fitalic"><?php echo $user->GetNick(); ?></span></div>    
         <hr>
