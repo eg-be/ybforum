@@ -32,6 +32,7 @@ final class ForumDbTest extends BaseTest
     private User $user50;
     private User $user101;
     private User $user102;
+    private User $user103;
     private User $user666;
 
     protected function setUp(): void
@@ -47,6 +48,8 @@ final class ForumDbTest extends BaseTest
         $this->user101->method('GetId')->willReturn(101);
         $this->user102 = $this->createStub(User::class);
         $this->user102->method('GetId')->willReturn(102);
+        $this->user103 = $this->createStub(User::class);
+        $this->user103->method('GetId')->willReturn(103);
 
         // non-existing in db
         $this->user666 = $this->createStub(User::class);
@@ -1084,17 +1087,6 @@ final class ForumDbTest extends BaseTest
         );
     }
 
-
-    public static function providerHasPostsAndNotExisting() : array
-    {
-        return array(
-            [101],
-            [102],
-            [103],
-            [999]
-        );
-    }
-
     #[DataProvider('providerZeroPosts')]
     public function testDeleteUser(int $userId) : void
     {
@@ -1104,7 +1096,7 @@ final class ForumDbTest extends BaseTest
         // try to delete all users with zero posts
         $user = User::LoadUserById($this->db, $userId);
         $this->assertNotNull($user);
-        $this->db->DeleteUser($user->GetId());
+        $this->db->DeleteUser($user);
         // user must be gone by now
         $this->assertNull(User::LoadUserById($this->db, $userId));
 
@@ -1114,15 +1106,16 @@ final class ForumDbTest extends BaseTest
         $this->assertNull($reason);
     }
 
-    #[DataProvider('providerHasPostsAndNotExisting')]
-    public function testDeleteUserFails(int $userId) : void
+    public function testDeleteUserFails() : void
     {
         // rely on a test-database
         self::createTestDatabase();   
         // only users with 0 posts can be deleted
-        // try to delete all users with zero posts
+        // try to delete a user which has posts
+        $user = $this->createStub(User::class);
+        $user->method('GetId')->willReturn(101);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->DeleteUser($userId);
+        $this->db->DeleteUser($user);
     }
 
 
@@ -1130,11 +1123,9 @@ final class ForumDbTest extends BaseTest
     {
         // rely on a test-database
         self::createTestDatabase();
-        $this->assertSame(8, $this->db->GetPostByUserCount(101));
-        $this->assertSame(6, $this->db->GetPostByUserCount(102));
-        $this->assertSame(7, $this->db->GetPostByUserCount(103));
-        $this->assertSame(0, $this->db->GetPostByUserCount(1));
-        $this->assertSame(0, $this->db->GetPostByUserCount(666));
+        $this->assertSame(8, $this->db->GetPostByUserCount($this->user101));
+        $this->assertSame(6, $this->db->GetPostByUserCount($this->user102));
+        $this->assertSame(7, $this->db->GetPostByUserCount($this->user103));
     }
 
     public function testSetPostVisible() : void

@@ -122,7 +122,7 @@ class UserView {
         if($userActionValue === self::VALUE_DELETE && $this->m_userId)
         {
             $user = User::LoadUserById($db, $this->m_userId);
-            $db->DeleteUser($user->GetId());
+            $db->DeleteUser($user);
             return '<div class="actionSucceeded">Benutzer ' . $user->GetId() . ' gelöscht</div>';
         }
         else if($userActionValue === self::VALUE_CONFIRM_MAKE_DUMMY && $this->m_userId)
@@ -342,7 +342,7 @@ class UserView {
         $htmlStr.= '<tr><td>Dummy:</td><td>' . ($user->IsDummyUser() ? 'Ja' : 'Nein') . '</td><td></td></tr>';
         $htmlStr.= '<tr><td>Hat neues Passwort</td><td>' . ($user->HasPassword() ? 'Ja' : 'Nein') . '</td><td></td></tr>';
         $htmlStr.= '<tr><td>Hat altes Passwort</td><td>' . ($user->HasOldPassword() ? 'Ja' : 'Nein') . '</td><td></td></tr>';
-        $postByUserCount = $db->GetPostByUserCount($user->GetId());
+        $postByUserCount = $db->GetPostByUserCount($user);
         $htmlStr.= '<tr><td>Anzahl Posts</td><td>' . $postByUserCount . '</td><td>';
         if($postByUserCount > 0 && !$user->IsDummyUser())
         {

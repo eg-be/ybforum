@@ -1221,38 +1221,26 @@ class ForumDb extends PDO
     /**
      * Deletes a user by removing it entirely from the user_table.
      * This method will fail if there are
-     * already post entries from that user, or no such user is known.
-     * @param int $userId
-     * @throws InvalidArgumentException If no user with passed $userId exists
-     * or if the user has already posted something
-     * todo: issue #20 / #21 ?
+     * already post entries from that user.
+     * @param User $user
+     * @throws InvalidArgumentException If the user has already posted something
      */
-    public function DeleteUser(int $userId) : void
+    public function DeleteUser(User $user) : void
     {
-        $user = User::LoadUserById($this, $userId);
-        if(!$user)
-        {
-            throw new InvalidArgumentException('No user with id ' . $userId . 
-                    ' was found');
-        }            
-        if($this->GetPostByUserCount($userId) > 0)
+        if($this->GetPostByUserCount($user) > 0)
         {
             throw new InvalidArgumentException('Cannot delete user '
-                    . $userId . ' there are already entries in post_table '
+                    . $user->GetId() . ' there are already entries in post_table '
                     . 'by that user. Want to turn her into a dummy instead?');
         }
         // Load the user to add some logging
         $logMessage = null;
         $extendedLogMessage = null;
-        $user = User::LoadUserById($this, $userId);
-        if($user)
-        {
-            $logMessage = $user->GetMinimalUserInfoAsString();
-            $extendedLogMessage = $user->GetFullUserInfoAsString();
-        }
+        $logMessage = $user->GetMinimalUserInfoAsString();
+        $extendedLogMessage = $user->GetFullUserInfoAsString();
         $query = 'DELETE FROM user_table WHERE iduser = :iduser';
         $stmt = $this->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));
+        $stmt->execute(array(':iduser' => $user->GetId()));
         $logger = new Logger($this);
         $logger->LogMessage(LogType::LOG_USER_DELETED, $logMessage, $extendedLogMessage);
     }
@@ -1260,19 +1248,17 @@ class ForumDb extends PDO
     /**
      * Count the number of entries in post_table that have been created
      * using the passed $userId.
-     * note: Does not fail if user is unknown, but returns 0.
      * note: Hidden posts are also included.
-     * @param int $userId
-     * @return int Post-count. 0 if no such user es known
+     * @param User $user
+     * @return int Post-count
      * @throws Exception If database operation fails
-     * todo: issue #20 / #21 ?
      */
-    public function GetPostByUserCount(int $userId) : int
+    public function GetPostByUserCount(User $user) : int
     {
         $query = 'SELECT COUNT(idpost) FROM post_table '
                 . 'WHERE iduser = :iduser';
         $stmt = $this->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));        
+        $stmt->execute(array(':iduser' => $user->GetId()));
         $result = $stmt->fetch(PDO::FETCH_NUM);
         if($result === false)
         {

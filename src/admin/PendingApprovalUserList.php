@@ -51,7 +51,7 @@ class PendingApprovalUserList
                 }
                 else if($userActionValue === self::VALUE_DENY && $user)
                 {
-                    $db->DeleteUser($user->GetId());
+                    $db->DeleteUser($user);
                     $sent = false;
                     //$sent = $mailer->SendNotifyUserDeniedEmail($user->GetEmail());
                     if($sent)

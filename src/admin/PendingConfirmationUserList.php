@@ -47,7 +47,7 @@ class PendingConfirmationUserList
                 $db->RemoveConfirmUserCode($user);
                 if($confirmReason == ForumDb::CONFIRM_SOURCE_NEWUSER)
                 {
-                    $db->DeleteUser($user->GetId());
+                    $db->DeleteUser($user);
                     $resultDiv = '<div class="actionSucceeded">Registerungs-Eintrag für Benutzer ' 
                             . $user->GetNick() . ' (' . $user->GetId() .') '
                             . 'entfernt (inkl. Benutzereintrag)</div>';
@@ -69,7 +69,7 @@ class PendingConfirmationUserList
                 if($confirmReason == ForumDb::CONFIRM_SOURCE_NEWUSER)
                 {
                     $db->AddBlacklist($user->GetEmail(), 'Blocked from admin');
-                    $db->DeleteUser($user->GetId());
+                    $db->DeleteUser($user);
                     $resultDiv = '<div class="actionSucceeded">Registerungs-Eintrag für Benutzer ' 
                             . $user->GetNick() . ' (' . $user->GetId() .') '
                             . 'entfernt (inkl. Benutzereintrag), '
