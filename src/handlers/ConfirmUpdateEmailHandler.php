@@ -97,7 +97,7 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         }
         if($this->user->IsDummyUser())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $this->user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $this->user);
             throw new InvalidArgumentException(self::MSG_DUMMY_USER, parent::MSGCODE_BAD_PARAM);
         }
         

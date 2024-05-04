@@ -192,7 +192,7 @@ class PostEntryHandler extends BaseHandler
         // Check if migration is required
         if($user->NeedsMigration())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user);
             throw new InvalidArgumentException(self::MSG_MIGRATION_REQUIRED, parent::MSGCODE_AUTH_FAIL);
         }
         if($this->parentPostId === 0)

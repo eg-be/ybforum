@@ -108,12 +108,12 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         $this->confirmSource = $values['confirm_source'];
         if($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER && $this->user->IsConfirmed())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_CONFIRMED, $this->user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_CONFIRMED, $this->user);
             throw new InvalidArgumentException(self::MSG_ALREADY_CONFIRMED, parent::MSGCODE_BAD_PARAM);
         }
         if($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE && !$this->user->NeedsMigration())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $this->user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $this->user);
             throw new InvalidArgumentException(self::MSG_ALREADY_MIGRATED, parent::MSGCODE_BAD_PARAM);
         }        
         if($this->simulate)
@@ -139,7 +139,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
                 if($mailer->NotifyAdminUserConfirmedRegistration($this->user->GetNick(), 
                         $adminEmail, $this->user->GetRegistrationMsg()))
                 {
-                    $logger->LogMessageWithUserId(LogType::LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED, $this->user->GetId(), 'Mail sent to: ' . $adminEmail);
+                    $logger->LogMessageWithUserId(LogType::LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED, $this->user, 'Mail sent to: ' . $adminEmail);
                 }
             }
         }

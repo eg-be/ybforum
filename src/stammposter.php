@@ -55,11 +55,11 @@ try
                 $logger = new Logger($db);
                 if($user->NeedsMigration())
                 {
-                    $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user->GetId());
+                    $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user);
                     header('Location: migrateuser.php?source=stammposter.php&nick=' . urlencode($user->GetNick()) . '&email=' . urlencode($user->GetEmail()));
                     exit;
                 }
-                $logger->LogMessageWithUserId(LogType::LOG_STAMMPOSTER_LOGIN, $user->GetId());
+                $logger->LogMessageWithUserId(LogType::LOG_STAMMPOSTER_LOGIN, $user);
                 $_SESSION['userid'] = $user->GetId();
                 header('Location: user/index.php');
             }

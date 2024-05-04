@@ -152,8 +152,12 @@ final class LoggerTest extends BaseTest
     public function testLogMessageWithUserId(): void
     {
         // just log a test-message with some user-info
+        $user101 = $this->createStub(User::class);
+        $user101->method('GetId')->willReturn(101);
+        $user101->method('GetMinimalUserInfoAsString')->willReturn('IdUser: 101;');
+
         $l = new Logger($this->db);
-        $l->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, 101, "testLogMessageWithUserId-msg1");
+        $l->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, $user101, "testLogMessageWithUserId-msg1");
 
         // get the id to compare later
         $id1 = $l->GetLogTypeId(LogType::LOG_AUTH_FAILED_NO_SUCH_USER);
