@@ -95,17 +95,24 @@ catch(Exception $ex)
         ?>
         <hr>
         <div class="fullwidthcenter" style="padding-top:1em">
-			<div><span class="fbold">Weitergabe von Tickets</span></div>
+			<div><span class="fbold">Weitergabe von Tickets</span></div>		
 			<div>
             Tickets können über die <a href="https://www.ostkurve.be/abo-boerse/">ABO-BÖRSE</a> 
-			der Ostkurve weitergeben werden.
+			der Ostkurve weitergeben werden. Bitte kein Tickethandel im Forum.
+			</div>
+		</div>
+        <div class="fullwidthcenter" style="padding-top:1em">
+			<div><span class="fbold">Urheberrecht</span></div>		
+			<div>
+            Bitte postet keine Inhalte, insbesondere Artikel aus Zeitungen und Zeitschriften, welche
+			das Urheberrecht verletzen. Entsprechende Posts werden gelöscht und der Benutzer wird gesperrt.
 			</div>
 		</div>
         <div class="fullwidthcenter" style="padding-top: 1em">
-			<div><span class="fbold" >Bitte verwende eine gültige Emailadresse</span></div>
+			<div><span class="fbold" >Bitte verwende eine gültige Emailadresse</span></div>		
 			<div>
             Die hier angebenen Emailadresse wird nicht im Forum gezeigt. Sie 
-            dient lediglich dem Forenadministrator als Kontaktadresse. 
+            dient lediglich als Kontaktadresse. 
 			Um die Registrierung abzuschliessen, muss die Emailadresse bestätigt werden.
 			</div>
 		</div>
