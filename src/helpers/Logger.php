@@ -138,53 +138,32 @@ class Logger
     }
 
     // todo: issue #20
-    public function LogMessageWithUserId(LogType $logType, int $userId, 
-            string $msg = null, string $extendedInfo = null) : void
+    public function LogMessageWithUserId(LogType $logType, User $user, 
+            ?string $msg = null, ?string $extendedInfo = null) : void
     {
         $logTypeId = $this->GetLogTypeId($logType);
-        $this->InsertLogEntry($logTypeId, $userId, $msg, $extendedInfo);
+        $this->InsertLogEntry($logTypeId, $user, $msg, $extendedInfo);
     }
     
     public function LogMessage(LogType $logType, string $msg, 
-            string $extendedInfo = null) : void
+            ?string $extendedInfo = null) : void
     {
         $logTypeId = $this->GetLogTypeId($logType);
         $this->InsertLogEntry($logTypeId, null, $msg, $extendedInfo);
     }
     
     /**
-     * Build a string containing userId, nick, email,
-     * active, confirmed and need migration info.
-     * @param int $userId
-     * @return string
-     */
-    private function GetHistoricUserContext(int $userId) : string
-    {
-        $context = '';
-        $user = User::LoadUserById($this->m_db, $userId);
-        if($user)
-        {
-            $context.= $user->GetMinimalUserInfoAsString();
-        }
-        else
-        {
-            $context.= ' <Benutzer ' . $userId . 'existiert nicht in der Datenbank>';
-        }
-        return $context;
-    }
-    
-    /**
      * Log a message to the log_table
      * @param int $logTypeId id of a log_type_table entry
-     * @param int $userId If not null, the iduser of an existing entry 
+     * @param User $user If not null, the iduser of an existing entry 
      * from user_table
      * @param string $msg The value for the message field
      * @param string $extendedInfo If not null, an antry in log_extended_info
      * is created with the passed value
      * @throws Exception
      */
-    private function InsertLogEntry(int $logTypeId, int $userId = null, 
-            string $msg = null, string $extendedInfo = null) : void
+    private function InsertLogEntry(int $logTypeId, ?User $user, 
+            ?string $msg, ?string $extendedInfo) : void
     {
         if(!$this->m_insertLogEntryStmt)
         {
@@ -204,11 +183,17 @@ class Logger
         }
         
         $historicUserContext = null;
-        if($userId)
+        if($user)
         {
-            $historicUserContext = $this->GetHistoricUserContext($userId);
+            $historicUserContext = $user->GetMinimalUserInfoAsString();
         }
         
+        $userId = null;
+        if($user)
+        {
+            $userId = $user->GetId();
+        }
+
         $this->m_insertLogEntryStmt->execute(array(
             ':idlog_type' => $logTypeId,
             ':iduser' => $userId,

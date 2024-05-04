@@ -100,20 +100,20 @@ class ResetPasswordHandler extends BaseHandler
         // we only need an email
         if(!$user->HasEmail())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_HAS_NO_EMAIL, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_HAS_NO_EMAIL, $user);
             throw new InvalidArgumentException(self::MSG_USER_HAS_NO_EMAIL, parent::MSGCODE_BAD_PARAM);
         }
         // A dummy never has an email, but check anyway
         if($user->IsDummyUser())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $user);
             throw new InvalidArgumentException(self::MSG_DUMMY_USER, parent::MSGCODE_BAD_PARAM);            
         }
         // Do not allow requesting a password for an inactive user, exept this
         // is a user who needs to migrate:
         if(!$user->IsActive() && !$user->NeedsMigration())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_INACTIVE, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_INACTIVE, $user);
             throw new InvalidArgumentException(self::MSG_USER_INACTIVE, parent::MSGCODE_BAD_PARAM);
         }
         // okay, init the request to change the password

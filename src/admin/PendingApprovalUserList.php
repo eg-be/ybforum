@@ -44,7 +44,7 @@ class PendingApprovalUserList
                 {
                     $db->ActivateUser($user);
                     $sent = $mailer->SendNotifyUserAcceptedEmail($user->GetEmail(), $user->GetNick());
-                    $logger->LogMessageWithUserId(LogType::LOG_NOTIFIED_USER_ACCEPTED, $user->GetId());
+                    $logger->LogMessageWithUserId(LogType::LOG_NOTIFIED_USER_ACCEPTED, $user);
                     $resultDiv = '<div class="actionSucceeded">Benutzer ' 
                             . $user->GetNick() . ' freigeschaltet (Mail sent: ' 
                             . ($sent ? 'Ja' : 'Nein') .')</div>';

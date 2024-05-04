@@ -299,7 +299,7 @@ class ForumDb extends PDO
         }
         if($user->IsDummyUser())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_USER_IS_DUMMY, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_USER_IS_DUMMY, $user);
             if(!is_null($authFailReason))
             {
                 $authFailReason = self::AUTH_FAIL_REASON_USER_IS_DUMMY;
@@ -308,7 +308,7 @@ class ForumDb extends PDO
         }
         if(!$user->IsActive() && !$user->NeedsMigration())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_USER_INACTIVE, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_USER_INACTIVE, $user);
             if(!is_null($authFailReason))
             {
                 $authFailReason = self::AUTH_FAIL_REASON_USER_IS_INACTIVE;
@@ -322,10 +322,10 @@ class ForumDb extends PDO
         }
         else if($user->HasOldPassword() && $user->OldAuth($password))
         {
-            $logger->LogMessageWithUserId(LogType::LOG_AUTH_USING_OLD_PASSWORD, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_AUTH_USING_OLD_PASSWORD, $user);
             return $user;
         }
-        $logger->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_PASSWORD_INVALID, $user->GetId());        
+        $logger->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_PASSWORD_INVALID, $user);        
         if(!is_null($authFailReason))
         {
             $authFailReason = self::AUTH_FAIL_REASON_PASSWORD_INVALID;
@@ -487,7 +487,7 @@ class ForumDb extends PDO
         $userId = $this->lastInsertId();
         $user = User::LoadUserById($this, $userId);
         $logger = new Logger($this);
-        $logger->LogMessageWithUserId(LogType::LOG_USER_CREATED, $user->GetId());
+        $logger->LogMessageWithUserId(LogType::LOG_USER_CREATED, $user);
         return $user;
     }
     
@@ -549,7 +549,7 @@ class ForumDb extends PDO
         {
             $logType = LogType::LOG_CONFIRM_MIGRATION_CODE_CREATED;
         }
-        $logger->LogMessageWithUserId($logType, $user->GetId(),  
+        $logger->LogMessageWithUserId($logType, $user,  
                 'Mailaddress with entry: ' . $newEmail);
 
         return $confirmCode;
@@ -707,12 +707,12 @@ class ForumDb extends PDO
         $logger = new Logger($this);
         if($activate)
         {
-            $logger->LogMessageWithUserId(LogType::LOG_USER_MIGRATION_CONFIRMED, $user->GetId());
-            $logger->LogMessageWithUserId(LogType::LOG_USER_ACTIVED, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_USER_MIGRATION_CONFIRMED, $user);
+            $logger->LogMessageWithUserId(LogType::LOG_USER_ACTIVED, $user);
         }
         else
         {
-            $logger->LogMessageWithUserId(LogType::LOG_USER_REGISTRATION_CONFIRMED, $user->GetId());
+            $logger->LogMessageWithUserId(LogType::LOG_USER_REGISTRATION_CONFIRMED, $user);
         }
         // Update the passed User object that has been passed
         $user = User::LoadUserById($this, $user->GetId());
@@ -747,7 +747,7 @@ class ForumDb extends PDO
         // log event
         $logger = new Logger($this);
         $logger->LogMessageWithUserId(LogType::LOG_PASS_RESET_CODE_CREATED, 
-                $user->GetId(), 'Mailaddress of user: ' . $user->GetEmail());
+                $user, 'Mailaddress of user: ' . $user->GetEmail());
         
         
         // and return the confirm-code
@@ -842,7 +842,7 @@ class ForumDb extends PDO
                     . 'user_table matching iduser ' . $user->GetId());
         }
         $logger = new Logger($this);
-        $logger->LogMessageWithUserId(LogType::LOG_USER_PASSWORD_UPDATED, $user->GetId());
+        $logger->LogMessageWithUserId(LogType::LOG_USER_PASSWORD_UPDATED, $user);
         // and reload the user-object
         $user = User::LoadUserById($this, $user->GetId());
     }
@@ -974,7 +974,7 @@ class ForumDb extends PDO
                     . 'user_table matching iduser ' . $user->GetId());
         }
         $logger = new Logger($this);
-        $logger->LogMessageWithUserId(LogType::LOG_USER_EMAIL_UPDATED, $user->GetId(), 'New Email: ' . $email);
+        $logger->LogMessageWithUserId(LogType::LOG_USER_EMAIL_UPDATED, $user, 'New Email: ' . $email);
 
         // and reload the user
         $user = User::LoadUserById($this, $user->GetId());
@@ -1017,7 +1017,7 @@ class ForumDb extends PDO
             $this->ClearDeactivationReason($user);
             // log what happened
             $logger = new Logger($this);
-            $logger->LogMessageWithUserId(LogType::LOG_USER_ACTIVED, $user->GetId());  
+            $logger->LogMessageWithUserId(LogType::LOG_USER_ACTIVED, $user);  
             $this->commit();
 
             // and reload the passed user
@@ -1068,7 +1068,7 @@ class ForumDb extends PDO
             $this->SetDeactivationReason($user, $reason, $deactivatedByAdminUser->GetId());
             // There was a modification, create the corresponding log entry
             $logger = new Logger($this);
-            $logger->LogMessageWithUserId(LogType::LOG_USER_DEACTIVATED, $user->GetId(), 
+            $logger->LogMessageWithUserId(LogType::LOG_USER_DEACTIVATED, $user, 
                 'Reason: ' . $reason);
             $this->commit();
 
@@ -1168,7 +1168,7 @@ class ForumDb extends PDO
         $logger = new Logger($this);
         $logger->LogMessageWithUserId(
             $admin ? LogType::LOG_USER_ADMIN_SET : LogType::LOG_USER_ADMIN_REMOVED,
-            $user->GetId()
+            $user
         );
 
         // and reload the passed user
@@ -1205,7 +1205,7 @@ class ForumDb extends PDO
         $stmt = $this->prepare($query);
         $stmt->execute(array(':iduser' => $user->GetId()));
         $logger = new Logger($this);
-        $logger->LogMessageWithUserId(LogType::LOG_USER_TURNED_INTO_DUMMY, $user->GetId(), 
+        $logger->LogMessageWithUserId(LogType::LOG_USER_TURNED_INTO_DUMMY, $user, 
                 'Previous values: email: ' . $user->GetEmail()
                 . '; active: ' . ($user->IsActive() ? '1' : '0')
                 . '; admin: ' . ($user->IsAdmin() ? '1' : '0')
