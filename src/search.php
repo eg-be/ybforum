@@ -26,6 +26,7 @@ require_once __DIR__.'/pageparts/PostList.php';
 require_once __DIR__.'/pageparts/SearchForm.php';
 require_once __DIR__.'/pageparts/SearchResultsView.php';
 require_once __DIR__.'/pageparts/TopNavigation.php';
+require_once __DIR__.'/pageparts/Logo.php';
 require_once __DIR__.'/handlers/SearchHandler.php';
 
 include __DIR__.'/profile/profile_start.php';
@@ -68,9 +69,17 @@ catch(Exception $ex)
         <meta name="theme-color" content="#FFCC00">
     </head>
     <body>
-        <div  style="max-width: 700px; margin: auto;">
-            <?php include __DIR__.'/logo.php'; ?>
-        </div>
+        <?php
+        try
+        {
+            $logo = new Logo();
+            echo $logo->renderHtmlDiv();
+        }
+        catch(Exception $ex)
+        {
+            ErrorHandler::OnException($ex);
+        }
+        ?>
         <div class="fullwidthcenter generictitle">Beitragssuche</div>    
         <hr>
         <?php

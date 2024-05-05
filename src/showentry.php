@@ -24,6 +24,7 @@ require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/pageparts/PostView.php';
 require_once __DIR__.'/pageparts/ThreadIndexView.php';
 require_once __DIR__.'/pageparts/TopNavigation.php';
+require_once __DIR__.'/pageparts/Logo.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 
 try
@@ -74,9 +75,17 @@ catch(Exception $ex)
         </script>
     </head>
     <body>
-        <div  style="max-width: 700px; margin: auto;">
-            <?php include __DIR__.'/logo.php'; ?>
-        </div>       
+        <?php
+        try
+        {
+            $logo = new Logo();
+            echo $logo->renderHtmlDiv();
+        }
+        catch(Exception $ex)
+        {
+            ErrorHandler::OnException($ex);
+        }
+        ?>     
         <hr>
         <!-- The page header is really simple, in line that -->
         <?php

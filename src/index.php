@@ -25,6 +25,7 @@ require_once __DIR__.'/model/ForumDb.php';
 require_once __DIR__.'/pageparts/PageNavigationView.php';
 require_once __DIR__.'/pageparts/ThreadIndexView.php';
 require_once __DIR__.'/pageparts/TopNavigation.php';
+require_once __DIR__.'/pageparts/Logo.php';
 require_once __DIR__.'/helpers/ErrorHandler.php';
 include __DIR__.'/profile/profile_start.php';
 
@@ -58,9 +59,17 @@ catch(Exception $ex)
 <!--        <script src="js/pokal.js?v=r187"></script>		-->
     </head>
     <body>
-        <div  style="max-width: 700px; margin: auto;">
-            <?php include __DIR__.'/logo.php'; ?>
-        </div>
+        <?php
+        try
+        {
+            $logo = new Logo();
+            echo $logo->renderHtmlDiv();
+        }
+        catch(Exception $ex)
+        {
+            ErrorHandler::OnException($ex);
+        }
+        ?>
         <hr>
         <?php
         try

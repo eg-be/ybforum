@@ -25,6 +25,7 @@ require_once __DIR__.'/handlers/ContactHandler.php';
 require_once __DIR__.'/YbForumConfig.php';
 require_once __DIR__.'/helpers/CaptchaV3Config.php';
 require_once __DIR__.'/pageparts/TopNavigation.php';
+require_once __DIR__.'/pageparts/Logo.php';
 
 try
 {
@@ -75,9 +76,17 @@ catch(Exception $ex)
         ?>
     </head>
     <body>
-        <div  style="max-width: 700px; margin: auto;">
-            <?php include __DIR__.'/logo.php'; ?>
-        </div>
+        <?php
+        try
+        {
+            $logo = new Logo();
+            echo $logo->renderHtmlDiv();
+        }
+        catch(Exception $ex)
+        {
+            ErrorHandler::OnException($ex);
+        }
+        ?>
         <div class="fullwidthcenter generictitle">Kontakt</div>    
         <hr>
         <?php
