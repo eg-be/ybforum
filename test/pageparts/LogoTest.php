@@ -5,7 +5,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 require_once __DIR__.'/../BaseTest.php';
 require_once __DIR__.'/../../src/pageparts/Logo.php';
 
-
 /**
  * No Database stuff required
  */
@@ -15,7 +14,8 @@ final class LogoTest extends TestCase
     {
         $logo = new Logo();
         $html = $logo->renderHtmlDiv();
-        // todo: use value from config
-        $this->assertStringContainsString('<img', $html);
+        $exp = "/<div.+><img.+src=\".+\".+alt=\".+\"\/><\/div>/i";
+        $match = preg_match($exp, $html);
+        $this->assertSame(1, $match);
     }       
 }

@@ -38,9 +38,12 @@ class Logo
      */
     public function renderHtmlDiv() : string
     {
-        $html = '<img style="max-width: 100%; height: auto;" src="'
+        $html = '<div style="max-width: 700px; margin: auto;">';
+        $html.= '<img style="max-width: 100%; height: auto;" src="'
         . YbForumConfig::LOGO_FILE
         . '" alt="YB Forum"/>';
+        $html.= '</div>';
+        $html.= PHP_EOL;
         return $html;
     }
 }
