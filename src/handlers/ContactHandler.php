@@ -73,8 +73,8 @@ class ContactHandler extends BaseHandler
     { 
         // Validate where we cannot accept null values:
         $this->ValidateStringParam($this->msg, self::MSG_EMPTY);
-        $this->ValidateEmailValue($this->email);
-        $this->ValidateEmailValue($this->emailRepeat);
+        self::ValidateEmailValue($this->email);
+        self::ValidateEmailValue($this->emailRepeat);
         
         // check that mail-addresses match:
         if($this->email !== $this->emailRepeat)

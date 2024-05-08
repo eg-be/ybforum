@@ -61,7 +61,7 @@ class UpdateEmailHandler extends BaseHandler
     
     protected function ValidateParams() : void
     {
-        $this->ValidateEmailValue($this->newEmail);
+        self::ValidateEmailValue($this->newEmail);
         // Email must be different from current email
         if($this->user->GetEmail() === $this->newEmail)
         {

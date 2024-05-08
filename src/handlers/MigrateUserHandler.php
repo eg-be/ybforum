@@ -79,7 +79,7 @@ class MigrateUserHandler extends BaseHandler
         $this->ValidateStringParam($this->nick, self::MSG_AUTH_FAIL);
         $this->ValidateStringParam($this->oldPassword, self::MSG_AUTH_FAIL);
         $this->ValidateStringParam($this->newPassword, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
-        $this->ValidateEmailValue($this->newEmail);
+        self::ValidateEmailValue($this->newEmail);
         
         // Passwords must match
         if($this->newPassword !== $this->confirmNewPassword)

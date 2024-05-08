@@ -80,11 +80,11 @@ abstract class BaseHandler
     
     /**
      * Throws InvalidArgumentException with MSG_INVALID_CLIENT_IPADDRESS if
-     * $value is not a IP address
+     * $value is not a IP address or null
      * @param ?string $value
      * @throws InvalidArgumentException
      */
-    protected function ValidateClientIpValue(?string $value) : void
+    public static function ValidateClientIpValue(?string $value) : void
     {
         if(!$value || filter_var($value, FILTER_VALIDATE_IP) === false)
         {
@@ -116,7 +116,7 @@ abstract class BaseHandler
      * @param string $errMessage
      * @throws InvalidArgumentException
      */
-    protected function ValidateEmailValue(?string $value, string $errMessage = null) : void
+    public static function ValidateEmailValue(?string $value, ?string $errMessage = null) : void
     {
         if(!$value || filter_var($value, FILTER_VALIDATE_EMAIL) === false)
         {
@@ -311,7 +311,7 @@ abstract class BaseHandler
             // in case of failue
             $this->ReadParams();
             // and now validate
-            $this->ValidateClientIpValue($this->clientIpAddress);
+            self::ValidateClientIpValue($this->clientIpAddress);
             $this->ValidateParams();
             
             // And handle. remember an eventually occuring exception

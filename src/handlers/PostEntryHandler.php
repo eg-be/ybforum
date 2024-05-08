@@ -95,7 +95,7 @@ class PostEntryHandler extends BaseHandler
         // notify the user (instead of discarding silently)
         if($this->email)
         {
-            $this->ValidateEmailValue($this->email, 'Der Wert ' . $this->email 
+            self::ValidateEmailValue($this->email, 'Der Wert ' . $this->email 
                     .  ' ist keine gültige Mailadresse.');
         }
         if($this->linkUrl)

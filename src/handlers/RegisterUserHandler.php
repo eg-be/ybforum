@@ -86,7 +86,7 @@ class RegisterUserHandler extends BaseHandler
     { 
         // Validate where we cannot accept null values:
         $this->ValidateStringParam($this->nick, self::MSG_NICK_TOO_SHORT, YbForumConfig::MIN_NICK_LENGTH);
-        $this->ValidateEmailValue($this->email);
+        self::ValidateEmailValue($this->email);
         $this->ValidateStringParam($this->password, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
         
         // passwords must match
