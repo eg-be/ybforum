@@ -170,4 +170,26 @@ final class BaseHandlerTest extends TestCase
         $res = BaseHandler::ValidateStringParam($value, $errMsg, $minLength);
         $this->assertNull($res);
     }
+
+
+    public static function providerReadClientIpParam() : array
+    {
+        return array(
+            // value            // fail
+            ['::1',             false],
+            ['192.168.1.1',     false],
+            ['',                true],
+            [null,              true],
+        );
+    }        
+    #[DataProvider('providerReadClientIpParam')]
+    public function testReadClientIpParam(?string $value, bool $fail) {
+        $_SERVER['REMOTE_ADDR'] = $value;
+        $filtered = BaseHandler::ReadClientIpParam();
+        if($fail) {
+            $this->assertNull($filtered);
+        } else {
+            $this->assertSame($value, $filtered);
+        }
+    }
 }

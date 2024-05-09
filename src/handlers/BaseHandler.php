@@ -68,9 +68,9 @@ abstract class BaseHandler
      * FILTER_VALIDATE_IP.
      * @return string or null if not a valid IP address.
      */
-    protected function ReadClientIpParam() :?string
+    public static function ReadClientIpParam() :?string
     {
-        $clientIp = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
+        $clientIp = filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
         if(!$clientIp)
         {
             return null;
@@ -305,7 +305,7 @@ abstract class BaseHandler
         try
         {
             // Always need client-ip
-            $this->clientIpAddress = $this->ReadClientIpParam();
+            $this->clientIpAddress = self::ReadClientIpParam();
             
             // First read all values, so they can be written back to the user
             // in case of failue
