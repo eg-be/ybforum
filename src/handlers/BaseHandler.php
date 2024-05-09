@@ -136,7 +136,7 @@ abstract class BaseHandler
      * @param Logger $logger
      * @throws InvalidArgumentException
      */
-    protected function ValidateEmailAgainstBlacklist(string $email, ForumDb $db, 
+    public static function ValidateEmailAgainstBlacklist(string $email, ForumDb $db, 
             Logger $logger) : void
     {
         $mailOnBlacklistExactly = $db->IsEmailOnBlacklistExactly($email);
@@ -189,7 +189,7 @@ abstract class BaseHandler
      * @param string $errMessage
      * @throws InvalidArgumentException
      */
-    protected function ValidateHttpUrlValue(?string $value, string $errMessage = null, 
+    public static function ValidateHttpUrlValue(?string $value, ?string $errMessage = null, 
             bool $requirePath = false) : void
     {
         if(!$errMessage)
@@ -232,12 +232,12 @@ abstract class BaseHandler
     
     /**
      * Throws an InvalidArgumentException with passed $errorMsg if 
-     * $value is not an int value.
-     * @param type $value
-     * @param type $errorMsg
+     * $value is null
+     * @param ?int $value
+     * @param string $errorMsg
      * @throws InvalidArgumentException
      */
-    protected function ValidateIntParam($value, $errorMsg) : void
+    public static function ValidateIntParam(?int $value, string $errorMsg) : void
     {
         assert(!empty($errorMsg));
         if(!is_int($value))
@@ -269,17 +269,17 @@ abstract class BaseHandler
     
     /**
      * Throws an InvalidArgumentException with passed $errorMsg if $value 
-     * is not a string, or empty, or if $minLength is set to a value > 0, is 
+     * is null or empty, or if $minLength is set to a value > 0 and $value is 
      * shorted than $minLength
-     * @param type $value
+     * @param ?string $value
      * @param string $errorMsg
      * @param int $minLength
      * @throws InvalidArgumentException
      */
-    protected function ValidateStringParam($value, string $errorMsg, int $minLength = 0) : void
+    public static function ValidateStringParam(?string $value, string $errorMsg, int $minLength = 0) : void
     {
         assert(!empty($errorMsg));
-        if(!is_string($value) || !$value)
+        if(!is_string($value) || !trim($value))
         {
             throw new InvalidArgumentException($errorMsg, self::MSGCODE_BAD_PARAM);
         }

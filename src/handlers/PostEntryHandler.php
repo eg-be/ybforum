@@ -86,10 +86,10 @@ class PostEntryHandler extends BaseHandler
     protected function ValidateParams() : void
     {
         // validate what we cannot accept null values for:
-        $this->ValidateIntParam($this->parentPostId, parent::MSG_GENERIC_INVALID);
-        $this->ValidateStringParam($this->nick, self::MSG_AUTH_FAIL);
-        $this->ValidateStringParam($this->password, self::MSG_AUTH_FAIL);
-        $this->ValidateStringParam($this->title, self::MSG_TITLE_TOO_SHORT, YbForumConfig::MIN_TITLE_LENGTH);
+        self::ValidateIntParam($this->parentPostId, parent::MSG_GENERIC_INVALID);
+        self::ValidateStringParam($this->nick, self::MSG_AUTH_FAIL);
+        self::ValidateStringParam($this->password, self::MSG_AUTH_FAIL);
+        self::ValidateStringParam($this->title, self::MSG_TITLE_TOO_SHORT, YbForumConfig::MIN_TITLE_LENGTH);
         
         // If the user passed an optional value that does not meet the specs,
         // notify the user (instead of discarding silently)
@@ -100,7 +100,7 @@ class PostEntryHandler extends BaseHandler
         }
         if($this->linkUrl)
         {
-            $this->ValidateHttpUrlValue($this->linkUrl, 'Der Wert ' . $this->linkUrl 
+            self::ValidateHttpUrlValue($this->linkUrl, 'Der Wert ' . $this->linkUrl 
                     .  ' ist kein gültiger Link. Links müssen mit https://'
                     . ' (oder http://) beginnen.');
         }
@@ -111,7 +111,7 @@ class PostEntryHandler extends BaseHandler
         }
         if($this->imgUrl)
         {
-            $this->ValidateHttpUrlValue($this->imgUrl, 'Der Wert ' . $this->imgUrl 
+            self::ValidateHttpUrlValue($this->imgUrl, 'Der Wert ' . $this->imgUrl 
                     .  ' ist keine gültige Bild URL. Bild URLs müssen mit https://'
                     . ' (oder http://) beginnen und auf eine Bilddatei'
                     . ' verweisen', true);

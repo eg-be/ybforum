@@ -64,7 +64,7 @@ class UpdatePasswordHandler extends BaseHandler
     
     protected function ValidateParams() : void
     {
-        $this->ValidateStringParam($this->newPassword, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
+        self::ValidateStringParam($this->newPassword, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
         // passwords must match
         if($this->newPassword !== $this->confirmNewPassword)
         {

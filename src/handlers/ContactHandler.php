@@ -72,7 +72,7 @@ class ContactHandler extends BaseHandler
     protected function ValidateParams() : void
     { 
         // Validate where we cannot accept null values:
-        $this->ValidateStringParam($this->msg, self::MSG_EMPTY);
+        self::ValidateStringParam($this->msg, self::MSG_EMPTY);
         self::ValidateEmailValue($this->email);
         self::ValidateEmailValue($this->emailRepeat);
         

@@ -76,9 +76,9 @@ class MigrateUserHandler extends BaseHandler
     protected function ValidateParams() : void
     {
         // And validate the params
-        $this->ValidateStringParam($this->nick, self::MSG_AUTH_FAIL);
-        $this->ValidateStringParam($this->oldPassword, self::MSG_AUTH_FAIL);
-        $this->ValidateStringParam($this->newPassword, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
+        self::ValidateStringParam($this->nick, self::MSG_AUTH_FAIL);
+        self::ValidateStringParam($this->oldPassword, self::MSG_AUTH_FAIL);
+        self::ValidateStringParam($this->newPassword, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
         self::ValidateEmailValue($this->newEmail);
         
         // Passwords must match
@@ -125,7 +125,7 @@ class MigrateUserHandler extends BaseHandler
             throw new InvalidArgumentException(self::MSG_EMAIL_NOT_UNIQUE, parent::MSGCODE_BAD_PARAM);
         }
         // check that the new email is not blacklisted
-        $this->ValidateEmailAgainstBlacklist($this->newEmail, $db, $logger);
+        self::ValidateEmailAgainstBlacklist($this->newEmail, $db, $logger);
         // And prepare to migrate
         $confirmCode = $db->RequestConfirmUserCode($user, 
                 $this->newPassword, 

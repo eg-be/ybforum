@@ -85,9 +85,9 @@ class RegisterUserHandler extends BaseHandler
     protected function ValidateParams() : void
     { 
         // Validate where we cannot accept null values:
-        $this->ValidateStringParam($this->nick, self::MSG_NICK_TOO_SHORT, YbForumConfig::MIN_NICK_LENGTH);
+        self::ValidateStringParam($this->nick, self::MSG_NICK_TOO_SHORT, YbForumConfig::MIN_NICK_LENGTH);
         self::ValidateEmailValue($this->email);
-        $this->ValidateStringParam($this->password, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
+        self::ValidateStringParam($this->password, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
         
         // passwords must match
         if($this->confirmpassword !== $this->password)
@@ -123,7 +123,7 @@ class RegisterUserHandler extends BaseHandler
                     parent::MSGCODE_BAD_PARAM);
         }
         // Check that email is not blacklisted
-        $this->ValidateEmailAgainstBlacklist($this->email, $db, $logger);
+        self::ValidateEmailAgainstBlacklist($this->email, $db, $logger);
         
         // Create the user and request a confirmation code 
         $user = $db->CreateNewUser($this->nick, $this->email, 
