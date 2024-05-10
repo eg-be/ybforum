@@ -49,6 +49,7 @@ class ContactHandler extends BaseHandler
         
         // Set defaults explicitly
         $this->email = null;
+        $this->emailRepeat = null;
         $this->msg = null;
         $this->m_captchaVerifier = null;
     }
@@ -123,6 +124,9 @@ class ContactHandler extends BaseHandler
         return $this->msg;
     }
     
+//    private ?Logger $logger;
+//    private ?Mailer $mailer;
+
     private ?string $email;
     private ?string $emailRepeat;
     private ?string $msg;
