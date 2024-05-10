@@ -80,6 +80,10 @@ final class BaseHandlerTest extends TestCase
     #[DataProvider('providerBlacklistEmail')]
     public function testValidateEmailAgainstBlacklist(string $mail, bool $exactly, bool $regex) {
         $db = $this->createMock('ForumDb');
+/*        $db->method('IsEmailOnBlacklistExactly')->willReturnMap([
+            ['exactly@m.c', 'is_on_blacklist_exactly'],
+            ['both@m.c', 'is_on_blacklist_exactly'],
+        ]);*/
         $db->method('IsEmailOnBlacklistExactly')->willReturnCallback(
             function() use ($exactly) {
                 if($exactly)
