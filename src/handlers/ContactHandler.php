@@ -47,6 +47,9 @@ class ContactHandler extends BaseHandler
     {
         parent::__construct();
         
+        $this->logger = null;
+        $this->mailer = null;
+
         // Set defaults explicitly
         $this->email = null;
         $this->emailRepeat = null;
@@ -92,12 +95,12 @@ class ContactHandler extends BaseHandler
 
     protected function HandleRequestImpl(ForumDb $db) : void
     {
-        $logger = new Logger($db);
+        $logger = $this->GetLogger($db);
         // try to log what we have received
         $logger->LogMessage(LogType::LOG_CONTACT_FORM_SUBMITTED, 'Mail: ' . $this->email . '; Msg: ' . $this->msg);
 
         // Send a mail to all admins
-        $mailer = new Mailer();
+        $mailer = $this->GetMailer();
         $admins = $db->GetAdminUsers();
         foreach($admins as $admin)
         {
@@ -124,8 +127,36 @@ class ContactHandler extends BaseHandler
         return $this->msg;
     }
     
-//    private ?Logger $logger;
-//    private ?Mailer $mailer;
+    private function GetLogger(ForumDb $db) : Logger
+    {
+        if(is_null($this->logger))
+        {
+            $this->logger = new Logger($db);
+        }
+        return $this->logger;
+    }
+
+    private function GetMailer() : GetMailer
+    {
+        if(is_null($this->mailer))
+        {
+            $this->mailer = new Mailer();
+        }
+        return $this->mailer;
+    }
+
+    public function SetMailer(Mailer $mailer) : void
+    {
+        $this->mailer = $mailer;
+    }
+
+    public function SetLogger(Logger $logger) : void
+    {
+        $this->logger = $logger;
+    }
+
+    private ?Logger $logger;
+    private ?Mailer $mailer;
 
     private ?string $email;
     private ?string $emailRepeat;

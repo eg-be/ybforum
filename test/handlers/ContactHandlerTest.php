@@ -12,7 +12,7 @@ final class ContactHandlerTest extends TestCase
     // required mocks our handler under test depends on
     private ForumDb $db;
     private Mailer $mailer;
-    private Logger $looger;
+    private Logger $logger;
 
     // our actuall handler to test
     private ContactHandler $ch;
@@ -22,7 +22,9 @@ final class ContactHandlerTest extends TestCase
         $this->db = $this->createMock('ForumDb');
         $this->mailer = $this->createMock('Mailer');
         $this->logger = $this->createMock('Logger');
-        $this->$ch = new ContactHandler();
+        $this->ch = new ContactHandler();
+        $this->ch->SetMailer($this->mailer);
+        $this->ch->SetLogger($this->logger);
     }
 
     public function testConstruct()
@@ -40,7 +42,7 @@ final class ContactHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(ContactHandler::MSG_EMAIL_DO_NOT_MATCH);
         $this->expectExceptionCode(ContactHandler::MSGCODE_BAD_PARAM);
-        $this->$ch->HandleRequest($this->db);
+        $this->ch->HandleRequest($this->db);
     }
 
     public function testMsgNotEmpty()
@@ -51,7 +53,7 @@ final class ContactHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(ContactHandler::MSG_EMPTY);
         $this->expectExceptionCode(ContactHandler::MSGCODE_BAD_PARAM);
-        $this->$ch->HandleRequest($this->db);
+        $this->ch->HandleRequest($this->db);
     }
 
     public function testNonValidParamValuesStored()
@@ -63,7 +65,7 @@ final class ContactHandlerTest extends TestCase
         $_POST[ContactHandler::PARAM_EMAIL_REPEAT] = 'b@bar.com';
         try 
         {
-            $this->$ch->HandleRequest($this->db);
+            $this->ch->HandleRequest($this->db);
             $this->assertTrue(false); // must never be reached
         }catch(InvalidArgumentException $ex) 
         { 
@@ -79,5 +81,9 @@ final class ContactHandlerTest extends TestCase
     {
         // setup with correct params: matching mails and non-empty msg
         // must have a log entry and the mailer must have been called
+        $_POST[ContactHandler::PARAM_MSG] = 'hello';
+        $_POST[ContactHandler::PARAM_EMAIL] = 'a@bar.com';
+        $_POST[ContactHandler::PARAM_EMAIL_REPEAT] = 'a@bar.com';
+        $this->ch->HandleRequest($this->db);
     }
 }
