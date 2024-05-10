@@ -70,7 +70,7 @@ class MigrateUserHandler extends BaseHandler
         $this->oldPassword = $this->ReadStringParam(self::PARAM_OLDPASS);
         $this->newPassword = $this->ReadStringParam(self::PARAM_NEWPASS);
         $this->confirmNewPassword = $this->ReadStringParam(self::PARAM_CONFIRMNEWPASS);
-        $this->newEmail = $this->ReadEmailParam(self::PARAM_NEWEMAIL);
+        $this->newEmail = self::ReadEmailParam(self::PARAM_NEWEMAIL);
     }
     
     protected function ValidateParams() : void

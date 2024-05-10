@@ -55,8 +55,8 @@ class ContactHandler extends BaseHandler
     
     protected function ReadParams() : void
     {
-        $this->email = $this->ReadEmailParam(self::PARAM_EMAIL);
-        $this->emailRepeat = $this->ReadEmailParam(self::PARAM_EMAIL_REPEAT);
+        $this->email = self::ReadEmailParam(self::PARAM_EMAIL);
+        $this->emailRepeat = self::ReadEmailParam(self::PARAM_EMAIL_REPEAT);
         $this->msg = $this->ReadStringParam(self::PARAM_MSG);        
         
         if(CaptchaV3Config::CAPTCHA_VERIFY)

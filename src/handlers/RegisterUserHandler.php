@@ -67,7 +67,7 @@ class RegisterUserHandler extends BaseHandler
     protected function ReadParams() : void
     {
         $this->nick = $this->ReadStringParam(self::PARAM_NICK);
-        $this->email = $this->ReadEmailParam(self::PARAM_EMAIL);
+        $this->email = self::ReadEmailParam(self::PARAM_EMAIL);
         $this->password = $this->ReadStringParam(self::PARAM_PASS);
         $this->confirmpassword = $this->ReadStringParam(self::PARAM_CONFIRMPASS);
         $this->regMsg = $this->ReadStringParam(self::PARAM_REGMSG);        

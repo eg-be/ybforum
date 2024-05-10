@@ -53,7 +53,7 @@ class ResetPasswordHandler extends BaseHandler
     protected function ReadParams() : void
     {
         // Try to read email or nick param as email first
-        $this->email = $this->ReadEmailParam(self::PARAM_EMAIL_OR_NICK);
+        $this->email = self::ReadEmailParam(self::PARAM_EMAIL_OR_NICK);
         if(!$this->email)
         {
             // try to read as nick

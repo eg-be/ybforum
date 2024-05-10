@@ -211,4 +211,25 @@ final class BaseHandlerTest extends TestCase
             $this->assertSame($value, $filtered);
         }
     }
+
+    public static function providerReadEmailParam() : array
+    {
+        return array(
+            // value            // fail
+            ['eg@mail.com',     false],
+            ['',                true],
+            [null,              true],
+        );
+    }        
+    #[DataProvider('providerReadEmailParam')]
+    public function testReadEmailParam(?string $value, bool $fail) {
+        $paramName = 'test';
+        $_POST[$paramName] = $value;
+        $filtered = BaseHandler::ReadEmailParam($paramName);
+        if($fail) {
+            $this->assertNull($filtered);
+        } else {
+            $this->assertSame($value, $filtered);
+        }
+    }    
 }

@@ -56,7 +56,7 @@ class UpdateEmailHandler extends BaseHandler
     protected function ReadParams() : void
     {
         // Read params
-        $this->newEmail = $this->ReadEmailParam(self::PARAM_NEWEMAIL);
+        $this->newEmail = self::ReadEmailParam(self::PARAM_NEWEMAIL);
     }
     
     protected function ValidateParams() : void

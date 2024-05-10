@@ -64,7 +64,7 @@ abstract class BaseHandler
     }
     
     /**
-     * Reads client IP address from INPUT_SERVER REMOTE_ADDR using 
+     * Reads client IP address from _SERVER['REMOTE_ADDR'] using 
      * FILTER_VALIDATE_IP.
      * @return string or null if not a valid IP address.
      */
@@ -93,14 +93,14 @@ abstract class BaseHandler
     }
     
     /**
-     * Reads an email address from INPUT_POST using FILTER_VALIDATE_EMAIL.
+     * Reads an email address from $_POST using FILTER_VALIDATE_EMAIL.
      * @param string $paramName
      * @return string or null if value is not a valid email address.
      */
-    protected function ReadEmailParam(string $paramName) : ?string
+    public static function ReadEmailParam(string $paramName) : ?string
     {
         assert(!empty($paramName));
-        $email = trim(filter_input(INPUT_POST, $paramName, FILTER_VALIDATE_EMAIL));
+        $email = trim(filter_var($_POST[$paramName], FILTER_VALIDATE_EMAIL));
         if(!$email)
         {
             return null;
