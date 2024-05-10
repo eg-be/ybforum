@@ -57,7 +57,7 @@ class ContactHandler extends BaseHandler
     {
         $this->email = self::ReadEmailParam(self::PARAM_EMAIL);
         $this->emailRepeat = self::ReadEmailParam(self::PARAM_EMAIL_REPEAT);
-        $this->msg = $this->ReadStringParam(self::PARAM_MSG);        
+        $this->msg = self::ReadStringParam(self::PARAM_MSG);        
         
         if(CaptchaV3Config::CAPTCHA_VERIFY)
         {

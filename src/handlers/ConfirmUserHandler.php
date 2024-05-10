@@ -74,7 +74,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         }
         else
         {
-            $this->code = $this->ReadStringParam(ConfirmHandler::PARAM_CODE);
+            $this->code = self::ReadStringParam(ConfirmHandler::PARAM_CODE);
         }
     }
     

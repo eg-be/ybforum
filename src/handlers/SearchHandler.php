@@ -59,12 +59,12 @@ class SearchHandler extends BaseHandler
     
     protected function ReadParams() : void
     {
-        $this->m_searchString = $this->ReadStringParam(self::PARAM_SEARCH_STRING);
-        $this->m_searchNick = $this->ReadStringParam(self::PARAM_NICK);
-        $this->m_resultOffset = $this->ReadIntParam(self::PARAM_RESULT_OFFSET);
-        $this->m_sortField = $this->ReadStringParam(self::PARAM_SORT_FIELD);
-        $this->m_sortOrder = $this->ReadStringParam(self::PARAM_SORT_ORDER);
-        $noRepliesValue = $this->ReadStringParam(self::PARAM_NO_REPLIES);
+        $this->m_searchString = self::ReadStringParam(self::PARAM_SEARCH_STRING);
+        $this->m_searchNick = self::ReadStringParam(self::PARAM_NICK);
+        $this->m_resultOffset = self::ReadIntParam(self::PARAM_RESULT_OFFSET);
+        $this->m_sortField = self::ReadStringParam(self::PARAM_SORT_FIELD);
+        $this->m_sortOrder = self::ReadStringParam(self::PARAM_SORT_ORDER);
+        $noRepliesValue = self::ReadStringParam(self::PARAM_NO_REPLIES);
         if($noRepliesValue && $noRepliesValue === self::PARAM_NO_REPLIES)
         {
             $this->m_noReplies = true;

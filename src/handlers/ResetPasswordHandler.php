@@ -57,7 +57,7 @@ class ResetPasswordHandler extends BaseHandler
         if(!$this->email)
         {
             // try to read as nick
-            $this->nick = $this->ReadStringParam(self::PARAM_EMAIL_OR_NICK);
+            $this->nick = self::ReadStringParam(self::PARAM_EMAIL_OR_NICK);
         }
     }
     

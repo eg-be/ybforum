@@ -231,5 +231,72 @@ final class BaseHandlerTest extends TestCase
         } else {
             $this->assertSame($value, $filtered);
         }
+    }
+
+    public function testReadEmailParamNotExisting() 
+    {
+        $paramName = 'doesnotexist';
+        $filtered = BaseHandler::ReadEmailParam($paramName);
+        $this->assertNull($filtered);
+    }    
+
+    public static function providerReadIntParam() : array
+    {
+        return array(
+            // value            // fail
+            ['foobar',          true],
+            ['',                true],
+            [null,              true],
+            ['0',               false],
+            ['1230',            false],
+        );
+    }        
+    #[DataProvider('providerReadIntParam')]
+    public function testReadIntParam(?string $value, bool $fail) {
+        $paramName = 'test';
+        $_POST[$paramName] = $value;
+        $filtered = BaseHandler::ReadIntParam($paramName);
+        if($fail) {
+            $this->assertNull($filtered);
+        } else {
+            $this->assertEquals($value, $filtered);
+        }
+    }
+
+    public function testReadIntParamNotExistring() 
+    {
+        $paramName = 'doesnotexist';
+        $filtered = BaseHandler::ReadIntParam($paramName);
+        $this->assertNull($filtered);
+    }
+
+    public static function providerReadStringParam() : array
+    {
+        return array(
+            // value            // fail
+            ['foobar',          false],
+            ['',                true],
+            [null,              true],
+            ['0',               false],
+            ['1230',            false],
+        );
+    }        
+    #[DataProvider('providerReadStringParam')]
+    public function testReadStringParam(?string $value, bool $fail) {
+        $paramName = 'test';
+        $_POST[$paramName] = $value;
+        $filtered = BaseHandler::ReadStringParam($paramName);
+        if($fail) {
+            $this->assertNull($filtered);
+        } else {
+            $this->assertEquals($value, $filtered);
+        }
+    }
+
+    public function testReadStringParamNotExistring() 
+    {
+        $paramName = 'doesnotexist';
+        $filtered = BaseHandler::ReadStringParam($paramName);
+        $this->assertNull($filtered);
     }    
 }

@@ -66,10 +66,10 @@ class MigrateUserHandler extends BaseHandler
     protected function ReadParams() : void
     {
         // Read params
-        $this->nick = $this->ReadStringParam(self::PARAM_NICK);
-        $this->oldPassword = $this->ReadStringParam(self::PARAM_OLDPASS);
-        $this->newPassword = $this->ReadStringParam(self::PARAM_NEWPASS);
-        $this->confirmNewPassword = $this->ReadStringParam(self::PARAM_CONFIRMNEWPASS);
+        $this->nick = self::ReadStringParam(self::PARAM_NICK);
+        $this->oldPassword = self::ReadStringParam(self::PARAM_OLDPASS);
+        $this->newPassword = self::ReadStringParam(self::PARAM_NEWPASS);
+        $this->confirmNewPassword = self::ReadStringParam(self::PARAM_CONFIRMNEWPASS);
         $this->newEmail = self::ReadEmailParam(self::PARAM_NEWEMAIL);
     }
     

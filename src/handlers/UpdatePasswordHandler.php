@@ -58,8 +58,8 @@ class UpdatePasswordHandler extends BaseHandler
     protected function ReadParams() : void
     {
         // Read params
-        $this->newPassword = $this->ReadStringParam(self::PARAM_NEWPASS);
-        $this->confirmNewPassword = $this->ReadStringParam(self::PARAM_CONFIRMNEWPASS);
+        $this->newPassword = self::ReadStringParam(self::PARAM_NEWPASS);
+        $this->confirmNewPassword = self::ReadStringParam(self::PARAM_CONFIRMNEWPASS);
     }
     
     protected function ValidateParams() : void

@@ -70,17 +70,17 @@ class PostEntryHandler extends BaseHandler
     
     protected function ReadParams() : void
     {
-        $this->parentPostId = $this->ReadIntParam(self::PARAM_PARENTPOSTID);
-        $this->nick = $this->ReadStringParam(self::PARAM_NICK);
-        $this->password = $this->ReadStringParam(self::PARAM_PASS);
-        $this->title = $this->ReadStringParam(self::PARAM_TITLE);
-        $this->content = $this->ReadStringParam(self::PARAM_CONTENT);
+        $this->parentPostId = self::ReadIntParam(self::PARAM_PARENTPOSTID);
+        $this->nick = self::ReadStringParam(self::PARAM_NICK);
+        $this->password = self::ReadStringParam(self::PARAM_PASS);
+        $this->title = self::ReadStringParam(self::PARAM_TITLE);
+        $this->content = self::ReadStringParam(self::PARAM_CONTENT);
         // Read optional values as plain-text and validate them later
         // so that we can send them back to the user on failure
-        $this->email = $this->ReadStringParam(self::PARAM_EMAIL);
-        $this->linkUrl = $this->ReadStringParam(self::PARAM_LINKURL);
-        $this->linkText = $this->ReadStringParam(self::PARAM_LINKTEXT);
-        $this->imgUrl = $this->ReadStringParam(self::PARAM_IMGURL);
+        $this->email = self::ReadStringParam(self::PARAM_EMAIL);
+        $this->linkUrl = self::ReadStringParam(self::PARAM_LINKURL);
+        $this->linkText = self::ReadStringParam(self::PARAM_LINKTEXT);
+        $this->imgUrl = self::ReadStringParam(self::PARAM_IMGURL);
     }
     
     protected function ValidateParams() : void

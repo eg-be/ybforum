@@ -93,19 +93,36 @@ abstract class BaseHandler
     }
     
     /**
+     * Read a single value from an array, using filter_var_array.
+     * Ensure that the returned result is either valid, or null.
+     * The returned result is trimmed.
+     * @param array $input Array to search for the value
+     * @param string $paramName Array key to search for the value
+     * @param int $filterId one of the filter_var_array filters to apply
+     */
+    private static function ReadParamToString(array $input, string $paramName, int $filterId)
+    {
+        assert(!empty($paramName));
+        $filter = filter_var_array($input, array(
+            $paramName => $filterId
+            ), true);
+        if($filter === false 
+            || is_null($filter[$paramName]) 
+            || $filter[$paramName] === false 
+            || strlen($filter[$paramName]) === 0) {
+            return null;
+        }
+        return trim($filter[$paramName]);
+    }
+
+    /**
      * Reads an email address from $_POST using FILTER_VALIDATE_EMAIL.
      * @param string $paramName
      * @return string or null if value is not a valid email address.
      */
     public static function ReadEmailParam(string $paramName) : ?string
     {
-        assert(!empty($paramName));
-        $email = trim(filter_var($_POST[$paramName], FILTER_VALIDATE_EMAIL));
-        if(!$email)
-        {
-            return null;
-        }
-        return $email;
+        return self::ReadParamToString($_POST, $paramName, FILTER_VALIDATE_EMAIL);
     }
     
     /**
@@ -164,23 +181,6 @@ abstract class BaseHandler
     }
     
     /**
-     * Reads an URL value from INPUT_POST using FILTER_VALIDATE_URL.
-     * Note that this does not enforce any protocol (ssh:// would be fine)
-     * @param string $paramName
-     * @return string or null. 
-     */
-    protected function ReadUrlParam(string $paramName) : ?string
-    {
-        assert(!empty($paramName));
-        $url = trim(filter_input(INPUT_POST, $paramName, FILTER_VALIDATE_URL));
-        if(!$url)
-        {
-            return null;
-        }
-        return $url;
-    }
-    
-    /**
      * Throw InvalidArgumentException if $value is not an url address, 
      * and if it does not start with either 'http://' or 'https://'.
      * If $errMessage is null, the message for the InvalidArgumentException
@@ -215,19 +215,20 @@ abstract class BaseHandler
     }    
     
     /**
-     * Reads an int value from INPUT_POST using FILTER_VALIDATE_INT.
+     * Reads an int value from $_POST using FILTER_VALIDATE_INT.
      * @param string $paramName
-     * @return int or null.
+     * @return int or null or if no such param exist
      */
-    protected function ReadIntParam(string $paramName) : ?int
+    public static function ReadIntParam(string $paramName) : ?int
     {
         assert(!empty($paramName));
-        $value = filter_input(INPUT_POST, $paramName, FILTER_VALIDATE_INT);
-        if($value === FALSE)
-        {
+        $filter = filter_var_array($_POST, array(
+            $paramName => FILTER_VALIDATE_INT
+            ), true);
+        if($filter === false || is_null($filter[$paramName]) || $filter[$paramName] === false) {
             return null;
         }
-        return $value;
+        return $filter[$paramName];
     }
     
     /**
@@ -252,18 +253,9 @@ abstract class BaseHandler
      * @return string or null if no such parameter exists, or the value is 
      * empty.
      */
-    protected function ReadStringParam(string $paramName) : ?string
+    public static function ReadStringParam(string $paramName) : ?string
     {
-        assert(!empty($paramName));
-        $value = filter_input(INPUT_POST, $paramName, FILTER_UNSAFE_RAW);
-        if(!is_null($value))
-        {
-            $value = trim($value);
-        }
-        if(!$value)
-        {
-            return null;
-        }
+        $value = self::ReadParamToString($_POST, $paramName, FILTER_UNSAFE_RAW);
         return $value;
     }
     
