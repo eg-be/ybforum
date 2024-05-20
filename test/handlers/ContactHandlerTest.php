@@ -25,7 +25,7 @@ final class ContactHandlerTest extends TestCase
         $this->ch = new ContactHandler();
         $this->ch->SetMailer($this->mailer);
         $this->ch->SetLogger($this->logger);
-        print_r($_SERVER);
+        print('REMOTE_ADDR: ' . $_SERVER['REMOTE_ADDR']);
     }
 
     public function testConstruct()
