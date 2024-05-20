@@ -25,7 +25,8 @@ final class ContactHandlerTest extends TestCase
         $this->ch = new ContactHandler();
         $this->ch->SetMailer($this->mailer);
         $this->ch->SetLogger($this->logger);
-        print('REMOTE_ADDR: ' . $_SERVER['REMOTE_ADDR']);
+        // dont know why we need to set this here, as it is already defined in bootstrap.php
+        $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
     }
 
     public function testConstruct()
