@@ -19,9 +19,9 @@ final class ContactHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->db = $this->createMock('ForumDb');
-        $this->mailer = $this->createMock('Mailer');
-        $this->logger = $this->createMock('Logger');
+        $this->db = $this->createMock(ForumDb::class);
+        $this->mailer = $this->createMock(Mailer::class);
+        $this->logger = $this->createMock(Logger::class);
         $this->ch = new ContactHandler();
         $this->ch->SetMailer($this->mailer);
         $this->ch->SetLogger($this->logger);
@@ -84,6 +84,15 @@ final class ContactHandlerTest extends TestCase
         $_POST[ContactHandler::PARAM_MSG] = 'hello';
         $_POST[ContactHandler::PARAM_EMAIL] = 'a@bar.com';
         $_POST[ContactHandler::PARAM_EMAIL_REPEAT] = 'a@bar.com';
+
+        // make the db return a fake admin-user
+        $admin = $this->createMock(User::class);
+        $admin->method('GetEmail')->willReturn('admin@1898.ch');
+        $this->db->method('GetAdminUsers')->willReturn(array($admin));
+
+        // 
+        $this->mailer->method('SendAdminContactMessage')->willReturn(true);
+
         $this->ch->HandleRequest($this->db);
     }
 }

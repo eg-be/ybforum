@@ -95,16 +95,22 @@ class ContactHandler extends BaseHandler
 
     protected function HandleRequestImpl(ForumDb $db) : void
     {
-        $logger = $this->GetLogger($db);
+        if(is_null($this->logger))
+        {
+            $this->logger = new Logger($db);
+        }
         // try to log what we have received
-        $logger->LogMessage(LogType::LOG_CONTACT_FORM_SUBMITTED, 'Mail: ' . $this->email . '; Msg: ' . $this->msg);
+        $this->logger->LogMessage(LogType::LOG_CONTACT_FORM_SUBMITTED, 'Mail: ' . $this->email . '; Msg: ' . $this->msg);
 
         // Send a mail to all admins
-        $mailer = $this->GetMailer();
+        if(is_null($this->mailer))
+        {
+            $this->mailer = new Mailer();
+        }
         $admins = $db->GetAdminUsers();
         foreach($admins as $admin)
         {
-            if(!$mailer->SendAdminContactMessage($this->email, $this->msg, $admin->GetEmail()))
+            if(!$this->mailer->SendAdminContactMessage($this->email, $this->msg, $admin->GetEmail()))
             {
                 // Fail
                 throw new InvalidArgumentException(self::MSG_SENDING_CONTACTMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
@@ -127,7 +133,7 @@ class ContactHandler extends BaseHandler
         return $this->msg;
     }
     
-    private function GetLogger(ForumDb $db) : Logger
+/*    private function GetLogger(ForumDb $db) : Logger
     {
         if(is_null($this->logger))
         {
@@ -143,7 +149,7 @@ class ContactHandler extends BaseHandler
             $this->mailer = new Mailer();
         }
         return $this->mailer;
-    }
+    }*/
 
     public function SetMailer(Mailer $mailer) : void
     {
