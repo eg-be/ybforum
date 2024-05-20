@@ -42,6 +42,7 @@ class ContactHandler extends BaseHandler
     const MSG_EMPTY = 'Nachricht kann nicht leer sein.';
     const MSG_EMAIL_DO_NOT_MATCH = 'Mailadressen stimmen nicht überein.';
     const MSG_SENDING_CONTACTMAIL_FAILED = 'Die Anfrage konnnte nicht gesendet werden.';
+    const MSG_NO_ADMINS_DEFINED = 'Kein Administrator definiert.';
     
     public function __construct()
     {
@@ -108,6 +109,10 @@ class ContactHandler extends BaseHandler
             $this->mailer = new Mailer();
         }
         $admins = $db->GetAdminUsers();
+        if(count($admins) === 0)
+        {
+            throw new InvalidArgumentException(self::MSG_NO_ADMINS_DEFINED, parent::MSGCODE_INTERNAL_ERROR);
+        }
         foreach($admins as $admin)
         {
             if(!$this->mailer->SendAdminContactMessage($this->email, $this->msg, $admin->GetEmail()))
@@ -132,24 +137,6 @@ class ContactHandler extends BaseHandler
     {
         return $this->msg;
     }
-    
-/*    private function GetLogger(ForumDb $db) : Logger
-    {
-        if(is_null($this->logger))
-        {
-            $this->logger = new Logger($db);
-        }
-        return $this->logger;
-    }
-
-    private function GetMailer() : GetMailer
-    {
-        if(is_null($this->mailer))
-        {
-            $this->mailer = new Mailer();
-        }
-        return $this->mailer;
-    }*/
 
     public function SetMailer(Mailer $mailer) : void
     {
