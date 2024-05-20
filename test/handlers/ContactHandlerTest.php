@@ -25,6 +25,7 @@ final class ContactHandlerTest extends TestCase
         $this->ch = new ContactHandler();
         $this->ch->SetMailer($this->mailer);
         $this->ch->SetLogger($this->logger);
+        print_r($_SERVER);
     }
 
     public function testConstruct()
