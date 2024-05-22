@@ -55,6 +55,8 @@ class PostEntryHandler extends BaseHandler
     {
         parent::__construct();
         
+        $this->logger = null;
+
         // Set defaults explicitly
         $this->parentPostId = null;
         $this->nick = null;
@@ -151,10 +153,13 @@ class PostEntryHandler extends BaseHandler
 
     protected function HandleRequestImpl(ForumDb $db) : void
     {
+        if(is_null($this->logger))
+        {
+            $this->logger = new Logger($db);
+        }
         // reset internal values
         $this->newPostId = null;
         // Authenticate
-        $logger = new Logger($db);
         // note: The AuthUser of the db will do loggin in case of failure
         $authFailReason = 0;
         $user = $db->AuthUser($this->nick, $this->password, $authFailReason);
@@ -183,7 +188,7 @@ class PostEntryHandler extends BaseHandler
             // Maybe log the data of the post that has been discarded
             if(YbForumConfig::LOG_EXT_POST_DATA_ON_AUTH_FAILURE)
             {
-                $logger->LogMessage(LogType::LOG_EXT_POST_DISCARDED, 
+                $this->logger->LogMessage(LogType::LOG_EXT_POST_DISCARDED, 
                         $authFailMsg, $this->GetExtendedLogMsg());
             }
             
@@ -192,7 +197,7 @@ class PostEntryHandler extends BaseHandler
         // Check if migration is required
         if($user->NeedsMigration())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user);
+            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user);
             throw new InvalidArgumentException(self::MSG_MIGRATION_REQUIRED, parent::MSGCODE_AUTH_FAIL);
         }
         if($this->parentPostId === 0)
@@ -256,10 +261,17 @@ class PostEntryHandler extends BaseHandler
         return $this->parentPostId;
     }
     
-    public function GetNewPostId() : int
+    public function GetNewPostId() : ?int
     {
         return $this->newPostId;
     }
+
+    public function SetLogger(Logger $logger) : void
+    {
+        $this->logger = $logger;
+    }
+
+    private ?Logger $logger;
     
     private ?int $parentPostId;
     private ?string $title;
