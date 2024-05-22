@@ -208,4 +208,58 @@ final class PostEntryHandlerTest extends TestCase
         $this->assertSame('foo-bar-link', $this->peh->GetLinkText());
         $this->assertSame('https://funny.com/img.jpg', $this->peh->GetImgUrl());
     }
+
+    public function testPostEntry_newThread()
+    {
+        // test that creating a new thread works
+        $_POST[PostEntryHandler::PARAM_PARENTPOSTID] = 0;
+        $_POST[PostEntryHandler::PARAM_NICK] = 'foo';
+        $_POST[PostEntryHandler::PARAM_PASS] = 'bar';
+        $_POST[PostEntryHandler::PARAM_TITLE] = 'title';
+        $_POST[PostEntryHandler::PARAM_CONTENT] = 'content';
+        $_POST[PostEntryHandler::PARAM_EMAIL] = 'hans@wurst.com';
+        $_POST[PostEntryHandler::PARAM_LINKURL] = 'http://foo.bar.com';
+        $_POST[PostEntryHandler::PARAM_LINKTEXT] = 'foo-bar-link';
+        $_POST[PostEntryHandler::PARAM_IMGURL] = 'https://funny.com/img.jpg';
+
+        // make the db return a valid user
+        $user = $this->createMock(User::class);
+        $user->method('NeedsMigration')->willReturn(false);
+        $this->db->method('AuthUser')->with('foo', 'bar')->willReturn($user);
+
+        // expect that the db is called with the correct params
+        $this->db->expects($this->once())->method('CreateThread')
+            ->with($user, 'title', 'content', 'hans@wurst.com',
+                    'http://foo.bar.com', 'foo-bar-link', 'https://funny.com/img.jpg',
+                    '13.13.13.13'
+        );
+        $this->peh->HandleRequest($this->db);
+    }
+
+    public function testPostEntry_reply()
+    {
+        // test that creating a new thread works
+        $_POST[PostEntryHandler::PARAM_PARENTPOSTID] = 777;
+        $_POST[PostEntryHandler::PARAM_NICK] = 'foo';
+        $_POST[PostEntryHandler::PARAM_PASS] = 'bar';
+        $_POST[PostEntryHandler::PARAM_TITLE] = 'title';
+        $_POST[PostEntryHandler::PARAM_CONTENT] = 'content';
+        $_POST[PostEntryHandler::PARAM_EMAIL] = 'hans@wurst.com';
+        $_POST[PostEntryHandler::PARAM_LINKURL] = 'http://foo.bar.com';
+        $_POST[PostEntryHandler::PARAM_LINKTEXT] = 'foo-bar-link';
+        $_POST[PostEntryHandler::PARAM_IMGURL] = 'https://funny.com/img.jpg';
+
+        // make the db return a valid user
+        $user = $this->createMock(User::class);
+        $user->method('NeedsMigration')->willReturn(false);
+        $this->db->method('AuthUser')->with('foo', 'bar')->willReturn($user);
+
+        // expect that the db is called with the correct params
+        $this->db->expects($this->once())->method('CreateReplay')
+            ->with(777, $user, 'title', 'content', 'hans@wurst.com',
+                    'http://foo.bar.com', 'foo-bar-link', 'https://funny.com/img.jpg',
+                    '13.13.13.13'
+        );
+        $this->peh->HandleRequest($this->db);
+    }    
 }
