@@ -56,11 +56,15 @@ class RegisterUserHandler extends BaseHandler
     {
         parent::__construct();
         
+        $this->logger = null;
+        $this->mailer = null;
+
         // Set defaults explicitly
         $this->nick = null;
         $this->password = null;
         $this->confirmpassword = null;
         $this->email = null;
+        $this->regMsg = null;
         $this->m_captchaVerifier = null;
     }
     
@@ -105,12 +109,15 @@ class RegisterUserHandler extends BaseHandler
 
     protected function HandleRequestImpl(ForumDb $db) : void
     {
-        $logger = new Logger($db);
+        if(is_null($this->logger))
+        {
+            $this->logger = new Logger($db);
+        }
         // Check that nick and email are unique
         $userByNick = User::LoadUserByNick($db, $this->nick);
         if($userByNick)
         {
-            $logger->LogMessage(LogType::LOG_OPERATION_FAILED_NICK_NOT_UNIQUE, 
+            $this->logger->LogMessage(LogType::LOG_OPERATION_FAILED_NICK_NOT_UNIQUE, 
                     'Requested Nick: ' . $this->nick . ' already used in: ' . $userByNick->GetNick() . ' (' . $userByNick->GetId() . ')');
             throw new InvalidArgumentException(self::MSG_NICK_NOT_UNIQUE, 
                     parent::MSGCODE_BAD_PARAM);
@@ -118,12 +125,12 @@ class RegisterUserHandler extends BaseHandler
         $userByEmail = User::LoadUserByEmail($db, $this->email);
         if($userByEmail)
         {
-            $logger->LogMessage(LogType::LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE, 'Passed Email: ' . $this->email);
+            $this->logger->LogMessage(LogType::LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE, 'Passed Email: ' . $this->email);
             throw new InvalidArgumentException(self::MSG_EMAIL_NOT_UNIQUE, 
                     parent::MSGCODE_BAD_PARAM);
         }
         // Check that email is not blacklisted
-        self::ValidateEmailAgainstBlacklist($this->email, $db, $logger);
+        self::ValidateEmailAgainstBlacklist($this->email, $db, $this->logger);
         
         // Create the user and request a confirmation code 
         $user = $db->CreateNewUser($this->nick, $this->email, 
@@ -133,8 +140,11 @@ class RegisterUserHandler extends BaseHandler
                 $this->clientIpAddress);
 
         // Send a mail with the confirmation link
-        $mailer = new Mailer();
-        if(!$mailer->SendRegisterUserConfirmMessage($this->email, $this->nick, $confirmCode))
+        if(is_null($this->mailer))
+        {
+            $this->mailer = new Mailer();
+        }
+        if(!$this->mailer->SendRegisterUserConfirmMessage($this->email, $this->nick, $confirmCode))
         {
             // Remove the just created user
             $db->RemoveConfirmUserCode($user);
@@ -158,7 +168,30 @@ class RegisterUserHandler extends BaseHandler
     {
         return $this->regMsg;
     }
+
+    public function GetPassword() : ?string
+    {
+        return $this->password;
+    }
+
+    public function GetConfirmPassword() : ?string
+    {
+        return $this->confirmpassword;
+    }
+
+    public function SetMailer(Mailer $mailer) : void
+    {
+        $this->mailer = $mailer;
+    }
+
+    public function SetLogger(Logger $logger) : void
+    {
+        $this->logger = $logger;
+    }    
     
+    private ?Logger $logger;
+    private ?Mailer $mailer;
+
     private ?string $nick;
     private ?string $password;
     private ?string $confirmpassword;
