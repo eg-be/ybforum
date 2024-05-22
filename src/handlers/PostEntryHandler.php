@@ -106,10 +106,11 @@ class PostEntryHandler extends BaseHandler
                     .  ' ist kein gültiger Link. Links müssen mit https://'
                     . ' (oder http://) beginnen.');
         }
-        if(($this->linkUrl && !$this->linkText) || ($this->linkText && !$this->linkText))
+        if(($this->linkUrl && !$this->linkText) || ($this->linkText && !$this->linkUrl))
         {
             throw new InvalidArgumentException('Wird ein URL Link angegeben '
-                    . 'muss auch ein Linktext angegeben werden (und umgekehrt).');
+                    . 'muss auch ein Linktext angegeben werden (und umgekehrt).', 
+                    self::MSGCODE_BAD_PARAM);
         }
         if($this->imgUrl)
         {
