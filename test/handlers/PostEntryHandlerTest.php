@@ -24,6 +24,8 @@ final class PostEntryHandlerTest extends TestCase
         $this->peh->SetLogger($this->logger);
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
+        // must always reset all previously set $_POST entries
+        $_POST = array();
     }
 
     public function testConstruct()
