@@ -123,5 +123,39 @@ final class PostEntryHandlerTest extends TestCase
         $this->expectExceptionMessage('Wird ein URL Link angegeben muss auch ein Linktext angegeben werden (und umgekehrt).');
         $this->expectExceptionCode(PostEntryHandler::MSGCODE_BAD_PARAM);
         $this->peh->HandleRequest($this->db);
-    }    
+    }
+
+    public function testValidateImgUrl() 
+    {
+        // test that we really validate the passed img url as a http-url
+        $_POST[PostEntryHandler::PARAM_PARENTPOSTID] = 0;
+        $_POST[PostEntryHandler::PARAM_NICK] = 'foo';
+        $_POST[PostEntryHandler::PARAM_PASS] = 'bar';
+        $_POST[PostEntryHandler::PARAM_TITLE] = 'abc';
+        $_POST[PostEntryHandler::PARAM_IMGURL] = 'ftp://foobar/bla.jpg';
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Der Wert ftp://foobar/bla.jpg ist keine gültige Bild URL.');
+        $this->expectExceptionCode(PostEntryHandler::MSGCODE_BAD_PARAM);
+        $this->peh->HandleRequest($this->db);
+    }
+
+    public function testPostEntry_migrationRequired()
+    {
+        // test that if a user needs migration, the corresponding exception is thrown
+        $_POST[PostEntryHandler::PARAM_PARENTPOSTID] = 0;
+        $_POST[PostEntryHandler::PARAM_NICK] = 'foo';
+        $_POST[PostEntryHandler::PARAM_PASS] = 'bar';
+        $_POST[PostEntryHandler::PARAM_TITLE] = 'abc';
+
+        // make the db return a user that needs to migrate
+        $user = $this->createMock(User::class);
+        $user->method('NeedsMigration')->willReturn(true);
+        $this->db->method('AuthUser')->with('foo', 'bar')->willReturn($user);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(PostEntryHandler::MSG_MIGRATION_REQUIRED);
+        $this->expectExceptionCode(PostEntryHandler::MSGCODE_AUTH_FAIL);
+        $this->peh->HandleRequest($this->db);
+    }
 }
