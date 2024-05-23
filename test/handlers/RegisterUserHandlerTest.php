@@ -85,17 +85,28 @@ final class RegisterUserHandlerTest extends TestCase
         $_POST[RegisterUserHandler::PARAM_PASS] = 'password';
         $_POST[RegisterUserHandler::PARAM_CONFIRMPASS] = 'password';
 
-        $this->assertTrue(false);
-        // todo: re-write the static user code, so that it just forwards the call
-        // to a method of the ForumDb, what will allow us mocking things
-        // and then one day remove all the static stuff
-        //$user = $this->createMock(User::class);
-        //$user->method('LoadUserByNick')->willReturn($user);
-        //$this->db->method('AuthUser')->with('foo', 'bar')->willReturn($user);
+        $user = $this->createMock(User::class);
+        $this->db->method('LoadUserByNick')->with('nickname')->willReturn($user);
 
-//        $this->expectException(InvalidArgumentException::class);
-//        $this->expectExceptionMessage(RegisterUserHandler::MSG_NICK_NOT_UNIQUE);
-//        $this->expectExceptionCode(RegisterUserHandler::MSGCODE_BAD_PARAM);
-        //$this->ruh->HandleRequest($this->db);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(RegisterUserHandler::MSG_NICK_NOT_UNIQUE);
+        $this->expectExceptionCode(RegisterUserHandler::MSGCODE_BAD_PARAM);
+        $this->ruh->HandleRequest($this->db);
     }
+
+    public function testRegisterUser_emailNotUnique()
+    {
+        $_POST[RegisterUserHandler::PARAM_NICK] = 'nickname';
+        $_POST[RegisterUserHandler::PARAM_EMAIL] = 'a@bar.com';
+        $_POST[RegisterUserHandler::PARAM_PASS] = 'password';
+        $_POST[RegisterUserHandler::PARAM_CONFIRMPASS] = 'password';
+
+        $user = $this->createMock(User::class);
+        $this->db->method('LoadUserByEmail')->with('a@bar.com')->willReturn($user);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(RegisterUserHandler::MSG_EMAIL_NOT_UNIQUE);
+        $this->expectExceptionCode(RegisterUserHandler::MSGCODE_BAD_PARAM);
+        $this->ruh->HandleRequest($this->db);
+    }    
 }
