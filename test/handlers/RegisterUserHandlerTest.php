@@ -85,17 +85,93 @@ final class RegisterUserHandlerTest extends TestCase
         $_POST[RegisterUserHandler::PARAM_PASS] = 'password';
         $_POST[RegisterUserHandler::PARAM_CONFIRMPASS] = 'password';
 
-        $this->assertTrue(false);
-        // todo: re-write the static user code, so that it just forwards the call
-        // to a method of the ForumDb, what will allow us mocking things
-        // and then one day remove all the static stuff
-        //$user = $this->createMock(User::class);
-        //$user->method('LoadUserByNick')->willReturn($user);
-        //$this->db->method('AuthUser')->with('foo', 'bar')->willReturn($user);
+        $user = $this->createMock(User::class);
+        $this->db->method('LoadUserByNick')->with('nickname')->willReturn($user);
 
-//        $this->expectException(InvalidArgumentException::class);
-//        $this->expectExceptionMessage(RegisterUserHandler::MSG_NICK_NOT_UNIQUE);
-//        $this->expectExceptionCode(RegisterUserHandler::MSGCODE_BAD_PARAM);
-        //$this->ruh->HandleRequest($this->db);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(RegisterUserHandler::MSG_NICK_NOT_UNIQUE);
+        $this->expectExceptionCode(RegisterUserHandler::MSGCODE_BAD_PARAM);
+        $this->ruh->HandleRequest($this->db);
+    }
+
+    public function testRegisterUser_emailNotUnique()
+    {
+        $_POST[RegisterUserHandler::PARAM_NICK] = 'nickname';
+        $_POST[RegisterUserHandler::PARAM_EMAIL] = 'a@bar.com';
+        $_POST[RegisterUserHandler::PARAM_PASS] = 'password';
+        $_POST[RegisterUserHandler::PARAM_CONFIRMPASS] = 'password';
+
+        $user = $this->createMock(User::class);
+        $this->db->method('LoadUserByEmail')->with('a@bar.com')->willReturn($user);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(RegisterUserHandler::MSG_EMAIL_NOT_UNIQUE);
+        $this->expectExceptionCode(RegisterUserHandler::MSGCODE_BAD_PARAM);
+        $this->ruh->HandleRequest($this->db);
+    }
+
+    public function testRegisterUser_emailTestedForBlacklist()
+    {
+        // todo: fixme, testing would be easier if we use composition over inheritance
+        // especially for these static helper methods from the base-class that are called from inside this
+        $this->markTestSkipped('todo');
+    }
+
+    public function testRegisterUser_userCreatedConfirmCodeSent()
+    {
+        $_POST[RegisterUserHandler::PARAM_NICK] = 'nickname';
+        $_POST[RegisterUserHandler::PARAM_EMAIL] = 'a@bar.com';
+        $_POST[RegisterUserHandler::PARAM_PASS] = 'password';
+        $_POST[RegisterUserHandler::PARAM_CONFIRMPASS] = 'password';
+
+        $user = $this->createMock(User::class);
+        $this->db->method('CreateNewUser')->with('nickname', 'a@bar.com')->willReturn($user);
+        $this->db->method('RequestConfirmUserCode')->with($user, 'password', 'a@bar.com')->willReturn('the-confirm-code');
+        $this->mailer->method('SendRegisterUserConfirmMessage')->with('a@bar.com', 'nickname', 'the-confirm-code')->willReturn(true);
+
+        // just ensure that all the mocked methods have been called
+        // as we expect them to work, the user would have been created then
+        $this->db->expects($this->once())->method('CreateNewUser')
+            ->with('nickname', 'a@bar.com');
+        $this->db->expects($this->once())->method('RequestConfirmUserCode')
+            ->with($user, 'password', 'a@bar.com');
+        $this->mailer->expects($this->once())->method('SendRegisterUserConfirmMessage')
+            ->with('a@bar.com', 'nickname', 'the-confirm-code');
+
+        $this->ruh->HandleRequest($this->db);
+    }
+
+    public function testRegisterUser_confirmCodeSendFailsUserDeleted()
+    {
+        // if the confirm code cannot be sent the user must be deleted again
+        // as it can never ever be activated
+        $_POST[RegisterUserHandler::PARAM_NICK] = 'nickname';
+        $_POST[RegisterUserHandler::PARAM_EMAIL] = 'a@bar.com';
+        $_POST[RegisterUserHandler::PARAM_PASS] = 'password';
+        $_POST[RegisterUserHandler::PARAM_CONFIRMPASS] = 'password';
+
+        $user = $this->createMock(User::class);
+        $this->db->method('CreateNewUser')->with('nickname', 'a@bar.com')->willReturn($user);
+        $this->db->method('RequestConfirmUserCode')->with($user, 'password', 'a@bar.com')->willReturn('the-confirm-code');
+        $this->mailer->method('SendRegisterUserConfirmMessage')->with('a@bar.com', 'nickname', 'the-confirm-code')->willReturn(false);
+
+        // just ensure that all the mocked methods have been called
+        // as we expect them to work, the user would have been created then
+        $this->db->expects($this->once())->method('CreateNewUser')
+            ->with('nickname', 'a@bar.com');
+        $this->db->expects($this->once())->method('RequestConfirmUserCode')
+            ->with($user, 'password', 'a@bar.com');
+        $this->mailer->expects($this->once())->method('SendRegisterUserConfirmMessage')
+            ->with('a@bar.com', 'nickname', 'the-confirm-code');
+        $this->db->expects($this->once())->method('RemoveConfirmUserCode')
+            ->with($user);
+        $this->db->expects($this->once())->method('DeleteUser')
+            ->with($user);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(RegisterUserHandler::MSG_SENDING_CONFIRMMAIL_FAILED);
+        $this->expectExceptionCode(RegisterUserHandler::MSGCODE_INTERNAL_ERROR);
+
+        $this->ruh->HandleRequest($this->db);
     }
 }
