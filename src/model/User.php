@@ -25,6 +25,31 @@
 class User
 {
     /**
+     * Create an instance from the passed values. Comes in handy for testing without database
+     */
+    public static function CreateUser(int $iduser, string $nick, ?string $email, int $admin, int $active, 
+        string $registration_ts, ?string $registration_msg, ?string $confirmation_ts, 
+        ?string $password, ?string $old_passwd) : User
+    {
+        $ref = new ReflectionClass(User::class);
+        $ctor = $ref->getConstructor();
+        $ctor->setAccessible(true);
+        $user = $ref->newInstanceWithoutConstructor();
+        $ref->getProperty('iduser')->setValue($user, $iduser);
+        $ref->getProperty('nick')->setValue($user, $nick);
+        $ref->getProperty('email')->setValue($user, $email);
+        $ref->getProperty('admin')->setValue($user, $admin);
+        $ref->getProperty('active')->setValue($user, $active);
+        $ref->getProperty('registration_ts')->setValue($user, $registration_ts);
+        $ref->getProperty('registration_msg')->setValue($user, $registration_msg);
+        $ref->getProperty('confirmation_ts')->setValue($user, $confirmation_ts);
+        $ref->getProperty('password')->setValue($user, $password);
+        $ref->getProperty('old_passwd')->setValue($user, $old_passwd);
+        $ctor->invoke($user);
+        return $user;
+    }
+
+    /**
      * Looks up a row in user_table matching passed $userId in field iduser.
      * If such an entry is found, a User object is created and returned. NULL
      * is returned if no matching entry is found.
@@ -34,22 +59,7 @@ class User
      */        
     public static function LoadUserById(ForumDb $db, int $userId) :?User
     {
-        assert($userId > 0);
-        
-        $query = 'SELECT iduser, nick, email, admin, active, '
-                . 'registration_ts, registration_msg, '
-                . 'confirmation_ts, '
-                . 'password, old_passwd '
-                . 'FROM user_table '
-                . 'WHERE iduser = :iduser';
-        $stmt = $db->prepare($query);
-        $stmt->execute(array(':iduser' => $userId));
-        $user = $stmt->fetchObject(User::class);
-        if($user === false)
-        {
-            $user = null;
-        }
-        return $user;        
+        return $db->LoadUserById($userId);
     }
     
     
@@ -63,19 +73,7 @@ class User
      */    
     public static function LoadUserByNick(ForumDb $db, string $nick) :?User
     {
-        assert(!empty($nick));
-
-        $query = 'SELECT iduser '
-                . 'FROM user_table '
-                . 'WHERE nick = :nick';
-        $stmt = $db->prepare($query);
-        $stmt->execute(array(':nick' => $nick));
-        $result = $stmt->fetch();
-        if($result === false)
-        {
-            return null;
-        }
-        return User::LoadUserById($db, $result['iduser']);
+        return $db->LoadUserByNick($nick);
     }
     
     /**
@@ -88,19 +86,7 @@ class User
      */    
     public static function LoadUserByEmail(ForumDb $db, string $email) :?User
     {
-        assert(!empty($email));
-
-        $query = 'SELECT iduser '
-                . 'FROM user_table '
-                . 'WHERE email = :email';
-        $stmt = $db->prepare($query);
-        $stmt->execute(array(':email' => $email));
-        $result = $stmt->fetch();
-        if($result === false)
-        {
-            return null;
-        }
-        return User::LoadUserById($db, $result['iduser']);
+        return $db->LoadUserByEmail($email);
     }
     
     /**
