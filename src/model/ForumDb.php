@@ -1433,6 +1433,90 @@ class ForumDb extends PDO
     }
     
     /**
+     * Looks up a row in user_table matching passed $userId in field iduser.
+     * If such an entry is found, a User object is created and returned. NULL
+     * is returned if no matching entry is found.
+     * @param int $userId Must match field iduser.
+     * @return ?User or null.
+     * @throws Exception If a database operation fails.
+     */
+    public function LoadUserById(int $userId) : ?User
+    {
+        assert($userId > 0);
+        
+        $query = 'SELECT iduser, nick, email, admin, active, '
+                . 'registration_ts, registration_msg, '
+                . 'confirmation_ts, '
+                . 'password, old_passwd '
+                . 'FROM user_table '
+                . 'WHERE iduser = :iduser';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array(':iduser' => $userId));
+        $user = $stmt->fetchObject(User::class);
+        if($user === false)
+        {
+            $user = null;
+        }
+        return $user;                
+    }
+
+    /**
+     * Looks up a row in user_table matching passed $nick in field nick.
+     * If such an entry is found, a User object is created and returned. NULL
+     * is returned if no matching entry is found.
+     * @param string $nick Must match field nick.
+     * @return User or null.
+     * @throws Exception If a database operation fails.
+     */    
+    public function LoadUserByNick(string $nick) :?User
+    {
+        assert(!empty($nick));
+
+        $query = 'SELECT iduser, nick, email, admin, active, '
+                . 'registration_ts, registration_msg, '
+                . 'confirmation_ts, '
+                . 'password, old_passwd '
+                . 'FROM user_table '
+                . 'WHERE nick = :nick';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array(':nick' => $nick));
+        $user = $stmt->fetchObject(User::class);
+        if($user === false)
+        {
+            $user = null;
+        }
+        return $user;
+    }
+    
+    /**
+     * Looks up a row in user_table matching passed $email in field email.
+     * If such an entry is found, a User object is created and returned. NULL
+     * is returned if no matching entry is found.
+     * @param string $email Must match field email.
+     * @return User or null.
+     * @throws Exception If a database operation fails.
+     */    
+    public function LoadUserByEmail(string $email) :?User
+    {
+        assert(!empty($email));
+
+        $query = 'SELECT iduser, nick, email, admin, active, '
+                . 'registration_ts, registration_msg, '
+                . 'confirmation_ts, '
+                . 'password, old_passwd '
+                . 'FROM user_table '
+                . 'WHERE email = :email';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array(':email' => $email));
+        $user = $stmt->fetchObject(User::class);
+        if($user === false)
+        {
+            $user = null;
+        }
+        return $user;
+    }    
+
+    /**
      * @param array values
      * @throws InvalidArgumentException If one of the values
      * is empty or contains only whitespaces

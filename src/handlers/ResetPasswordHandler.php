@@ -45,6 +45,9 @@ class ResetPasswordHandler extends BaseHandler
     {
         parent::__construct();
         
+        $this->logger = null;
+        $this->mailer = null;
+
         // Set defaults explicitly
         $this->email = null;
         $this->nick = null;
@@ -53,11 +56,11 @@ class ResetPasswordHandler extends BaseHandler
     protected function ReadParams() : void
     {
         // Try to read email or nick param as email first
-        $this->email = $this->ReadEmailParam(self::PARAM_EMAIL_OR_NICK);
+        $this->email = self::ReadEmailParam(self::PARAM_EMAIL_OR_NICK);
         if(!$this->email)
         {
             // try to read as nick
-            $this->nick = $this->ReadStringParam(self::PARAM_EMAIL_OR_NICK);
+            $this->nick = self::ReadStringParam(self::PARAM_EMAIL_OR_NICK);
         }
     }
     
@@ -72,16 +75,19 @@ class ResetPasswordHandler extends BaseHandler
     
     protected function HandleRequestImpl(ForumDb $db) : void
     {
-        $logger = new Logger($db);
+        if(is_null($this->logger))
+        {
+            $this->logger = new Logger($db);
+        }
         // First: Check if there is a matching user:
         $user = null;
         if($this->nick)
         {
-            $user = User::LoadUserByNick($db, $this->nick);
+            $user = $db->LoadUserByNick($this->nick);
         }
         if($this->email)
         {
-            $user = User::LoadUserByEmail($db, $this->email);
+            $user = $db->LoadUserByEmail($this->email);
         }
         if(!$user)
         {
@@ -94,40 +100,67 @@ class ResetPasswordHandler extends BaseHandler
             {
                 $passedValue = $this->email;
             }
-            $logger->LogMessage(LogType::LOG_OPERATION_FAILED_NO_MATCHING_NICK_OR_EMAIL, 'Passed nick or email: ' . $passedValue);
+            $this->logger->LogMessage(LogType::LOG_OPERATION_FAILED_NO_MATCHING_NICK_OR_EMAIL, 'Passed nick or email: ' . $passedValue);
             throw new InvalidArgumentException(self::MSG_UNKNOWN_EMAIL_OR_NICK, parent::MSGCODE_BAD_PARAM);
         }
         // we only need an email
         if(!$user->HasEmail())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_HAS_NO_EMAIL, $user);
+            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_HAS_NO_EMAIL, $user);
             throw new InvalidArgumentException(self::MSG_USER_HAS_NO_EMAIL, parent::MSGCODE_BAD_PARAM);
         }
         // A dummy never has an email, but check anyway
         if($user->IsDummyUser())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $user);
+            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $user);
             throw new InvalidArgumentException(self::MSG_DUMMY_USER, parent::MSGCODE_BAD_PARAM);            
         }
         // Do not allow requesting a password for an inactive user, exept this
         // is a user who needs to migrate:
         if(!$user->IsActive() && !$user->NeedsMigration())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_INACTIVE, $user);
+            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_INACTIVE, $user);
             throw new InvalidArgumentException(self::MSG_USER_INACTIVE, parent::MSGCODE_BAD_PARAM);
         }
         // okay, init the request to change the password
         $confirmationCode = $db->RequestPasswordResetCode($user, $this->clientIpAddress);
 
         // send the email to the address requested
-        $mailer = new Mailer();
-        if(!$mailer->SendResetPasswordMessage($user->GetEmail(), 
+        if(is_null($this->mailer))
+        {
+            $this->mailer = new Mailer();
+        }
+        if(!$this->mailer->SendResetPasswordMessage($user->GetEmail(), 
                 $user->GetNick(), $confirmationCode))
         {
+            $db->RemoveResetPasswordCode($user);
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
     }
+
+    public function GetNick() : ?string
+    {
+        return $this->nick;
+    }
+       
+    public function GetEmail() : ?string
+    {
+        return $this->email;
+    }
+
+    public function SetLogger(Logger $logger) : void
+    {
+        $this->logger = $logger;
+    }
+
+    public function SetMailer(Mailer $mailer) : void
+    {
+        $this->mailer = $mailer;
+    }
     
+    private ?Logger $logger;
+    private ?Mailer $mailer;
+
     private ?string $nick;
     private ?string $email;
 }

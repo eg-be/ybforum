@@ -55,6 +55,8 @@ class PostEntryHandler extends BaseHandler
     {
         parent::__construct();
         
+        $this->logger = null;
+
         // Set defaults explicitly
         $this->parentPostId = null;
         $this->nick = null;
@@ -70,48 +72,49 @@ class PostEntryHandler extends BaseHandler
     
     protected function ReadParams() : void
     {
-        $this->parentPostId = $this->ReadIntParam(self::PARAM_PARENTPOSTID);
-        $this->nick = $this->ReadStringParam(self::PARAM_NICK);
-        $this->password = $this->ReadStringParam(self::PARAM_PASS);
-        $this->title = $this->ReadStringParam(self::PARAM_TITLE);
-        $this->content = $this->ReadStringParam(self::PARAM_CONTENT);
+        $this->parentPostId = self::ReadIntParam(self::PARAM_PARENTPOSTID);
+        $this->nick = self::ReadStringParam(self::PARAM_NICK);
+        $this->password = self::ReadStringParam(self::PARAM_PASS);
+        $this->title = self::ReadStringParam(self::PARAM_TITLE);
+        $this->content = self::ReadStringParam(self::PARAM_CONTENT);
         // Read optional values as plain-text and validate them later
         // so that we can send them back to the user on failure
-        $this->email = $this->ReadStringParam(self::PARAM_EMAIL);
-        $this->linkUrl = $this->ReadStringParam(self::PARAM_LINKURL);
-        $this->linkText = $this->ReadStringParam(self::PARAM_LINKTEXT);
-        $this->imgUrl = $this->ReadStringParam(self::PARAM_IMGURL);
+        $this->email = self::ReadStringParam(self::PARAM_EMAIL);
+        $this->linkUrl = self::ReadStringParam(self::PARAM_LINKURL);
+        $this->linkText = self::ReadStringParam(self::PARAM_LINKTEXT);
+        $this->imgUrl = self::ReadStringParam(self::PARAM_IMGURL);
     }
     
     protected function ValidateParams() : void
     {
         // validate what we cannot accept null values for:
-        $this->ValidateIntParam($this->parentPostId, parent::MSG_GENERIC_INVALID);
-        $this->ValidateStringParam($this->nick, self::MSG_AUTH_FAIL);
-        $this->ValidateStringParam($this->password, self::MSG_AUTH_FAIL);
-        $this->ValidateStringParam($this->title, self::MSG_TITLE_TOO_SHORT, YbForumConfig::MIN_TITLE_LENGTH);
+        self::ValidateIntParam($this->parentPostId, parent::MSG_GENERIC_INVALID);
+        self::ValidateStringParam($this->nick, self::MSG_AUTH_FAIL);
+        self::ValidateStringParam($this->password, self::MSG_AUTH_FAIL);
+        self::ValidateStringParam($this->title, self::MSG_TITLE_TOO_SHORT, YbForumConfig::MIN_TITLE_LENGTH);
         
         // If the user passed an optional value that does not meet the specs,
         // notify the user (instead of discarding silently)
         if($this->email)
         {
-            $this->ValidateEmailValue($this->email, 'Der Wert ' . $this->email 
+            self::ValidateEmailValue($this->email, 'Der Wert ' . $this->email 
                     .  ' ist keine gültige Mailadresse.');
         }
         if($this->linkUrl)
         {
-            $this->ValidateHttpUrlValue($this->linkUrl, 'Der Wert ' . $this->linkUrl 
+            self::ValidateHttpUrlValue($this->linkUrl, 'Der Wert ' . $this->linkUrl 
                     .  ' ist kein gültiger Link. Links müssen mit https://'
                     . ' (oder http://) beginnen.');
         }
-        if(($this->linkUrl && !$this->linkText) || ($this->linkText && !$this->linkText))
+        if(($this->linkUrl && !$this->linkText) || ($this->linkText && !$this->linkUrl))
         {
             throw new InvalidArgumentException('Wird ein URL Link angegeben '
-                    . 'muss auch ein Linktext angegeben werden (und umgekehrt).');
+                    . 'muss auch ein Linktext angegeben werden (und umgekehrt).', 
+                    self::MSGCODE_BAD_PARAM);
         }
         if($this->imgUrl)
         {
-            $this->ValidateHttpUrlValue($this->imgUrl, 'Der Wert ' . $this->imgUrl 
+            self::ValidateHttpUrlValue($this->imgUrl, 'Der Wert ' . $this->imgUrl 
                     .  ' ist keine gültige Bild URL. Bild URLs müssen mit https://'
                     . ' (oder http://) beginnen und auf eine Bilddatei'
                     . ' verweisen', true);
@@ -151,10 +154,13 @@ class PostEntryHandler extends BaseHandler
 
     protected function HandleRequestImpl(ForumDb $db) : void
     {
+        if(is_null($this->logger))
+        {
+            $this->logger = new Logger($db);
+        }
         // reset internal values
         $this->newPostId = null;
         // Authenticate
-        $logger = new Logger($db);
         // note: The AuthUser of the db will do loggin in case of failure
         $authFailReason = 0;
         $user = $db->AuthUser($this->nick, $this->password, $authFailReason);
@@ -183,7 +189,7 @@ class PostEntryHandler extends BaseHandler
             // Maybe log the data of the post that has been discarded
             if(YbForumConfig::LOG_EXT_POST_DATA_ON_AUTH_FAILURE)
             {
-                $logger->LogMessage(LogType::LOG_EXT_POST_DISCARDED, 
+                $this->logger->LogMessage(LogType::LOG_EXT_POST_DISCARDED, 
                         $authFailMsg, $this->GetExtendedLogMsg());
             }
             
@@ -192,7 +198,7 @@ class PostEntryHandler extends BaseHandler
         // Check if migration is required
         if($user->NeedsMigration())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user);
+            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user);
             throw new InvalidArgumentException(self::MSG_MIGRATION_REQUIRED, parent::MSGCODE_AUTH_FAIL);
         }
         if($this->parentPostId === 0)
@@ -256,10 +262,17 @@ class PostEntryHandler extends BaseHandler
         return $this->parentPostId;
     }
     
-    public function GetNewPostId() : int
+    public function GetNewPostId() : ?int
     {
         return $this->newPostId;
     }
+
+    public function SetLogger(Logger $logger) : void
+    {
+        $this->logger = $logger;
+    }
+
+    private ?Logger $logger;
     
     private ?int $parentPostId;
     private ?string $title;

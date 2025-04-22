@@ -64,13 +64,13 @@ abstract class BaseHandler
     }
     
     /**
-     * Reads client IP address from INPUT_SERVER REMOTE_ADDR using 
+     * Reads client IP address from _SERVER['REMOTE_ADDR'] using 
      * FILTER_VALIDATE_IP.
      * @return string or null if not a valid IP address.
      */
-    protected function ReadClientIpParam() :?string
+    public static function ReadClientIpParam() :?string
     {
-        $clientIp = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
+        $clientIp = filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
         if(!$clientIp)
         {
             return null;
@@ -80,11 +80,11 @@ abstract class BaseHandler
     
     /**
      * Throws InvalidArgumentException with MSG_INVALID_CLIENT_IPADDRESS if
-     * $value is not a IP address
+     * $value is not a IP address or null
      * @param ?string $value
      * @throws InvalidArgumentException
      */
-    protected function ValidateClientIpValue(?string $value) : void
+    public static function ValidateClientIpValue(?string $value) : void
     {
         if(!$value || filter_var($value, FILTER_VALIDATE_IP) === false)
         {
@@ -93,19 +93,36 @@ abstract class BaseHandler
     }
     
     /**
-     * Reads an email address from INPUT_POST using FILTER_VALIDATE_EMAIL.
+     * Read a single value from an array, using filter_var_array.
+     * Ensure that the returned result is either valid, or null.
+     * The returned result is trimmed.
+     * @param array $input Array to search for the value
+     * @param string $paramName Array key to search for the value
+     * @param int $filterId one of the filter_var_array filters to apply
+     */
+    private static function ReadParamToString(array $input, string $paramName, int $filterId)
+    {
+        assert(!empty($paramName));
+        $filter = filter_var_array($input, array(
+            $paramName => $filterId
+            ), true);
+        if($filter === false 
+            || is_null($filter[$paramName]) 
+            || $filter[$paramName] === false 
+            || strlen($filter[$paramName]) === 0) {
+            return null;
+        }
+        return trim($filter[$paramName]);
+    }
+
+    /**
+     * Reads an email address from $_POST using FILTER_VALIDATE_EMAIL.
      * @param string $paramName
      * @return string or null if value is not a valid email address.
      */
-    protected function ReadEmailParam(string $paramName) : ?string
+    public static function ReadEmailParam(string $paramName) : ?string
     {
-        assert(!empty($paramName));
-        $email = trim(filter_input(INPUT_POST, $paramName, FILTER_VALIDATE_EMAIL));
-        if(!$email)
-        {
-            return null;
-        }
-        return $email;
+        return self::ReadParamToString($_POST, $paramName, FILTER_VALIDATE_EMAIL);
     }
     
     /**
@@ -116,7 +133,7 @@ abstract class BaseHandler
      * @param string $errMessage
      * @throws InvalidArgumentException
      */
-    protected function ValidateEmailValue(?string $value, string $errMessage = null) : void
+    public static function ValidateEmailValue(?string $value, ?string $errMessage = null) : void
     {
         if(!$value || filter_var($value, FILTER_VALIDATE_EMAIL) === false)
         {
@@ -136,7 +153,7 @@ abstract class BaseHandler
      * @param Logger $logger
      * @throws InvalidArgumentException
      */
-    protected function ValidateEmailAgainstBlacklist(string $email, ForumDb $db, 
+    public static function ValidateEmailAgainstBlacklist(string $email, ForumDb $db, 
             Logger $logger) : void
     {
         $mailOnBlacklistExactly = $db->IsEmailOnBlacklistExactly($email);
@@ -164,23 +181,6 @@ abstract class BaseHandler
     }
     
     /**
-     * Reads an URL value from INPUT_POST using FILTER_VALIDATE_URL.
-     * Note that this does not enforce any protocol (ssh:// would be fine)
-     * @param string $paramName
-     * @return string or null. 
-     */
-    protected function ReadUrlParam(string $paramName) : ?string
-    {
-        assert(!empty($paramName));
-        $url = trim(filter_input(INPUT_POST, $paramName, FILTER_VALIDATE_URL));
-        if(!$url)
-        {
-            return null;
-        }
-        return $url;
-    }
-    
-    /**
      * Throw InvalidArgumentException if $value is not an url address, 
      * and if it does not start with either 'http://' or 'https://'.
      * If $errMessage is null, the message for the InvalidArgumentException
@@ -189,7 +189,7 @@ abstract class BaseHandler
      * @param string $errMessage
      * @throws InvalidArgumentException
      */
-    protected function ValidateHttpUrlValue(?string $value, string $errMessage = null, 
+    public static function ValidateHttpUrlValue(?string $value, ?string $errMessage = null, 
             bool $requirePath = false) : void
     {
         if(!$errMessage)
@@ -215,29 +215,30 @@ abstract class BaseHandler
     }    
     
     /**
-     * Reads an int value from INPUT_POST using FILTER_VALIDATE_INT.
+     * Reads an int value from $_POST using FILTER_VALIDATE_INT.
      * @param string $paramName
-     * @return int or null.
+     * @return int or null or if no such param exist
      */
-    protected function ReadIntParam(string $paramName) : ?int
+    public static function ReadIntParam(string $paramName) : ?int
     {
         assert(!empty($paramName));
-        $value = filter_input(INPUT_POST, $paramName, FILTER_VALIDATE_INT);
-        if($value === FALSE)
-        {
+        $filter = filter_var_array($_POST, array(
+            $paramName => FILTER_VALIDATE_INT
+            ), true);
+        if($filter === false || is_null($filter[$paramName]) || $filter[$paramName] === false) {
             return null;
         }
-        return $value;
+        return $filter[$paramName];
     }
     
     /**
      * Throws an InvalidArgumentException with passed $errorMsg if 
-     * $value is not an int value.
-     * @param type $value
-     * @param type $errorMsg
+     * $value is null
+     * @param ?int $value
+     * @param string $errorMsg
      * @throws InvalidArgumentException
      */
-    protected function ValidateIntParam($value, $errorMsg) : void
+    public static function ValidateIntParam(?int $value, string $errorMsg) : void
     {
         assert(!empty($errorMsg));
         if(!is_int($value))
@@ -252,34 +253,25 @@ abstract class BaseHandler
      * @return string or null if no such parameter exists, or the value is 
      * empty.
      */
-    protected function ReadStringParam(string $paramName) : ?string
+    public static function ReadStringParam(string $paramName) : ?string
     {
-        assert(!empty($paramName));
-        $value = filter_input(INPUT_POST, $paramName, FILTER_UNSAFE_RAW);
-        if(!is_null($value))
-        {
-            $value = trim($value);
-        }
-        if(!$value)
-        {
-            return null;
-        }
+        $value = self::ReadParamToString($_POST, $paramName, FILTER_UNSAFE_RAW);
         return $value;
     }
     
     /**
      * Throws an InvalidArgumentException with passed $errorMsg if $value 
-     * is not a string, or empty, or if $minLength is set to a value > 0, is 
+     * is null or empty, or if $minLength is set to a value > 0 and $value is 
      * shorted than $minLength
-     * @param type $value
+     * @param ?string $value
      * @param string $errorMsg
      * @param int $minLength
      * @throws InvalidArgumentException
      */
-    protected function ValidateStringParam($value, string $errorMsg, int $minLength = 0) : void
+    public static function ValidateStringParam(?string $value, string $errorMsg, int $minLength = 0) : void
     {
         assert(!empty($errorMsg));
-        if(!is_string($value) || !$value)
+        if(!is_string($value) || !trim($value))
         {
             throw new InvalidArgumentException($errorMsg, self::MSGCODE_BAD_PARAM);
         }
@@ -305,13 +297,13 @@ abstract class BaseHandler
         try
         {
             // Always need client-ip
-            $this->clientIpAddress = $this->ReadClientIpParam();
+            $this->clientIpAddress = self::ReadClientIpParam();
             
             // First read all values, so they can be written back to the user
             // in case of failue
             $this->ReadParams();
             // and now validate
-            $this->ValidateClientIpValue($this->clientIpAddress);
+            self::ValidateClientIpValue($this->clientIpAddress);
             $this->ValidateParams();
             
             // And handle. remember an eventually occuring exception

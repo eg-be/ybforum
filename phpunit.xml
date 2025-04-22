@@ -20,5 +20,20 @@
         <testsuite name="helpers">
             <directory>test/helpers</directory>
         </testsuite>
+        <testsuite name="handlers">
+            <directory>test/handlers</directory>
+        </testsuite>
     </testsuites>
+
+    <!-- the following is for code-coverage. Run using (note some escaping on the phpunit cmd) -->
+    <!-- export XDEBUG_MODE=coverage -->
+    <!-- ./phpunit.phar \-\-coverage-html reports/-->
+    <source>
+        <include>
+            <directory suffix=".php">src/handlers</directory>
+            <directory suffix=".php">src/helpers</directory>
+            <directory suffix=".php">src/model</directory>
+            <directory suffix=".php">src/pageparts</directory>
+        </include>
+    </source>    
 </phpunit>

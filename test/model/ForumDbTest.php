@@ -1214,4 +1214,74 @@ final class ForumDbTest extends BaseTest
         $this->assertTrue($adminUser->IsAdmin());
         $this->assertTrue($adminUser->IsActive());
     }
+
+    public static function providerLoadUser() : array
+    {
+        $admin = User::CreateUser(1, 'admin', 'eg-be@dev',
+            1, 1, '2020-03-30 14:30:05', 'initial admin-user',
+            '2020-03-30 14:30:15', 
+            '$2y$10$n.ZGkNoS3BvavZ3qcs50nelspmTfM3dh8ZLSZ5JXfBvW9rQ6i..VC', null);
+        $old = User::CreateUser(10, 'old-user', 'old-user@dev',
+            0, 0, '2017-12-31 15:21:27', 'needs migration',
+            null,
+            null, '895e1aace5e13c683491bb26dd7453bf');
+        $deactivated = User::CreateUser(50, 'deactivated', 'deactivated@dev',
+            0, 0, '2021-03-30 14:30:05', 'deactivated by admin',
+            '2021-03-30 14:30:15',
+            '$2y$10$U2nazhRAEhg1JkXu2Uls0.pnH5Wi9QsyXbmoJMBC2KNYGPN8fezfe', null);
+        
+        return array(
+            [$admin],
+            [$old],
+            [$deactivated]
+        );
+    }    
+
+    #[DataProvider('providerLoadUser')]
+    public function testLoadUserById(User $ref) : void
+    {
+        $user = $this->db->LoadUserById($ref->GetId());
+        $this->assertNotNull($user);
+        $this->assertObjectEquals($ref, $user);
+    }
+
+    public function testLoadUserByIdFail() : void
+    {
+        $this->assertNull($this->db->LoadUserById(-1));
+        $this->assertNull($this->db->LoadUserById(12));
+    }
+
+    #[DataProvider('providerLoadUser')]
+    public function testLoadUserByNick(User $ref) : void
+    {
+        $user = $this->db->LoadUserByNick($ref->GetNick());
+        $this->assertNotNull($user);
+        $this->assertObjectEquals($ref, $user);
+    }    
+
+    public function testLoadUserByNickFail() : void
+    {
+        $this->assertNull($this->db->LoadUserByNick('nope'));
+        $this->assertNull($this->db->LoadUserByNick(' admin'));
+
+        // it seems whitespaces get trimmed at the end of a prepared statement:
+        $this->assertNotNull($this->db->LoadUserByNick('admin '));
+    }
+
+    #[DataProvider('providerLoadUser')]
+    public function testLoadUserByEmail(User $ref) : void
+    {
+        $user = $this->db->LoadUserByEmail($ref->GetEmail());
+        $this->assertNotNull($user);
+        $this->assertObjectEquals($ref, $user);
+    }
+
+    public function testLoadUserByEmailFail() : void
+    {
+        $this->assertNull($this->db->LoadUserByEmail('nope@foo'));
+        $this->assertNull($this->db->LoadUserByEmail(' eg-be@dev'));
+        
+        // it seems whitespaces get trimmed at the end of a prepared statement:
+        $this->assertNotNull($this->db->LoadUserByEmail('eg-be@dev '));        
+    }
 }

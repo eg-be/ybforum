@@ -48,6 +48,7 @@ class UpdateEmailHandler extends BaseHandler
         parent::__construct();
         
         $this->user = $user;
+        $this->mailer = null;
         
         // Set defaults explicitly
         $this->newEmail = null;
@@ -56,12 +57,12 @@ class UpdateEmailHandler extends BaseHandler
     protected function ReadParams() : void
     {
         // Read params
-        $this->newEmail = $this->ReadEmailParam(self::PARAM_NEWEMAIL);
+        $this->newEmail = self::ReadEmailParam(self::PARAM_NEWEMAIL);
     }
     
     protected function ValidateParams() : void
     {
-        $this->ValidateEmailValue($this->newEmail);
+        self::ValidateEmailValue($this->newEmail);
         // Email must be different from current email
         if($this->user->GetEmail() === $this->newEmail)
         {
@@ -73,7 +74,7 @@ class UpdateEmailHandler extends BaseHandler
     {
         // Check that this email address is not already used within some other 
         // account
-        $user = User::LoadUserByEmail($db, $this->newEmail);
+        $user = $db->LoadUserByEmail($this->newEmail);
         if($user)
         {
             throw new InvalidArgumentException(self::MSG_EMAIL_NOT_UNIQUE, parent::MSGCODE_BAD_PARAM);
@@ -84,9 +85,13 @@ class UpdateEmailHandler extends BaseHandler
                 $this->newEmail, $this->clientIpAddress);
 
         // send the email to the address requested
-        $mailer = new Mailer();
-        if(!$mailer->SendUpdateEmailConfirmMessage($this->newEmail, $this->user->GetNick(), $confirmCode))
+        if(is_null($this->mailer))
         {
+            $this->mailer = new Mailer();
+        }
+        if(!$this->mailer->SendUpdateEmailConfirmMessage($this->newEmail, $this->user->GetNick(), $confirmCode))
+        {
+            $db->RemoveUpdateEmailCode($this->user);
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
     }
@@ -95,7 +100,14 @@ class UpdateEmailHandler extends BaseHandler
     {
         return $this->newEmail;
     }
-        
+
+    public function SetMailer(Mailer $mailer) : void
+    {
+        $this->mailer = $mailer;
+    }
+    
+    private ?Mailer $mailer;
+
     private ?string $newEmail;
 
     private User $user;
