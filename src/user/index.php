@@ -24,6 +24,7 @@ require_once __DIR__.'/../model/ForumDb.php';
 require_once __DIR__.'/../helpers/ErrorHandler.php';
 require_once __DIR__.'/../handlers/UpdatePasswordHandler.php';
 require_once __DIR__.'/../handlers/UpdateEmailHandler.php';
+require_once __DIR__.'/../pageparts/Logo.php';
 
 try
 {
@@ -104,15 +105,20 @@ catch(Exception $ex)
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     </head>
     <body>
-        <div  style="max-width: 800px; margin: auto;">
-            <?php 
-            ob_start();
-            include __DIR__.'/../logo.php';
-            $logoStr = ob_get_clean();
-            $logoStr = str_replace('src="', 'src="../', $logoStr);
-            echo $logoStr;
-            ?>
-        </div>
+    <?php
+        try
+        {
+            $logo = new Logo();
+            // replace path, need to go up one dir more..
+            $htmlDiv = $logo->renderHtmlDiv();
+            $htmlDiv = str_replace('src="', 'src="../', $htmlDiv);
+            echo $htmlDiv;
+        }
+        catch(Exception $ex)
+        {
+            ErrorHandler::OnException($ex);
+        }
+        ?>
         <div class="fullwidthcenter generictitle">Stammposter-Bereich von <span class="fitalic"><?php echo $user->GetNick(); ?></span></div>    
         <hr>
         <div class="fullwidthcenter">
