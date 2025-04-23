@@ -12,8 +12,8 @@ dumpextensions="sql.dump"
 compressextension="gz"
 
 # db parameters
-host="server09.hostfactory.ch"
-port="3306"
+host="db.server.com"
+port="1234"
 # Note: If we dump using a user, who has not the right to EXECUTE
 # stored procedures, the sp will not get dumped.
 # so, for now use the user who has all access to the db
