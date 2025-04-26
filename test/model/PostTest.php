@@ -3,7 +3,6 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__.'/../BaseTest.php';
-require_once __DIR__.'/PostMock.php';
 require_once __DIR__.'/../../src/model/Post.php';
 
 
@@ -39,7 +38,7 @@ final class PostTest extends BaseTest
     public static function providerPostMock() : array
     {
         // one simple post with no parent:
-        $p8 = new PostMock(8, 8, null,
+        $p8 = self::mockPost(8, 8, null,
             'user2', 102, 
             'Thread 8', 'The quick brown fox jumps over the lazy dog',
             1, 0,
@@ -51,7 +50,7 @@ final class PostTest extends BaseTest
             '::1'
         );
         // one with a parent:
-        $p21 = new PostMock(21, 3, 20,
+        $p21 = self::mockPost(21, 3, 20,
             'user2', 102, 
             'Thread 3 - A1-1', 'The quick brown fox jumps over the lazy dog',
             3, 2,
@@ -64,7 +63,7 @@ final class PostTest extends BaseTest
         );
 
         // and one with all fields set:
-        $p30 = new PostMock(30, 5, 5,
+        $p30 = self::mockPost(30, 5, 5,
             'user1', 101, 
             'Thread 5 - A1', 'The quick brown fox jumps over the lazy dog',
             2, 1,
@@ -77,7 +76,7 @@ final class PostTest extends BaseTest
         );        
         
         // and a hidden-one
-        $p40 = new PostMock(40, 8, 8,
+        $p40 = self::mockPost(40, 8, 8,
             'user3', 103, 
             'Thread 8 - A1', 'The quick brown fox jumps over the lazy dog',
             2, 1,
@@ -112,7 +111,7 @@ final class PostTest extends BaseTest
 
     public function testHidden() : void
     {
-        $hidden = new PostMock(40, 8, 8,
+        $hidden = self::mockPost(40, 8, 8,
             'user3', 103, 
             'Thread 8 - A1', 'The quick brown fox jumps over the lazy dog',
             2, 1,
@@ -124,7 +123,7 @@ final class PostTest extends BaseTest
             '::1'
         );
         $this->assertTrue($hidden->IsHidden());
-        $visible = new PostMock(40, 8, 8,
+        $visible = self::mockPost(40, 8, 8,
             'user3', 103, 
             'Thread 8 - A1', 'The quick brown fox jumps over the lazy dog',
             2, 1,
@@ -140,7 +139,7 @@ final class PostTest extends BaseTest
 
     public function testParentPostId()  : void
     {
-        $answer = new PostMock(40, 8, 85,
+        $answer = self::mockPost(40, 8, 85,
             'user3', 103, 
             'Thread 8 - A1', 'The quick brown fox jumps over the lazy dog',
             2, 1,
@@ -153,7 +152,7 @@ final class PostTest extends BaseTest
         );
         $this->assertTrue($answer->HasParentPost());
         $this->assertSame(85, $answer->GetParentPostId());
-        $top = new PostMock(8, 8, null,
+        $top = self::mockPost(8, 8, null,
             'user2', 102, 
             'Thread 8', 'The quick brown fox jumps over the lazy dog',
             1, 0,
@@ -170,7 +169,7 @@ final class PostTest extends BaseTest
 
     public function testContent() : void
     {
-        $empty = new PostMock(40, 8, 85,
+        $empty = self::mockPost(40, 8, 85,
             'user3', 103, 
             'Thread 8 - A1', null,
             2, 1,
@@ -184,7 +183,7 @@ final class PostTest extends BaseTest
         $this->assertFalse($empty->HasContent());
         $this->assertNull($empty->GetContent());
 
-        $hasContent = new PostMock(40, 8, 85,
+        $hasContent = self::mockPost(40, 8, 85,
             'user3', 103, 
             'Thread 8 - A1', 'foobar',
             2, 1,
@@ -201,7 +200,7 @@ final class PostTest extends BaseTest
 
     public function testOldPost() : void
     {
-        $old = new PostMock(40, 8, 85,
+        $old = self::mockPost(40, 8, 85,
             'user3', 103, 
             'Thread 8 - A1', null,
             2, 1,
@@ -214,7 +213,7 @@ final class PostTest extends BaseTest
         );
         $this->assertTrue($old->IsOldPost());
         $this->assertSame(898, $old->GetOldPostNo());
-        $new = new PostMock(40, 8, 85,
+        $new = self::mockPost(40, 8, 85,
             'user3', 103, 
             'Thread 8 - A1', null,
             2, 1,
@@ -231,7 +230,7 @@ final class PostTest extends BaseTest
 
     public function testLink() : void
     {
-        $noLink = new PostMock(40, 8, 85,
+        $noLink = self::mockPost(40, 8, 85,
             'user3', 103, 
             'Thread 8 - A1', null,
             2, 1,
@@ -246,7 +245,7 @@ final class PostTest extends BaseTest
         $this->assertNull($noLink->GetLinkUrl());
         $this->assertFalse($noLink->HasLinkText());
         $this->assertNull($noLink->GetLinkText());
-        $withLink = new PostMock(40, 8, 85,
+        $withLink = self::mockPost(40, 8, 85,
             'user3', 103, 
             'Thread 8 - A1', null,
             2, 1,
@@ -265,7 +264,7 @@ final class PostTest extends BaseTest
 
     public function testImg() : void
     {
-        $withImg = new PostMock(40, 8, 85,
+        $withImg = self::mockPost(40, 8, 85,
             'user3', 103, 
             'Thread 8 - A1', null,
             2, 1,
@@ -278,7 +277,7 @@ final class PostTest extends BaseTest
         );
         $this->assertTrue($withImg->HasImgUrl());
         $this->assertSame('https://bar.com/foo.gif', $withImg->GetImgUrl());
-        $noImg = new PostMock(40, 8, 85,
+        $noImg = self::mockPost(40, 8, 85,
             'user3', 103, 
             'Thread 8 - A1', null,
             2, 1,
@@ -295,7 +294,7 @@ final class PostTest extends BaseTest
 
     public function testEmail() : void
     {
-        $withEmail = new PostMock(40, 8, 85,
+        $withEmail = self::mockPost(40, 8, 85,
             'user3', 103, 
             'Thread 8 - A1', null,
             2, 1,
@@ -308,7 +307,7 @@ final class PostTest extends BaseTest
         );
         $this->assertTrue($withEmail->HasEmail());
         $this->assertSame('me@mail.com', $withEmail->GetEmail());
-        $noEmail = new PostMock(40, 8, 85,
+        $noEmail = self::mockPost(40, 8, 85,
             'user3', 103, 
             'Thread 8 - A1', null,
             2, 1,

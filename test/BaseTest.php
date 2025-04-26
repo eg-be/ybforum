@@ -82,4 +82,46 @@ class BaseTest extends TestCase
         $ctor->invoke($user);
         return $user;        
     }
+
+    /**
+     * Create an instance of Post using the passed values.
+     * Object is created using reflection and is an instance of User,
+     * so assertions like assertObjectEquals() can be used.
+     */
+    protected static function mockPost(int $idpost, int $idthread, 
+        ?int $parent_idpost, string $nick, int $iduser,
+        string $title, ?string $content,
+        int $rank, int $indent,
+        string $creation_ts,
+        ?string $email,
+        ?string $link_url, ?string $link_text, ?string $img_url,
+        ?int $old_no,
+        int $hidden,
+        string $ip_address) : Post
+    {
+
+        $ref = new ReflectionClass(Post::class);
+        $ctor = $ref->getConstructor();
+        $ctor->setAccessible(true);
+        $post = $ref->newInstanceWithoutConstructor();
+        $ref->getProperty('idpost')->setValue($post, $idpost);
+        $ref->getProperty('idthread')->setValue($post, $idthread);
+        $ref->getProperty('parent_idpost')->setValue($post, $parent_idpost);
+        $ref->getProperty('nick')->setValue($post, $nick);
+        $ref->getProperty('iduser')->setValue($post, $iduser);
+        $ref->getProperty('title')->setValue($post, $title);
+        $ref->getProperty('content')->setValue($post, $content);
+        $ref->getProperty('rank')->setValue($post, $rank);
+        $ref->getProperty('indent')->setValue($post, $indent);
+        $ref->getProperty('creation_ts')->setValue($post, $creation_ts);
+        $ref->getProperty('email')->setValue($post, $email);
+        $ref->getProperty('link_url')->setValue($post, $link_url);
+        $ref->getProperty('link_text')->setValue($post, $link_text);
+        $ref->getProperty('img_url')->setValue($post, $img_url);
+        $ref->getProperty('old_no')->setValue($post, $old_no);
+        $ref->getProperty('hidden')->setValue($post, $hidden);
+        $ref->getProperty('ip_address')->setValue($post, $ip_address);
+        $ctor->invoke($post);
+        return $post;        
+    }    
 }

@@ -3,7 +3,6 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__.'/../BaseTest.php';
-require_once __DIR__.'/PostMock.php';
 require_once __DIR__.'/../../src/model/ForumDb.php';
 
 /**
@@ -196,7 +195,7 @@ final class ForumDbTest extends BaseTest
         // And check that the newly created threads / posts can be read back:
         $minPost = Post::LoadPost($this->db, $minPostId);
         $this->assertNotNull($minPost);
-        $minPostRef = new PostMock($minPostId, 
+        $minPostRef = self::mockPost($minPostId, 
             $minPost->GetThreadId(), // we cannot know the created thread-id, read from db
             null,
             $user->GetNick(), $user->GetId(),
@@ -213,7 +212,7 @@ final class ForumDbTest extends BaseTest
 
         $allPost = Post::LoadPost($this->db, $allPostId);
         $this->assertNotNull($allPost);
-        $allPostRef = new PostMock($allPostId, 
+        $allPostRef = self::mockPost($allPostId, 
             $allPost->GetThreadId(), // we cannot know the created thread-id, read from db
             null,
             $user->GetNick(), $user->GetId(),
@@ -273,7 +272,7 @@ final class ForumDbTest extends BaseTest
         // And check that the newly created posts can be read back:
         $minPost = Post::LoadPost($this->db, $minPostId);
         $this->assertNotNull($minPost);
-        $minPostRef = new PostMock($minPostId, 
+        $minPostRef = self::mockPost($minPostId, 
             $parentPost->GetThreadId(), // must be part of parent-thread
             $parentPost->GetId(),
             $user->GetNick(), $user->GetId(),
@@ -290,7 +289,7 @@ final class ForumDbTest extends BaseTest
 
         $allPost = Post::LoadPost($this->db, $allPostId);
         $this->assertNotNull($allPost);
-        $allPostRef = new PostMock($allPostId, 
+        $allPostRef = self::mockPost($allPostId, 
             $parentPost->GetThreadId(), // must be part of parent-thread            
             $parentPost->GetId(),
             $user->GetNick(), $user->GetId(),
