@@ -173,7 +173,7 @@ final class ForumDbTest extends BaseTest
     {
         $oldThreadCount = $this->db->GetThreadCount();
         $oldPostCount = $this->db->GetPostCount();
-        $user = User::LoadUserByNick($this->db, 'admin');
+        $user = $this->db->LoadUserByNick('admin');
         $this->assertNotNull($user);
         // create a new thread with the minimal required arguments
         $minPostId = $this->db->CreateThread($user, 'min-thread', 
@@ -251,7 +251,7 @@ final class ForumDbTest extends BaseTest
     public function testCreateReply() : void
     {
         $oldPostCount = $this->db->GetPostCount();
-        $user = User::LoadUserByNick($this->db, 'user2');
+        $user =$this->db->LoadUserByNick('user2');
         $this->assertNotNull($user);
         $parentPost = $this->db->LoadPost(26);
         $this->assertNotNull($parentPost);
@@ -338,7 +338,7 @@ final class ForumDbTest extends BaseTest
     #[DataProvider('providerInvalidParentPostId')]
     public function testCreateReplyFailsBecauseOfParent(int $parentPostId) : void
     {
-        $user = User::LoadUserByNick($this->db, 'user2');
+        $user =$this->db->LoadUserByNick('user2');
         $this->assertNotNull($user);
         $parentPost = $this->db->LoadPost($parentPostId);
         $this->assertNull($parentPost);
@@ -650,7 +650,7 @@ final class ForumDbTest extends BaseTest
     {
         // need a clean database, must work with a user awaiting confirmation
         self::createTestDatabase();
-        $user = User::LoadUserById($this->db, 52);
+        $user = $this->db->LoadUserById(52);
         $this->assertNotNull($user);
         $this->assertFalse($user->IsConfirmed());
         $this->assertFalse($user->IsActive());
@@ -691,7 +691,7 @@ final class ForumDbTest extends BaseTest
     {
         // create an entry and verify its created with the proper value
         $now = new DateTime();
-        $user = User::LoadUserById($this->db, 52);
+        $user = $this->db->LoadUserById(52);
         $this->assertNotNull($user);
         $code = $this->db->RequestPasswordResetCode($user, '::1');
         // verify returned value is in the db
@@ -723,8 +723,8 @@ final class ForumDbTest extends BaseTest
     {
         // create two codes: One that will expire in one minute
         // and one that has expired one minute ago
-        $user101 = User::LoadUserById($this->db, 101);
-        $user102 = User::LoadUserById($this->db, 102);
+        $user101 = $this->db->LoadUserById(101);
+        $user102 = $this->db->LoadUserById(102);
         $this->assertNotNull($user101);
         $this->assertNotNull($user102);
         $validCode = $this->db->RequestPasswordResetCode($user101, '::1');        
@@ -778,7 +778,7 @@ final class ForumDbTest extends BaseTest
     public function testRemoveResetPasswordCode() : void
     {
         // insert some entries, test they are removed
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);        
         $this->db->RequestPasswordResetCode($user101, '::1');
         $this->assertSame(1, $this->db->RemoveResetPasswordCode($user101));
@@ -791,7 +791,7 @@ final class ForumDbTest extends BaseTest
 
     public function testUpdateUserPassword() : void
     {
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);
         $this->db->UpdateUserPassword($user101, "foobar");
         // User must reflect the change immediately, reload must have been triggered by UpdateUserPassword
@@ -803,7 +803,7 @@ final class ForumDbTest extends BaseTest
     {
         // create an entry and verify its created with the proper value
         $now = new DateTime();
-        $user = User::LoadUserById($this->db, 52);
+        $user = $this->db->LoadUserById(52);
         $this->assertNotNull($user);
         $code = $this->db->RequestUpdateEmailCode($user, 
             'new-mail@mail.com', '::1');
@@ -838,8 +838,8 @@ final class ForumDbTest extends BaseTest
     {
         // create two codes: One that will expire in one minute
         // and one that has expired one minute ago
-        $user101 = User::LoadUserById($this->db, 101);
-        $user102 = User::LoadUserById($this->db, 102);
+        $user101 = $this->db->LoadUserById(101);
+        $user102 = $this->db->LoadUserById(102);
         $this->assertNotNull($user101);
         $this->assertNotNull($user102);
         $validCode = $this->db->RequestUpdateEmailCode($user101, 
@@ -899,7 +899,7 @@ final class ForumDbTest extends BaseTest
     public function testRemoveUpdateEmailCode() : void
     {
         // insert some entries, test they are removed
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);
         $this->db->RequestUpdateEmailCode($user101, 'new@mail', '::1');
         $this->assertSame(1, $this->db->RemoveUpdateEmailCode($user101));
@@ -912,7 +912,7 @@ final class ForumDbTest extends BaseTest
 
     public function testUpdateUserEmail() : void
     {
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);
         $this->db->UpdateUserEmail($user101, 'bla@mail');
         // note: User object must reflect the change without reloading
@@ -925,16 +925,16 @@ final class ForumDbTest extends BaseTest
         // rely on a test-database
         self::createTestDatabase();
         // activate one that is not active
-        $needsApproval = User::LoadUserById($this->db, 51);
+        $needsApproval = $this->db->LoadUserById(51);
         $this->assertNotNull($needsApproval);
         $this->assertFalse($needsApproval->IsActive());
         $this->db->ActivateUser($needsApproval);
         // must reload, see #21
-        $needsApproval = User::LoadUserById($this->db, 51);
+        $needsApproval = $this->db->LoadUserById(51);
         $this->assertTrue($needsApproval->IsActive());
 
         // activating one that is already active, does nothing
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);
         $this->assertTrue($user101->IsActive());
         $this->db->ActivateUser($user101);
@@ -942,7 +942,7 @@ final class ForumDbTest extends BaseTest
         $this->assertTrue($user101->IsActive());
 
         // Activating one with a deactivated reason, removes that reason
-        $deactivated = User::LoadUserById($this->db, 50);
+        $deactivated = $this->db->LoadUserById(50);
         $this->assertNotNull($deactivated);
         $this->assertFalse($deactivated->IsActive());
         $query = 'SELECT reason FROM user_deactivated_reason_table '
@@ -986,7 +986,7 @@ final class ForumDbTest extends BaseTest
         $admin->method('IsActive')->willReturn(true);
 
         // deactivate one that is active
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);
         $this->assertTrue($user101->IsActive());
         $this->db->DeactivateUser($user101, 'just for fun', $admin);
@@ -1043,7 +1043,7 @@ final class ForumDbTest extends BaseTest
         // rely on a test-database
         self::createTestDatabase();
         // promote one to an admin that is not yet
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);
         $this->assertFalse($user101->IsAdmin());
         $this->db->SetAdmin($user101, true);
@@ -1077,13 +1077,13 @@ final class ForumDbTest extends BaseTest
         // rely on a test-database
         self::createTestDatabase();
         // turn a user into a dummy
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);
         $this->assertFalse($user101->IsDummyUser());
         $this->db->MakeDummy($user101);
         $this->assertTrue($user101->IsDummyUser());
         // a dummy can be turned into a dummy over and over
-        $dummy = User::LoadUserById($this->db, 66);
+        $dummy = $this->db->LoadUserById(66);
         $this->assertNotNull($dummy);
         $this->assertTrue($dummy->IsDummyUser());
         $this->db->MakeDummy($dummy);
@@ -1110,11 +1110,11 @@ final class ForumDbTest extends BaseTest
         self::createTestDatabase();   
         // only users with 0 posts can be deleted
         // try to delete all users with zero posts
-        $user = User::LoadUserById($this->db, $userId);
+        $user = $this->db->LoadUserById($userId);
         $this->assertNotNull($user);
         $this->db->DeleteUser($user);
         // user must be gone by now
-        $this->assertNull(User::LoadUserById($this->db, $userId));
+        $this->assertNull($this->db->LoadUserById($userId));
 
         // check that deactivated_reason_table has been cleared:
         // (yes, is done by constraint of foreign key)

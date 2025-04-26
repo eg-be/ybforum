@@ -36,7 +36,7 @@ class PendingApprovalUserList
             $userActionValue = filter_input(INPUT_POST, self::PARAM_PENDINGAPPROVAL_ACTION, FILTER_UNSAFE_RAW);
             if($userId && $userActionValue)
             {
-                $user = User::LoadUserById($db, $userId);
+                $user = $db->LoadUserById($userId);
                 $logger = new Logger($db);
                 $mailer = new Mailer();
                 $sent = false;

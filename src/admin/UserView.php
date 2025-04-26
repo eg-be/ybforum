@@ -55,7 +55,7 @@ class UserView {
     {
         try
         {
-            $admin = User::LoadUserById($db, $adminUserId);
+            $admin = $db->LoadUserById($adminUserId);
             if(!($admin->IsAdmin() && $admin->IsActive()))
             {
                 throw new InvalidArgumentException('Admin user required');
@@ -92,7 +92,7 @@ class UserView {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if($userActionValue === self::VALUE_MAKEDUMMY && $this->m_userId)
         {
-            $user = User::LoadUserById($db, $this->m_userId);            
+            $user = $db->LoadUserById($this->m_userId);            
             $htmlStr = '<div class="actionConfirm">ACHTUNG: Durch diese Operation '
                     . 'wird der Stammposter (nahezu) unumkehrbar entfernt. Nur '
                     . 'sein Nick bleibt erhalten. Sicher dass der Stammposter '
@@ -106,7 +106,7 @@ class UserView {
         }
         else if($userActionValue === self::VALUE_CONFIRM_MAKE_DUMMY && $this->m_userId)
         {
-            $user = User::LoadUserById($db, $this->m_userId);
+            $user = $db->LoadUserById($this->m_userId);
             $db->MakeDummy($user);
             return '<div class="actionSucceeded">Benutzer ' . $user->GetId() . ' ist jetzt ein Dummy</div>';
         }
@@ -121,13 +121,13 @@ class UserView {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if($userActionValue === self::VALUE_DELETE && $this->m_userId)
         {
-            $user = User::LoadUserById($db, $this->m_userId);
+            $user = $db->LoadUserById($this->m_userId);
             $db->DeleteUser($user);
             return '<div class="actionSucceeded">Benutzer ' . $user->GetId() . ' gelöscht</div>';
         }
         else if($userActionValue === self::VALUE_CONFIRM_MAKE_DUMMY && $this->m_userId)
         {
-            $user = User::LoadUserById($db, $this->m_userId);
+            $user = $db->LoadUserById($this->m_userId);
             $db->MakeDummy($user);
             return '<div class="actionSucceeded">Benutzer ' . $user->GetId() . ' ist jetzt ein Dummy</div>';
         }
@@ -144,7 +144,7 @@ class UserView {
         if(($userActionValue === self::VALUE_SETADMIN || $userActionValue === self::VALUE_REMOVEADMIN) 
             && $this->m_userId)
         {
-            $user = User::LoadUserById($db, $this->m_userId);
+            $user = $db->LoadUserById($this->m_userId);
             if(!$user)
             {
                 throw new InvalidArgumentException('No user with id ' . $userId . 
@@ -172,7 +172,7 @@ class UserView {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if($userActionValue === self::VALUE_ACTIVATE && $this->m_userId)
         {
-            $user = User::LoadUserById($db, $this->m_userId);
+            $user = $db->LoadUserById($this->m_userId);
             if(!$user)
             {
                 throw new InvalidArgumentException('No user with id ' . $userId . 
@@ -188,7 +188,7 @@ class UserView {
             {
                 return '<div class="actionFailed">Es muss ein Grund angegeben werden</div>';
             }
-            $user = User::LoadUserById($db, $this->m_userId);
+            $user = $db->LoadUserById($this->m_userId);
             if(!$user)
             {
                 throw new InvalidArgumentException('No user with id ' . $userId . 
@@ -208,15 +208,15 @@ class UserView {
         $user = null;
         if($this->m_userId)
         {
-            $user = User::LoadUserById($db, $this->m_userId);
+            $user = $db->LoadUserById($this->m_userId);
         }
         else if($this->m_email)
         {
-            $user = User::LoadUserByEmail($db, $this->m_email);
+            $user = $db->LoadUserByEmail($this->m_email);
         }
         else
         {
-            $user = User::LoadUserByNick($db, $this->m_nick);
+            $user = $db->LoadUserByNick($this->m_nick);
         }
         return $user;        
     }

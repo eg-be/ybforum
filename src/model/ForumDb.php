@@ -287,7 +287,7 @@ class ForumDb extends PDO
         // log authentication stuff
         $logger = new Logger($this);
         
-        $user = User::LoadUserByNick($this, $nick);
+        $user = $this->LoadUserByNick($nick);
         if(!$user)
         {
             $logger->LogMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, 'Passed nick: ' . $nick);
@@ -464,12 +464,12 @@ class ForumDb extends PDO
             ?string $registrationMsg) : User
     {
         $this->validateNonEmpty([$nick, $email]);
-        $existingUser = User::LoadUserByNick($this, $nick);
+        $existingUser = $this->LoadUserByNick($nick);
         if(!is_null($existingUser))
         {
             throw new InvalidArgumentException('Nick  ' . $nick . ' already used');
         }
-        $existingUser = User::LoadUserByEmail($this, $email);
+        $existingUser = $this->LoadUserByEmail($email);
         if(!is_null($existingUser))
         {
             throw new InvalidArgumentException('Email  ' . $email . ' already used');
@@ -485,7 +485,7 @@ class ForumDb extends PDO
             ':registration_msg' => $registrationMsg
         ));
         $userId = $this->lastInsertId();
-        $user = User::LoadUserById($this, $userId);
+        $user = $this->LoadUserById($userId);
         $logger = new Logger($this);
         $logger->LogMessageWithUserId(LogType::LOG_USER_CREATED, $user);
         return $user;
@@ -598,7 +598,7 @@ class ForumDb extends PDO
         // If the code is expired, or we are requested to remove it, delete:
         if($codeExpired || $remove)
         {
-            $user = User::LoadUserById($this, $userId);
+            $user = $this->LoadUserById($userId);
             if($this->RemoveConfirmUserCode($user) !== 1)
             {
                 throw new Exception('Not exactly one row was deleted for used '
@@ -715,7 +715,7 @@ class ForumDb extends PDO
             $logger->LogMessageWithUserId(LogType::LOG_USER_REGISTRATION_CONFIRMED, $user);
         }
         // Update the passed User object that has been passed
-        $user = User::LoadUserById($this, $user->GetId());
+        $user = $this->LoadUserById($user->GetId());
     }
     
     /**
@@ -790,7 +790,7 @@ class ForumDb extends PDO
         // If the code is expired, or we are requested to remove it, delete:
         if($codeExpired || $remove)
         {
-            $user = User::LoadUserById($this, $userId);
+            $user = $this->LoadUserById($userId);
             if($this->RemoveResetPasswordCode($user) !== 1)
             {
                 throw new Exception('Not exactly one row was deleted for used '
@@ -844,7 +844,7 @@ class ForumDb extends PDO
         $logger = new Logger($this);
         $logger->LogMessageWithUserId(LogType::LOG_USER_PASSWORD_UPDATED, $user);
         // and reload the user-object
-        $user = User::LoadUserById($this, $user->GetId());
+        $user = $this->LoadUserById($user->GetId());
     }
     
     /**
@@ -920,7 +920,7 @@ class ForumDb extends PDO
         $codeExpired = !$this->IsDateWithinConfirmPeriod($requestDate);
         if($codeExpired || $remove)
         {
-            $user = User::LoadUserById($this, $userId);
+            $user = $this->LoadUserById($userId);
             if($this->RemoveUpdateEmailCode($user) !== 1)
             {
                 throw new Exception('Not exactly one row was deleted for used '
@@ -977,7 +977,7 @@ class ForumDb extends PDO
         $logger->LogMessageWithUserId(LogType::LOG_USER_EMAIL_UPDATED, $user, 'New Email: ' . $email);
 
         // and reload the user
-        $user = User::LoadUserById($this, $user->GetId());
+        $user = $this->LoadUserById($user->GetId());
     }
 
     /**
@@ -1021,7 +1021,7 @@ class ForumDb extends PDO
             $this->commit();
 
             // and reload the passed user
-            $user = User::LoadUserById($this, $user->GetId());
+            $user = $this->LoadUserById($user->GetId());
         }
         catch(Exception $e) {
             $this->rollBack();
@@ -1073,7 +1073,7 @@ class ForumDb extends PDO
             $this->commit();
 
             // and reload the passed user
-            $user = User::LoadUserById($this, $user->GetId());
+            $user = $this->LoadUserById($user->GetId());
         }
         catch(Exception $e) {
             $this->rollBack();
@@ -1172,7 +1172,7 @@ class ForumDb extends PDO
         );
 
         // and reload the passed user
-        $user = User::LoadUserById($this, $user->GetId());
+        $user = $this->LoadUserById($user->GetId());
     }
     
     /**
@@ -1215,7 +1215,7 @@ class ForumDb extends PDO
         $this->ClearDeactivationReason($user);
 
         // and reload the passed user
-        $user = User::LoadUserById($this, $user->GetId());
+        $user = $this->LoadUserById($user->GetId());
     }
     
     /**
@@ -1426,7 +1426,7 @@ class ForumDb extends PDO
         while($row = $stmt->fetch())
         {
             $userId = $row['iduser'];
-            $user = User::LoadUserById($this, $userId);
+            $user = $this->LoadUserById($userId);
             array_push($admins, $user);
         }
         return $admins;

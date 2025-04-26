@@ -51,7 +51,7 @@ try
     {
         // check that this adminuserid is still valid
         $db = new ForumDb(false);
-        $adminUser = User::LoadUserById($db, $_SESSION['adminuserid']);
+        $adminUser = $db->LoadUserById($_SESSION['adminuserid']);
         if(!($adminUser && $adminUser->IsActive() && $adminUser->IsAdmin()))
         {
             header('Location: login.php');

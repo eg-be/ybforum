@@ -60,74 +60,74 @@ final class UserTest extends BaseTest
     #[DataProvider('providerUserMock')]
     public function testLoadUserById(User $ref) : void
     {
-        $user = User::LoadUserById($this->db, $ref->GetId());
+        $user = $this->db->LoadUserById($ref->GetId());
         $this->assertNotNull($user);
         $this->assertObjectEquals($ref, $user);
     }
 
     public function testLoadUserByIdFail() : void
     {
-        $this->assertNull(User::LoadUserById($this->db, -1));
-        $this->assertNull(User::LoadUserById($this->db, 12));
+        $this->assertNull($this->db->LoadUserById(-1));
+        $this->assertNull($this->db->LoadUserById(12));
     }
 
     #[DataProvider('providerUserMock')]
     public function testLoadUserByNick(User $ref) : void
     {
-        $user = User::LoadUserByNick($this->db, $ref->GetNick());
+        $user =$this->db->LoadUserByNick($ref->GetNick());
         $this->assertNotNull($user);
         $this->assertObjectEquals($ref, $user);
     }    
 
     public function testLoadUserByNickFail() : void
     {
-        $this->assertNull(User::LoadUserByNick($this->db, 'nope'));
-        $this->assertNull(User::LoadUserByNick($this->db, ' admin'));
+        $this->assertNull($this->db->LoadUserByNick('nope'));
+        $this->assertNull($this->db->LoadUserByNick(' admin'));
 
         // it seems whitespaces get trimmed at the end of a prepared statement:
-        $this->assertNotNull(User::LoadUserByNick($this->db, 'admin '));
+        $this->assertNotNull($this->db->LoadUserByNick('admin '));
     }
 
     #[DataProvider('providerUserMock')]
     public function testLoadUserByEmail(User $ref) : void
     {
-        $user = User::LoadUserByEmail($this->db, $ref->GetEmail());
+        $user = $this->db->LoadUserByEmail($ref->GetEmail());
         $this->assertNotNull($user);
         $this->assertObjectEquals($ref, $user);
     }
 
     public function testLoadUserByEmailFail() : void
     {
-        $this->assertNull(User::LoadUserByEmail($this->db, 'nope@foo'));
-        $this->assertNull(User::LoadUserByEmail($this->db, ' eg-be@dev'));
+        $this->assertNull($this->db->LoadUserByEmail('nope@foo'));
+        $this->assertNull($this->db->LoadUserByEmail(' eg-be@dev'));
         
         // it seems whitespaces get trimmed at the end of a prepared statement:
-        $this->assertNotNull(User::LoadUserByEmail($this->db, 'eg-be@dev '));        
+        $this->assertNotNull($this->db->LoadUserByEmail('eg-be@dev '));        
     }
 
     public function testAuth() : void
     {
-        $admin = User::LoadUserById($this->db, 1);
+        $admin = $this->db->LoadUserById(1);
         $this->assertNotNull($admin);
         $this->assertTrue($admin->Auth('admin-pass'));
         $this->assertFalse($admin->Auth(' admin-pass'));
 
-        $oldUser = User::LoadUserById($this->db, 10);
+        $oldUser = $this->db->LoadUserById(10);
         $this->assertNotNull($oldUser);
         $this->assertFalse($oldUser->Auth('old-user-pass'));
 
-        $dummy = User::LoadUserById($this->db, 66);
+        $dummy = $this->db->LoadUserById(66);
         $this->assertNotNull($dummy);
         $this->assertFalse($dummy->Auth('dummy-pass'));
 
-        $inactive = User::LoadUserById($this->db, 51);
+        $inactive = $this->db->LoadUserById(51);
         $this->assertNotNull($inactive);
         $this->assertFalse($inactive->Auth('inactive-pass'));        
     }
 
     public function testOldAuth() : void
     {
-        $oldUser = User::LoadUserById($this->db, 10);
+        $oldUser = $this->db->LoadUserById(10);
         $this->assertNotNull($oldUser);
         $this->assertTrue($oldUser->OldAuth('old-user-pass'));
         $this->assertFalse($oldUser->OldAuth(' old-user-pass'));

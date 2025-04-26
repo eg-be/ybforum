@@ -25,46 +25,6 @@
 class User
 {
     /**
-     * Looks up a row in user_table matching passed $userId in field iduser.
-     * If such an entry is found, a User object is created and returned. NULL
-     * is returned if no matching entry is found.
-     * @param int $userId Must match field iduser.
-     * @return User or null.
-     * @throws Exception If a database operation fails.
-     */        
-    public static function LoadUserById(ForumDb $db, int $userId) :?User
-    {
-        return $db->LoadUserById($userId);
-    }
-    
-    
-    /**
-     * Looks up a row in user_table matching passed $nick in field nick.
-     * If such an entry is found, a User object is created and returned. NULL
-     * is returned if no matching entry is found.
-     * @param string $nick Must match field nick.
-     * @return User or null.
-     * @throws Exception If a database operation fails.
-     */    
-    public static function LoadUserByNick(ForumDb $db, string $nick) :?User
-    {
-        return $db->LoadUserByNick($nick);
-    }
-    
-    /**
-     * Looks up a row in user_table matching passed $email in field email.
-     * If such an entry is found, a User object is created and returned. NULL
-     * is returned if no matching entry is found.
-     * @param string $email Must match field email.
-     * @return User or null.
-     * @throws Exception If a database operation fails.
-     */    
-    public static function LoadUserByEmail(ForumDb $db, string $email) :?User
-    {
-        return $db->LoadUserByEmail($email);
-    }
-    
-    /**
      * Create an instance using one of the static methods. This constructor
      * will assert that valid values are set when it is invoked.
      */

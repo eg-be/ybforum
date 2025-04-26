@@ -114,7 +114,7 @@ class RegisterUserHandler extends BaseHandler
             $this->logger = new Logger($db);
         }
         // Check that nick and email are unique
-        $userByNick = User::LoadUserByNick($db, $this->nick);
+        $userByNick = $db->LoadUserByNick($this->nick);
         if($userByNick)
         {
             $this->logger->LogMessage(LogType::LOG_OPERATION_FAILED_NICK_NOT_UNIQUE, 
@@ -122,7 +122,7 @@ class RegisterUserHandler extends BaseHandler
             throw new InvalidArgumentException(self::MSG_NICK_NOT_UNIQUE, 
                     parent::MSGCODE_BAD_PARAM);
         }
-        $userByEmail = User::LoadUserByEmail($db, $this->email);
+        $userByEmail = $db->LoadUserByEmail($this->email);
         if($userByEmail)
         {
             $this->logger->LogMessage(LogType::LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE, 'Passed Email: ' . $this->email);
