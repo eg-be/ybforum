@@ -1356,7 +1356,7 @@ final class ForumDbTest extends BaseTest
         // reset to initial state
         BaseTest::createTestDatabase();
 
-        // Hide the part from 'A1-20 on of Thread 3
+        // Hide the part from 'Thread 3 A1-2' on of Thread 3
         $this->db->SetPostVisible(23, false);
 
         // assume that threadids are always increasing by one.
@@ -1399,4 +1399,92 @@ final class ForumDbTest extends BaseTest
         $this->assertEquals('Thread 3 - A2-1', $thread3[5]->GetTitle());
         $this->assertEquals(2, $thread3[5]->GetIndent());
     }
+
+    public function testLoadPostReplies() : void
+    {
+        // reset to initial state
+        BaseTest::createTestDatabase();
+
+        // top-level post 'Thread 1', has no children
+        $post_1 = $this->createMock(Post::class);
+        $post_1->method('GetId')->willReturn(1);
+        $post_1->method('GetThreadId')->willReturn(1);
+        $post_1->method('GetIndent')->willReturn(0);
+        $post_1->method('GetRank')->willReturn(1);
+
+        $replies_1 = $this->db->LoadPostReplies($post_1, false);
+        $this->assertEquals(0, sizeof($replies_1));
+
+        // top-level post 'Thread 3', has 7 (sub-) children
+        $post_3 = $this->createMock(Post::class);
+        $post_3->method('GetId')->willReturn(3);
+        $post_3->method('GetThreadId')->willReturn(3);
+        $post_3->method('GetIndent')->willReturn(0);
+        $post_3->method('GetRank')->willReturn(1);
+
+        $replies_3 = $this->db->LoadPostReplies($post_3, false);
+        $this->assertEquals(7, sizeof($replies_3));
+        $this->assertEquals('Thread 3 - A1', $replies_3[0]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-1', $replies_3[1]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2', $replies_3[2]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2-1', $replies_3[3]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-3', $replies_3[4]->GetTitle());
+        $this->assertEquals('Thread 3 - A2', $replies_3[5]->GetTitle());
+        $this->assertEquals('Thread 3 - A2-1', $replies_3[6]->GetTitle());
+
+        // only a smaller part of the answers
+        $post_20 = $this->createMock(Post::class);
+        $post_20->method('GetId')->willReturn(20);
+        $post_20->method('GetThreadId')->willReturn(3);
+        $post_20->method('GetIndent')->willReturn(1);
+        $post_20->method('GetRank')->willReturn(2);
+
+        $replies_20 = $this->db->LoadPostReplies($post_20, false);
+        $this->assertEquals(4, sizeof($replies_20));
+        $this->assertEquals('Thread 3 - A1-1', $replies_20[0]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2', $replies_20[1]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2-1', $replies_20[2]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-3', $replies_20[3]->GetTitle());
+    }
+
+    public function testLoadPostReplies_HiddenPathNotIncluded() : void
+    {
+        // reset to initial state
+        BaseTest::createTestDatabase();
+
+        // Hide the part from 'Thread 3 A1-2' on of Thread 3
+        $this->db->SetPostVisible(23, false);
+
+        // top-level post 'Thread 3', has 7 (sub-) children, if hidden path is included
+        $post_3 = $this->createMock(Post::class);
+        $post_3->method('GetId')->willReturn(3);
+        $post_3->method('GetThreadId')->willReturn(3);
+        $post_3->method('GetIndent')->willReturn(0);
+        $post_3->method('GetRank')->willReturn(1);
+
+        $replies_3 = $this->db->LoadPostReplies($post_3, true);
+        $this->assertEquals(7, sizeof($replies_3));
+        $this->assertEquals('Thread 3 - A1', $replies_3[0]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-1', $replies_3[1]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2', $replies_3[2]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2-1', $replies_3[3]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-3', $replies_3[4]->GetTitle());
+        $this->assertEquals('Thread 3 - A2', $replies_3[5]->GetTitle());
+        $this->assertEquals('Thread 3 - A2-1', $replies_3[6]->GetTitle());
+
+        // top-level post 'Thread 3', has 5 (sub-) children, if hidden path is not included
+        $post_3 = $this->createMock(Post::class);
+        $post_3->method('GetId')->willReturn(3);
+        $post_3->method('GetThreadId')->willReturn(3);
+        $post_3->method('GetIndent')->willReturn(0);
+        $post_3->method('GetRank')->willReturn(1);
+
+        $replies_3 = $this->db->LoadPostReplies($post_3, false);
+        $this->assertEquals(5, sizeof($replies_3));
+        $this->assertEquals('Thread 3 - A1', $replies_3[0]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-1', $replies_3[1]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-3', $replies_3[2]->GetTitle());
+        $this->assertEquals('Thread 3 - A2', $replies_3[3]->GetTitle());
+        $this->assertEquals('Thread 3 - A2-1', $replies_3[4]->GetTitle());
+    }    
 }

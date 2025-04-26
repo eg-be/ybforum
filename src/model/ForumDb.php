@@ -1598,6 +1598,65 @@ class ForumDb extends PDO
     }
 
     /**
+     * Load the replies of a post as PostIndexEntry objects. Returned is
+     * an array, ordered by rank. If a hidden post is encountered, its whole
+     * subtree (and the post itself) is skipped, and not included in the
+     * returned array, except $includeHidden is set to true.
+     * 
+     * @param Post $post A post to load children for.
+     * @return array Holding PostIndexEntry objects.
+     */
+    public function LoadPostReplies(Post $post, bool $includeHidden = false) : array
+    {
+        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
+                . 'title, indent, creation_ts, '
+                . 'content IS NOT NULL AS has_content,'
+                . 'hidden '
+                . 'FROM post_table LEFT JOIN '
+                . 'user_table ON post_table.iduser = user_table.iduser '
+                . 'WHERE idthread = :idthread AND indent > :indent AND `rank` > :rank '
+                . 'ORDER BY idthread DESC, `rank`';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array(':idthread' => $post->GetThreadId(), 
+                ':indent' => $post->GetIndent(),
+                ':rank' => $post->GetRank()));
+        $replies = array();
+        $childOfOurPost = true;
+        $ourPostIndent = $post->GetIndent();
+        $ourPostId = $post->GetId();
+        $inHiddenPath = false;
+        $hiddenStartedAtIndent = 0;
+        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
+        {
+            // check if entry with indent + 1 are direct ancestors of our post:
+            if($indexEntry->GetIndent() === $ourPostIndent + 1)
+            {
+                $childOfOurPost = ($indexEntry->GetParentPostId() === $ourPostId);
+            }
+            if($childOfOurPost)
+            {
+                // we are leaving if we have reached the same indent again
+                // as we have entered the hidden path                
+                if($inHiddenPath && $indexEntry->GetIndent() <= $hiddenStartedAtIndent)
+                {
+                    $inHiddenPath = false;
+                }                  
+                // Check if we are entering a hidden path part (and not ready in)
+                if($indexEntry->IsHidden() > 0 && $inHiddenPath === false)
+                {
+                    $inHiddenPath = true;
+                    $hiddenStartedAtIndent = $indexEntry->GetIndent();
+                }
+                if(!$inHiddenPath || $includeHidden)
+                {
+                    array_push($replies, $indexEntry);
+                }
+            }
+        }
+        return $replies;
+    }
+
+    /**
      * @param array values
      * @throws InvalidArgumentException If one of the values
      * is empty or contains only whitespaces

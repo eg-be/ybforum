@@ -68,53 +68,8 @@ class PostIndexEntry
      */
     public static function LoadPostReplies(ForumDb $db, Post $post, bool $includeHidden = false) : array
     {
-        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
-                . 'title, indent, creation_ts, '
-                . 'content IS NOT NULL AS has_content,'
-                . 'hidden '
-                . 'FROM post_table LEFT JOIN '
-                . 'user_table ON post_table.iduser = user_table.iduser '
-                . 'WHERE idthread = :idthread AND indent > :indent AND `rank` > :rank '
-                . 'ORDER BY idthread DESC, `rank`';
-        $stmt = $db->prepare($query);
-        $stmt->execute(array(':idthread' => $post->GetThreadId(), 
-                ':indent' => $post->GetIndent(),
-                ':rank' => $post->GetRank()));
-        $replies = array();
-        $childOfOurPost = true;
-        $ourPostIndent = $post->GetIndent();
-        $ourPostId = $post->GetId();
-        $inHiddenPath = false;
-        $hiddenStartedAtIndent = 0;
-        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
-        {
-            // check if entry with indent + 1 are direct ancestors of our post:
-            if($indexEntry->indent === $ourPostIndent + 1)
-            {
-                $childOfOurPost = ($indexEntry->parent_idpost === $ourPostId);
-            }
-            if($childOfOurPost)
-            {
-                // we are leaving if we have reached the same indent again
-                // as we have entered the hidden path                
-                if($inHiddenPath && $indexEntry->indent <= $hiddenStartedAtIndent)
-                {
-                    $inHiddenPath = false;
-                }                  
-                // Check if we are entering a hidden path part (and not ready in)
-                if($indexEntry->hidden > 0 && $inHiddenPath === false)
-                {
-                    $inHiddenPath = true;
-                    $hiddenStartedAtIndent = $indexEntry->indent;
-                }
-                if(!$inHiddenPath || $includeHidden)
-                {
-                    array_push($replies, $indexEntry);
-                }
-            }
-        }
-        return $replies;
-    }  
+        return $db->LoadPostReplies($post, $includeHidden);
+    }
     
     /**
      * Loads a list of the newest posts.
@@ -171,6 +126,9 @@ class PostIndexEntry
     private int $has_content;
     private int $hidden;
 
+    /**
+     * @return int Field idthread
+     */
     public function GetThreadId() : int
     {
         return $this->idthread;
@@ -184,6 +142,14 @@ class PostIndexEntry
         return $this->idpost;
     }
     
+    /**
+     * @return ?int Field parent_idpost: id of parent post, or null if no parent
+     */
+    public function GetParentPostId() : ?int
+    {
+        return $this->parent_idpost;
+    }
+
     /**
      * @return int Field indent.
      */
