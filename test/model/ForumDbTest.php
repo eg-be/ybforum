@@ -193,7 +193,7 @@ final class ForumDbTest extends BaseTest
         $this->assertSame($oldPostCount + 2, $newPostCount);
 
         // And check that the newly created threads / posts can be read back:
-        $minPost = Post::LoadPost($this->db, $minPostId);
+        $minPost = $this->db->LoadPost($minPostId);
         $this->assertNotNull($minPost);
         $minPostRef = self::mockPost($minPostId, 
             $minPost->GetThreadId(), // we cannot know the created thread-id, read from db
@@ -210,7 +210,7 @@ final class ForumDbTest extends BaseTest
         );
         $this->assertObjectEquals($minPostRef, $minPost);
 
-        $allPost = Post::LoadPost($this->db, $allPostId);
+        $allPost = $this->db->LoadPost($allPostId);
         $this->assertNotNull($allPost);
         $allPostRef = self::mockPost($allPostId, 
             $allPost->GetThreadId(), // we cannot know the created thread-id, read from db
@@ -253,7 +253,7 @@ final class ForumDbTest extends BaseTest
         $oldPostCount = $this->db->GetPostCount();
         $user = User::LoadUserByNick($this->db, 'user2');
         $this->assertNotNull($user);
-        $parentPost = Post::LoadPost($this->db, 26);
+        $parentPost = $this->db->LoadPost(26);
         $this->assertNotNull($parentPost);
         // create a new post with the minimal required arguments
         $minPostId = $this->db->CreateReplay($parentPost->GetId(), $user, 
@@ -270,7 +270,7 @@ final class ForumDbTest extends BaseTest
         $this->assertSame($oldPostCount + 2, $newPostCount);
 
         // And check that the newly created posts can be read back:
-        $minPost = Post::LoadPost($this->db, $minPostId);
+        $minPost = $this->db->LoadPost($minPostId);
         $this->assertNotNull($minPost);
         $minPostRef = self::mockPost($minPostId, 
             $parentPost->GetThreadId(), // must be part of parent-thread
@@ -287,7 +287,7 @@ final class ForumDbTest extends BaseTest
         );
         $this->assertObjectEquals($minPostRef, $minPost);
 
-        $allPost = Post::LoadPost($this->db, $allPostId);
+        $allPost = $this->db->LoadPost($allPostId);
         $this->assertNotNull($allPost);
         $allPostRef = self::mockPost($allPostId, 
             $parentPost->GetThreadId(), // must be part of parent-thread            
@@ -340,7 +340,7 @@ final class ForumDbTest extends BaseTest
     {
         $user = User::LoadUserByNick($this->db, 'user2');
         $this->assertNotNull($user);
-        $parentPost = Post::LoadPost($this->db, $parentPostId);
+        $parentPost = $this->db->LoadPost($parentPostId);
         $this->assertNull($parentPost);
         $this->expectException(InvalidArgumentException::class);
         $this->db->CreateReplay($parentPostId, $user, 
@@ -1150,24 +1150,24 @@ final class ForumDbTest extends BaseTest
         self::createTestDatabase();
         // hide some post within a thread:
         // its child must get hidden too
-        $postA1_2 = Post::LoadPost($this->db, 23);
+        $postA1_2 = $this->db->LoadPost(23);
         $this->assertNotNull($postA1_2);
         $this->assertFalse($postA1_2->IsHidden());
-        $postA1_2_1 = Post::LoadPost($this->db, 25);
+        $postA1_2_1 = $this->db->LoadPost(25);
         $this->assertNotNull($postA1_2_1);
         $this->assertFalse($postA1_2_1->IsHidden());
         $this->assertSame(23, $postA1_2_1->GetParentPostId());
         // now hide that tree by hiding the parent
         $this->db->SetPostVisible(23, false);
-        $postA1_2 = Post::LoadPost($this->db, 23);
+        $postA1_2 = $this->db->LoadPost(23);
         $this->assertTrue($postA1_2->IsHidden());
-        $postA1_2_1 = Post::LoadPost($this->db, 25);
+        $postA1_2_1 = $this->db->LoadPost(25);
         $this->assertTrue($postA1_2_1->IsHidden());
         // show again:
         $this->db->SetPostVisible(23, true);
-        $postA1_2 = Post::LoadPost($this->db, 23);
+        $postA1_2 = $this->db->LoadPost(23);
         $this->assertFalse($postA1_2->IsHidden());
-        $postA1_2_1 = Post::LoadPost($this->db, 25);
+        $postA1_2_1 = $this->db->LoadPost(25);
         $this->assertFalse($postA1_2_1->IsHidden());
 
         // fail for invalid post-ids
@@ -1500,5 +1500,79 @@ final class ForumDbTest extends BaseTest
         $this->assertEquals('Thread 3 - A1-2-1', $recent[2]->GetTitle());
         $this->assertEquals('Thread 3 - A2-1', $recent[3]->GetTitle());
         $this->assertEquals('Thread 3 - A1-2', $recent[4]->GetTitle());
+    }
+
+    public static function providerPostMock() : array
+    {
+        // one simple post with no parent:
+        $p8 = self::mockPost(8, 8, null,
+            'user2', 102, 
+            'Thread 8', 'The quick brown fox jumps over the lazy dog',
+            1, 0,
+            '2020-03-30 14:38:00',
+            null,
+            null, null, null,
+            null,
+            0,
+            '::1'
+        );
+        // one with a parent:
+        $p21 = self::mockPost(21, 3, 20,
+            'user2', 102, 
+            'Thread 3 - A1-1', 'The quick brown fox jumps over the lazy dog',
+            3, 2,
+            '2020-03-30 14:51:00',
+            null,
+            null, null, null,
+            null,
+            0,
+            '::1'
+        );
+
+        // and one with all fields set:
+        $p30 = self::mockPost(30, 5, 5,
+            'user1', 101, 
+            'Thread 5 - A1', 'The quick brown fox jumps over the lazy dog',
+            2, 1,
+            '2022-06-22 16:13:25',
+            'mail@me.com',
+            'https://foobar', 'Visit me', 'https://giphy/bar.gif',
+            131313,
+            0,
+            '::1'
+        );        
+        
+        // and a hidden-one
+        $p40 = self::mockPost(40, 8, 8,
+            'user3', 103, 
+            'Thread 8 - A1', 'The quick brown fox jumps over the lazy dog',
+            2, 1,
+            '2020-03-30 14:50:00',
+            null,
+            null, null, null,
+            null,
+            1,
+            '::1'
+        );
+        return array(
+            [$p8],
+            [$p21],
+            [$p30],
+            [$p40]
+        );
+    }
+
+    #[DataProvider('providerPostMock')]
+    public function testLoadPost(Post $ref) : void
+    {
+        $post = $this->db->LoadPost($ref->GetId());
+        $this->assertNotNull($post);
+        $this->assertObjectEquals($ref, $post);
+    }
+
+    public function testLoadPostFail() : void
+    {
+        $this->assertNull($this->db->LoadPost(-1));
+        $this->assertNull($this->db->LoadPost(99));
     }
 }

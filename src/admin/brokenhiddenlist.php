@@ -81,7 +81,7 @@ catch (Exception $ex)
                 while($row = $stmt->fetch())
                 {
                     // Get all children of that post
-                    $post = Post::LoadPost($db, $row['idpost']);
+                    $post = $db->LoadPost($row['idpost']);
                     $children = $db->LoadPostReplies($post, true);
                     $notHiddenChildren = array();
                     $unhiddenLinkList = '';

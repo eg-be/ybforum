@@ -80,7 +80,7 @@ try
             $parentPostId = $postEntryHandler->GetParentPostId();
             if($parentPostId > 0)
             {
-                $parentPost = Post::LoadPost($db, $parentPostId);
+                $parentPost = $db->LoadPost($parentPostId);
             }
         }
         else
@@ -99,7 +99,7 @@ try
         $parentPostId = filter_input(INPUT_GET, 'idparentpost', FILTER_VALIDATE_INT);
         if($parentPostId > 0)
         {
-            $parentPost = Post::LoadPost($db, $parentPostId);
+            $parentPost = $db->LoadPost($parentPostId);
         }
     }
 }

@@ -425,7 +425,7 @@ class ForumDb extends PDO
         {
             throw new InvalidArgumentException('User ' . $user->GetNick() . ' is a dummy');
         }
-        $parentPost = Post::LoadPost($this, $parentPostId);
+        $parentPost = $this->LoadPost($parentPostId);
         if(!$parentPost)
         {
             throw new InvalidArgumentException('No post exists for passed parent postid ' . $parentPostId);
@@ -1294,7 +1294,7 @@ class ForumDb extends PDO
 
     private function SetPostVisibleImpl(int $postId, bool $show = true) : void
     {
-        $post = Post::LoadPost($this, $postId);
+        $post = $this->LoadPost($postId);
         if(!$post)
         {
             throw new InvalidArgumentException('No post with id ' . $postId . 
@@ -1680,7 +1680,39 @@ class ForumDb extends PDO
             array_push($replies, $indexEntry);
         }
         return $replies;
-    }    
+    }
+
+    /**
+     * Load a post from the post_table. Searches for a row matching passed
+     * $idPost. Creates a Post object if such a row is found and returns that
+     * Post object. Returns NULL if no matching row is found.
+     * @param int $idPost
+     * @return \Post
+     * @throws Exception If a database operation fails.
+     */  
+    public function LoadPost(int $idPost) : ?Post
+    {
+        assert($idPost > 0);
+        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
+                . 'post_table.iduser AS iduser, '
+                . 'title, content, `rank`, indent, '
+                . 'creation_ts, '
+                . 'post_table.email AS email, '
+                . 'link_url, link_text, img_url, old_no, '
+                . 'hidden, ip_address '
+                . 'FROM post_table '
+                . 'LEFT JOIN user_table '
+                . 'ON post_table.iduser = user_table.iduser '
+                . 'WHERE idpost = :idpost';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array('idpost' => $idPost));
+        $post = $stmt->fetchObject(Post::class);
+        if($post === false)
+        {
+            $post = null;
+        }
+        return $post;
+    }
 
     /**
      * @param array values

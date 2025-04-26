@@ -40,7 +40,7 @@ try
     $db = new ForumDb();
 
     // Load the post we want to display and its parent (if one exists)
-    $post = Post::LoadPost($db, $idPost);
+    $post = $db->LoadPost($idPost);
     if(!$post || $post->IsHidden())
     {
         return;
@@ -49,7 +49,7 @@ try
     $parentPost = null;
     if($parentPostId)
     {
-        $parentPost = Post::LoadPost($db, $parentPostId);
+        $parentPost = $db->LoadPost($parentPostId);
     }
 }
 catch(Exception $ex)

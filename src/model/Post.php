@@ -25,43 +25,11 @@
  * or similar. Apply those functions later)
  */
 class Post
-{
+{ 
     /**
-     * Load a post from the post_table. Searches for a row matching passed
-     * 
-     * $idPost. Creates a Post object if such a row is found and returns that
-     * Post object. Returns NULL if no matching row is found.
-     * @param int $idPost
-     * @return \Post
-     * @throws Exception If a database operation fails.
-     */  
-    public static function LoadPost(ForumDb $db, int $idPost) : ?Post
-    {
-        assert($idPost > 0);
-        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
-                . 'post_table.iduser AS iduser, '
-                . 'title, content, `rank`, indent, '
-                . 'creation_ts, '
-                . 'post_table.email AS email, '
-                . 'link_url, link_text, img_url, old_no, '
-                . 'hidden, ip_address '
-                . 'FROM post_table '
-                . 'LEFT JOIN user_table '
-                . 'ON post_table.iduser = user_table.iduser '
-                . 'WHERE idpost = :idpost';
-        $stmt = $db->prepare($query);
-        $stmt->execute(array('idpost' => $idPost));
-        $post = $stmt->fetchObject(Post::class);
-        if($post === false)
-        {
-            $post = null;
-        }
-        return $post;
-    }
-  
-    /**
-     * Create an instance using the static LoadPost method. This constructor
-     * will assert that all members have a valid data.
+     * This constructor will assert that all members have a valid data
+     * and set some internal values. It is called from pdo when creating
+     * instances.
      */
     protected function __construct()
     {

@@ -7,106 +7,21 @@ require_once __DIR__.'/../../src/model/Post.php';
 
 
 /**
- * Requires a valid database to connect to, as we
- * want to really test the executed sql.
- * 
- * See README.md located in this directory, on how
- * to setup the test-database.
- * 
+ * Just some stupid tests for the accessors.
+ * Some values accessed are casted during construction
  */
 final class PostTest extends BaseTest
 {
-    private ForumDb $db;
-
     public static function setUpBeforeClass(): void
     {
-        // This tests will not modify the db, its enough to re-create
-        // the test-db before running all tests from this class
-        BaseTest::createTestDatabase();
     }
 
     protected function setUp(): void
     {
-        $this->db = new ForumDb();
     }
 
     protected function assertPreConditions(): void
     {
-        $this->assertTrue($this->db->IsConnected());
-    }
-
-    public static function providerPostMock() : array
-    {
-        // one simple post with no parent:
-        $p8 = self::mockPost(8, 8, null,
-            'user2', 102, 
-            'Thread 8', 'The quick brown fox jumps over the lazy dog',
-            1, 0,
-            '2020-03-30 14:38:00',
-            null,
-            null, null, null,
-            null,
-            0,
-            '::1'
-        );
-        // one with a parent:
-        $p21 = self::mockPost(21, 3, 20,
-            'user2', 102, 
-            'Thread 3 - A1-1', 'The quick brown fox jumps over the lazy dog',
-            3, 2,
-            '2020-03-30 14:51:00',
-            null,
-            null, null, null,
-            null,
-            0,
-            '::1'
-        );
-
-        // and one with all fields set:
-        $p30 = self::mockPost(30, 5, 5,
-            'user1', 101, 
-            'Thread 5 - A1', 'The quick brown fox jumps over the lazy dog',
-            2, 1,
-            '2022-06-22 16:13:25',
-            'mail@me.com',
-            'https://foobar', 'Visit me', 'https://giphy/bar.gif',
-            131313,
-            0,
-            '::1'
-        );        
-        
-        // and a hidden-one
-        $p40 = self::mockPost(40, 8, 8,
-            'user3', 103, 
-            'Thread 8 - A1', 'The quick brown fox jumps over the lazy dog',
-            2, 1,
-            '2020-03-30 14:50:00',
-            null,
-            null, null, null,
-            null,
-            1,
-            '::1'
-        );
-        return array(
-            [$p8],
-            [$p21],
-            [$p30],
-            [$p40]
-        );
-    }
-
-    #[DataProvider('providerPostMock')]
-    public function testLoadPost(Post $ref) : void
-    {
-        $post = Post::LoadPost($this->db, $ref->GetId());
-        $this->assertNotNull($post);
-        $this->assertObjectEquals($ref, $post);
-    }
-
-    public function testLoadPostFail() : void
-    {
-        $this->assertNull(Post::LoadPost($this->db, -1));
-        $this->assertNull(Post::LoadPost($this->db, 99));
     }
 
     public function testHidden() : void
