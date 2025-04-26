@@ -52,59 +52,7 @@ class PostIndexEntry
         int $maxThreads, int $maxThreadId, 
         callable $threadIndexCallback) : void
     {
-        assert($maxThreads > 0);
-        assert($maxThreadId > 0);
-        assert($db->IsConnected());
-        $minThreadId = $maxThreadId - $maxThreads;        
-        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
-                . 'title, indent, creation_ts, '
-                . 'content IS NOT NULL AS has_content,'
-                . 'hidden '
-                . 'FROM post_table LEFT JOIN '
-                . 'user_table ON post_table.iduser = user_table.iduser '
-                . 'WHERE idthread <= :maxThreadId AND idthread > :minThreadId '
-                . 'ORDER BY idthread DESC, `rank`';
-        $stmt = $db->prepare($query);
-        $stmt->execute(array(':maxThreadId' => $maxThreadId, 
-            ':minThreadId' => $minThreadId));
-        $threadIndexEntries = array();
-        $lastThreadId = 0;
-        $inHiddenPath = false;
-        $hiddenStartedAtIndent = 0;        
-        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
-        {
-            // whenever a new thread starts, notify the user about the 
-            // previous entries.
-            if($indexEntry->idthread !== $lastThreadId && $lastThreadId !== 0)
-            {
-                if(!empty($threadIndexEntries))
-                {
-                    call_user_func($threadIndexCallback, $threadIndexEntries);
-                }
-                $threadIndexEntries = array();
-            }
-            $lastThreadId = $indexEntry->idthread;
-            if($inHiddenPath && $indexEntry->indent <= $hiddenStartedAtIndent)
-            {
-                // might be leaving the hidden path
-                $inHiddenPath = false;
-            }
-            if($indexEntry->hidden > 0 && $inHiddenPath === false)
-            {
-                // entering a hidden path, discard until we are out of it
-                $inHiddenPath = true;
-                $hiddenStartedAtIndent = $indexEntry->indent;
-            }
-            if(!$inHiddenPath)
-            {
-                array_push($threadIndexEntries, $indexEntry);
-            }          
-        }
-        // dont forget the rest
-        if(!empty($threadIndexEntries))
-        {
-            call_user_func($threadIndexCallback, $threadIndexEntries);
-        }
+        $db->LoadThreadIndexEntries($maxThreads, $maxThreadId, $threadIndexCallback);
     }
   
   
@@ -222,6 +170,11 @@ class PostIndexEntry
     private DateTime $creation_ts_dt; // the same but converted to a DateTime
     private int $has_content;
     private int $hidden;
+
+    public function GetThreadId() : int
+    {
+        return $this->idthread;
+    }
 
     /**
      * @return int Field idpost.
