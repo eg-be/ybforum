@@ -26,64 +26,6 @@
 class PostIndexEntry
 {
     /**
-     * Loads thread structures and invokes callback with an array
-     * of PostIndexEntry objects: Search for a number of $maxThreads, where
-     * the last thread is the thread with $maxThreadId. For every thread, an
-     * array is created, holding the thread index entries in form of 
-     * PostIndexEntry objects. 
-     * As soon as all PostIndexEntry objects
-     * for one thread have been placed in the array, the $threadIndexCallback
-     * is invoked with the array f PostIndexEntry objects for that thread.
-     * PostIndexEntry objects inside an array are sorted by the rank 
-     * value (ascending). 
-     * Threads are iterated by idthread descending.
-     * Hidden posts and their children are not added to the array of 
-     * PostIndexEntry objects.
-     * @param ForumDb $db Database
-     * @param int $maxThreads Maximum number of threads to load index entries
-     * for.
-     * @param int $maxThreadId Maximum thread id to load index entries for, 
-     * the callback will start with the index entries for this thread.
-     * @param callable $threadIndexCallback Callback to invoke with an array of
-     * ThreadIndexEntry objects.
-     * @throws Exception If a database operation fails.
-     */  
-    public static function LoadThreadIndexEntries(ForumDb $db, 
-        int $maxThreads, int $maxThreadId, 
-        callable $threadIndexCallback) : void
-    {
-        $db->LoadThreadIndexEntries($maxThreads, $maxThreadId, $threadIndexCallback);
-    }
-  
-  
-    /**
-     * Load the replies of a post as PostIndexEntry objects. Returned is
-     * an array, ordered by rank. If a hidden post is encountered, its whole
-     * subtree (and the post itself) is skipped, and not included in the
-     * returned array, except $includeHidden is set to true.
-     * 
-     * @param ForumDb $db The database
-     * @param Post $post A post to load children for.
-     * @return array Holding PostIndexEntry objects.
-     */
-    public static function LoadPostReplies(ForumDb $db, Post $post, bool $includeHidden = false) : array
-    {
-        return $db->LoadPostReplies($post, $includeHidden);
-    }
-    
-    /**
-     * Loads a list of the newest posts.
-     * @param ForumDb $db The database.
-     * @param int $maxEntries Maximum number of newest entries to load.
-     * @return array An array of PostIndexEntry objects. Hold max. 
-     * $maxEntries of PostIndexEntry objects, sorted by idpost descending.
-     */
-    public static function LoadRecentPosts(ForumDb $db, int $maxEntries) : array
-    {
-        return $db->LoadRecentPosts($maxEntries);
-    }
-        
-    /**
      * Create an instance using one of the static methods. This constructor
      * will assert that the objects holds valid values when it is invoked.
      */

@@ -144,7 +144,7 @@ class PostView
             return '';
         }
         $htmlStr = '';
-        $threadIndexes = PostIndexEntry::LoadPostReplies($this->m_forumDb, $this->m_post);
+        $threadIndexes = $this->m_forumDb->LoadPostReplies($this->m_post);
         $ourPostIndent = $this->m_post->GetIndent();
         foreach($threadIndexes as $ti)
         {
