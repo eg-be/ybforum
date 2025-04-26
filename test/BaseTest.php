@@ -122,6 +122,41 @@ class BaseTest extends TestCase
         $ref->getProperty('hidden')->setValue($post, $hidden);
         $ref->getProperty('ip_address')->setValue($post, $ip_address);
         $ctor->invoke($post);
-        return $post;        
-    }    
+        return $post;
+    }
+
+    /**
+     * Create an instance of Post using the passed values.
+     * Object is created using reflection and is an instance of User,
+     * so assertions like assertObjectEquals() can be used.
+     */
+    protected static function mockPostIndexEntry(
+        int $idpost,
+        int $idthread, 
+        ?int $parent_idpost,
+        string $nick,
+        string $title,
+        int $indent,
+        string $creation_ts,
+        int $has_content,
+        int $hidden
+    ) : PostIndexEntry
+    {
+
+        $ref = new ReflectionClass(PostIndexEntry::class);
+        $ctor = $ref->getConstructor();
+        $ctor->setAccessible(true);
+        $postIndexEntry = $ref->newInstanceWithoutConstructor();
+        $ref->getProperty('idpost')->setValue($postIndexEntry, $idpost);
+        $ref->getProperty('idthread')->setValue($postIndexEntry, $idthread);
+        $ref->getProperty('parent_idpost')->setValue($postIndexEntry, $parent_idpost);
+        $ref->getProperty('nick')->setValue($postIndexEntry, $nick);
+        $ref->getProperty('title')->setValue($postIndexEntry, $title);
+        $ref->getProperty('indent')->setValue($postIndexEntry, $indent);
+        $ref->getProperty('creation_ts')->setValue($postIndexEntry, $creation_ts);
+        $ref->getProperty('has_content')->setValue($postIndexEntry, $has_content);
+        $ref->getProperty('hidden')->setValue($postIndexEntry, $hidden);
+        $ctor->invoke($postIndexEntry);
+        return $postIndexEntry;
+    }
 }

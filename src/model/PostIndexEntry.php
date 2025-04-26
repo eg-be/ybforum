@@ -26,8 +26,7 @@
 class PostIndexEntry
 {
     /**
-     * Create an instance using one of the static methods. This constructor
-     * will assert that the objects holds valid values when it is invoked.
+     * Constructed only from pdo, hide constructor
      */
     private function __construct()
     {
@@ -47,10 +46,10 @@ class PostIndexEntry
     private string $nick;
     private string $title;
     private int $indent;
-    private string $creation_ts; // this is just the value from the corresponding field post_table class="creation_ts
+    private string $creation_ts; // this is just the value from the corresponding field post_table creation_ts
                                     // pdo->fetchObject() injects a string-value
     private DateTime $creation_ts_dt; // the same but converted to a DateTime
-    private int $has_content;
+    private int $has_content; // assigned from pdo
     private int $hidden;
 
     /**
