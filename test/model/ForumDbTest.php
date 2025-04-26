@@ -4,7 +4,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__.'/../BaseTest.php';
 require_once __DIR__.'/PostMock.php';
-require_once __DIR__.'/UserMock.php';
 require_once __DIR__.'/../../src/model/ForumDb.php';
 
 /**
@@ -230,23 +229,24 @@ final class ForumDbTest extends BaseTest
         $this->assertObjectEquals($allPostRef, $allPost);        
     }
 
-    #[DataProvider('providerInactiveDummy')]
-    public function testCreateThreadFails(User $u) : void
+    public function testCreateThreadFailsForInactive() : void
     {
-        $this->assertTrue($u->IsDummyUser() || $u->IsActive() === false);
+        $inactive = $this->createMock(User::class);
+        $inactive->method('IsDummyUser')->willReturn(true);
+        $inactive->method('IsActive')->willReturn(false);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->CreateThread($u, 'title',
+        $this->db->CreateThread($inactive, 'title',
             null, null, null, null, null, '::1');
     }
 
-    public static function providerInactiveDummy() : array 
+    public function testCreateThreadFailsForDummy() : void
     {
-        $deactivated = new UserMock(50, 'deactivated', 'deactivated@dev', 0, 0, '2021-03-30 14:30:05', null, '2021-03-30 14:30:15', '$2y$10$U2nazhRAEhg1JkXu2Uls0.pnH5Wi9QsyXbmoJMBC2KNYGPN8fezfe', null);
-        $dummy = new UserMock(66, 'dummy', null, 0, 0, '2021-03-30 14:30:05', null, null, null, null);
-        return array(
-            [$deactivated], 
-            [$dummy]
-        );
+        $dummy = $this->createMock(User::class);
+        $dummy->method('IsDummyUser')->willReturn(true);
+        $dummy->method('IsActive')->willReturn(true);
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->CreateThread($dummy, 'title',
+            null, null, null, null, null, '::1');
     }
 
     public function testCreateReply() : void
@@ -306,12 +306,24 @@ final class ForumDbTest extends BaseTest
         $this->assertObjectEquals($allPostRef, $allPost);
     }
 
-    #[DataProvider('providerInactiveDummy')]
-    public function testCreateReplyFailsBecauseOfUser(User $u) : void
+    public function testCreateReplyFailsForInactive() : void
     {
-        $this->assertTrue($u->IsDummyUser() || $u->IsActive() === false);
+        $inactive = $this->createMock(User::class);
+        $inactive->method('IsDummyUser')->willReturn(false);
+        $inactive->method('IsActive')->willReturn(false);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->CreateReplay(30, $u, 
+        $this->db->CreateReplay(30, $inactive, 
+            'min-post', null, null, 
+            null, null, null, '::1');
+    }
+
+    public function testCreateReplyFailsForDummy() : void
+    {
+        $dummy = $this->createMock(User::class);
+        $dummy->method('IsDummyUser')->willReturn(true);
+        $dummy->method('IsActive')->willReturn(true);
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->CreateReplay(30, $dummy, 
             'min-post', null, null, 
             null, null, null, '::1');
     }
@@ -339,27 +351,30 @@ final class ForumDbTest extends BaseTest
 
     public static function providerInvalidPostValues() : array 
     {
-        $user = new UserMock(102, 'user2', 'user2@dev', 0, 1, '2021-03-30 14:30:05', null, '2021-03-30 14:30:15', '$2y$10$U2nazhRAEhg1JkXu2Uls0.pnH5Wi9QsyXbmoJMBC2KNYGPN8fezfe', null);
         return array(
-            [26, $user, '', null, null, null, null, null, '::1'], 
-            [26, $user, ' ', null, null, null, null, null, '::1'], 
-            [26, $user, 'cont', ' ', null, null, null, null, '::1'], 
-            [26, $user, 'cont', null, ' ', null, null, null, '::1'], 
-            [26, $user, 'cont', null, null, ' ', null, null, '::1'], 
-            [26, $user, 'cont', null, null, null, ' ', null, '::1'], 
-            [26, $user, 'cont', null, null, null, null, ' ', '::1'], 
-            [26, $user, 'cont', null, null, null, null, null, ''], 
-            [26, $user, 'cont', null, null, null, null, null, ' '], 
+            [26, '', null, null, null, null, null, '::1'], 
+            [26, ' ', null, null, null, null, null, '::1'], 
+            [26, 'cont', ' ', null, null, null, null, '::1'], 
+            [26, 'cont', null, ' ', null, null, null, '::1'], 
+            [26, 'cont', null, null, ' ', null, null, '::1'], 
+            [26, 'cont', null, null, null, ' ', null, '::1'], 
+            [26, 'cont', null, null, null, null, ' ', '::1'], 
+            [26, 'cont', null, null, null, null, null, ''], 
+            [26, 'cont', null, null, null, null, null, ' '], 
         );
     }    
 
     #[DataProvider('providerInvalidPostValues')]
     public function testCreateReplyFailsBecauseOfValues(int $parentPostId,
-        User $user, string $title, 
+        string $title, 
         ?string $content, ?string $email, 
         ?string $linkUrl, ?string $linkText,
         ?string $imgUrl, string $clientIpAddress) : void
     {
+        $user = $this->createMock(User::class);
+        $user->method('GetId')->willReturn(102);
+        $user->method('GetNick')->willReturn('user2');
+        $user->method('GetEmail')->willReturn('user2@dev');
         $this->expectException(InvalidArgumentException::class);
         $this->db->CreateReplay($parentPostId, $user, 
             $title, $content, $email, 
@@ -385,11 +400,13 @@ final class ForumDbTest extends BaseTest
         $this->assertNotNull($newUser);
         $this->assertGreaterThan(0, $newUser->GetId());
         $this->assertNotNull($newUser);
-        $newUserRef = new UserMock($newUser->GetId(), $nick, $mail, 
+
+        $newUserRef = self::mockUser($newUser->GetId(), $nick, $mail, 
             0, 0,
             $newUser->GetRegistrationTimestamp()->Format('Y-m-d H:i:s'), $regMsg,
             null, null, null
         );
+
         $this->assertObjectEquals($newUserRef, $newUser);
     }
 
@@ -1217,15 +1234,15 @@ final class ForumDbTest extends BaseTest
 
     public static function providerLoadUser() : array
     {
-        $admin = User::CreateUser(1, 'admin', 'eg-be@dev',
+        $admin = self::mockUser(1, 'admin', 'eg-be@dev',
             1, 1, '2020-03-30 14:30:05', 'initial admin-user',
             '2020-03-30 14:30:15', 
             '$2y$10$n.ZGkNoS3BvavZ3qcs50nelspmTfM3dh8ZLSZ5JXfBvW9rQ6i..VC', null);
-        $old = User::CreateUser(10, 'old-user', 'old-user@dev',
+        $old = self::mockUser(10, 'old-user', 'old-user@dev',
             0, 0, '2017-12-31 15:21:27', 'needs migration',
             null,
             null, '895e1aace5e13c683491bb26dd7453bf');
-        $deactivated = User::CreateUser(50, 'deactivated', 'deactivated@dev',
+        $deactivated = self::mockUser(50, 'deactivated', 'deactivated@dev',
             0, 0, '2021-03-30 14:30:05', 'deactivated by admin',
             '2021-03-30 14:30:15',
             '$2y$10$U2nazhRAEhg1JkXu2Uls0.pnH5Wi9QsyXbmoJMBC2KNYGPN8fezfe', null);
