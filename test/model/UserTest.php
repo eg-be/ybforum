@@ -6,129 +6,68 @@ require_once __DIR__.'/../BaseTest.php';
 require_once __DIR__.'/../../src/model/User.php';
 
 
-/**
- * Requires a valid database to connect to, as we
- * want to really test the executed sql.
- * 
- * See README.md located in this directory, on how
- * to setup the test-database.
- * 
- */
+ /**
+  * Mostly tests about the constructor / getters parsing things fine.
+  * And test all logic implemented in User
+  */
 final class UserTest extends BaseTest
 {
     private ForumDb $db;
 
     public static function setUpBeforeClass(): void
     {
-        // This tests will not modify the db, its enough to re-create
-        // the test-db before running all tests from this class
-        BaseTest::createTestDatabase();
     }
 
     protected function setUp(): void
     {
-        $this->db = new ForumDb();
     }
 
     protected function assertPreConditions(): void
     {
-        $this->assertTrue($this->db->IsConnected());
     }       
-
-    public static function providerUserMock() : array
-    {
-        $admin = self::mockUser(1, 'admin', 'eg-be@dev',
-            1, 1, '2020-03-30 14:30:05', 'initial admin-user',
-            '2020-03-30 14:30:15', 
-            '$2y$10$n.ZGkNoS3BvavZ3qcs50nelspmTfM3dh8ZLSZ5JXfBvW9rQ6i..VC', null);
-        $old = self::mockUser(10, 'old-user', 'old-user@dev',
-            0, 0, '2017-12-31 15:21:27', 'needs migration',
-            null,
-            null, '895e1aace5e13c683491bb26dd7453bf');
-        $deactivated = self::mockUser(50, 'deactivated', 'deactivated@dev',
-            0, 0, '2021-03-30 14:30:05', 'deactivated by admin',
-            '2021-03-30 14:30:15',
-            '$2y$10$U2nazhRAEhg1JkXu2Uls0.pnH5Wi9QsyXbmoJMBC2KNYGPN8fezfe', null);
-        
-        return array(
-            [$admin],
-            [$old],
-            [$deactivated]
-        );
-    }
-
-    #[DataProvider('providerUserMock')]
-    public function testLoadUserById(User $ref) : void
-    {
-        $user = $this->db->LoadUserById($ref->GetId());
-        $this->assertNotNull($user);
-        $this->assertObjectEquals($ref, $user);
-    }
-
-    public function testLoadUserByIdFail() : void
-    {
-        $this->assertNull($this->db->LoadUserById(-1));
-        $this->assertNull($this->db->LoadUserById(12));
-    }
-
-    #[DataProvider('providerUserMock')]
-    public function testLoadUserByNick(User $ref) : void
-    {
-        $user =$this->db->LoadUserByNick($ref->GetNick());
-        $this->assertNotNull($user);
-        $this->assertObjectEquals($ref, $user);
-    }    
-
-    public function testLoadUserByNickFail() : void
-    {
-        $this->assertNull($this->db->LoadUserByNick('nope'));
-        $this->assertNull($this->db->LoadUserByNick(' admin'));
-
-        // it seems whitespaces get trimmed at the end of a prepared statement:
-        $this->assertNotNull($this->db->LoadUserByNick('admin '));
-    }
-
-    #[DataProvider('providerUserMock')]
-    public function testLoadUserByEmail(User $ref) : void
-    {
-        $user = $this->db->LoadUserByEmail($ref->GetEmail());
-        $this->assertNotNull($user);
-        $this->assertObjectEquals($ref, $user);
-    }
-
-    public function testLoadUserByEmailFail() : void
-    {
-        $this->assertNull($this->db->LoadUserByEmail('nope@foo'));
-        $this->assertNull($this->db->LoadUserByEmail(' eg-be@dev'));
-        
-        // it seems whitespaces get trimmed at the end of a prepared statement:
-        $this->assertNotNull($this->db->LoadUserByEmail('eg-be@dev '));        
-    }
 
     public function testAuth() : void
     {
-        $admin = $this->db->LoadUserById(1);
-        $this->assertNotNull($admin);
+        $admin = self::mockUser(1, 'admin', 'eg-be@dev',
+            1, 1,
+            '2020-03-30 14:30:05', 'initial admin-user',
+            '2020-03-30 14:30:15', 
+            '$2y$10$n.ZGkNoS3BvavZ3qcs50nelspmTfM3dh8ZLSZ5JXfBvW9rQ6i..VC', null);
         $this->assertTrue($admin->Auth('admin-pass'));
         $this->assertFalse($admin->Auth(' admin-pass'));
 
-        $oldUser = $this->db->LoadUserById(10);
-        $this->assertNotNull($oldUser);
+        $oldUser = self::mockUser(10, 'old-user', 'old-user@dev',
+            0, 0,
+            '2017-12-31 15:21:27', 'needs migration',
+            null,
+            null, '895e1aace5e13c683491bb26dd7453bf');
         $this->assertFalse($oldUser->Auth('old-user-pass'));
 
-        $dummy = $this->db->LoadUserById(66);
-        $this->assertNotNull($dummy);
+        $dummy = self::mockUser(66, 'dummy', null,
+            0, 0,
+            '2020-03-30 14:30:05', 'initial dummy',
+            null,
+            null, null
+        );
         $this->assertFalse($dummy->Auth('dummy-pass'));
 
-        $inactive = $this->db->LoadUserById(51);
-        $this->assertNotNull($inactive);
-        $this->assertFalse($inactive->Auth('inactive-pass'));        
+        $needsApproval = self::mockUser(51, 'needs-approval', 'needs-approval@dev',
+            0, 0,
+            '2020-03-30 14:30:05', 'inactive (but confirmed) waiting for admin confirmation',
+            '2025-04-26 22:00:08',
+            '$2y$10$vzzdRF/SrnhQxSwrbVyFNeW07E5dKdx3Nwwix.ONMCDDResM4zq5u', null
+        );
+        $this->assertFalse($needsApproval->Auth('inactive-pass'));
     }
 
     public function testOldAuth() : void
     {
-        $oldUser = $this->db->LoadUserById(10);
-        $this->assertNotNull($oldUser);
+        $oldUser = self::mockUser(10, 'old-user', 'old-user@dev',
+            0, 0,
+            '2017-12-31 15:21:27', 'needs migration',
+            null,
+            null, '895e1aace5e13c683491bb26dd7453bf');
+        $this->assertFalse($oldUser->Auth('old-user-pass'));
         $this->assertTrue($oldUser->OldAuth('old-user-pass'));
         $this->assertFalse($oldUser->OldAuth(' old-user-pass'));
         $this->assertFalse($oldUser->OldAuth('olD-user-pass'));

@@ -1575,4 +1575,26 @@ final class ForumDbTest extends BaseTest
         $this->assertNull($this->db->LoadPost(-1));
         $this->assertNull($this->db->LoadPost(99));
     }
+
+    public static function providerUserMock() : array
+    {
+        $admin = self::mockUser(1, 'admin', 'eg-be@dev',
+            1, 1, '2020-03-30 14:30:05', 'initial admin-user',
+            '2020-03-30 14:30:15',
+            '$2y$10$n.ZGkNoS3BvavZ3qcs50nelspmTfM3dh8ZLSZ5JXfBvW9rQ6i..VC', null);
+        $old = self::mockUser(10, 'old-user', 'old-user@dev',
+            0, 0, '2017-12-31 15:21:27', 'needs migration',
+            null,
+            null, '895e1aace5e13c683491bb26dd7453bf');
+        $deactivated = self::mockUser(50, 'deactivated', 'deactivated@dev',
+            0, 0, '2021-03-30 14:30:05', 'deactivated by admin',
+            '2021-03-30 14:30:15',
+            '$2y$10$U2nazhRAEhg1JkXu2Uls0.pnH5Wi9QsyXbmoJMBC2KNYGPN8fezfe', null);
+
+        return array(
+            [$admin],
+            [$old],
+            [$deactivated]
+        );
+    }
 }
