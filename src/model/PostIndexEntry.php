@@ -80,22 +80,7 @@ class PostIndexEntry
      */
     public static function LoadRecentPosts(ForumDb $db, int $maxEntries) : array
     {
-        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
-                . 'title, indent, creation_ts, '
-                . 'content IS NOT NULL AS has_content,'
-                . 'hidden '
-                . 'FROM post_table LEFT JOIN '
-                . 'user_table ON post_table.iduser = user_table.iduser '
-                . 'WHERE hidden = 0 '
-                . 'ORDER BY idpost DESC LIMIT :maxEntries';
-        $stmt = $db->prepare($query);
-        $stmt->execute(array( ':maxEntries' => $maxEntries));
-        $replies = array();
-        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
-        {
-            array_push($replies, $indexEntry);
-        }
-        return $replies;
+        return $db->LoadRecentPosts($maxEntries);
     }
         
     /**

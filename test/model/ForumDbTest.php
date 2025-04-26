@@ -1486,5 +1486,19 @@ final class ForumDbTest extends BaseTest
         $this->assertEquals('Thread 3 - A1-3', $replies_3[2]->GetTitle());
         $this->assertEquals('Thread 3 - A2', $replies_3[3]->GetTitle());
         $this->assertEquals('Thread 3 - A2-1', $replies_3[4]->GetTitle());
-    }    
+    }   
+    
+    public function testLoadRecentPosts() : void
+    {
+        // reset to initial state
+        BaseTest::createTestDatabase();
+
+        $recent = $this->db->LoadRecentPosts(5);
+        $this->assertEquals(5, sizeof($recent));
+        $this->assertEquals('Thread 5 - A1', $recent[0]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-3', $recent[1]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2-1', $recent[2]->GetTitle());
+        $this->assertEquals('Thread 3 - A2-1', $recent[3]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2', $recent[4]->GetTitle());
+    }
 }

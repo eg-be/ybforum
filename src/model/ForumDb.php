@@ -1657,6 +1657,32 @@ class ForumDb extends PDO
     }
 
     /**
+     * Loads a list of the newest posts.
+     * @param int $maxEntries Maximum number of newest entries to load.
+     * @return array An array of PostIndexEntry objects. Hold max. 
+     * $maxEntries of PostIndexEntry objects, sorted by idpost descending.
+     */
+    public function LoadRecentPosts(int $maxEntries) : array
+    {
+        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
+                . 'title, indent, creation_ts, '
+                . 'content IS NOT NULL AS has_content,'
+                . 'hidden '
+                . 'FROM post_table LEFT JOIN '
+                . 'user_table ON post_table.iduser = user_table.iduser '
+                . 'WHERE hidden = 0 '
+                . 'ORDER BY idpost DESC LIMIT :maxEntries';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array( ':maxEntries' => $maxEntries));
+        $replies = array();
+        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
+        {
+            array_push($replies, $indexEntry);
+        }
+        return $replies;
+    }    
+
+    /**
      * @param array values
      * @throws InvalidArgumentException If one of the values
      * is empty or contains only whitespaces
