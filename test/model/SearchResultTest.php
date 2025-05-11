@@ -41,7 +41,7 @@ final class SearchResultTest extends BaseTest
             ['"Thread 3"', null, false, 8],
             ["Thread 3", null, false, 20],
             ['"Thread 3"', null, true, 1],
-            ["Thread 3", null, true, 12],            
+            ["Thread 3", null, true, 12],
             ['"Thread 3"', "user3", false, 3],
             ["Thread 3", "user3", false, 6],
             ['"Thread 3"', "user3", true, 1],
@@ -49,7 +49,7 @@ final class SearchResultTest extends BaseTest
             ["", "user3", false, 6],
             ["", "user3", true, 4],
         );
-    }     
+    }
 
     #[DataProvider('providerSearchStrings')]
     public function testSearchPosts(string $searchString, ?string $nick, bool $noReplies, int $numberOfResults) 

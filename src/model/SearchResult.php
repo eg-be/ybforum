@@ -23,6 +23,8 @@
  * The fields from post_table (and user_table.nick) required to display a
  * search result entry. Provides static method(s) to create such entries.
  */
+
+
 class SearchResult 
 {
     const SORT_FIELD_RELEVANCE = 'relevance';
@@ -33,6 +35,9 @@ class SearchResult
     const SORT_ORDER_ASC = 'ASC';
     const SORT_ORDER_DESC = 'DESC';
     
+    // todo: when replacing with enum: only used when SearchResults are displayed
+    // in SearchResultView and in here to validate the key
+    // todo: when chaning to enum, translate it from the string in SearchHandler
     const SORT_FIELDS = array(
         self::SORT_FIELD_RELEVANCE => 'Relevanz',
         self::SORT_FIELD_TITLE => 'Titel',
