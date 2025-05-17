@@ -23,12 +23,14 @@ require_once __DIR__.'/DbConfig.php';
 require_once __DIR__.'/User.php';
 require_once __DIR__.'/Post.php';
 require_once __DIR__.'/PostIndexEntry.php';
+require_once __DIR__.'/SearchHelpers.php';
 require_once __DIR__.'/../helpers/ErrorHandler.php';
 require_once __DIR__.'/../helpers/Logger.php';
 require_once __DIR__.'/../YbForumConfig.php';
 
 /**
  * The database we are working with, as a PDO object.
+ * This is the only place where we wan to have SQL.
  */
 class ForumDb extends PDO
 {
@@ -1712,6 +1714,82 @@ class ForumDb extends PDO
             $post = null;
         }
         return $post;
+    }
+
+    public function SearchPosts(string $searchString, string $nick, 
+            int $limit, int $offset, 
+            SortField $sortField, SortOrder $sortOrder,
+            bool $noReplies) : array
+    {
+        $query = '';
+        $params = array();
+        if($searchString)
+        {
+            $mode = 'IN NATURAL LANGUAGE MODE';
+            // if we have symbols from a binary search, switch to that mode
+            if(preg_match('/\+|\-|<|>|\(.+\)|\*|~/', $searchString))
+            {
+                $mode = 'IN BOOLEAN MODE';
+            }            
+            // full-text search if we have a searchString
+            $query = 'SELECT p.idpost AS idpost, p.iduser AS iduser, '
+                    . 'p.title AS title, p.creation_ts AS creation_ts, '
+                    . 'u.nick AS nick, '
+                    . 'p.content IS NOT NULL AS has_content, '
+                    . 'MATCH (title, content) '
+                    . 'AGAINST (:search_string1 ' . $mode . ') AS relevance '
+                    . 'FROM post_table p LEFT JOIN user_table u '
+                    . 'ON p.iduser = u.iduser '
+                    . 'WHERE p.hidden = 0 '
+                    . 'AND MATCH (title, content) '
+                    . 'AGAINST (:search_string2 ' . $mode . ') ';
+            $params[':search_string1'] = $searchString;
+            $params[':search_string2'] = $searchString;
+            // add an optional nick clause
+            if($nick)
+            {
+                $query.= 'AND u.nick = :nick ';
+                $params[':nick'] = $nick;
+            }
+        }
+        else if($nick)
+        {
+            // user-search only
+            $query = 'SELECT p.idpost AS idpost, p.iduser AS iduser, '
+                    . 'p.title AS title, p.creation_ts AS creation_ts, '
+                    . 'u.nick AS nick, '
+                    . 'p.content IS NOT NULL AS has_content '
+                    . 'FROM post_table p LEFT JOIN user_table u '
+                    . 'ON p.iduser = u.iduser '
+                    . 'WHERE p.hidden = 0 '
+                    . 'AND u.nick = :nick ';
+            $params[':nick'] = $nick;
+            // for a user-search only, we have no relevance. Fall back to date
+            if($sortField === SortField::FIELD_RELEVANCE)
+            {
+                $sortField = SortField::FIELD_DATE;
+            }
+        }
+        // add an optinal no replies clause
+        if($noReplies === true)
+        {
+            $query.= 'AND p.parent_idpost IS NULL ';
+        }
+        // add the order by clause
+        $query.= 'ORDER BY ' . $sortField->value . ' ' .$sortOrder->value;
+        // and the limit with an offset
+        $query.= ' LIMIT :offset, :limit';
+        $params[':offset'] = $offset;
+        $params[':limit'] = $limit;
+        // ready to query
+        $stmt = $this->prepare($query);
+        $stmt->execute($params);
+        $results = array();
+        while($searchResult = $stmt->fetchObject(SearchResult::class))
+        {
+            array_push($results, $searchResult);
+        }
+        return $results;
     }
 
     /**

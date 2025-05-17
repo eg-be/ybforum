@@ -145,7 +145,7 @@ class SearchHandler extends BaseHandler
         // be more results available
         try
         {
-            $this->m_results = SearchResult::SearchPosts($db, 
+            $this->m_results = $db->SearchPosts(
                     $this->m_searchString, 
                     $this->m_searchNick, 
                     $this->GetLimit() + 1, 
