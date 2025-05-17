@@ -21,6 +21,7 @@
 
 require_once __DIR__.'/BaseHandler.php';
 require_once __DIR__.'/../model/SearchResult.php';
+require_once __DIR__.'/../model/SearchHelpers.php';
 
 /**
  * Handle a Search request
@@ -62,8 +63,14 @@ class SearchHandler extends BaseHandler
         $this->m_searchString = self::ReadStringParam(self::PARAM_SEARCH_STRING);
         $this->m_searchNick = self::ReadStringParam(self::PARAM_NICK);
         $this->m_resultOffset = self::ReadIntParam(self::PARAM_RESULT_OFFSET);
-        $this->m_sortField = self::ReadStringParam(self::PARAM_SORT_FIELD);
-        $this->m_sortOrder = self::ReadStringParam(self::PARAM_SORT_ORDER);
+        $sortField = self::ReadStringParam(self::PARAM_SORT_FIELD);
+        if($sortField) {
+            $this->m_sortField = SortField::tryFrom($sortField);
+        }
+        $sortOrder = self::ReadStringParam(self::PARAM_SORT_ORDER);
+        if($sortOrder) {
+            $this->m_sortOrder = SortOrder::tryFrom($sortOrder);
+        }
         $noRepliesValue = self::ReadStringParam(self::PARAM_NO_REPLIES);
         if($noRepliesValue && $noRepliesValue === self::PARAM_NO_REPLIES)
         {
@@ -107,10 +114,9 @@ class SearchHandler extends BaseHandler
         {
             $this->m_sortField = $validSortFields[0];
         }
-        if(!$this->m_sortOrder || 
-                !($this->m_sortOrder === 'ASC' || $this->m_sortOrder === 'DESC'))
+        if(!$this->m_sortOrder)
         {
-            $this->m_sortOrder = 'DESC';
+            $this->m_sortOrder = SortOrder::ORDER_DESC;
         }
     }
     
@@ -118,13 +124,13 @@ class SearchHandler extends BaseHandler
     public function GetValidSortFields() : array
     {
         $sortFields = array(
-            SearchResult::SORT_FIELD_DATE,
-            SearchResult::SORT_FIELD_TITLE,
-            SearchResult::SORT_FIELD_NICK
+            SortField::FIELD_DATE,
+            SortField::FIELD_TITLE,
+            SortField::FIELD_NICK
         );
         if($this->m_searchString)
         {
-            array_unshift($sortFields, SearchResult::SORT_FIELD_RELEVANCE);
+            array_unshift($sortFields, SortField::FIELD_RELEVANCE);
         }
         return $sortFields;
     }
@@ -224,12 +230,12 @@ class SearchHandler extends BaseHandler
         return YbForumConfig::MAX_SEARCH_ENTRIES;
     }
     
-    public function GetSortField() : string
+    public function GetSortField() : SortField
     {
         return $this->m_sortField;        
     }
     
-    public function GetSortOrder() : string
+    public function GetSortOrder() : SortOrder
     {
         return $this->m_sortOrder;
     }
@@ -242,8 +248,8 @@ class SearchHandler extends BaseHandler
     private ?string $m_searchNick;
     private ?string $m_searchString;
     private ?int $m_resultOffset;
-    private ?string $m_sortField;
-    private ?string $m_sortOrder;
+    private ?SortField $m_sortField;
+    private ?SortOrder $m_sortOrder;
     private bool $m_noReplies;
     
     private ?array $m_results;

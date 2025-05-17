@@ -60,9 +60,9 @@ final class SearchHandlerTest extends TestCase
 
         $fields = $this->sh->GetValidSortFields();
         $this->assertEqualsCanonicalizing(array(
-            SearchResult::SORT_FIELD_DATE,
-            SearchResult::SORT_FIELD_TITLE,
-            SearchResult::SORT_FIELD_NICK), $fields);
+            SortField::FIELD_DATE,
+            SortField::FIELD_TITLE,
+            SortField::FIELD_NICK), $fields);
     }
 
     public function testGetValidSortFieldsWithSearchStr()
@@ -74,10 +74,10 @@ final class SearchHandlerTest extends TestCase
         $fields = $this->sh->GetValidSortFields();
         // can now be sorted by relevance
         $this->assertEqualsCanonicalizing(array(
-            SearchResult::SORT_FIELD_DATE,
-            SearchResult::SORT_FIELD_TITLE,
-            SearchResult::SORT_FIELD_NICK,
-            SearchResult::SORT_FIELD_RELEVANCE
+            SortField::FIELD_DATE,
+            SortField::FIELD_TITLE,
+            SortField::FIELD_NICK,
+            SortField::FIELD_RELEVANCE
         ), $fields);
     }
 

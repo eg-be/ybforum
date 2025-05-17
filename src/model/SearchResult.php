@@ -24,48 +24,16 @@
  * search result entry. Provides static method(s) to create such entries.
  */
 
+ require_once __DIR__.'/SearchHelpers.php';
 
 class SearchResult 
-{
-    const SORT_FIELD_RELEVANCE = 'relevance';
-    const SORT_FIELD_TITLE = 'title';
-    const SORT_FIELD_NICK = 'nick';
-    const SORT_FIELD_DATE = 'creation_ts';
-    
-    const SORT_ORDER_ASC = 'ASC';
-    const SORT_ORDER_DESC = 'DESC';
-    
-    // todo: when replacing with enum: only used when SearchResults are displayed
-    // in SearchResultView and in here to validate the key
-    // todo: when chaning to enum, translate it from the string in SearchHandler
-    const SORT_FIELDS = array(
-        self::SORT_FIELD_RELEVANCE => 'Relevanz',
-        self::SORT_FIELD_TITLE => 'Titel',
-        self::SORT_FIELD_NICK => 'Stammposter',
-        self::SORT_FIELD_DATE => 'Datum'
-    );
-    
-    const SORT_ORDERS = array(
-        self::SORT_ORDER_ASC => 'Aufsteigend',
-        self::SORT_ORDER_DESC => 'Absteigend'
-    );
-    
+{   
     public static function SearchPosts(ForumDb $db, 
             string $searchString, string $nick, 
             int $limit, int $offset, 
-            string $sortField, string $sortOrder,
+            SortField $sortField, SortOrder $sortOrder,
             bool $noReplies) : array
     {
-        // check that we have a valid sort field
-        if(!array_key_exists($sortField, self::SORT_FIELDS))
-        {
-            throw new InvalidArgumentException('Invalid sortField: ' . $sortField);
-        }
-        // and a valid sortorder
-        if(!array_key_exists($sortOrder, self::SORT_ORDERS))
-        {
-            throw new InvalidArgumentException('Invalid sortOrder: ' . $sortOrder);            
-        }
         $query = '';
         $params = array();
         if($searchString)
@@ -110,9 +78,9 @@ class SearchResult
                     . 'AND u.nick = :nick ';
             $params[':nick'] = $nick;
             // for a user-search only, we have no relevance. Fall back to date
-            if($sortField === self::SORT_FIELD_RELEVANCE)
+            if($sortField === SortField::FIELD_RELEVANCE)
             {
-                $sortField = self::SORT_FIELD_DATE;
+                $sortField = SortField::FIELD_DATE;
             }
         }
         // add an optinal no replies clause
@@ -121,7 +89,7 @@ class SearchResult
             $query.= 'AND p.parent_idpost IS NULL ';
         }
         // add the order by clause
-        $query.= 'ORDER BY ' . $sortField . ' ' .$sortOrder;
+        $query.= 'ORDER BY ' . $sortField->value . ' ' .$sortOrder->value;
         // and the limit with an offset
         $query.= ' LIMIT :offset, :limit';
         $params[':offset'] = $offset;

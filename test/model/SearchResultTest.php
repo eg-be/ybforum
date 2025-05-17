@@ -55,7 +55,7 @@ final class SearchResultTest extends BaseTest
     public function testSearchPosts(string $searchString, ?string $nick, bool $noReplies, int $numberOfResults) 
     {
 
-        $res = SearchResult::SearchPosts($this->db, $searchString, $nick ? $nick : "", 100, 0, SearchResult::SORT_FIELD_RELEVANCE, SearchResult::SORT_ORDER_ASC, $noReplies);
+        $res = SearchResult::SearchPosts($this->db, $searchString, $nick ? $nick : "", 100, 0, SortField::FIELD_RELEVANCE, SortOrder::ORDER_ASC, $noReplies);
         $resCount = count($res);
         $this->assertEquals($numberOfResults, $resCount);
     }
