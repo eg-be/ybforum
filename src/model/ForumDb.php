@@ -24,6 +24,7 @@ require_once __DIR__.'/User.php';
 require_once __DIR__.'/Post.php';
 require_once __DIR__.'/PostIndexEntry.php';
 require_once __DIR__.'/SearchHelpers.php';
+require_once __DIR__.'/SearchResult.php';
 require_once __DIR__.'/../helpers/ErrorHandler.php';
 require_once __DIR__.'/../helpers/Logger.php';
 require_once __DIR__.'/../YbForumConfig.php';

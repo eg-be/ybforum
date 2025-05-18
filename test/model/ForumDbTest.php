@@ -1597,4 +1597,29 @@ final class ForumDbTest extends BaseTest
             [$deactivated]
         );
     }
+
+    public static function providerSearchStrings() : array 
+    {
+        return array(
+            ['"Thread 3"', null, false, 8],
+            ["Thread 3", null, false, 20],
+            ['"Thread 3"', null, true, 1],
+            ["Thread 3", null, true, 12],
+            ['"Thread 3"', "user3", false, 3],
+            ["Thread 3", "user3", false, 6],
+            ['"Thread 3"', "user3", true, 1],
+            ["Thread 3", "user3", true, 4],
+            ["", "user3", false, 6],
+            ["", "user3", true, 4],
+        );
+    }
+
+    #[DataProvider('providerSearchStrings')]
+    public function testSearchPosts(string $searchString, ?string $nick, bool $noReplies, int $numberOfResults) 
+    {
+        BaseTest::createTestDatabase();
+        $res = $this->db->SearchPosts($searchString, $nick ? $nick : "", 100, 0, SortField::FIELD_RELEVANCE, SortOrder::ORDER_ASC, $noReplies);
+        $resCount = count($res);
+        $this->assertEquals($numberOfResults, $resCount);
+    }    
 }

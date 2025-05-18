@@ -22,41 +22,18 @@ final class SearchResultTest extends BaseTest
     {
         // This tests will not modify the db, its enough to re-create
         // the test-db before running all tests from this class
-        BaseTest::createTestDatabase();
+       // BaseTest::createTestDatabase();
     }
 
     protected function setUp(): void
     {
-        $this->db = new ForumDb();
+        //$this->db = new ForumDb();
     }
 
     protected function assertPreConditions(): void
     {
-        $this->assertTrue($this->db->IsConnected());
+        //$this->assertTrue($this->db->IsConnected());
     }
 
-    public static function providerSearchStrings() : array 
-    {
-        return array(
-            ['"Thread 3"', null, false, 8],
-            ["Thread 3", null, false, 20],
-            ['"Thread 3"', null, true, 1],
-            ["Thread 3", null, true, 12],
-            ['"Thread 3"', "user3", false, 3],
-            ["Thread 3", "user3", false, 6],
-            ['"Thread 3"', "user3", true, 1],
-            ["Thread 3", "user3", true, 4],
-            ["", "user3", false, 6],
-            ["", "user3", true, 4],
-        );
-    }
-
-    #[DataProvider('providerSearchStrings')]
-    public function testSearchPosts(string $searchString, ?string $nick, bool $noReplies, int $numberOfResults) 
-    {
-
-        $res = $this->db->SearchPosts($searchString, $nick ? $nick : "", 100, 0, SortField::FIELD_RELEVANCE, SortOrder::ORDER_ASC, $noReplies);
-        $resCount = count($res);
-        $this->assertEquals($numberOfResults, $resCount);
-    }
+    // todo: add some tests
 }
