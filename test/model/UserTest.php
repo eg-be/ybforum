@@ -73,6 +73,16 @@ final class UserTest extends BaseTest
         $this->assertFalse($oldUser->OldAuth('olD-user-pass'));
     }
 
+    public function testOldAuth_noOldPasswordSet() : void
+    {
+        $user = self::mockUser(1, 'user', 'user@dev',
+            0, 1,
+            '2020-03-30 14:30:05', 'just a user with no old password set',
+            '2020-03-30 14:30:15', 
+            '$2y$10$n.ZGkNoS3BvavZ3qcs50nelspmTfM3dh8ZLSZ5JXfBvW9rQ6i..VC', null);
+        $this->assertFalse($user->OldAuth('some password'));
+    }
+
     public function testEmail() : void
     {
         $mail = self::mockUser(13, 'nick', 'mail@foo.com',
@@ -166,7 +176,7 @@ final class UserTest extends BaseTest
         null, null
         );
         $this->assertNull($noMsg->GetRegistrationMsg());
-        $this->assertFalse($noMsg->HasRegistrationMsg());        
+        $this->assertFalse($noMsg->HasRegistrationMsg());
     }
 
     public function testConfirmed() : void
@@ -245,6 +255,22 @@ final class UserTest extends BaseTest
         $this->assertFalse($noMig->HasOldPassword());
         $this->assertFalse($noMig->NeedsMigration());
         $this->assertTrue($noMig->HasPassword());
+    }
 
+    public function testGetFullUserInfoAsString() : void
+    {
+        $conf= self::mockUser(13, 'nick', 'mail@foo.com',
+            0, 0, '2020-03-30 14:30:05', 'message',
+            '2022-06-21 07:30:05',
+            null, null
+        );
+        $this->assertEquals('IdUser: 13; Nick: nick; Email: mail@foo.com; Active: No; Confirmed: Yes; Needs Migration: No; HasPassword: No; HasOldPassword: No; IsAdmin: No; IsDummy: No; Registration Timestamp: 30.03.2020 14:30:05; Confirmation Timestamp: 21.06.2022 07:30:05; Registration Message: message', $conf->GetFullUserInfoAsString());
+
+        $notConf = self::mockUser(13, 'nick', null,
+        0, 0, '2020-03-30 14:30:05', null,
+        null,
+        null, null
+        );
+        $this->assertEquals('IdUser: 13; Nick: nick; Email: <No Email set>; Active: No; Confirmed: No; Needs Migration: No; HasPassword: No; HasOldPassword: No; IsAdmin: No; IsDummy: Yes; Registration Timestamp: 30.03.2020 14:30:05; Confirmation Timestamp: <Not Confirmed>; Registration Message: <No Registration Message set>', $notConf->GetFullUserInfoAsString());
     }
 }

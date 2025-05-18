@@ -12,8 +12,6 @@ require_once __DIR__.'/../../src/model/SearchResult.php';
  */
 final class SearchResultTest extends BaseTest
 {
-    private ForumDb $db;
-
     public static function setUpBeforeClass(): void
     {
 
