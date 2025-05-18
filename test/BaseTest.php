@@ -142,7 +142,6 @@ class BaseTest extends TestCase
         int $hidden
     ) : PostIndexEntry
     {
-
         $ref = new ReflectionClass(PostIndexEntry::class);
         $ctor = $ref->getConstructor();
         $ctor->setAccessible(true);
@@ -158,5 +157,28 @@ class BaseTest extends TestCase
         $ref->getProperty('hidden')->setValue($postIndexEntry, $hidden);
         $ctor->invoke($postIndexEntry);
         return $postIndexEntry;
+    }
+
+    protected static function mockSearchResult(
+        int $idpost,
+        string $nick,
+        string $title,
+        string $creation_ts,
+        ?float $relevance
+    ) : SearchResult 
+    {
+        $ref = new ReflectionClass(SearchResult::class);
+        $ctor = $ref->getConstructor();
+        $ctor->setAccessible(true);
+        $searchResult = $ref->newInstanceWithoutConstructor();
+        $ref->getProperty('idpost')->setValue($searchResult, $idpost);
+        $ref->getProperty('nick')->setValue($searchResult, $nick);
+        $ref->getProperty('title')->setValue($searchResult, $title);
+        $ref->getProperty('creation_ts')->setValue($searchResult, $creation_ts);
+        if(!is_null($relevance)) {
+            $ref->getProperty('relevance')->setValue($searchResult, $relevance);
+        }
+        $ctor->invoke($searchResult);
+        return $searchResult;
     }
 }
