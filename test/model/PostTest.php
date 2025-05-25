@@ -235,5 +235,45 @@ final class PostTest extends BaseTest
         );
         $this->assertFalse($noEmail->HasEmail());
         $this->assertNull($noEmail->GetEmail());        
-    }    
+    }
+
+        // just to make test-coverage look good on stupid accessors
+    public function testAllAccessors() : void
+     {
+        $topPost = self::mockPost(40, 8, null,
+            'user', 99, 
+            'title', 'content',
+            1, 0,
+            '2020-03-30 14:50:00',
+            null,
+            null, null, null,
+            null,
+            0,
+            '::1'
+        );
+        $this->assertEquals(40, $topPost->GetId());
+        $this->assertEquals(8, $topPost->GetThreadId());
+        $this->assertFalse($topPost->IsHidden());
+        $this->assertNull($topPost->GetParentPostId());
+        $this->assertFalse($topPost->HasParentPost());
+        $this->assertEquals('title', $topPost->GetTitle());
+        $this->assertEquals('user', $topPost->GetNick());
+        $this->assertEquals(99, $topPost->GetUserId());
+        $this->assertEquals(new DateTime('2020-03-30 14:50:00'), $topPost->GetPostTimestamp());
+        $this->assertTrue($topPost->HasContent());
+        $this->assertEquals('content', $topPost->GetContent());
+        $this->assertNull($topPost->GetOldPostNo());
+        $this->assertFalse($topPost->IsOldPost());
+        $this->assertFalse($topPost->HasLinkUrl());
+        $this->assertNull($topPost->GetLinkUrl());
+        $this->assertFalse($topPost->HasLinkText());
+        $this->assertNull($topPost->GetLinkText());
+        $this->assertFalse($topPost->HasImgUrl());
+        $this->assertNull($topPost->GetImgUrl());
+        $this->assertFalse($topPost->HasEmail());
+        $this->assertNull($topPost->GetEmail());
+        $this->assertEquals(1, $topPost->GetRank());
+        $this->assertEquals(0, $topPost->GetIndent());
+        $this->assertEquals('::1', $topPost->GetIpAddress());
+     }
 }
