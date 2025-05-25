@@ -298,5 +298,31 @@ final class BaseHandlerTest extends TestCase
         $paramName = 'doesnotexist';
         $filtered = BaseHandler::ReadStringParam($paramName);
         $this->assertNull($filtered);
-    }    
+    }
+
+    public function testReadRawParamFromGet()
+    {
+        $paramName = 'test';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_GET[$paramName] = 'value';
+        $value = BaseHandler::ReadRawParamFromGetOrPost($paramName);
+        $this->assertEquals('value', $value);
+    }
+
+    public function testReadRawParamFromPost()
+    {
+        $paramName = 'test';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST[$paramName] = 'value';
+        $value = BaseHandler::ReadRawParamFromGetOrPost($paramName);
+        $this->assertEquals('value', $value);
+    }
+
+    public function testReadRawParamFromGetOrPost_returnNullForNotExisting()
+    {
+        $paramName = 'foobar';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $value = BaseHandler::ReadRawParamFromGetOrPost($paramName);
+        $this->assertNull($value);
+    }
 }
