@@ -26,7 +26,9 @@
 class PostIndexEntry
 {
     /**
-     * Constructed only from pdo, hide constructor
+     * Constructed only from pdo, hide constructor.
+     * This constructor will assert that all members have a valid data
+     * and set some internal values.
      */
     private function __construct()
     {

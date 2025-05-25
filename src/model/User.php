@@ -25,8 +25,9 @@
 class User
 {
     /**
-     * Create an instance using one of the static methods. This constructor
-     * will assert that valid values are set when it is invoked.
+     * Constructed only from pdo, hide constructor.
+     * This constructor will assert that all members have a valid data
+     * and set some internal values.
      */
     protected function __construct()
     {

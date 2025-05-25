@@ -27,9 +27,9 @@
 class Post
 { 
     /**
+     * Constructed only from pdo, hide constructor.
      * This constructor will assert that all members have a valid data
-     * and set some internal values. It is called from pdo when creating
-     * instances.
+     * and set some internal values.
      */
     protected function __construct()
     {

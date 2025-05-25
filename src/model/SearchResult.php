@@ -28,11 +28,11 @@
 
 class SearchResult 
 {   
-    
     /**
-     * Create an instance using one of the static methods. This constructor
-     * will assert that the objects holds valid values when it is invoked.
-     */    
+     * Constructed only from pdo, hide constructor.
+     * This constructor will assert that all members have a valid data
+     * and set some internal values.
+     */
     private function __construct()
     {
         assert($this->idpost > 0);
