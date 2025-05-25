@@ -24,7 +24,7 @@
  * search result entry. Provides static method(s) to create such entries.
  */
 
- require_once __DIR__.'/SearchHelpers.php';
+ require_once __DIR__.'/SearchDefinitions.php';
 
 class SearchResult 
 {   

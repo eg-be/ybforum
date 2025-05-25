@@ -21,7 +21,7 @@
 
 require_once __DIR__.'/BaseHandler.php';
 require_once __DIR__.'/../model/SearchResult.php';
-require_once __DIR__.'/../model/SearchHelpers.php';
+require_once __DIR__.'/../model/SearchDefinitions.php';
 
 /**
  * Handle a Search request
