@@ -67,4 +67,25 @@ final class PostIndexEntryTest extends BaseTest
         );
         $this->assertEquals(new DateTime('2020-03-30 14:30:05'), $withContent->GetPostTimestamp());
     }
+
+    // just to make test-coverage look good on stupid accessors
+    public function testAllAccessors() : void
+     {
+        $topPost = self::mockPostIndexEntry(11, 111,
+            null, 'user', 'title',
+            0,
+            '2020-03-30 14:30:05',
+            1,  // has_content
+            0 // hidden
+        );
+        $this->assertEquals(11, $topPost->GetPostId());
+        $this->assertEquals(111, $topPost->GetThreadId());
+        $this->assertNull($topPost->GetParentPostId());
+        $this->assertEquals(0, $topPost->GetIndent());
+        $this->assertEquals('title', $topPost->GetTitle());
+        $this->assertTrue($topPost->HasContent());
+        $this->assertEquals('user', $topPost->GetNick());
+        $this->assertFalse($topPost->IsHidden());
+        $this->assertEquals(new DateTime('2020-03-30 14:30:05'), $topPost->GetPostTimestamp());        
+     }
 }
