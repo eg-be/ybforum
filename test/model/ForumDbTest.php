@@ -3,8 +3,6 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__.'/../BaseTest.php';
-require_once __DIR__.'/PostMock.php';
-require_once __DIR__.'/UserMock.php';
 require_once __DIR__.'/../../src/model/ForumDb.php';
 
 /**
@@ -175,7 +173,7 @@ final class ForumDbTest extends BaseTest
     {
         $oldThreadCount = $this->db->GetThreadCount();
         $oldPostCount = $this->db->GetPostCount();
-        $user = User::LoadUserByNick($this->db, 'admin');
+        $user = $this->db->LoadUserByNick('admin');
         $this->assertNotNull($user);
         // create a new thread with the minimal required arguments
         $minPostId = $this->db->CreateThread($user, 'min-thread', 
@@ -195,9 +193,9 @@ final class ForumDbTest extends BaseTest
         $this->assertSame($oldPostCount + 2, $newPostCount);
 
         // And check that the newly created threads / posts can be read back:
-        $minPost = Post::LoadPost($this->db, $minPostId);
+        $minPost = $this->db->LoadPost($minPostId);
         $this->assertNotNull($minPost);
-        $minPostRef = new PostMock($minPostId, 
+        $minPostRef = self::mockPost($minPostId, 
             $minPost->GetThreadId(), // we cannot know the created thread-id, read from db
             null,
             $user->GetNick(), $user->GetId(),
@@ -212,9 +210,9 @@ final class ForumDbTest extends BaseTest
         );
         $this->assertObjectEquals($minPostRef, $minPost);
 
-        $allPost = Post::LoadPost($this->db, $allPostId);
+        $allPost = $this->db->LoadPost($allPostId);
         $this->assertNotNull($allPost);
-        $allPostRef = new PostMock($allPostId, 
+        $allPostRef = self::mockPost($allPostId, 
             $allPost->GetThreadId(), // we cannot know the created thread-id, read from db
             null,
             $user->GetNick(), $user->GetId(),
@@ -230,31 +228,32 @@ final class ForumDbTest extends BaseTest
         $this->assertObjectEquals($allPostRef, $allPost);        
     }
 
-    #[DataProvider('providerInactiveDummy')]
-    public function testCreateThreadFails(User $u) : void
+    public function testCreateThreadFailsForInactive() : void
     {
-        $this->assertTrue($u->IsDummyUser() || $u->IsActive() === false);
+        $inactive = $this->createMock(User::class);
+        $inactive->method('IsDummyUser')->willReturn(true);
+        $inactive->method('IsActive')->willReturn(false);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->CreateThread($u, 'title',
+        $this->db->CreateThread($inactive, 'title',
             null, null, null, null, null, '::1');
     }
 
-    public static function providerInactiveDummy() : array 
+    public function testCreateThreadFailsForDummy() : void
     {
-        $deactivated = new UserMock(50, 'deactivated', 'deactivated@dev', 0, 0, '2021-03-30 14:30:05', null, '2021-03-30 14:30:15', '$2y$10$U2nazhRAEhg1JkXu2Uls0.pnH5Wi9QsyXbmoJMBC2KNYGPN8fezfe', null);
-        $dummy = new UserMock(66, 'dummy', null, 0, 0, '2021-03-30 14:30:05', null, null, null, null);
-        return array(
-            [$deactivated], 
-            [$dummy]
-        );
+        $dummy = $this->createMock(User::class);
+        $dummy->method('IsDummyUser')->willReturn(true);
+        $dummy->method('IsActive')->willReturn(true);
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->CreateThread($dummy, 'title',
+            null, null, null, null, null, '::1');
     }
 
     public function testCreateReply() : void
     {
         $oldPostCount = $this->db->GetPostCount();
-        $user = User::LoadUserByNick($this->db, 'user2');
+        $user =$this->db->LoadUserByNick('user2');
         $this->assertNotNull($user);
-        $parentPost = Post::LoadPost($this->db, 26);
+        $parentPost = $this->db->LoadPost(26);
         $this->assertNotNull($parentPost);
         // create a new post with the minimal required arguments
         $minPostId = $this->db->CreateReplay($parentPost->GetId(), $user, 
@@ -271,9 +270,9 @@ final class ForumDbTest extends BaseTest
         $this->assertSame($oldPostCount + 2, $newPostCount);
 
         // And check that the newly created posts can be read back:
-        $minPost = Post::LoadPost($this->db, $minPostId);
+        $minPost = $this->db->LoadPost($minPostId);
         $this->assertNotNull($minPost);
-        $minPostRef = new PostMock($minPostId, 
+        $minPostRef = self::mockPost($minPostId, 
             $parentPost->GetThreadId(), // must be part of parent-thread
             $parentPost->GetId(),
             $user->GetNick(), $user->GetId(),
@@ -288,9 +287,9 @@ final class ForumDbTest extends BaseTest
         );
         $this->assertObjectEquals($minPostRef, $minPost);
 
-        $allPost = Post::LoadPost($this->db, $allPostId);
+        $allPost = $this->db->LoadPost($allPostId);
         $this->assertNotNull($allPost);
-        $allPostRef = new PostMock($allPostId, 
+        $allPostRef = self::mockPost($allPostId, 
             $parentPost->GetThreadId(), // must be part of parent-thread            
             $parentPost->GetId(),
             $user->GetNick(), $user->GetId(),
@@ -306,12 +305,24 @@ final class ForumDbTest extends BaseTest
         $this->assertObjectEquals($allPostRef, $allPost);
     }
 
-    #[DataProvider('providerInactiveDummy')]
-    public function testCreateReplyFailsBecauseOfUser(User $u) : void
+    public function testCreateReplyFailsForInactive() : void
     {
-        $this->assertTrue($u->IsDummyUser() || $u->IsActive() === false);
+        $inactive = $this->createMock(User::class);
+        $inactive->method('IsDummyUser')->willReturn(false);
+        $inactive->method('IsActive')->willReturn(false);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->CreateReplay(30, $u, 
+        $this->db->CreateReplay(30, $inactive, 
+            'min-post', null, null, 
+            null, null, null, '::1');
+    }
+
+    public function testCreateReplyFailsForDummy() : void
+    {
+        $dummy = $this->createMock(User::class);
+        $dummy->method('IsDummyUser')->willReturn(true);
+        $dummy->method('IsActive')->willReturn(true);
+        $this->expectException(InvalidArgumentException::class);
+        $this->db->CreateReplay(30, $dummy, 
             'min-post', null, null, 
             null, null, null, '::1');
     }
@@ -327,9 +338,9 @@ final class ForumDbTest extends BaseTest
     #[DataProvider('providerInvalidParentPostId')]
     public function testCreateReplyFailsBecauseOfParent(int $parentPostId) : void
     {
-        $user = User::LoadUserByNick($this->db, 'user2');
+        $user =$this->db->LoadUserByNick('user2');
         $this->assertNotNull($user);
-        $parentPost = Post::LoadPost($this->db, $parentPostId);
+        $parentPost = $this->db->LoadPost($parentPostId);
         $this->assertNull($parentPost);
         $this->expectException(InvalidArgumentException::class);
         $this->db->CreateReplay($parentPostId, $user, 
@@ -339,27 +350,30 @@ final class ForumDbTest extends BaseTest
 
     public static function providerInvalidPostValues() : array 
     {
-        $user = new UserMock(102, 'user2', 'user2@dev', 0, 1, '2021-03-30 14:30:05', null, '2021-03-30 14:30:15', '$2y$10$U2nazhRAEhg1JkXu2Uls0.pnH5Wi9QsyXbmoJMBC2KNYGPN8fezfe', null);
         return array(
-            [26, $user, '', null, null, null, null, null, '::1'], 
-            [26, $user, ' ', null, null, null, null, null, '::1'], 
-            [26, $user, 'cont', ' ', null, null, null, null, '::1'], 
-            [26, $user, 'cont', null, ' ', null, null, null, '::1'], 
-            [26, $user, 'cont', null, null, ' ', null, null, '::1'], 
-            [26, $user, 'cont', null, null, null, ' ', null, '::1'], 
-            [26, $user, 'cont', null, null, null, null, ' ', '::1'], 
-            [26, $user, 'cont', null, null, null, null, null, ''], 
-            [26, $user, 'cont', null, null, null, null, null, ' '], 
+            [26, '', null, null, null, null, null, '::1'], 
+            [26, ' ', null, null, null, null, null, '::1'], 
+            [26, 'cont', ' ', null, null, null, null, '::1'], 
+            [26, 'cont', null, ' ', null, null, null, '::1'], 
+            [26, 'cont', null, null, ' ', null, null, '::1'], 
+            [26, 'cont', null, null, null, ' ', null, '::1'], 
+            [26, 'cont', null, null, null, null, ' ', '::1'], 
+            [26, 'cont', null, null, null, null, null, ''], 
+            [26, 'cont', null, null, null, null, null, ' '], 
         );
     }    
 
     #[DataProvider('providerInvalidPostValues')]
     public function testCreateReplyFailsBecauseOfValues(int $parentPostId,
-        User $user, string $title, 
+        string $title, 
         ?string $content, ?string $email, 
         ?string $linkUrl, ?string $linkText,
         ?string $imgUrl, string $clientIpAddress) : void
     {
+        $user = $this->createMock(User::class);
+        $user->method('GetId')->willReturn(102);
+        $user->method('GetNick')->willReturn('user2');
+        $user->method('GetEmail')->willReturn('user2@dev');
         $this->expectException(InvalidArgumentException::class);
         $this->db->CreateReplay($parentPostId, $user, 
             $title, $content, $email, 
@@ -385,11 +399,13 @@ final class ForumDbTest extends BaseTest
         $this->assertNotNull($newUser);
         $this->assertGreaterThan(0, $newUser->GetId());
         $this->assertNotNull($newUser);
-        $newUserRef = new UserMock($newUser->GetId(), $nick, $mail, 
+
+        $newUserRef = self::mockUser($newUser->GetId(), $nick, $mail, 
             0, 0,
             $newUser->GetRegistrationTimestamp()->Format('Y-m-d H:i:s'), $regMsg,
             null, null, null
         );
+
         $this->assertObjectEquals($newUserRef, $newUser);
     }
 
@@ -634,7 +650,7 @@ final class ForumDbTest extends BaseTest
     {
         // need a clean database, must work with a user awaiting confirmation
         self::createTestDatabase();
-        $user = User::LoadUserById($this->db, 52);
+        $user = $this->db->LoadUserById(52);
         $this->assertNotNull($user);
         $this->assertFalse($user->IsConfirmed());
         $this->assertFalse($user->IsActive());
@@ -675,7 +691,7 @@ final class ForumDbTest extends BaseTest
     {
         // create an entry and verify its created with the proper value
         $now = new DateTime();
-        $user = User::LoadUserById($this->db, 52);
+        $user = $this->db->LoadUserById(52);
         $this->assertNotNull($user);
         $code = $this->db->RequestPasswordResetCode($user, '::1');
         // verify returned value is in the db
@@ -707,8 +723,8 @@ final class ForumDbTest extends BaseTest
     {
         // create two codes: One that will expire in one minute
         // and one that has expired one minute ago
-        $user101 = User::LoadUserById($this->db, 101);
-        $user102 = User::LoadUserById($this->db, 102);
+        $user101 = $this->db->LoadUserById(101);
+        $user102 = $this->db->LoadUserById(102);
         $this->assertNotNull($user101);
         $this->assertNotNull($user102);
         $validCode = $this->db->RequestPasswordResetCode($user101, '::1');        
@@ -762,7 +778,7 @@ final class ForumDbTest extends BaseTest
     public function testRemoveResetPasswordCode() : void
     {
         // insert some entries, test they are removed
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);        
         $this->db->RequestPasswordResetCode($user101, '::1');
         $this->assertSame(1, $this->db->RemoveResetPasswordCode($user101));
@@ -775,7 +791,7 @@ final class ForumDbTest extends BaseTest
 
     public function testUpdateUserPassword() : void
     {
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);
         $this->db->UpdateUserPassword($user101, "foobar");
         // User must reflect the change immediately, reload must have been triggered by UpdateUserPassword
@@ -787,7 +803,7 @@ final class ForumDbTest extends BaseTest
     {
         // create an entry and verify its created with the proper value
         $now = new DateTime();
-        $user = User::LoadUserById($this->db, 52);
+        $user = $this->db->LoadUserById(52);
         $this->assertNotNull($user);
         $code = $this->db->RequestUpdateEmailCode($user, 
             'new-mail@mail.com', '::1');
@@ -822,8 +838,8 @@ final class ForumDbTest extends BaseTest
     {
         // create two codes: One that will expire in one minute
         // and one that has expired one minute ago
-        $user101 = User::LoadUserById($this->db, 101);
-        $user102 = User::LoadUserById($this->db, 102);
+        $user101 = $this->db->LoadUserById(101);
+        $user102 = $this->db->LoadUserById(102);
         $this->assertNotNull($user101);
         $this->assertNotNull($user102);
         $validCode = $this->db->RequestUpdateEmailCode($user101, 
@@ -883,7 +899,7 @@ final class ForumDbTest extends BaseTest
     public function testRemoveUpdateEmailCode() : void
     {
         // insert some entries, test they are removed
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);
         $this->db->RequestUpdateEmailCode($user101, 'new@mail', '::1');
         $this->assertSame(1, $this->db->RemoveUpdateEmailCode($user101));
@@ -896,7 +912,7 @@ final class ForumDbTest extends BaseTest
 
     public function testUpdateUserEmail() : void
     {
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);
         $this->db->UpdateUserEmail($user101, 'bla@mail');
         // note: User object must reflect the change without reloading
@@ -909,16 +925,16 @@ final class ForumDbTest extends BaseTest
         // rely on a test-database
         self::createTestDatabase();
         // activate one that is not active
-        $needsApproval = User::LoadUserById($this->db, 51);
+        $needsApproval = $this->db->LoadUserById(51);
         $this->assertNotNull($needsApproval);
         $this->assertFalse($needsApproval->IsActive());
         $this->db->ActivateUser($needsApproval);
         // must reload, see #21
-        $needsApproval = User::LoadUserById($this->db, 51);
+        $needsApproval = $this->db->LoadUserById(51);
         $this->assertTrue($needsApproval->IsActive());
 
         // activating one that is already active, does nothing
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);
         $this->assertTrue($user101->IsActive());
         $this->db->ActivateUser($user101);
@@ -926,7 +942,7 @@ final class ForumDbTest extends BaseTest
         $this->assertTrue($user101->IsActive());
 
         // Activating one with a deactivated reason, removes that reason
-        $deactivated = User::LoadUserById($this->db, 50);
+        $deactivated = $this->db->LoadUserById(50);
         $this->assertNotNull($deactivated);
         $this->assertFalse($deactivated->IsActive());
         $query = 'SELECT reason FROM user_deactivated_reason_table '
@@ -970,7 +986,7 @@ final class ForumDbTest extends BaseTest
         $admin->method('IsActive')->willReturn(true);
 
         // deactivate one that is active
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);
         $this->assertTrue($user101->IsActive());
         $this->db->DeactivateUser($user101, 'just for fun', $admin);
@@ -1027,7 +1043,7 @@ final class ForumDbTest extends BaseTest
         // rely on a test-database
         self::createTestDatabase();
         // promote one to an admin that is not yet
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);
         $this->assertFalse($user101->IsAdmin());
         $this->db->SetAdmin($user101, true);
@@ -1061,13 +1077,13 @@ final class ForumDbTest extends BaseTest
         // rely on a test-database
         self::createTestDatabase();
         // turn a user into a dummy
-        $user101 = User::LoadUserById($this->db, 101);
+        $user101 = $this->db->LoadUserById(101);
         $this->assertNotNull($user101);
         $this->assertFalse($user101->IsDummyUser());
         $this->db->MakeDummy($user101);
         $this->assertTrue($user101->IsDummyUser());
         // a dummy can be turned into a dummy over and over
-        $dummy = User::LoadUserById($this->db, 66);
+        $dummy = $this->db->LoadUserById(66);
         $this->assertNotNull($dummy);
         $this->assertTrue($dummy->IsDummyUser());
         $this->db->MakeDummy($dummy);
@@ -1094,11 +1110,11 @@ final class ForumDbTest extends BaseTest
         self::createTestDatabase();   
         // only users with 0 posts can be deleted
         // try to delete all users with zero posts
-        $user = User::LoadUserById($this->db, $userId);
+        $user = $this->db->LoadUserById($userId);
         $this->assertNotNull($user);
         $this->db->DeleteUser($user);
         // user must be gone by now
-        $this->assertNull(User::LoadUserById($this->db, $userId));
+        $this->assertNull($this->db->LoadUserById($userId));
 
         // check that deactivated_reason_table has been cleared:
         // (yes, is done by constraint of foreign key)
@@ -1134,24 +1150,24 @@ final class ForumDbTest extends BaseTest
         self::createTestDatabase();
         // hide some post within a thread:
         // its child must get hidden too
-        $postA1_2 = Post::LoadPost($this->db, 23);
+        $postA1_2 = $this->db->LoadPost(23);
         $this->assertNotNull($postA1_2);
         $this->assertFalse($postA1_2->IsHidden());
-        $postA1_2_1 = Post::LoadPost($this->db, 25);
+        $postA1_2_1 = $this->db->LoadPost(25);
         $this->assertNotNull($postA1_2_1);
         $this->assertFalse($postA1_2_1->IsHidden());
         $this->assertSame(23, $postA1_2_1->GetParentPostId());
         // now hide that tree by hiding the parent
         $this->db->SetPostVisible(23, false);
-        $postA1_2 = Post::LoadPost($this->db, 23);
+        $postA1_2 = $this->db->LoadPost(23);
         $this->assertTrue($postA1_2->IsHidden());
-        $postA1_2_1 = Post::LoadPost($this->db, 25);
+        $postA1_2_1 = $this->db->LoadPost(25);
         $this->assertTrue($postA1_2_1->IsHidden());
         // show again:
         $this->db->SetPostVisible(23, true);
-        $postA1_2 = Post::LoadPost($this->db, 23);
+        $postA1_2 = $this->db->LoadPost(23);
         $this->assertFalse($postA1_2->IsHidden());
-        $postA1_2_1 = Post::LoadPost($this->db, 25);
+        $postA1_2_1 = $this->db->LoadPost(25);
         $this->assertFalse($postA1_2_1->IsHidden());
 
         // fail for invalid post-ids
@@ -1217,15 +1233,15 @@ final class ForumDbTest extends BaseTest
 
     public static function providerLoadUser() : array
     {
-        $admin = User::CreateUser(1, 'admin', 'eg-be@dev',
+        $admin = self::mockUser(1, 'admin', 'eg-be@dev',
             1, 1, '2020-03-30 14:30:05', 'initial admin-user',
             '2020-03-30 14:30:15', 
             '$2y$10$n.ZGkNoS3BvavZ3qcs50nelspmTfM3dh8ZLSZ5JXfBvW9rQ6i..VC', null);
-        $old = User::CreateUser(10, 'old-user', 'old-user@dev',
+        $old = self::mockUser(10, 'old-user', 'old-user@dev',
             0, 0, '2017-12-31 15:21:27', 'needs migration',
             null,
             null, '895e1aace5e13c683491bb26dd7453bf');
-        $deactivated = User::CreateUser(50, 'deactivated', 'deactivated@dev',
+        $deactivated = self::mockUser(50, 'deactivated', 'deactivated@dev',
             0, 0, '2021-03-30 14:30:05', 'deactivated by admin',
             '2021-03-30 14:30:15',
             '$2y$10$U2nazhRAEhg1JkXu2Uls0.pnH5Wi9QsyXbmoJMBC2KNYGPN8fezfe', null);
@@ -1284,4 +1300,326 @@ final class ForumDbTest extends BaseTest
         // it seems whitespaces get trimmed at the end of a prepared statement:
         $this->assertNotNull($this->db->LoadUserByEmail('eg-be@dev '));        
     }
+
+    public function testLoadThreadIndexEntries() : void
+    {
+        // reset to initial state
+        BaseTest::createTestDatabase();
+
+        // assume that threadids are always increasing by one.
+        // this is not entirely true, especially if we once clear
+        // the database and should be fixed
+        // see #17
+        // Load the first 4 threads with ids [1, 2, 3, 4]
+        $threads = array();
+        $this->db->LoadThreadIndexEntries(4, 4, function($threadIndexes) use (&$threads) {
+            array_push($threads, $threadIndexes);
+        });
+
+        // check that all four threads are found
+        $this->assertEquals(4, sizeof($threads));
+        // in the correct order, which is reversed, as that makes rendering easier
+        // (newest threads shall appear first)
+        $this->assertEquals(4, $threads[0][0]->GetThreadId());
+        $this->assertEquals('Thread 4', $threads[0][0]->GetTitle());
+        $this->assertEquals(3, $threads[1][0]->GetThreadId());
+        $this->assertEquals('Thread 3', $threads[1][0]->GetTitle());
+        $this->assertEquals(2, $threads[2][0]->GetThreadId());
+        $this->assertEquals('Thread 2', $threads[2][0]->GetTitle());
+        $this->assertEquals(1, $threads[3][0]->GetThreadId());
+        $this->assertEquals('Thread 1', $threads[3][0]->GetTitle());
+
+        // check that Thread 3 is complete and ready to be rendered:
+        $thread3 = $threads[1];
+        $this->assertEquals(8, sizeof($thread3));
+        $this->assertEquals(3, $threads[1][0]->GetThreadId());
+        $this->assertEquals('Thread 3', $thread3[0]->GetTitle());
+        $this->assertEquals(0, $thread3[0]->GetIndent());
+        $this->assertEquals('Thread 3 - A1', $thread3[1]->GetTitle());
+        $this->assertEquals(1, $thread3[1]->GetIndent());
+        $this->assertEquals('Thread 3 - A1-1', $thread3[2]->GetTitle());
+        $this->assertEquals(2, $thread3[2]->GetIndent());
+        $this->assertEquals('Thread 3 - A1-2', $thread3[3]->GetTitle());
+        $this->assertEquals(2, $thread3[3]->GetIndent());
+        $this->assertEquals('Thread 3 - A1-2-1', $thread3[4]->GetTitle());
+        $this->assertEquals(3, $thread3[4]->GetIndent());
+        $this->assertEquals('Thread 3 - A1-3', $thread3[5]->GetTitle());
+        $this->assertEquals(2, $thread3[5]->GetIndent());
+        $this->assertEquals('Thread 3 - A2', $thread3[6]->GetTitle());
+        $this->assertEquals(1, $thread3[6]->GetIndent());
+        $this->assertEquals('Thread 3 - A2-1', $thread3[7]->GetTitle());
+        $this->assertEquals(2, $thread3[7]->GetIndent());
+    }
+
+    public function testLoadThreadIndexEntries_HiddenPathNotIncluded() : void
+    {
+        // reset to initial state
+        BaseTest::createTestDatabase();
+
+        // Hide the part from 'Thread 3 A1-2' on of Thread 3
+        $this->db->SetPostVisible(23, false);
+
+        // assume that threadids are always increasing by one.
+        // this is not entirely true, especially if we once clear
+        // the database and should be fixed
+        // see #17
+        // Load the first 4 threads with ids [1, 2, 3, 4]
+        $threads = array();
+        $this->db->LoadThreadIndexEntries(4, 4, function($threadIndexes) use (&$threads) {
+            array_push($threads, $threadIndexes);
+        });
+
+        // check that all four threads are found
+        $this->assertEquals(4, sizeof($threads));
+        // in the correct order, which is reversed, as that makes rendering easier
+        // (newest threads shall appear first)
+        $this->assertEquals(4, $threads[0][0]->GetThreadId());
+        $this->assertEquals('Thread 4', $threads[0][0]->GetTitle());
+        $this->assertEquals(3, $threads[1][0]->GetThreadId());
+        $this->assertEquals('Thread 3', $threads[1][0]->GetTitle());
+        $this->assertEquals(2, $threads[2][0]->GetThreadId());
+        $this->assertEquals('Thread 2', $threads[2][0]->GetTitle());
+        $this->assertEquals(1, $threads[3][0]->GetThreadId());
+        $this->assertEquals('Thread 1', $threads[3][0]->GetTitle());
+
+        // check that Thread 3 is complete and ready to be rendered:
+        $thread3 = $threads[1];
+        $this->assertEquals(6, sizeof($thread3));
+        $this->assertEquals(3, $threads[1][0]->GetThreadId());
+        $this->assertEquals('Thread 3', $thread3[0]->GetTitle());
+        $this->assertEquals(0, $thread3[0]->GetIndent());
+        $this->assertEquals('Thread 3 - A1', $thread3[1]->GetTitle());
+        $this->assertEquals(1, $thread3[1]->GetIndent());
+        $this->assertEquals('Thread 3 - A1-1', $thread3[2]->GetTitle());
+        $this->assertEquals(2, $thread3[2]->GetIndent());
+        $this->assertEquals('Thread 3 - A1-3', $thread3[3]->GetTitle());
+        $this->assertEquals(2, $thread3[3]->GetIndent());
+        $this->assertEquals('Thread 3 - A2', $thread3[4]->GetTitle());
+        $this->assertEquals(1, $thread3[4]->GetIndent());
+        $this->assertEquals('Thread 3 - A2-1', $thread3[5]->GetTitle());
+        $this->assertEquals(2, $thread3[5]->GetIndent());
+    }
+
+    public function testLoadPostReplies() : void
+    {
+        // reset to initial state
+        BaseTest::createTestDatabase();
+
+        // top-level post 'Thread 1', has no children
+        $post_1 = $this->createMock(Post::class);
+        $post_1->method('GetId')->willReturn(1);
+        $post_1->method('GetThreadId')->willReturn(1);
+        $post_1->method('GetIndent')->willReturn(0);
+        $post_1->method('GetRank')->willReturn(1);
+
+        $replies_1 = $this->db->LoadPostReplies($post_1, false);
+        $this->assertEquals(0, sizeof($replies_1));
+
+        // top-level post 'Thread 3', has 7 (sub-) children
+        $post_3 = $this->createMock(Post::class);
+        $post_3->method('GetId')->willReturn(3);
+        $post_3->method('GetThreadId')->willReturn(3);
+        $post_3->method('GetIndent')->willReturn(0);
+        $post_3->method('GetRank')->willReturn(1);
+
+        $replies_3 = $this->db->LoadPostReplies($post_3, false);
+        $this->assertEquals(7, sizeof($replies_3));
+        $this->assertEquals('Thread 3 - A1', $replies_3[0]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-1', $replies_3[1]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2', $replies_3[2]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2-1', $replies_3[3]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-3', $replies_3[4]->GetTitle());
+        $this->assertEquals('Thread 3 - A2', $replies_3[5]->GetTitle());
+        $this->assertEquals('Thread 3 - A2-1', $replies_3[6]->GetTitle());
+
+        // only a smaller part of the answers
+        $post_20 = $this->createMock(Post::class);
+        $post_20->method('GetId')->willReturn(20);
+        $post_20->method('GetThreadId')->willReturn(3);
+        $post_20->method('GetIndent')->willReturn(1);
+        $post_20->method('GetRank')->willReturn(2);
+
+        $replies_20 = $this->db->LoadPostReplies($post_20, false);
+        $this->assertEquals(4, sizeof($replies_20));
+        $this->assertEquals('Thread 3 - A1-1', $replies_20[0]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2', $replies_20[1]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2-1', $replies_20[2]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-3', $replies_20[3]->GetTitle());
+    }
+
+    public function testLoadPostReplies_HiddenPathNotIncluded() : void
+    {
+        // reset to initial state
+        BaseTest::createTestDatabase();
+
+        // Hide the part from 'Thread 3 A1-2' on of Thread 3
+        $this->db->SetPostVisible(23, false);
+
+        // top-level post 'Thread 3', has 7 (sub-) children, if hidden path is included
+        $post_3 = $this->createMock(Post::class);
+        $post_3->method('GetId')->willReturn(3);
+        $post_3->method('GetThreadId')->willReturn(3);
+        $post_3->method('GetIndent')->willReturn(0);
+        $post_3->method('GetRank')->willReturn(1);
+
+        $replies_3 = $this->db->LoadPostReplies($post_3, true);
+        $this->assertEquals(7, sizeof($replies_3));
+        $this->assertEquals('Thread 3 - A1', $replies_3[0]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-1', $replies_3[1]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2', $replies_3[2]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2-1', $replies_3[3]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-3', $replies_3[4]->GetTitle());
+        $this->assertEquals('Thread 3 - A2', $replies_3[5]->GetTitle());
+        $this->assertEquals('Thread 3 - A2-1', $replies_3[6]->GetTitle());
+
+        // top-level post 'Thread 3', has 5 (sub-) children, if hidden path is not included
+        $post_3 = $this->createMock(Post::class);
+        $post_3->method('GetId')->willReturn(3);
+        $post_3->method('GetThreadId')->willReturn(3);
+        $post_3->method('GetIndent')->willReturn(0);
+        $post_3->method('GetRank')->willReturn(1);
+
+        $replies_3 = $this->db->LoadPostReplies($post_3, false);
+        $this->assertEquals(5, sizeof($replies_3));
+        $this->assertEquals('Thread 3 - A1', $replies_3[0]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-1', $replies_3[1]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-3', $replies_3[2]->GetTitle());
+        $this->assertEquals('Thread 3 - A2', $replies_3[3]->GetTitle());
+        $this->assertEquals('Thread 3 - A2-1', $replies_3[4]->GetTitle());
+    }   
+    
+    public function testLoadRecentPosts() : void
+    {
+        // reset to initial state
+        BaseTest::createTestDatabase();
+
+        $recent = $this->db->LoadRecentPosts(5);
+        $this->assertEquals(5, sizeof($recent));
+        $this->assertEquals('Thread 5 - A1', $recent[0]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-3', $recent[1]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2-1', $recent[2]->GetTitle());
+        $this->assertEquals('Thread 3 - A2-1', $recent[3]->GetTitle());
+        $this->assertEquals('Thread 3 - A1-2', $recent[4]->GetTitle());
+    }
+
+    public static function providerPostMock() : array
+    {
+        // one simple post with no parent:
+        $p8 = self::mockPost(8, 8, null,
+            'user2', 102, 
+            'Thread 8', 'The quick brown fox jumps over the lazy dog',
+            1, 0,
+            '2020-03-30 14:38:00',
+            null,
+            null, null, null,
+            null,
+            0,
+            '::1'
+        );
+        // one with a parent:
+        $p21 = self::mockPost(21, 3, 20,
+            'user2', 102, 
+            'Thread 3 - A1-1', 'The quick brown fox jumps over the lazy dog',
+            3, 2,
+            '2020-03-30 14:51:00',
+            null,
+            null, null, null,
+            null,
+            0,
+            '::1'
+        );
+
+        // and one with all fields set:
+        $p30 = self::mockPost(30, 5, 5,
+            'user1', 101, 
+            'Thread 5 - A1', 'The quick brown fox jumps over the lazy dog',
+            2, 1,
+            '2022-06-22 16:13:25',
+            'mail@me.com',
+            'https://foobar', 'Visit me', 'https://giphy/bar.gif',
+            131313,
+            0,
+            '::1'
+        );        
+        
+        // and a hidden-one
+        $p40 = self::mockPost(40, 8, 8,
+            'user3', 103, 
+            'Thread 8 - A1', 'The quick brown fox jumps over the lazy dog',
+            2, 1,
+            '2020-03-30 14:50:00',
+            null,
+            null, null, null,
+            null,
+            1,
+            '::1'
+        );
+        return array(
+            [$p8],
+            [$p21],
+            [$p30],
+            [$p40]
+        );
+    }
+
+    #[DataProvider('providerPostMock')]
+    public function testLoadPost(Post $ref) : void
+    {
+        $post = $this->db->LoadPost($ref->GetId());
+        $this->assertNotNull($post);
+        $this->assertObjectEquals($ref, $post);
+    }
+
+    public function testLoadPostFail() : void
+    {
+        $this->assertNull($this->db->LoadPost(-1));
+        $this->assertNull($this->db->LoadPost(99));
+    }
+
+    public static function providerUserMock() : array
+    {
+        $admin = self::mockUser(1, 'admin', 'eg-be@dev',
+            1, 1, '2020-03-30 14:30:05', 'initial admin-user',
+            '2020-03-30 14:30:15',
+            '$2y$10$n.ZGkNoS3BvavZ3qcs50nelspmTfM3dh8ZLSZ5JXfBvW9rQ6i..VC', null);
+        $old = self::mockUser(10, 'old-user', 'old-user@dev',
+            0, 0, '2017-12-31 15:21:27', 'needs migration',
+            null,
+            null, '895e1aace5e13c683491bb26dd7453bf');
+        $deactivated = self::mockUser(50, 'deactivated', 'deactivated@dev',
+            0, 0, '2021-03-30 14:30:05', 'deactivated by admin',
+            '2021-03-30 14:30:15',
+            '$2y$10$U2nazhRAEhg1JkXu2Uls0.pnH5Wi9QsyXbmoJMBC2KNYGPN8fezfe', null);
+
+        return array(
+            [$admin],
+            [$old],
+            [$deactivated]
+        );
+    }
+
+    public static function providerSearchStrings() : array 
+    {
+        return array(
+            ['"Thread 3"', null, false, 8],
+            ["Thread 3", null, false, 20],
+            ['"Thread 3"', null, true, 1],
+            ["Thread 3", null, true, 12],
+            ['"Thread 3"', "user3", false, 3],
+            ["Thread 3", "user3", false, 6],
+            ['"Thread 3"', "user3", true, 1],
+            ["Thread 3", "user3", true, 4],
+            ["", "user3", false, 6],
+            ["", "user3", true, 4],
+        );
+    }
+
+    #[DataProvider('providerSearchStrings')]
+    public function testSearchPosts(string $searchString, ?string $nick, bool $noReplies, int $numberOfResults) 
+    {
+        BaseTest::createTestDatabase();
+        $res = $this->db->SearchPosts($searchString, $nick ? $nick : "", 100, 0, SortField::FIELD_RELEVANCE, SortOrder::ORDER_ASC, $noReplies);
+        $resCount = count($res);
+        $this->assertEquals($numberOfResults, $resCount);
+    }    
 }

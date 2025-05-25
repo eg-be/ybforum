@@ -7,56 +7,41 @@ require_once __DIR__.'/../../src/model/SearchResult.php';
 
 
 /**
- * Requires a valid database to connect to, as we
- * want to really test the executed sql.
- * 
- * See README.md located in this directory, on how
- * to setup the test-database.
- * 
+ * Just some stupid tests for the accessors.
+ * Some values accessed are casted during construction
  */
 final class SearchResultTest extends BaseTest
 {
-    private ForumDb $db;
-
     public static function setUpBeforeClass(): void
     {
-        // This tests will not modify the db, its enough to re-create
-        // the test-db before running all tests from this class
-        BaseTest::createTestDatabase();
+
     }
 
     protected function setUp(): void
     {
-        $this->db = new ForumDb();
     }
 
     protected function assertPreConditions(): void
     {
-        $this->assertTrue($this->db->IsConnected());
     }
 
-    public static function providerSearchStrings() : array 
-    {
-        return array(
-            ['"Thread 3"', null, false, 8],
-            ["Thread 3", null, false, 20],
-            ['"Thread 3"', null, true, 1],
-            ["Thread 3", null, true, 12],            
-            ['"Thread 3"', "user3", false, 3],
-            ["Thread 3", "user3", false, 6],
-            ['"Thread 3"', "user3", true, 1],
-            ["Thread 3", "user3", true, 4],
-            ["", "user3", false, 6],
-            ["", "user3", true, 4],
-        );
-    }     
+    public function testGetPostId() : void {
+        $someResult = self::mockSearchResult(99, 'nick', 'title', '2020-03-30 14:50:00', null);
+        $this->assertEquals(99, $someResult->GetPostId());
+    }
 
-    #[DataProvider('providerSearchStrings')]
-    public function testSearchPosts(string $searchString, ?string $nick, bool $noReplies, int $numberOfResults) 
-    {
+    public function testGetTitle() : void {
+        $someResult = self::mockSearchResult(99, 'nick', 'title', '2020-03-30 14:50:00', null);
+        $this->assertEquals('title', $someResult->GetTitle());
+    }
 
-        $res = SearchResult::SearchPosts($this->db, $searchString, $nick ? $nick : "", 100, 0, SearchResult::SORT_FIELD_RELEVANCE, SearchResult::SORT_ORDER_ASC, $noReplies);
-        $resCount = count($res);
-        $this->assertEquals($numberOfResults, $resCount);
+    public function testGetNick() : void {
+        $someResult = self::mockSearchResult(99, 'nick', 'title', '2020-03-30 14:50:00', null);
+        $this->assertEquals('nick', $someResult->GetNick());
+    }
+
+    public function testGetPostTimestamp() : void {
+        $someResult = self::mockSearchResult(99, 'nick', 'title', '2020-03-30 14:50:00', null);
+        $this->assertEquals(new DateTime('2020-03-30 14:50:00'), $someResult->GetPostTimestamp());
     }
 }

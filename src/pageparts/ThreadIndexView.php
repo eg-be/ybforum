@@ -62,8 +62,7 @@ class ThreadIndexView {
      */
     public function renderHtmlDivPerThread(callable $htmlPerThreadCallback) : void
     {
-        PostIndexEntry::LoadThreadIndexEntries($this->m_forumDb,
-            $this->m_nrOfThreads, 
+        $this->m_forumDb->LoadThreadIndexEntries($this->m_nrOfThreads,
                 $this->m_lastThreadId, 
                 function($threadIndexes) 
                 use ($htmlPerThreadCallback)

@@ -89,7 +89,7 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
         // First: Check if there is a matching (real) user:
-        $this->user = User::LoadUserById($db, $values['iduser']);
+        $this->user = $db->LoadUserById($values['iduser']);
         if(!$this->user)
         {
             $logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found : ' . $values['iduser']);

@@ -43,7 +43,7 @@ try
     {
         // check that this adminuserid is still valid
         $db = new ForumDb();
-        $adminUser = User::LoadUserById($db, $_SESSION['adminuserid']);
+        $adminUser = $db->LoadUserById($_SESSION['adminuserid']);
         if(!($adminUser && $adminUser->IsActive() && $adminUser->IsAdmin()))
         {
             header('Location: login.php');
@@ -81,8 +81,8 @@ catch (Exception $ex)
                 while($row = $stmt->fetch())
                 {
                     // Get all children of that post
-                    $post = Post::LoadPost($db, $row['idpost']);
-                    $children = PostIndexEntry::LoadPostReplies($db, $post, true);
+                    $post = $db->LoadPost($row['idpost']);
+                    $children = $db->LoadPostReplies($post, true);
                     $notHiddenChildren = array();
                     $unhiddenLinkList = '';
                     foreach($children as $childPost)

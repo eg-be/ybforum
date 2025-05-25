@@ -34,7 +34,7 @@ class SearchResultsView
     }
     
     private function GetHiddenSearchForm(string $id, int $offset,
-            string $sortField, string $sortOrder) : string
+            SortField $sortField, SortOrder $sortOrder) : string
     {
         $searchString = null;
         $searchNick = null;
@@ -56,11 +56,11 @@ class SearchResultsView
                 . '"/>';
         $html.= '<input type="hidden" name="'
                 . SearchHandler::PARAM_SORT_FIELD . '" value="'
-                . $sortField
+                . $sortField->value
                 . '"/>';
         $html.= '<input type="hidden" name="'
                 . SearchHandler::PARAM_SORT_ORDER . '" value="'
-                . $sortOrder
+                . $sortOrder->value
                 . '"/>';
         if($this->m_sh->GetNoReplies())
         {
@@ -110,35 +110,34 @@ class SearchResultsView
         $html.= '<span class="fbold">Sortieren nach: </span>';
         $currentSortField = $this->m_sh->GetSortField();
         $validSortFields = $this->m_sh->GetValidSortFields();
-        $sortFieldsWithDesc = SearchResult::SORT_FIELDS;
         foreach($validSortFields as $sortField)
         {
             $isCurrentfield = $currentSortField === $sortField;
-            $id = 'form_sort_' . $sortField;
+            $id = 'form_sort_' . $sortField->value;
             $linkClass = '';
             $currentSortSymbol = '';
             // default to sorting DESC
-            $sortOrder = SearchResult::SORT_ORDER_DESC;
+            $sortOrder = SortOrder::ORDER_DESC;
             if($isCurrentfield)
             {
                 $linkClass = 'class="fitalic" ';
                 // determine an icon showing the current sort
                 // arrow down for DESC, arrow up for ASC
                 // and reverse the sort order, on click
-                if($this->m_sh->GetSortOrder() == SearchResult::SORT_ORDER_DESC)
+                if($this->m_sh->GetSortOrder() == SortOrder::ORDER_DESC)
                 {
                     $currentSortSymbol = '&#8595;';
-                    $sortOrder = SearchResult::SORT_ORDER_ASC;
+                    $sortOrder = SortOrder::ORDER_ASC;
                 }
                 else
                 {
                     $currentSortSymbol = '&#8593;';
-                    $sortOrder = SearchResult::SORT_ORDER_DESC;
+                    $sortOrder = SortOrder::ORDER_DESC;
                 }                    
             }
             $html.= $this->GetHiddenSearchForm($id, 0, $sortField,
                     $sortOrder);
-            $fieldDesc = $sortFieldsWithDesc[$sortField];
+            $fieldDesc = $sortField->getTranslation();
             $html.= '<a href="#"' . $linkClass
                     . 'onclick="document.getElementById(\'' . $id . '\').submit()">'                    
                     . $fieldDesc . ' ' . $currentSortSymbol

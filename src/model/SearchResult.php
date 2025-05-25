@@ -23,119 +23,16 @@
  * The fields from post_table (and user_table.nick) required to display a
  * search result entry. Provides static method(s) to create such entries.
  */
+
+ require_once __DIR__.'/SearchDefinitions.php';
+
 class SearchResult 
-{
-    const SORT_FIELD_RELEVANCE = 'relevance';
-    const SORT_FIELD_TITLE = 'title';
-    const SORT_FIELD_NICK = 'nick';
-    const SORT_FIELD_DATE = 'creation_ts';
-    
-    const SORT_ORDER_ASC = 'ASC';
-    const SORT_ORDER_DESC = 'DESC';
-    
-    const SORT_FIELDS = array(
-        self::SORT_FIELD_RELEVANCE => 'Relevanz',
-        self::SORT_FIELD_TITLE => 'Titel',
-        self::SORT_FIELD_NICK => 'Stammposter',
-        self::SORT_FIELD_DATE => 'Datum'
-    );
-    
-    const SORT_ORDERS = array(
-        self::SORT_ORDER_ASC => 'Aufsteigend',
-        self::SORT_ORDER_DESC => 'Absteigend'
-    );
-    
-    public static function SearchPosts(ForumDb $db, 
-            string $searchString, string $nick, 
-            int $limit, int $offset, 
-            string $sortField, string $sortOrder,
-            bool $noReplies) : array
-    {
-        // check that we have a valid sort field
-        if(!array_key_exists($sortField, self::SORT_FIELDS))
-        {
-            throw new InvalidArgumentException('Invalid sortField: ' . $sortField);
-        }
-        // and a valid sortorder
-        if(!array_key_exists($sortOrder, self::SORT_ORDERS))
-        {
-            throw new InvalidArgumentException('Invalid sortOrder: ' . $sortOrder);            
-        }
-        $query = '';
-        $params = array();
-        if($searchString)
-        {
-            $mode = 'IN NATURAL LANGUAGE MODE';
-            // if we have symbols from a binary search, switch to that mode
-            if(preg_match('/\+|\-|<|>|\(.+\)|\*|~/', $searchString))
-            {
-                $mode = 'IN BOOLEAN MODE';
-            }            
-            // full-text search if we have a searchString
-            $query = 'SELECT p.idpost AS idpost, p.iduser AS iduser, '
-                    . 'p.title AS title, p.creation_ts AS creation_ts, '
-                    . 'u.nick AS nick, '
-                    . 'p.content IS NOT NULL AS has_content, '
-                    . 'MATCH (title, content) '
-                    . 'AGAINST (:search_string1 ' . $mode . ') AS relevance '
-                    . 'FROM post_table p LEFT JOIN user_table u '
-                    . 'ON p.iduser = u.iduser '
-                    . 'WHERE p.hidden = 0 '
-                    . 'AND MATCH (title, content) '
-                    . 'AGAINST (:search_string2 ' . $mode . ') ';
-            $params[':search_string1'] = $searchString;
-            $params[':search_string2'] = $searchString;
-            // add an optional nick clause
-            if($nick)
-            {
-                $query.= 'AND u.nick = :nick ';
-                $params[':nick'] = $nick;
-            }
-        }
-        else if($nick)
-        {
-            // user-search only
-            $query = 'SELECT p.idpost AS idpost, p.iduser AS iduser, '
-                    . 'p.title AS title, p.creation_ts AS creation_ts, '
-                    . 'u.nick AS nick, '
-                    . 'p.content IS NOT NULL AS has_content '
-                    . 'FROM post_table p LEFT JOIN user_table u '
-                    . 'ON p.iduser = u.iduser '
-                    . 'WHERE p.hidden = 0 '
-                    . 'AND u.nick = :nick ';
-            $params[':nick'] = $nick;
-            // for a user-search only, we have no relevance. Fall back to date
-            if($sortField === self::SORT_FIELD_RELEVANCE)
-            {
-                $sortField = self::SORT_FIELD_DATE;
-            }
-        }
-        // add an optinal no replies clause
-        if($noReplies === true)
-        {
-            $query.= 'AND p.parent_idpost IS NULL ';
-        }
-        // add the order by clause
-        $query.= 'ORDER BY ' . $sortField . ' ' .$sortOrder;
-        // and the limit with an offset
-        $query.= ' LIMIT :offset, :limit';
-        $params[':offset'] = $offset;
-        $params[':limit'] = $limit;
-        // ready to query
-        $stmt = $db->prepare($query);
-        $stmt->execute($params);
-        $results = array();
-        while($searchResult = $stmt->fetchObject(SearchResult::class))
-        {
-            array_push($results, $searchResult);
-        }
-        return $results;
-    }
-    
+{   
     /**
-     * Create an instance using one of the static methods. This constructor
-     * will assert that the objects holds valid values when it is invoked.
-     */    
+     * Constructed only from pdo, hide constructor.
+     * This constructor will assert that all members have a valid data
+     * and set some internal values.
+     */
     private function __construct()
     {
         assert($this->idpost > 0);

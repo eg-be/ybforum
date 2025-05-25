@@ -26,178 +26,9 @@
 class PostIndexEntry
 {
     /**
-     * Loads thread structures and invokes callback with an array
-     * of PostIndexEntry objects: Search for a number of $maxThreads, where
-     * the last thread is the thread with $maxThreadId. For every thread, an
-     * array is created, holding the thread index entries in form of 
-     * PostIndexEntry objects. 
-     * As soon as all PostIndexEntry objects
-     * for one thread have been placed in the array, the $threadIndexCallback
-     * is invoked with the array f PostIndexEntry objects for that thread.
-     * PostIndexEntry objects inside an array are sorted by the rank 
-     * value (ascending). 
-     * Threads are iterated by idthread descending.
-     * Hidden posts and their children are not added to the array of 
-     * PostIndexEntry objects.
-     * @param ForumDb $db Database
-     * @param int $maxThreads Maximum number of threads to load index entries
-     * for.
-     * @param int $maxThreadId Maximum thread id to load index entries for, 
-     * the callback will start with the index entries for this thread.
-     * @param callable $threadIndexCallback Callback to invoke with an array of
-     * ThreadIndexEntry objects.
-     * @throws Exception If a database operation fails.
-     */  
-    public static function LoadThreadIndexEntries(ForumDb $db, 
-        int $maxThreads, int $maxThreadId, 
-        callable $threadIndexCallback) : void
-    {
-        assert($maxThreads > 0);
-        assert($maxThreadId > 0);
-        assert($db->IsConnected());
-        $minThreadId = $maxThreadId - $maxThreads;        
-        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
-                . 'title, indent, creation_ts, '
-                . 'content IS NOT NULL AS has_content,'
-                . 'hidden '
-                . 'FROM post_table LEFT JOIN '
-                . 'user_table ON post_table.iduser = user_table.iduser '
-                . 'WHERE idthread <= :maxThreadId AND idthread > :minThreadId '
-                . 'ORDER BY idthread DESC, `rank`';
-        $stmt = $db->prepare($query);
-        $stmt->execute(array(':maxThreadId' => $maxThreadId, 
-            ':minThreadId' => $minThreadId));
-        $threadIndexEntries = array();
-        $lastThreadId = 0;
-        $inHiddenPath = false;
-        $hiddenStartedAtIndent = 0;        
-        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
-        {
-            // whenever a new thread starts, notify the user about the 
-            // previous entries.
-            if($indexEntry->idthread !== $lastThreadId && $lastThreadId !== 0)
-            {
-                if(!empty($threadIndexEntries))
-                {
-                    call_user_func($threadIndexCallback, $threadIndexEntries);
-                }
-                $threadIndexEntries = array();
-            }
-            $lastThreadId = $indexEntry->idthread;
-            if($inHiddenPath && $indexEntry->indent <= $hiddenStartedAtIndent)
-            {
-                // might be leaving the hidden path
-                $inHiddenPath = false;
-            }
-            if($indexEntry->hidden > 0 && $inHiddenPath === false)
-            {
-                // entering a hidden path, discard until we are out of it
-                $inHiddenPath = true;
-                $hiddenStartedAtIndent = $indexEntry->indent;
-            }
-            if(!$inHiddenPath)
-            {
-                array_push($threadIndexEntries, $indexEntry);
-            }          
-        }
-        // dont forget the rest
-        if(!empty($threadIndexEntries))
-        {
-            call_user_func($threadIndexCallback, $threadIndexEntries);
-        }
-    }
-  
-  
-    /**
-     * Load the replies of a post as PostIndexEntry objects. Returned is
-     * an array, ordered by rank. If a hidden post is encountered, its whole
-     * subtree (and the post itself) is skipped, and not included in the
-     * returned array, except $includeHidden is set to true.
-     * 
-     * @param ForumDb $db The database
-     * @param Post $post A post to load children for.
-     * @return array Holding PostIndexEntry objects.
-     */
-    public static function LoadPostReplies(ForumDb $db, Post $post, bool $includeHidden = false) : array
-    {
-        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
-                . 'title, indent, creation_ts, '
-                . 'content IS NOT NULL AS has_content,'
-                . 'hidden '
-                . 'FROM post_table LEFT JOIN '
-                . 'user_table ON post_table.iduser = user_table.iduser '
-                . 'WHERE idthread = :idthread AND indent > :indent AND `rank` > :rank '
-                . 'ORDER BY idthread DESC, `rank`';
-        $stmt = $db->prepare($query);
-        $stmt->execute(array(':idthread' => $post->GetThreadId(), 
-                ':indent' => $post->GetIndent(),
-                ':rank' => $post->GetRank()));
-        $replies = array();
-        $childOfOurPost = true;
-        $ourPostIndent = $post->GetIndent();
-        $ourPostId = $post->GetId();
-        $inHiddenPath = false;
-        $hiddenStartedAtIndent = 0;
-        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
-        {
-            // check if entry with indent + 1 are direct ancestors of our post:
-            if($indexEntry->indent === $ourPostIndent + 1)
-            {
-                $childOfOurPost = ($indexEntry->parent_idpost === $ourPostId);
-            }
-            if($childOfOurPost)
-            {
-                // we are leaving if we have reached the same indent again
-                // as we have entered the hidden path                
-                if($inHiddenPath && $indexEntry->indent <= $hiddenStartedAtIndent)
-                {
-                    $inHiddenPath = false;
-                }                  
-                // Check if we are entering a hidden path part (and not ready in)
-                if($indexEntry->hidden > 0 && $inHiddenPath === false)
-                {
-                    $inHiddenPath = true;
-                    $hiddenStartedAtIndent = $indexEntry->indent;
-                }
-                if(!$inHiddenPath || $includeHidden)
-                {
-                    array_push($replies, $indexEntry);
-                }
-            }
-        }
-        return $replies;
-    }  
-    
-    /**
-     * Loads a list of the newest posts.
-     * @param ForumDb $db The database.
-     * @param int $maxEntries Maximum number of newest entries to load.
-     * @return array An array of PostIndexEntry objects. Hold max. 
-     * $maxEntries of PostIndexEntry objects, sorted by idpost descending.
-     */
-    public static function LoadRecentPosts(ForumDb $db, int $maxEntries) : array
-    {
-        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
-                . 'title, indent, creation_ts, '
-                . 'content IS NOT NULL AS has_content,'
-                . 'hidden '
-                . 'FROM post_table LEFT JOIN '
-                . 'user_table ON post_table.iduser = user_table.iduser '
-                . 'WHERE hidden = 0 '
-                . 'ORDER BY idpost DESC LIMIT :maxEntries';
-        $stmt = $db->prepare($query);
-        $stmt->execute(array( ':maxEntries' => $maxEntries));
-        $replies = array();
-        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
-        {
-            array_push($replies, $indexEntry);
-        }
-        return $replies;
-    }
-        
-    /**
-     * Create an instance using one of the static methods. This constructor
-     * will assert that the objects holds valid values when it is invoked.
+     * Constructed only from pdo, hide constructor.
+     * This constructor will assert that all members have a valid data
+     * and set some internal values.
      */
     private function __construct()
     {
@@ -217,11 +48,19 @@ class PostIndexEntry
     private string $nick;
     private string $title;
     private int $indent;
-    private string $creation_ts; // this is just the value from the corresponding field post_table class="creation_ts
+    private string $creation_ts; // this is just the value from the corresponding field post_table creation_ts
                                     // pdo->fetchObject() injects a string-value
     private DateTime $creation_ts_dt; // the same but converted to a DateTime
-    private int $has_content;
+    private int $has_content; // assigned from pdo
     private int $hidden;
+
+    /**
+     * @return int Field idthread
+     */
+    public function GetThreadId() : int
+    {
+        return $this->idthread;
+    }
 
     /**
      * @return int Field idpost.
@@ -231,6 +70,14 @@ class PostIndexEntry
         return $this->idpost;
     }
     
+    /**
+     * @return ?int Field parent_idpost: id of parent post, or null if no parent
+     */
+    public function GetParentPostId() : ?int
+    {
+        return $this->parent_idpost;
+    }
+
     /**
      * @return int Field indent.
      */

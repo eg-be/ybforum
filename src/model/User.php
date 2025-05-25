@@ -25,73 +25,9 @@
 class User
 {
     /**
-     * Create an instance from the passed values. Comes in handy for testing without database
-     */
-    public static function CreateUser(int $iduser, string $nick, ?string $email, int $admin, int $active, 
-        string $registration_ts, ?string $registration_msg, ?string $confirmation_ts, 
-        ?string $password, ?string $old_passwd) : User
-    {
-        $ref = new ReflectionClass(User::class);
-        $ctor = $ref->getConstructor();
-        $ctor->setAccessible(true);
-        $user = $ref->newInstanceWithoutConstructor();
-        $ref->getProperty('iduser')->setValue($user, $iduser);
-        $ref->getProperty('nick')->setValue($user, $nick);
-        $ref->getProperty('email')->setValue($user, $email);
-        $ref->getProperty('admin')->setValue($user, $admin);
-        $ref->getProperty('active')->setValue($user, $active);
-        $ref->getProperty('registration_ts')->setValue($user, $registration_ts);
-        $ref->getProperty('registration_msg')->setValue($user, $registration_msg);
-        $ref->getProperty('confirmation_ts')->setValue($user, $confirmation_ts);
-        $ref->getProperty('password')->setValue($user, $password);
-        $ref->getProperty('old_passwd')->setValue($user, $old_passwd);
-        $ctor->invoke($user);
-        return $user;
-    }
-
-    /**
-     * Looks up a row in user_table matching passed $userId in field iduser.
-     * If such an entry is found, a User object is created and returned. NULL
-     * is returned if no matching entry is found.
-     * @param int $userId Must match field iduser.
-     * @return User or null.
-     * @throws Exception If a database operation fails.
-     */        
-    public static function LoadUserById(ForumDb $db, int $userId) :?User
-    {
-        return $db->LoadUserById($userId);
-    }
-    
-    
-    /**
-     * Looks up a row in user_table matching passed $nick in field nick.
-     * If such an entry is found, a User object is created and returned. NULL
-     * is returned if no matching entry is found.
-     * @param string $nick Must match field nick.
-     * @return User or null.
-     * @throws Exception If a database operation fails.
-     */    
-    public static function LoadUserByNick(ForumDb $db, string $nick) :?User
-    {
-        return $db->LoadUserByNick($nick);
-    }
-    
-    /**
-     * Looks up a row in user_table matching passed $email in field email.
-     * If such an entry is found, a User object is created and returned. NULL
-     * is returned if no matching entry is found.
-     * @param string $email Must match field email.
-     * @return User or null.
-     * @throws Exception If a database operation fails.
-     */    
-    public static function LoadUserByEmail(ForumDb $db, string $email) :?User
-    {
-        return $db->LoadUserByEmail($email);
-    }
-    
-    /**
-     * Create an instance using one of the static methods. This constructor
-     * will assert that valid values are set when it is invoked.
+     * Constructed only from pdo, hide constructor.
+     * This constructor will assert that all members have a valid data
+     * and set some internal values.
      */
     protected function __construct()
     {

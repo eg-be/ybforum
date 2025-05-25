@@ -19,8 +19,8 @@ final class SearchHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->db = $this->createMock(ForumDb::class);
-        $this->stmt = $this->createMock(PDOStatement::class);
-        $this->db->method('prepare')->willReturn($this->stmt);
+        //$this->stmt = $this->createMock(PDOStatement::class);
+        //$this->db->method('prepare')->willReturn($this->stmt);
         $this->sh = new SearchHandler();
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
@@ -60,9 +60,9 @@ final class SearchHandlerTest extends TestCase
 
         $fields = $this->sh->GetValidSortFields();
         $this->assertEqualsCanonicalizing(array(
-            SearchResult::SORT_FIELD_DATE,
-            SearchResult::SORT_FIELD_TITLE,
-            SearchResult::SORT_FIELD_NICK), $fields);
+            SortField::FIELD_DATE,
+            SortField::FIELD_TITLE,
+            SortField::FIELD_NICK), $fields);
     }
 
     public function testGetValidSortFieldsWithSearchStr()
@@ -74,10 +74,10 @@ final class SearchHandlerTest extends TestCase
         $fields = $this->sh->GetValidSortFields();
         // can now be sorted by relevance
         $this->assertEqualsCanonicalizing(array(
-            SearchResult::SORT_FIELD_DATE,
-            SearchResult::SORT_FIELD_TITLE,
-            SearchResult::SORT_FIELD_NICK,
-            SearchResult::SORT_FIELD_RELEVANCE
+            SortField::FIELD_DATE,
+            SortField::FIELD_TITLE,
+            SortField::FIELD_NICK,
+            SortField::FIELD_RELEVANCE
         ), $fields);
     }
 
@@ -91,18 +91,11 @@ final class SearchHandlerTest extends TestCase
         $this->assertEquals(1000, $this->sh->GetLimit());
 
         // return 1001 results: The DB is queried with a limit that is set to +1 off the configured limit
-        $resultCount = 0;
         $resultsToReturn = 1001;
-        $this->stmt->method('fetchObject')->willReturnCallback(
-            function() use (&$resultCount, &$resultsToReturn) {
-                if($resultCount >= $resultsToReturn) {
-                    return false;
-                } else {
-                    $searchResult = $this->createMock(SearchResult::class);
-                    $resultCount++;
-                    return $searchResult;
-                }
-        });
+        $this->db->method('SearchPosts')->willReturnCallback(
+            function() use (&$resultsToReturn) {
+                return array_fill(0, $resultsToReturn, $this->createMock(SearchResult::class));
+            });
 
         // the first call shall have 1000 results and more must be available
         $this->sh->HandleRequest($this->db);

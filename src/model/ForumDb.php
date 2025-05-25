@@ -23,12 +23,15 @@ require_once __DIR__.'/DbConfig.php';
 require_once __DIR__.'/User.php';
 require_once __DIR__.'/Post.php';
 require_once __DIR__.'/PostIndexEntry.php';
+require_once __DIR__.'/SearchDefinitions.php';
+require_once __DIR__.'/SearchResult.php';
 require_once __DIR__.'/../helpers/ErrorHandler.php';
 require_once __DIR__.'/../helpers/Logger.php';
 require_once __DIR__.'/../YbForumConfig.php';
 
 /**
  * The database we are working with, as a PDO object.
+ * This is the only place where we wan to have SQL.
  */
 class ForumDb extends PDO
 {
@@ -287,7 +290,7 @@ class ForumDb extends PDO
         // log authentication stuff
         $logger = new Logger($this);
         
-        $user = User::LoadUserByNick($this, $nick);
+        $user = $this->LoadUserByNick($nick);
         if(!$user)
         {
             $logger->LogMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, 'Passed nick: ' . $nick);
@@ -425,7 +428,7 @@ class ForumDb extends PDO
         {
             throw new InvalidArgumentException('User ' . $user->GetNick() . ' is a dummy');
         }
-        $parentPost = Post::LoadPost($this, $parentPostId);
+        $parentPost = $this->LoadPost($parentPostId);
         if(!$parentPost)
         {
             throw new InvalidArgumentException('No post exists for passed parent postid ' . $parentPostId);
@@ -464,12 +467,12 @@ class ForumDb extends PDO
             ?string $registrationMsg) : User
     {
         $this->validateNonEmpty([$nick, $email]);
-        $existingUser = User::LoadUserByNick($this, $nick);
+        $existingUser = $this->LoadUserByNick($nick);
         if(!is_null($existingUser))
         {
             throw new InvalidArgumentException('Nick  ' . $nick . ' already used');
         }
-        $existingUser = User::LoadUserByEmail($this, $email);
+        $existingUser = $this->LoadUserByEmail($email);
         if(!is_null($existingUser))
         {
             throw new InvalidArgumentException('Email  ' . $email . ' already used');
@@ -485,7 +488,7 @@ class ForumDb extends PDO
             ':registration_msg' => $registrationMsg
         ));
         $userId = $this->lastInsertId();
-        $user = User::LoadUserById($this, $userId);
+        $user = $this->LoadUserById($userId);
         $logger = new Logger($this);
         $logger->LogMessageWithUserId(LogType::LOG_USER_CREATED, $user);
         return $user;
@@ -598,7 +601,7 @@ class ForumDb extends PDO
         // If the code is expired, or we are requested to remove it, delete:
         if($codeExpired || $remove)
         {
-            $user = User::LoadUserById($this, $userId);
+            $user = $this->LoadUserById($userId);
             if($this->RemoveConfirmUserCode($user) !== 1)
             {
                 throw new Exception('Not exactly one row was deleted for used '
@@ -715,7 +718,7 @@ class ForumDb extends PDO
             $logger->LogMessageWithUserId(LogType::LOG_USER_REGISTRATION_CONFIRMED, $user);
         }
         // Update the passed User object that has been passed
-        $user = User::LoadUserById($this, $user->GetId());
+        $user = $this->LoadUserById($user->GetId());
     }
     
     /**
@@ -790,7 +793,7 @@ class ForumDb extends PDO
         // If the code is expired, or we are requested to remove it, delete:
         if($codeExpired || $remove)
         {
-            $user = User::LoadUserById($this, $userId);
+            $user = $this->LoadUserById($userId);
             if($this->RemoveResetPasswordCode($user) !== 1)
             {
                 throw new Exception('Not exactly one row was deleted for used '
@@ -844,7 +847,7 @@ class ForumDb extends PDO
         $logger = new Logger($this);
         $logger->LogMessageWithUserId(LogType::LOG_USER_PASSWORD_UPDATED, $user);
         // and reload the user-object
-        $user = User::LoadUserById($this, $user->GetId());
+        $user = $this->LoadUserById($user->GetId());
     }
     
     /**
@@ -920,7 +923,7 @@ class ForumDb extends PDO
         $codeExpired = !$this->IsDateWithinConfirmPeriod($requestDate);
         if($codeExpired || $remove)
         {
-            $user = User::LoadUserById($this, $userId);
+            $user = $this->LoadUserById($userId);
             if($this->RemoveUpdateEmailCode($user) !== 1)
             {
                 throw new Exception('Not exactly one row was deleted for used '
@@ -977,7 +980,7 @@ class ForumDb extends PDO
         $logger->LogMessageWithUserId(LogType::LOG_USER_EMAIL_UPDATED, $user, 'New Email: ' . $email);
 
         // and reload the user
-        $user = User::LoadUserById($this, $user->GetId());
+        $user = $this->LoadUserById($user->GetId());
     }
 
     /**
@@ -1021,7 +1024,7 @@ class ForumDb extends PDO
             $this->commit();
 
             // and reload the passed user
-            $user = User::LoadUserById($this, $user->GetId());
+            $user = $this->LoadUserById($user->GetId());
         }
         catch(Exception $e) {
             $this->rollBack();
@@ -1073,7 +1076,7 @@ class ForumDb extends PDO
             $this->commit();
 
             // and reload the passed user
-            $user = User::LoadUserById($this, $user->GetId());
+            $user = $this->LoadUserById($user->GetId());
         }
         catch(Exception $e) {
             $this->rollBack();
@@ -1172,7 +1175,7 @@ class ForumDb extends PDO
         );
 
         // and reload the passed user
-        $user = User::LoadUserById($this, $user->GetId());
+        $user = $this->LoadUserById($user->GetId());
     }
     
     /**
@@ -1215,7 +1218,7 @@ class ForumDb extends PDO
         $this->ClearDeactivationReason($user);
 
         // and reload the passed user
-        $user = User::LoadUserById($this, $user->GetId());
+        $user = $this->LoadUserById($user->GetId());
     }
     
     /**
@@ -1294,7 +1297,7 @@ class ForumDb extends PDO
 
     private function SetPostVisibleImpl(int $postId, bool $show = true) : void
     {
-        $post = Post::LoadPost($this, $postId);
+        $post = $this->LoadPost($postId);
         if(!$post)
         {
             throw new InvalidArgumentException('No post with id ' . $postId . 
@@ -1426,7 +1429,7 @@ class ForumDb extends PDO
         while($row = $stmt->fetch())
         {
             $userId = $row['iduser'];
-            $user = User::LoadUserById($this, $userId);
+            $user = $this->LoadUserById($userId);
             array_push($admins, $user);
         }
         return $admins;
@@ -1514,7 +1517,281 @@ class ForumDb extends PDO
             $user = null;
         }
         return $user;
-    }    
+    }
+
+    /**
+     * Loads thread structures and invokes callback with an array
+     * of PostIndexEntry objects: Search for a number of $maxThreads, where
+     * the last thread is the thread with $maxThreadId. For every thread, an
+     * array is created, holding the thread index entries in form of
+     * PostIndexEntry objects.
+     * As soon as all PostIndexEntry objects
+     * for one thread have been placed in the array, the $threadIndexCallback
+     * is invoked with the array f PostIndexEntry objects for that thread.
+     * PostIndexEntry objects inside an array are sorted by the rank
+     * value (ascending).
+     * Threads are iterated by idthread descending.
+     * Hidden posts and their children are not added to the array of
+     * PostIndexEntry objects.
+     * @param int $maxThreads Maximum number of threads to load index entries
+     * for.
+     * @param int $maxThreadId Maximum thread id to load index entries for,
+     * the callback will start with the index entries for this thread.
+     * @param callable $threadIndexCallback Callback to invoke with an array of
+     * ThreadIndexEntry objects.
+     * @throws Exception If a database operation fails.
+     */
+    public function LoadThreadIndexEntries(
+        int $maxThreads, int $maxThreadId,
+        callable $threadIndexCallback) : void
+    {
+        assert($maxThreads > 0);
+        assert($maxThreadId > 0);
+        assert($this->IsConnected());
+        $minThreadId = $maxThreadId - $maxThreads;
+        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
+                . 'title, indent, creation_ts, '
+                . 'content IS NOT NULL AS has_content,'
+                . 'hidden '
+                . 'FROM post_table LEFT JOIN '
+                . 'user_table ON post_table.iduser = user_table.iduser '
+                . 'WHERE idthread <= :maxThreadId AND idthread > :minThreadId '
+                . 'ORDER BY idthread DESC, `rank`';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array(':maxThreadId' => $maxThreadId,
+            ':minThreadId' => $minThreadId));
+        $threadIndexEntries = array();
+        $lastThreadId = 0;
+        $inHiddenPath = false;
+        $hiddenStartedAtIndent = 0;
+        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
+        {
+            // whenever a new thread starts, notify the user about the
+            // previous entries.
+            if($indexEntry->GetThreadId() !== $lastThreadId && $lastThreadId !== 0)
+            {
+                if(!empty($threadIndexEntries))
+                {
+                    call_user_func($threadIndexCallback, $threadIndexEntries);
+                }
+                $threadIndexEntries = array();
+            }
+            $lastThreadId = $indexEntry->GetThreadId();
+            if($inHiddenPath && $indexEntry->GetIndent() <= $hiddenStartedAtIndent)
+            {
+                // might be leaving the hidden path
+                $inHiddenPath = false;
+            }
+            if($indexEntry->IsHidden() && $inHiddenPath === false)
+            {
+                // entering a hidden path, discard until we are out of it
+                $inHiddenPath = true;
+                $hiddenStartedAtIndent = $indexEntry->GetIndent();
+            }
+            if(!$inHiddenPath)
+            {
+                array_push($threadIndexEntries, $indexEntry);
+            }
+        }
+        // dont forget the rest
+        if(!empty($threadIndexEntries))
+        {
+            call_user_func($threadIndexCallback, $threadIndexEntries);
+        }
+    }
+
+    /**
+     * Load the replies of a post as PostIndexEntry objects. Returned is
+     * an array, ordered by rank. If a hidden post is encountered, its whole
+     * subtree (and the post itself) is skipped, and not included in the
+     * returned array, except $includeHidden is set to true.
+     * 
+     * @param Post $post A post to load children for.
+     * @return array Holding PostIndexEntry objects.
+     */
+    public function LoadPostReplies(Post $post, bool $includeHidden = false) : array
+    {
+        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
+                . 'title, indent, creation_ts, '
+                . 'content IS NOT NULL AS has_content,'
+                . 'hidden '
+                . 'FROM post_table LEFT JOIN '
+                . 'user_table ON post_table.iduser = user_table.iduser '
+                . 'WHERE idthread = :idthread AND indent > :indent AND `rank` > :rank '
+                . 'ORDER BY idthread DESC, `rank`';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array(':idthread' => $post->GetThreadId(), 
+                ':indent' => $post->GetIndent(),
+                ':rank' => $post->GetRank()));
+        $replies = array();
+        $childOfOurPost = true;
+        $ourPostIndent = $post->GetIndent();
+        $ourPostId = $post->GetId();
+        $inHiddenPath = false;
+        $hiddenStartedAtIndent = 0;
+        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
+        {
+            // check if entry with indent + 1 are direct ancestors of our post:
+            if($indexEntry->GetIndent() === $ourPostIndent + 1)
+            {
+                $childOfOurPost = ($indexEntry->GetParentPostId() === $ourPostId);
+            }
+            if($childOfOurPost)
+            {
+                // we are leaving if we have reached the same indent again
+                // as we have entered the hidden path                
+                if($inHiddenPath && $indexEntry->GetIndent() <= $hiddenStartedAtIndent)
+                {
+                    $inHiddenPath = false;
+                }                  
+                // Check if we are entering a hidden path part (and not ready in)
+                if($indexEntry->IsHidden() > 0 && $inHiddenPath === false)
+                {
+                    $inHiddenPath = true;
+                    $hiddenStartedAtIndent = $indexEntry->GetIndent();
+                }
+                if(!$inHiddenPath || $includeHidden)
+                {
+                    array_push($replies, $indexEntry);
+                }
+            }
+        }
+        return $replies;
+    }
+
+    /**
+     * Loads a list of the newest posts.
+     * @param int $maxEntries Maximum number of newest entries to load.
+     * @return array An array of PostIndexEntry objects. Hold max. 
+     * $maxEntries of PostIndexEntry objects, sorted by idpost descending.
+     */
+    public function LoadRecentPosts(int $maxEntries) : array
+    {
+        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
+                . 'title, indent, creation_ts, '
+                . 'content IS NOT NULL AS has_content,'
+                . 'hidden '
+                . 'FROM post_table LEFT JOIN '
+                . 'user_table ON post_table.iduser = user_table.iduser '
+                . 'WHERE hidden = 0 '
+                . 'ORDER BY idpost DESC LIMIT :maxEntries';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array( ':maxEntries' => $maxEntries));
+        $replies = array();
+        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
+        {
+            array_push($replies, $indexEntry);
+        }
+        return $replies;
+    }
+
+    /**
+     * Load a post from the post_table. Searches for a row matching passed
+     * $idPost. Creates a Post object if such a row is found and returns that
+     * Post object. Returns NULL if no matching row is found.
+     * @param int $idPost
+     * @return \Post
+     * @throws Exception If a database operation fails.
+     */  
+    public function LoadPost(int $idPost) : ?Post
+    {
+        assert($idPost > 0);
+        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
+                . 'post_table.iduser AS iduser, '
+                . 'title, content, `rank`, indent, '
+                . 'creation_ts, '
+                . 'post_table.email AS email, '
+                . 'link_url, link_text, img_url, old_no, '
+                . 'hidden, ip_address '
+                . 'FROM post_table '
+                . 'LEFT JOIN user_table '
+                . 'ON post_table.iduser = user_table.iduser '
+                . 'WHERE idpost = :idpost';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array('idpost' => $idPost));
+        $post = $stmt->fetchObject(Post::class);
+        if($post === false)
+        {
+            $post = null;
+        }
+        return $post;
+    }
+
+    public function SearchPosts(string $searchString, string $nick, 
+            int $limit, int $offset, 
+            SortField $sortField, SortOrder $sortOrder,
+            bool $noReplies) : array
+    {
+        $query = '';
+        $params = array();
+        if($searchString)
+        {
+            $mode = 'IN NATURAL LANGUAGE MODE';
+            // if we have symbols from a binary search, switch to that mode
+            if(preg_match('/\+|\-|<|>|\(.+\)|\*|~/', $searchString))
+            {
+                $mode = 'IN BOOLEAN MODE';
+            }            
+            // full-text search if we have a searchString
+            $query = 'SELECT p.idpost AS idpost, p.iduser AS iduser, '
+                    . 'p.title AS title, p.creation_ts AS creation_ts, '
+                    . 'u.nick AS nick, '
+                    . 'p.content IS NOT NULL AS has_content, '
+                    . 'MATCH (title, content) '
+                    . 'AGAINST (:search_string1 ' . $mode . ') AS relevance '
+                    . 'FROM post_table p LEFT JOIN user_table u '
+                    . 'ON p.iduser = u.iduser '
+                    . 'WHERE p.hidden = 0 '
+                    . 'AND MATCH (title, content) '
+                    . 'AGAINST (:search_string2 ' . $mode . ') ';
+            $params[':search_string1'] = $searchString;
+            $params[':search_string2'] = $searchString;
+            // add an optional nick clause
+            if($nick)
+            {
+                $query.= 'AND u.nick = :nick ';
+                $params[':nick'] = $nick;
+            }
+        }
+        else if($nick)
+        {
+            // user-search only
+            $query = 'SELECT p.idpost AS idpost, p.iduser AS iduser, '
+                    . 'p.title AS title, p.creation_ts AS creation_ts, '
+                    . 'u.nick AS nick, '
+                    . 'p.content IS NOT NULL AS has_content '
+                    . 'FROM post_table p LEFT JOIN user_table u '
+                    . 'ON p.iduser = u.iduser '
+                    . 'WHERE p.hidden = 0 '
+                    . 'AND u.nick = :nick ';
+            $params[':nick'] = $nick;
+            // for a user-search only, we have no relevance. Fall back to date
+            if($sortField === SortField::FIELD_RELEVANCE)
+            {
+                $sortField = SortField::FIELD_DATE;
+            }
+        }
+        // add an optinal no replies clause
+        if($noReplies === true)
+        {
+            $query.= 'AND p.parent_idpost IS NULL ';
+        }
+        // add the order by clause
+        $query.= 'ORDER BY ' . $sortField->value . ' ' .$sortOrder->value;
+        // and the limit with an offset
+        $query.= ' LIMIT :offset, :limit';
+        $params[':offset'] = $offset;
+        $params[':limit'] = $limit;
+        // ready to query
+        $stmt = $this->prepare($query);
+        $stmt->execute($params);
+        $results = array();
+        while($searchResult = $stmt->fetchObject(SearchResult::class))
+        {
+            array_push($results, $searchResult);
+        }
+        return $results;
+    }
 
     /**
      * @param array values

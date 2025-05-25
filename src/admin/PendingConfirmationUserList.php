@@ -37,7 +37,7 @@ class PendingConfirmationUserList
             $user = null;
             if($userId > 0)
             {
-                $user = User::LoadUserById($db, $userId);
+                $user = $db->LoadUserById($userId);
             }
             if($user && $userActionValue === self::VALUE_DELETE)
             {

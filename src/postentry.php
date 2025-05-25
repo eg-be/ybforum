@@ -59,7 +59,7 @@ try
             if($ex->GetMessage() === PostEntryHandler::MSG_MIGRATION_REQUIRED)
             {
                 // If we know that we need to migrate, we can also pass in some values for email and nick
-                $user = User::LoadUserByNick($db, $postEntryHandler->GetNick());
+                $user = $db->LoadUserByNick($postEntryHandler->GetNick());
                 // Remember the current post data
                 // But clear the last set exception, as that will hold
                 // a stacktrace with some pdo object 
@@ -80,7 +80,7 @@ try
             $parentPostId = $postEntryHandler->GetParentPostId();
             if($parentPostId > 0)
             {
-                $parentPost = Post::LoadPost($db, $parentPostId);
+                $parentPost = $db->LoadPost($parentPostId);
             }
         }
         else
@@ -99,7 +99,7 @@ try
         $parentPostId = filter_input(INPUT_GET, 'idparentpost', FILTER_VALIDATE_INT);
         if($parentPostId > 0)
         {
-            $parentPost = Post::LoadPost($db, $parentPostId);
+            $parentPost = $db->LoadPost($parentPostId);
         }
     }
 }

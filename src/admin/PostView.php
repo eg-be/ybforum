@@ -92,7 +92,7 @@ class PostView {
         {
             return '<div></div>';
         }
-        $post = Post::LoadPost($db, $this->m_postId);
+        $post = $db->LoadPost($this->m_postId);
         if(!$post)
         {
             return '<div class="fitalic noTableEntries">Kein Post gefunden mit postId ' . $this->m_postId . '</div>';
@@ -108,7 +108,7 @@ class PostView {
         }
         if($post->HasParentPost())
         {
-            $parentPost = Post::LoadPost($db, $post->GetParentPostId());
+            $parentPost = $db->LoadPost($post->GetParentPostId());
             if(!$parentPost->IsHidden())
             {
                 $htmlStr.= '<tr><td>Parent:</td><td><a href="../showentry.php?idpost=' . $parentPost->GetId() . '">' . $parentPost->GetId() . '</a></td><td></td></tr>';
