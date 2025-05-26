@@ -1,4 +1,6 @@
 **.cache
 src/phpinfo.php
+src/xdebuginfo.php
 phpunit.phar
 *.phar
+reports
