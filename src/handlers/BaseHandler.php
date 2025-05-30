@@ -118,7 +118,7 @@ abstract class BaseHandler
      * @param int $filterId one of the filter_var_array filters to apply
      * @return ?string filtered value or null, if param is not set, or filter does not match
      */
-    private static function ReadParamToString(array $input, string $paramName, int $filterId) :?string
+    protected static function ReadParamToString(array $input, string $paramName, int $filterId) :?string
     {
         assert(!empty($paramName));
         $filter = filter_var_array($input, array(
