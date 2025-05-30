@@ -1621,5 +1621,22 @@ final class ForumDbTest extends BaseTest
         $res = $this->db->SearchPosts($searchString, $nick ? $nick : "", 100, 0, SortField::FIELD_RELEVANCE, SortOrder::ORDER_ASC, $noReplies);
         $resCount = count($res);
         $this->assertEquals($numberOfResults, $resCount);
-    }    
+    }
+
+    public function testGetAdminMails() 
+    {
+        BaseTest::createTestDatabase();
+        $res = $this->db->GetAdminMails();
+        $this->assertEquals(1, sizeof($res));
+        $this->assertEquals('eg-be@dev', $res[0]);
+
+        // add another admin
+        $user1 = $this->db->LoadUserByNick('user1');
+        $this->db->SetAdmin($user1, true);
+
+        $res = $this->db->GetAdminMails();
+        $this->assertEquals(2, sizeof($res));
+        $this->assertEquals('eg-be@dev', $res[0]);
+        $this->assertEquals('user1@dev', $res[1]);
+    }
 }

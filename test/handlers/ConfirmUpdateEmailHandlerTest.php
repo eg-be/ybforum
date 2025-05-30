@@ -127,10 +127,11 @@ final class ConfirmUpdateEmailHandlerTest extends TestCase
         $this->db->method('LoadUserById')->willReturn($this->user);
         $this->user->method('IsDummyUser')->willReturn(false);
 
-        $this->cueh->HandleRequest($this->db);
-
         // method to actually update must not be called
         $this->db->expects($this->never())->method('UpdateUserEmail');
+
+        $this->cueh->HandleRequest($this->db);
+
         // but property must have been update
         $this->assertEquals('new@mail.com', $this->cueh->GetNewEmail());
     }

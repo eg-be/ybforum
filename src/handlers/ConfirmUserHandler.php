@@ -53,6 +53,9 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
     {
         parent::__construct();
         
+        $this->logger = null;
+        $this->mailer = null;
+
         // Set defaults explicitly
         $this->code = null;
         $this->user = null;
@@ -62,20 +65,12 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
     
     protected function ReadParams() : void
     {
+        // remember invocation-method: we only want to do something, if called
+        // from POST (GET may happen as a preview of the confirmation-link)
+        $requestMethod = self::ReadParamToString($_SERVER, 'REQUEST_METHOD', FILTER_UNSAFE_RAW);
+        $this->simulate = $requestMethod === 'GET';
         // Read params - depending on the invocation using GET or through base-handler
-        $this->simulate = (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET');
-        if($this->simulate)
-        {
-            $this->code = trim(filter_input(INPUT_GET, ConfirmHandler::PARAM_CODE, FILTER_UNSAFE_RAW));
-            if(!$this->code)
-            {
-                $this->code = null;
-            }
-        }
-        else
-        {
-            $this->code = self::ReadStringParam(ConfirmHandler::PARAM_CODE);
-        }
+        $this->code = self::ReadRawParamFromGetOrPost(ConfirmHandler::PARAM_CODE);
     }
     
     protected function ValidateParams() : void
@@ -89,12 +84,15 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         // reset internal values first
         $this->user = null;
         $this->confirmSource = null;
-        $logger = new Logger($db);
+        if(is_null($this->logger))
+        {
+            $this->logger = new Logger($db);
+        }
         // Valide the code, but only remove it if we are not simulating
         $values = $db->VerifyConfirmUserCode($this->code, !$this->simulate);
         if(!$values)
         {
-            $logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);
+            $this->logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
         // First: Check if there is a matching user who actually needs 
@@ -102,18 +100,18 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         $this->user = $db->LoadUserById($values['iduser']);
         if(!$this->user)
         {
-            $logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found : ' . $values['iduser']);
+            $this->logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found: ' . $values['iduser']);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
         $this->confirmSource = $values['confirm_source'];
         if($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER && $this->user->IsConfirmed())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_CONFIRMED, $this->user);
+            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_CONFIRMED, $this->user);
             throw new InvalidArgumentException(self::MSG_ALREADY_CONFIRMED, parent::MSGCODE_BAD_PARAM);
         }
         if($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE && !$this->user->NeedsMigration())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $this->user);
+            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $this->user);
             throw new InvalidArgumentException(self::MSG_ALREADY_MIGRATED, parent::MSGCODE_BAD_PARAM);
         }        
         if($this->simulate)
@@ -128,19 +126,19 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         // Notify the admins if a user is awaiting to get freed
         if($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER)
         {
-            $mailer = new Mailer();
-            $query = 'SELECT email FROM user_table '
-                    . 'WHERE admin > 0 AND active > 0';
-            $stmt = $db->prepare($query);
-            $stmt->execute();
-            while($row = $stmt->fetch())
+            if(is_null($this->mailer))
             {
-                $adminEmail = $row['email'];
-                if($mailer->NotifyAdminUserConfirmedRegistration($this->user->GetNick(), 
-                        $adminEmail, $this->user->GetRegistrationMsg()))
+                $this->mailer = new Mailer();
+            }
+            $adminMails = $db->GetAdminMails();
+            foreach($adminMails as $adminMailAddress)
+            {
+                if($this->mailer->NotifyAdminUserConfirmedRegistration($this->user->GetNick(), 
+                        $adminMailAddress, $this->user->GetRegistrationMsg()))
                 {
-                    $logger->LogMessageWithUserId(LogType::LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED, $this->user, 'Mail sent to: ' . $adminEmail);
+                    $this->logger->LogMessageWithUserId(LogType::LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED, $this->user, 'Mail sent to: ' . $adminMailAddress);
                 }
+
             }
         }
     }
@@ -186,7 +184,20 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
                             . 'Passwort ist ab sofort gültig';
         }
         return $txt;
-    }    
+    }
+
+    public function SetMailer(Mailer $mailer) : void
+    {
+        $this->mailer = $mailer;
+    }
+
+    public function SetLogger(Logger $logger) : void
+    {
+        $this->logger = $logger;
+    }
+    
+    private ?Logger $logger;
+    private ?Mailer $mailer;
 
     private ?string $code;
     private ?string $confirmSource;
