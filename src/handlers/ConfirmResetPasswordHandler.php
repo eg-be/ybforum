@@ -51,18 +51,7 @@ class ConfirmResetPasswordHandler extends BaseHandler implements ConfirmHandler
     protected function ReadParams() : void
     {
         // Read params - depending on the invocation using GET or through base-handler
-        if(filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET')
-        {
-            $this->code = trim(filter_input(INPUT_GET, ConfirmHandler::PARAM_CODE, FILTER_UNSAFE_RAW));
-            if(!$this->code)
-            {
-                $this->code = null;
-            }
-        }
-        else
-        {
-            $this->code = self::ReadStringParam(ConfirmHandler::PARAM_CODE);
-        }
+        $this->code = self::ReadRawParamFromGetOrPost(ConfirmHandler::PARAM_CODE);
     }
     
     protected function ValidateParams() : void
@@ -119,7 +108,7 @@ class ConfirmResetPasswordHandler extends BaseHandler implements ConfirmHandler
      * Can be called if HandleRequestImpl succeeded, only
      * in that case an internal user is set.
      */
-    public function GetUser() : User 
+    public function GetUser() : ?User 
     {
         return $this->user;
     }

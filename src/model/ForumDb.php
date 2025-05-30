@@ -1794,6 +1794,26 @@ class ForumDb extends PDO
     }
 
     /**
+     * Return an array holding the email addresses
+     * of all registered admin users
+     * @return array All admin users, ordered by id
+     */
+    public function GetAdminMails() : array
+    {
+        $adminMailAddresses = array();
+        $query = 'SELECT email FROM user_table '
+                . 'WHERE admin > 0 AND active > 0 ORDER BY iduser';
+        $stmt = $this->prepare($query);
+        $stmt->execute();
+        while($row = $stmt->fetch())
+        {
+            $adminEmail = $row['email'];
+            array_push($adminMailAddresses, $adminEmail);
+        }
+        return $adminMailAddresses;
+    }
+
+    /**
      * @param array values
      * @throws InvalidArgumentException If one of the values
      * is empty or contains only whitespaces

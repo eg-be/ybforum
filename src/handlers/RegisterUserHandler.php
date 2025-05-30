@@ -187,7 +187,7 @@ class RegisterUserHandler extends BaseHandler
     public function SetLogger(Logger $logger) : void
     {
         $this->logger = $logger;
-    }    
+    }
     
     private ?Logger $logger;
     private ?Mailer $mailer;

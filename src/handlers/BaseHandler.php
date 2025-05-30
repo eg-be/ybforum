@@ -91,6 +91,23 @@ abstract class BaseHandler
             throw new InvalidArgumentException(self::MSG_INVALID_CLIENT_IPADDRESS, self::MSGCODE_BAD_PARAM);
         }
     }
+
+    /**
+     * Depending on the request method, reads the value of a GET or POST param.
+     * @param string $paramName The param-name to search for the value
+     * @return ?string raw param value or null, if param is not set as GET or POST param
+     */
+    public static function ReadRawParamFromGetOrPost($paramName) :?string
+    {
+        $type = null;
+        $requestMethod = self::ReadParamToString($_SERVER, 'REQUEST_METHOD', FILTER_UNSAFE_RAW);
+        if($requestMethod === 'GET') {
+            $type = self::ReadParamToString($_GET, $paramName, FILTER_UNSAFE_RAW);
+        } else if($requestMethod === 'POST') {
+            $type = self::ReadParamToString($_POST, $paramName, FILTER_UNSAFE_RAW);
+        }
+        return $type;
+    }
     
     /**
      * Read a single value from an array, using filter_var_array.
@@ -99,8 +116,9 @@ abstract class BaseHandler
      * @param array $input Array to search for the value
      * @param string $paramName Array key to search for the value
      * @param int $filterId one of the filter_var_array filters to apply
+     * @return ?string filtered value or null, if param is not set, or filter does not match
      */
-    private static function ReadParamToString(array $input, string $paramName, int $filterId)
+    protected static function ReadParamToString(array $input, string $paramName, int $filterId) :?string
     {
         assert(!empty($paramName));
         $filter = filter_var_array($input, array(
@@ -118,7 +136,7 @@ abstract class BaseHandler
     /**
      * Reads an email address from $_POST using FILTER_VALIDATE_EMAIL.
      * @param string $paramName
-     * @return string or null if value is not a valid email address.
+     * @return ?string or null if value is not a valid email address.
      */
     public static function ReadEmailParam(string $paramName) : ?string
     {

@@ -44,6 +44,8 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
     {
         parent::__construct();
         
+        $this->logger = null;
+
         // Set defaults explicitly
         $this->code = null;
         $this->simulate = false;
@@ -53,20 +55,12 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
     
     protected function ReadParams() : void
     {
+        // remember invocation-method: we only want to do something, if called
+        // from POST (GET may happen as a preview of the confirmation-link)
+        $requestMethod = self::ReadParamToString($_SERVER, 'REQUEST_METHOD', FILTER_UNSAFE_RAW);
+        $this->simulate = $requestMethod === 'GET';
         // Read params - depending on the invocation using GET or through base-handler
-        $this->simulate = (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET');
-        if($this->simulate)
-        {
-            $this->code = trim(filter_input(INPUT_GET, ConfirmHandler::PARAM_CODE, FILTER_UNSAFE_RAW));
-            if(!$this->code)
-            {
-                $this->code = null;
-            }
-        }
-        else
-        {
-            $this->code = self::ReadStringParam(ConfirmHandler::PARAM_CODE);
-        }
+        $this->code = self::ReadRawParamFromGetOrPost(ConfirmHandler::PARAM_CODE);
     }
     
     protected function ValidateParams() : void
@@ -80,24 +74,27 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         // reset the internal values first
         $this->user = null;
         $this->newEmail = null;
-        $logger = new Logger($db);
+        if(is_null($this->logger))
+        {
+            $this->logger = new Logger($db);
+        }
         // Valide the code and remove it if we are not simulating
         $values = $db->VerifyUpdateEmailCode($this->code, !$this->simulate);
         if(!$values)
         {
-            $logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);
+            $this->logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
         // First: Check if there is a matching (real) user:
         $this->user = $db->LoadUserById($values['iduser']);
         if(!$this->user)
         {
-            $logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found : ' . $values['iduser']);
+            $this->logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found : ' . $values['iduser']);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
         if($this->user->IsDummyUser())
         {
-            $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $this->user);
+            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $this->user);
             throw new InvalidArgumentException(self::MSG_DUMMY_USER, parent::MSGCODE_BAD_PARAM);
         }
         
@@ -112,6 +109,11 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         // And update the email
         $db->UpdateUserEmail($this->user, $this->newEmail, 
                 $this->clientIpAddress);        
+    }
+
+    public function GetNewEmail() : ?string
+    {
+        return $this->newEmail;
     }
     
     public function GetCode() : ?string
@@ -135,7 +137,14 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
     {
         return 'Emailadresse erfolgreich aktualisiert';
     }
+
+    public function SetLogger(Logger $logger) : void
+    {
+        $this->logger = $logger;
+    }
     
+    private ?Logger $logger;
+
     private ?string $code;
     private bool $simulate;
     private ?User $user;
