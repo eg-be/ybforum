@@ -317,7 +317,27 @@ class Mailer
         rtrim($str, PHP_EOL);
         return $str;
     }
+
+    public function getMailFrom() : string
+    {
+        return $this->m_mailFrom;
+    }
+
+    public function getReturnPath() : string
+    {
+        return $this->m_returnPath;
+    }
+
+    public function getContentType() : string
+    {
+        return $this->m_contentType;
+    }
     
+    public function getAllMailBcc() : string
+    {
+        return $this->m_allMailBcc;
+    }
+
     private string $m_mailFrom;
     private string $m_returnPath;
     private string $m_contentType;
