@@ -4,3 +4,6 @@ src/xdebuginfo.php
 phpunit.phar
 *.phar
 reports
+vendor
+composer.lock
+composer.json

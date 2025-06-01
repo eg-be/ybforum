@@ -23,8 +23,11 @@ require_once __DIR__.'/../YbForumConfig.php';
 require_once __DIR__.'/../model/ForumDb.php';
 require_once __DIR__.'/../handlers/ConfirmHandler.php';
 require_once __DIR__.'/Logger.php';
+require_once __DIR__.'/MailerDelegate.php';
+require_once __DIR__.'/PhpMailer.php';
+require_once __DIR__.'/DebugOutMailer.php';
 
-/**
+/** 
  * Helper class to send mails.
  *
  * @author Elias Gerber
@@ -35,8 +38,30 @@ class Mailer
      * Create a new mailer instance. Sets some header values that are the 
      * same for all mails being sent: mailfrom, return-path and content-type.
      */
-    public function __construct() 
+    public function __construct(?MailerDelegate $delegate = null, ?Logger $logger = null) 
     {
+        if(is_null($delegate)) {
+            if(YbForumConfig::MAIL_DEBUG === true) {
+                $this->m_delegate = new DebugOutMailer();
+            }
+            else
+            {
+                $this->m_delegate = new PhpMailer();
+            }
+        }
+        else
+        {
+            $this->m_delegate = $delegate;
+        }
+        if(is_null($logger))
+        {
+            $this->m_logger = new Logger();
+        }
+        else
+        {
+            $this->m_logger = $logger;
+        }
+
         $this->m_mailFrom = YbForumConfig::MAIL_FROM_NAME . ' <' . YbForumConfig::MAIL_FROM . '>';
         $this->m_returnPath = YbForumConfig::MAIL_FROM;
         $this->m_allMailBcc = YbForumConfig::MAIL_ALL_BCC;
@@ -165,8 +190,7 @@ class Mailer
                 . 'Bitte beachte '
                 . 'die Reihenfolge aus: ' . "\r\n\r\n"
                 . 'https://1898.ch/showentry.php?idpost=672696';
-        $sent = mail($email, $subject, $mailBody, $this->GetHeaderString());
-        return $sent;
+        return $this->m_delegate->sendMessage($email, $subject, $mailBody, $this->GetHeaderString());
     }
     
     /**
@@ -179,8 +203,7 @@ class Mailer
     {
         $subject = 'Registrierung abgelehnt';
         $mailBody = 'Deine Registrierung wurde abgelehnt.';
-        $sent = mail($email, $subject, $mailBody, $this->GetHeaderString());
-        return $sent;
+        return $this->m_delegate->sendMessage($email, $subject, $mailBody, $this->GetHeaderString());
     }
     
     /**
@@ -199,8 +222,7 @@ class Mailer
                 . 'zu werden.' . "\r\n\r\n";
         $mailBody.= 'Registrierungsnachricht: ' . "\r\n";
         $mailBody.= $registrationMsg;
-        $sent = mail($adminEmail, $subject, $mailBody, $this->GetHeaderString());
-        return $sent;
+        return $this->m_delegate->sendMessage($adminEmail, $subject, $mailBody, $this->GetHeaderString());
     }
 
     /**
@@ -218,15 +240,14 @@ class Mailer
                 . 'eine Kontaktanfrage gesendet: '
                 . "\r\n\r\n";
         $mailBody.= $contactMsg . "\r\n";
-        $sent = mail($adminEmail, $subject, $mailBody, $this->GetHeaderString(), '-f ' . YbForumConfig::MAIL_FROM);
-        $logger = new Logger();
+        $sent = $this->m_delegate->sendMessage($adminEmail, $subject, $mailBody, $this->GetHeaderString());
         if($sent)
         {
-            $logger->LogMessage(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $adminEmail);
+            $this->m_logger->LogMessage(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $adminEmail);
         }
         else
         {
-            $logger->LogMessage(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $adminEmail);
+            $this->m_logger->LogMessage(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $adminEmail);
         }
         return $sent;
     }
@@ -260,33 +281,14 @@ class Mailer
         $mailBody.= $link . "\r\n\r\n";
         $mailBody.= $validForText . "\r\n";
         
-        $sent = false;
-        if (YbForumConfig::MAIL_DEBUG)
-        {
-            $msg = $this->GetHeaderString() . PHP_EOL 
-                . 'From: ' . YbForumConfig::MAIL_FROM_NAME .'<'. YbForumConfig::MAIL_FROM . '>' . PHP_EOL
-                .  'To: ' . $email . PHP_EOL
-                . 'Subject: ' . $subject . PHP_EOL
-                . $mailBody;
-            openlog("YbForum", LOG_PERROR, LOG_USER);
-            syslog(LOG_DEBUG, $msg);
-            closelog();
-            $sent = true;
-        }
-        else
-        {
-            // If we do not force a sender, the reply-to: address is still set to www-data (?)
-            // so we just use that -f switch
-            $sent = mail($email, $subject, $mailBody, $this->GetHeaderString(), '-f ' . YbForumConfig::MAIL_FROM);
-        }
-        $logger = new Logger();
+        $sent = $this->m_delegate->sendMessage($email, $subject, $mailBody, $this->GetHeaderString());
         if($sent)
         {
-            $logger->LogMessage(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $email);
+            $this->m_logger->LogMessage(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $email);
         }
         else
         {
-            $logger->LogMessage(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $email);
+            $this->m_logger->LogMessage(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $email);
         }
         return $sent;
     }
@@ -338,8 +340,21 @@ class Mailer
         return $this->m_allMailBcc;
     }
 
+    public function GetLogger() : Logger
+    {
+        return $this->m_logger;
+    }
+
+    public function GetMailerDelegate() : MailerDelegate
+    {
+        return $this->m_delegate;
+    }
+
     private string $m_mailFrom;
     private string $m_returnPath;
     private string $m_contentType;
     private string $m_allMailBcc;
+
+    private MailerDelegate $m_delegate;
+    private Logger $m_logger;
 }
