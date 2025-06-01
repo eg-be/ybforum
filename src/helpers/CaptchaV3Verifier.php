@@ -20,6 +20,9 @@
 */
 
 require_once __DIR__.'/Logger.php';
+require_once __DIR__.'/HttpRequest.php';
+require_once __DIR__.'/CurlHttpRequest.php';
+require_once __DIR__.'/../handlers/BaseHandler.php';
 
 /**
  * A helper to verify a captcha, see https://developers.google.com/recaptcha/
@@ -32,7 +35,7 @@ require_once __DIR__.'/Logger.php';
  */
 class CaptchaV3Verifier {
     
-    const PARAM_CAPTCHA = 'g-recaptcha-response';    
+    const PARAM_CAPTCHA = 'g-recaptcha-response';
     
     const MSG_GENERIC_INVALID = 'Captcha not verified';
     const MSGCODE_BAD_PARAM = 400;    
@@ -42,21 +45,31 @@ class CaptchaV3Verifier {
     const VERIFY_PARAM_NAME_RESPONSE = 'response';
     const VERIFY_PARAM_NAME_REMOTEIP = 'remoteip';
     
-    public function __construct(string $captchaSecret, float $requiredScore, string $action)
+    public function __construct(string $captchaSecret, float $requiredScore, string $action,
+        ?HttpRequest $httpRequest = null, ?Logger $logger = null)
     {
         $this->m_captchaSecret = $captchaSecret;
         $this->m_requiredScore = $requiredScore;
         $this->m_action = $action;
         
-        $this->m_clientIp = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
-        $value = trim(filter_input(INPUT_POST, self::PARAM_CAPTCHA, FILTER_UNSAFE_RAW));
-        if(!$value)
+        $this->m_clientIp = BaseHandler::ReadClientIpParam();
+        $this->m_captchaResponse = BaseHandler::ReadStringParam(self::PARAM_CAPTCHA);
+
+        if(is_null($httpRequest)) 
         {
-            $this->m_captchaResponse = null;
+            $this->m_httpRequest = new CurlHttpRequest();
         }
         else
         {
-            $this->m_captchaResponse = $value;
+            $this->m_httpRequest = $httpRequest;
+        }
+        if(is_null($logger)) 
+        {
+            $this->m_logger = new Logger();
+        }
+        else
+        {
+            $this->m_logger = $logger;
         }
     }
     
@@ -76,28 +89,15 @@ class CaptchaV3Verifier {
         }
         
         // POST to verify the response:
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, self::VERIFY_URL);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, 
-                    http_build_query(array(
+        $decodedResp = $this->m_httpRequest->postReceiveJson(self::VERIFY_URL, 
+            (array(
                         self::VERIFY_PARAM_NAME_RESPONSE => $this->m_captchaResponse,
                         self::VERIFY_PARAM_NAME_SECRET => $this->m_captchaSecret,
                         self::VERIFY_PARAM_NAME_REMOTEIP => $this->m_clientIp)));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $serverResponse = curl_exec ($ch);
-        curl_close ($ch);
-        
-        if(!$serverResponse)
-        {
-            throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
-        }
-        $decodedResp = json_decode($serverResponse, true);
         if(!$decodedResp)
         {
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
         }
-        $logger = new Logger();
         if(!$decodedResp['success'])
         {
             $errcodes = '';
@@ -105,23 +105,33 @@ class CaptchaV3Verifier {
             {
                 $errcodes = implode($decodedResp['error-codes']);
             }
-            $logger->LogMessage(LogType::LOG_CAPTCHA_TOKEN_INVALID, $errcodes);
+            $this->m_logger->LogMessage(LogType::LOG_CAPTCHA_TOKEN_INVALID, $errcodes);
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
         }
         if($decodedResp['action'] !== $this->m_action)
         {
-            $logger->LogMessage(LogType::LOG_CAPTCHA_WRONG_ACTION, 'expected action \''. $this->m_action . '\' but received \'' .  $decodedResp['action'] .'\'');
+            $this->m_logger->LogMessage(LogType::LOG_CAPTCHA_WRONG_ACTION, 'expected action \''. $this->m_action . '\' but received \'' .  $decodedResp['action'] .'\'');
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
         }
-        if($decodedResp['score'] < CaptchaV3Config::MIN_REQUIRED_SCORE)
+        if($decodedResp['score'] < $this->m_requiredScore)
         {
-            $logger->LogMessage(LogType::LOG_CAPTCHA_SCORE_TOO_LOW, 'min required ' . $this->m_requiredScore . ', received ' . $decodedResp['score']);
+            $this->m_logger->LogMessage(LogType::LOG_CAPTCHA_SCORE_TOO_LOW, 'min required ' . $this->m_requiredScore . ', received ' . $decodedResp['score']);
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
         }
         else
         {
-            $logger->LogMessage(LogType::LOG_CAPTCHA_SCORE_PASSED, 'min required ' . $this->m_requiredScore . ', received ' . $decodedResp['score']);
+            $this->m_logger->LogMessage(LogType::LOG_CAPTCHA_SCORE_PASSED, 'min required ' . $this->m_requiredScore . ', received ' . $decodedResp['score']);
         }
+    }
+
+    public function GetCaptchaRespone() : ?string
+    {
+        return $this->m_captchaResponse;
+    }
+
+    public function GetClientIp() : string
+    {
+        return $this->m_clientIp;
     }
     
     private ?string $m_captchaResponse;
@@ -129,4 +139,7 @@ class CaptchaV3Verifier {
     private string $m_captchaSecret;
     private string $m_action;
     private float $m_requiredScore;
+
+    private HttpRequest $m_httpRequest;
+    private Logger $m_logger;
 }
