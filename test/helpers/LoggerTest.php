@@ -181,6 +181,39 @@ final class LoggerTest extends BaseTest
         $this->assertSame('13.13.13.13', $result['ip_address']);
     }
 
+    public function testLogMessageWithAdminContext(): void
+    {
+        // just log a test-message where user-context is set
+        $_SESSION['adminuserid'] = 1;
+        $user101 = $this->createStub(User::class);
+        $user101->method('GetId')->willReturn(101);
+        $user101->method('GetMinimalUserInfoAsString')->willReturn('IdUser: 101;');
+
+        $l = new Logger($this->db);
+        $l->LogMessageWithUserId(LogType::LOG_NOTIFIED_USER_ACCEPTED, $user101);
+
+        // get the id to compare later
+        $id1 = $l->GetLogTypeId(LogType::LOG_NOTIFIED_USER_ACCEPTED);
+
+        // read back the values
+        $query = 'SELECT idlog, idlog_type, ts, iduser, historic_user_context, message, request_uri, ip_address, admin_iduser '
+        . 'FROM log_table '
+        . 'ORDER BY idlog DESC';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        $this->assertTrue($stmt->rowCount() >= 1);
+        $result = $stmt->fetch();
+        $this->assertNotNull($result);
+        $this->assertSame($id1, $result['idlog_type']);
+        $this->assertNotNull($result['ts']);
+        $this->assertEquals(101, $result['iduser']);
+        $this->assertNotNull($result['historic_user_context']);
+        $this->assertStringContainsString('IdUser: 101;', $result['historic_user_context']);
+        $this->assertSame('phpunit', $result['request_uri']);
+        $this->assertSame('13.13.13.13', $result['ip_address']);
+        $this->assertSame(1, $result['admin_iduser']);
+    }    
+
     public function testAllLogTypesDefinedInDb(): void
     {
         $l = new Logger($this->db);
