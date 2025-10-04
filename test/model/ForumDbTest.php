@@ -1301,6 +1301,30 @@ final class ForumDbTest extends BaseTest
         $this->assertNotNull($this->db->LoadUserByEmail('eg-be@dev '));        
     }
 
+    public function testLoadThreadIds_noGaps() : void
+    {
+        // reset to initial state
+        BaseTest::createTestDatabase();
+
+        // pagesize 3
+        // page 1
+        $threadIds = $this->db->LoadThreadIds(1, 3);
+        $this->assertEquals(array(12, 11, 10), $threadIds);
+
+        // page 3
+        $threadIds = $this->db->LoadThreadIds(3, 3);
+        $this->assertEquals(array(6, 5, 4), $threadIds);
+
+        // with pagesize of 5
+        // page 1
+        $threadIds = $this->db->LoadThreadIds(1, 5);
+        $this->assertEquals(array(12, 11, 10, 9, 8), $threadIds);
+
+        // page 3
+        $threadIds = $this->db->LoadThreadIds(3, 5);
+        $this->assertEquals(array(2, 1), $threadIds);
+    }
+
     public function testLoadThreadIndexEntries() : void
     {
         // reset to initial state

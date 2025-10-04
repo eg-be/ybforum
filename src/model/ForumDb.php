@@ -1519,6 +1519,23 @@ class ForumDb extends PDO
         return $user;
     }
 
+    public function LoadThreadIds(int $pageNr, int $threadsPerPage) : array
+    {
+        assert($pageNr > 0);
+        assert($threadsPerPage > 0);
+        $offset = ($pageNr - 1) * $threadsPerPage;
+        $query = 'SELECT idthread '
+                . 'FROM thread_table '
+                . 'ORDER BY idthread DESC '
+                . 'LIMIT :threadsPerPage '
+                . 'OFFSET :offset';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array(':threadsPerPage' => $threadsPerPage,
+            ':offset' => $offset));
+        $threadIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        return $threadIds;
+    }
+
     /**
      * Loads thread structures and invokes callback with an array
      * of PostIndexEntry objects: Search for a number of $maxThreads, where
