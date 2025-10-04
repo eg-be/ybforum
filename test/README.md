@@ -5,6 +5,31 @@ Most tests are about validating the queries againts the underlying database, the
 ## Prepare test database
 Follow the instructions in [database](../database/) to create an empty database with a read-only and a read-write user.
 
+## A note about timezones
+Some tests will only work properly, if mariadb and php use the same timezone. To check the timezone with php:
+```
+php -a
+php > echo date_default_timezone_get();
+Europe/Zurich
+```
+MariaDB will probably just use the SYSTEM timezone:
+```
+MariaDB [(none)]> SHOW GLOBAL VARIABLES LIKE 'time_zone';
++---------------+--------+
+| Variable_name | Value  |
++---------------+--------+
+| time_zone     | SYSTEM |
++---------------+--------+
+1 row in set (0.000 sec)
+```
+so, just check `/etc/timezone` for mariadb, and update `/etc/php/8.4/cli/php.ini` with:
+```
+[Date]
+; Defines the default timezone used by the date functions
+; https://php.net/date.timezone
+date.timezone = Europe/Zurich 
+```
+
 ## Sendmail
 Some functions must send a confirmation mail to complete the request. The test-system requires a working MTA, so that PHPs `mail()` function returns without an error. A cheap solution is to install exim, configure it to deliver mail locally only and and then just specify an alias to redirect all mail for `www-data` to some other user:
 
