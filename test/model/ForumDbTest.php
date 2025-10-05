@@ -1371,6 +1371,99 @@ final class ForumDbTest extends BaseTest
         $this->assertEquals($expectedEntries, $threadIds);
     }
 
+    public function testLoadThreadIndexEntries2() : void
+    {
+        // reset to initial state
+        BaseTest::createTestDatabase();
+
+        // Load the oldest 4 threads with ids [4, 3, 2, 1]
+        // as we have 12 threads in the test-data, they are on page 3, if we assume a page-size of 4
+        $threads = array();
+        $this->db->LoadThreadIndexEntries2(3, 4, function($threadIndexes) use (&$threads) {
+            array_push($threads, $threadIndexes);
+        });
+
+        // check that all four threads are found
+        $this->assertEquals(4, sizeof($threads));
+        // in the correct order, which is reversed, as that makes rendering easier
+        // (newest threads shall appear first)
+        $this->assertEquals(4, $threads[0][0]->GetThreadId());
+        $this->assertEquals('Thread 4', $threads[0][0]->GetTitle());
+        $this->assertEquals(3, $threads[1][0]->GetThreadId());
+        $this->assertEquals('Thread 3', $threads[1][0]->GetTitle());
+        $this->assertEquals(2, $threads[2][0]->GetThreadId());
+        $this->assertEquals('Thread 2', $threads[2][0]->GetTitle());
+        $this->assertEquals(1, $threads[3][0]->GetThreadId());
+        $this->assertEquals('Thread 1', $threads[3][0]->GetTitle());
+
+        // check that Thread 3 is complete and ready to be rendered:
+        $thread3 = $threads[1];
+        $this->assertEquals(8, sizeof($thread3));
+        $this->assertEquals(3, $threads[1][0]->GetThreadId());
+        $this->assertEquals('Thread 3', $thread3[0]->GetTitle());
+        $this->assertEquals(0, $thread3[0]->GetIndent());
+        $this->assertEquals('Thread 3 - A1', $thread3[1]->GetTitle());
+        $this->assertEquals(1, $thread3[1]->GetIndent());
+        $this->assertEquals('Thread 3 - A1-1', $thread3[2]->GetTitle());
+        $this->assertEquals(2, $thread3[2]->GetIndent());
+        $this->assertEquals('Thread 3 - A1-2', $thread3[3]->GetTitle());
+        $this->assertEquals(2, $thread3[3]->GetIndent());
+        $this->assertEquals('Thread 3 - A1-2-1', $thread3[4]->GetTitle());
+        $this->assertEquals(3, $thread3[4]->GetIndent());
+        $this->assertEquals('Thread 3 - A1-3', $thread3[5]->GetTitle());
+        $this->assertEquals(2, $thread3[5]->GetIndent());
+        $this->assertEquals('Thread 3 - A2', $thread3[6]->GetTitle());
+        $this->assertEquals(1, $thread3[6]->GetIndent());
+        $this->assertEquals('Thread 3 - A2-1', $thread3[7]->GetTitle());
+        $this->assertEquals(2, $thread3[7]->GetIndent());
+    }
+
+    public function testLoadThreadIndexEntries2_HiddenPathNotIncluded() : void
+    {
+        // reset to initial state
+        BaseTest::createTestDatabase();
+
+        // Hide the part from 'Thread 3 A1-2' on of Thread 3
+        $this->db->SetPostVisible(23, false);
+
+        // Load the oldest 4 threads with ids [4, 3, 2, 1]
+        // as we have 12 threads in the test-data, they are on page 3, if we assume a page-size of 4
+        $threads = array();
+        $this->db->LoadThreadIndexEntries2(3, 4, function($threadIndexes) use (&$threads) {
+            array_push($threads, $threadIndexes);
+        });
+
+        // check that all four threads are found
+        $this->assertEquals(4, sizeof($threads));
+        // in the correct order, which is reversed, as that makes rendering easier
+        // (newest threads shall appear first)
+        $this->assertEquals(4, $threads[0][0]->GetThreadId());
+        $this->assertEquals('Thread 4', $threads[0][0]->GetTitle());
+        $this->assertEquals(3, $threads[1][0]->GetThreadId());
+        $this->assertEquals('Thread 3', $threads[1][0]->GetTitle());
+        $this->assertEquals(2, $threads[2][0]->GetThreadId());
+        $this->assertEquals('Thread 2', $threads[2][0]->GetTitle());
+        $this->assertEquals(1, $threads[3][0]->GetThreadId());
+        $this->assertEquals('Thread 1', $threads[3][0]->GetTitle());
+
+        // check that Thread 3 is complete and ready to be rendered:
+        $thread3 = $threads[1];
+        $this->assertEquals(6, sizeof($thread3));
+        $this->assertEquals(3, $threads[1][0]->GetThreadId());
+        $this->assertEquals('Thread 3', $thread3[0]->GetTitle());
+        $this->assertEquals(0, $thread3[0]->GetIndent());
+        $this->assertEquals('Thread 3 - A1', $thread3[1]->GetTitle());
+        $this->assertEquals(1, $thread3[1]->GetIndent());
+        $this->assertEquals('Thread 3 - A1-1', $thread3[2]->GetTitle());
+        $this->assertEquals(2, $thread3[2]->GetIndent());
+        $this->assertEquals('Thread 3 - A1-3', $thread3[3]->GetTitle());
+        $this->assertEquals(2, $thread3[3]->GetIndent());
+        $this->assertEquals('Thread 3 - A2', $thread3[4]->GetTitle());
+        $this->assertEquals(1, $thread3[4]->GetIndent());
+        $this->assertEquals('Thread 3 - A2-1', $thread3[5]->GetTitle());
+        $this->assertEquals(2, $thread3[5]->GetIndent());
+    }
+
     public function testLoadThreadIndexEntries() : void
     {
         // reset to initial state

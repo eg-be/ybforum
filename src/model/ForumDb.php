@@ -1541,6 +1541,73 @@ class ForumDb extends PDO
         return $threadIds;
     }
 
+    public function LoadThreadIndexEntries2(
+        int $pageNr, int $threadsPerPage,
+        callable $threadIndexCallback) : void
+    {
+        assert($pageNr > 0);
+        assert($threadsPerPage > 0);
+        assert($this->IsConnected());
+        // get the thread-ids first
+        $threadIds = $this->LoadThreadIds($pageNr, $threadsPerPage);
+        if(empty($threadIds)) {
+            return; // must return here, min / max will fail for empty input
+        }
+        // thrad-ids might have gaps, but they are still from a sequence and
+        // thefore with strictly increasing order
+        $minThreadId = min($threadIds);
+        $maxThreadId = max($threadIds);
+        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
+                . 'title, indent, creation_ts, '
+                . 'content IS NOT NULL AS has_content,'
+                . 'hidden '
+                . 'FROM post_table LEFT JOIN '
+                . 'user_table ON post_table.iduser = user_table.iduser '
+                . 'WHERE idthread <= :maxThreadId AND idthread >= :minThreadId '
+                . 'ORDER BY idthread DESC, `rank`';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array(':maxThreadId' => $maxThreadId,
+            ':minThreadId' => $minThreadId));
+        $threadIndexEntries = array();
+        $lastThreadId = 0;
+        $inHiddenPath = false;
+        $hiddenStartedAtIndent = 0;
+        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
+        {
+            // whenever a new thread starts, notify the user about the
+            // previous entries.
+            if($indexEntry->GetThreadId() !== $lastThreadId && $lastThreadId !== 0)
+            {
+                if(!empty($threadIndexEntries))
+                {
+                    call_user_func($threadIndexCallback, $threadIndexEntries);
+                }
+                $threadIndexEntries = array();
+            }
+            $lastThreadId = $indexEntry->GetThreadId();
+            if($inHiddenPath && $indexEntry->GetIndent() <= $hiddenStartedAtIndent)
+            {
+                // might be leaving the hidden path
+                $inHiddenPath = false;
+            }
+            if($indexEntry->IsHidden() && $inHiddenPath === false)
+            {
+                // entering a hidden path, discard until we are out of it
+                $inHiddenPath = true;
+                $hiddenStartedAtIndent = $indexEntry->GetIndent();
+            }
+            if(!$inHiddenPath)
+            {
+                array_push($threadIndexEntries, $indexEntry);
+            }
+        }
+        // dont forget the rest
+        if(!empty($threadIndexEntries))
+        {
+            call_user_func($threadIndexCallback, $threadIndexEntries);
+        }
+    }
+
     /**
      * Loads thread structures and invokes callback with an array
      * of PostIndexEntry objects: Search for a number of $maxThreads, where
