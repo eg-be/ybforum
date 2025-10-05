@@ -1323,13 +1323,17 @@ final class ForumDbTest extends BaseTest
         // page 3
         $threadIds = $this->db->LoadThreadIds(3, 5);
         $this->assertEquals(array(2, 1), $threadIds);
+
+        // if pagenr is way too high, we expect an empty result
+        $threadIds = $this->db->LoadThreadIds(3, 100);
+        $this->assertEquals(array(), $threadIds);
     }
 
     public function testLoadThreadIds_withGaps() : void
     {
         // reset to initial state
         BaseTest::createTestDatabase();
-        
+
         // insert some additional threads
         $maxThreadId = $this->db->GetLastThreadId();
         $insertedThreadIds = array(); // holds inserted ids, the newest (=highest id) first
@@ -1365,7 +1369,7 @@ final class ForumDbTest extends BaseTest
         $expectedInsertedEntries = array_slice($insertedThreadIds, 12 * 20, 20); // 10 entries from insertions
         $expectedEntries = array(...$expectedInsertedEntries, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3); // and 10 from default-data
         $this->assertEquals($expectedEntries, $threadIds);
-    }    
+    }
 
     public function testLoadThreadIndexEntries() : void
     {

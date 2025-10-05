@@ -1519,6 +1519,11 @@ class ForumDb extends PDO
         return $user;
     }
 
+    /**
+     * Loads the thread-ids for a page with limit and offset.
+     * @param int $pageNr The Page-number to load the ids for. Must be >= 1
+     * @param int $threadsPerPage The number of threads per page (pagesize)
+     */
     public function LoadThreadIds(int $pageNr, int $threadsPerPage) : array
     {
         assert($pageNr > 0);
