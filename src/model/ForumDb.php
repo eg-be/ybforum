@@ -1523,6 +1523,7 @@ class ForumDb extends PDO
      * Loads the thread-ids for a page with limit and offset.
      * @param int $pageNr The Page-number to load the ids for. Must be >= 1
      * @param int $threadsPerPage The number of threads per page (pagesize)
+     * @return array ThreadIds, ordered by the idthread value
      */
     public function LoadThreadIds(int $pageNr, int $threadsPerPage) : array
     {
@@ -1541,7 +1542,25 @@ class ForumDb extends PDO
         return $threadIds;
     }
 
-    public function LoadThreadIndexEntries2(
+    /**
+     * Loads thread structures and invokes callback with an array
+     * of PostIndexEntry objects. The threads for the given pageNr
+     * are loaded from the db.
+     * For every thread an array of PostIndexEntry is created.
+     * As soon as the array for one thread is fully created, the $threadIndexCallback
+     * is invoked with the array of PostIndexEntry objects for that thread.
+     * PostIndexEntry objects inside an array are sorted by the rank
+     * value (ascending).
+     * Threads are iterated by idthread descending.
+     * Hidden posts and their children are not added to the array of
+     * PostIndexEntry objects.
+     * @param int $pageNr Pagination-offset, must be >= 1
+     * @param int $threadsPerPage Pagesize, used to calculate offste
+     * @param callable $threadIndexCallback Callback to invoke with an array of
+     * ThreadIndexEntry objects.
+     * @throws Exception If a database operation fails.
+     */    
+    public function LoadThreadIndexEntries(
         int $pageNr, int $threadsPerPage,
         callable $threadIndexCallback) : void
     {
@@ -1564,87 +1583,6 @@ class ForumDb extends PDO
                 . 'FROM post_table LEFT JOIN '
                 . 'user_table ON post_table.iduser = user_table.iduser '
                 . 'WHERE idthread <= :maxThreadId AND idthread >= :minThreadId '
-                . 'ORDER BY idthread DESC, `rank`';
-        $stmt = $this->prepare($query);
-        $stmt->execute(array(':maxThreadId' => $maxThreadId,
-            ':minThreadId' => $minThreadId));
-        $threadIndexEntries = array();
-        $lastThreadId = 0;
-        $inHiddenPath = false;
-        $hiddenStartedAtIndent = 0;
-        while($indexEntry = $stmt->fetchObject(PostIndexEntry::class))
-        {
-            // whenever a new thread starts, notify the user about the
-            // previous entries.
-            if($indexEntry->GetThreadId() !== $lastThreadId && $lastThreadId !== 0)
-            {
-                if(!empty($threadIndexEntries))
-                {
-                    call_user_func($threadIndexCallback, $threadIndexEntries);
-                }
-                $threadIndexEntries = array();
-            }
-            $lastThreadId = $indexEntry->GetThreadId();
-            if($inHiddenPath && $indexEntry->GetIndent() <= $hiddenStartedAtIndent)
-            {
-                // might be leaving the hidden path
-                $inHiddenPath = false;
-            }
-            if($indexEntry->IsHidden() && $inHiddenPath === false)
-            {
-                // entering a hidden path, discard until we are out of it
-                $inHiddenPath = true;
-                $hiddenStartedAtIndent = $indexEntry->GetIndent();
-            }
-            if(!$inHiddenPath)
-            {
-                array_push($threadIndexEntries, $indexEntry);
-            }
-        }
-        // dont forget the rest
-        if(!empty($threadIndexEntries))
-        {
-            call_user_func($threadIndexCallback, $threadIndexEntries);
-        }
-    }
-
-    /**
-     * Loads thread structures and invokes callback with an array
-     * of PostIndexEntry objects: Search for a number of $maxThreads, where
-     * the last thread is the thread with $maxThreadId. For every thread, an
-     * array is created, holding the thread index entries in form of
-     * PostIndexEntry objects.
-     * As soon as all PostIndexEntry objects
-     * for one thread have been placed in the array, the $threadIndexCallback
-     * is invoked with the array f PostIndexEntry objects for that thread.
-     * PostIndexEntry objects inside an array are sorted by the rank
-     * value (ascending).
-     * Threads are iterated by idthread descending.
-     * Hidden posts and their children are not added to the array of
-     * PostIndexEntry objects.
-     * @param int $maxThreads Maximum number of threads to load index entries
-     * for.
-     * @param int $maxThreadId Maximum thread id to load index entries for,
-     * the callback will start with the index entries for this thread.
-     * @param callable $threadIndexCallback Callback to invoke with an array of
-     * ThreadIndexEntry objects.
-     * @throws Exception If a database operation fails.
-     */
-    public function LoadThreadIndexEntries(
-        int $maxThreads, int $maxThreadId,
-        callable $threadIndexCallback) : void
-    {
-        assert($maxThreads > 0);
-        assert($maxThreadId > 0);
-        assert($this->IsConnected());
-        $minThreadId = $maxThreadId - $maxThreads;
-        $query = 'SELECT idpost, idthread, parent_idpost, nick, '
-                . 'title, indent, creation_ts, '
-                . 'content IS NOT NULL AS has_content,'
-                . 'hidden '
-                . 'FROM post_table LEFT JOIN '
-                . 'user_table ON post_table.iduser = user_table.iduser '
-                . 'WHERE idthread <= :maxThreadId AND idthread > :minThreadId '
                 . 'ORDER BY idthread DESC, `rank`';
         $stmt = $this->prepare($query);
         $stmt->execute(array(':maxThreadId' => $maxThreadId,
