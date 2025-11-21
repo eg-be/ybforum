@@ -40,13 +40,8 @@ class ThreadIndexView {
         assert($forumDb->IsConnected());
         assert($nrOfThreadsPerPage > 0);
         assert($pageNr > 0);
-        // the max thread is the latest (newest) thread
-        $dbLastThreadId = $forumDb->GetLastThreadId();
-        // depending on our pagenr and the number of threads per page
-        // calculate the last thread id for this page view
-        $this->m_lastThreadId = $dbLastThreadId - 
-                (($pageNr - 1) * $nrOfThreadsPerPage);
         $this->m_nrOfThreads = $nrOfThreadsPerPage;
+        $this->m_pageNr = $pageNr;
         $this->m_forumDb = $forumDb;
     }
     
@@ -62,8 +57,7 @@ class ThreadIndexView {
      */
     public function renderHtmlDivPerThread(callable $htmlPerThreadCallback) : void
     {
-        $this->m_forumDb->LoadThreadIndexEntries($this->m_nrOfThreads,
-                $this->m_lastThreadId, 
+        $this->m_forumDb->LoadThreadIndexEntries($this->m_pageNr, $this->m_nrOfThreads,
                 function($threadIndexes) 
                 use ($htmlPerThreadCallback)
         {
@@ -98,5 +92,5 @@ class ThreadIndexView {
     
     private ForumDb $m_forumDb;
     private int $m_nrOfThreads;
-    private int $m_lastThreadId;
+    private int $m_pageNr;
 }
