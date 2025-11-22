@@ -1520,42 +1520,69 @@ class ForumDb extends PDO
     }
 
     /**
+     * Loads the thread-ids for a page with limit and offset.
+     * @param int $pageNr The Page-number to load the ids for. Must be >= 1
+     * @param int $threadsPerPage The number of threads per page (pagesize)
+     * @return array ThreadIds, ordered by the idthread value
+     */
+    public function LoadThreadIds(int $pageNr, int $threadsPerPage) : array
+    {
+        assert($pageNr > 0);
+        assert($threadsPerPage > 0);
+        $offset = ($pageNr - 1) * $threadsPerPage;
+        $query = 'SELECT idthread '
+                . 'FROM thread_table '
+                . 'ORDER BY idthread DESC '
+                . 'LIMIT :threadsPerPage '
+                . 'OFFSET :offset';
+        $stmt = $this->prepare($query);
+        $stmt->execute(array(':threadsPerPage' => $threadsPerPage,
+            ':offset' => $offset));
+        $threadIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        return $threadIds;
+    }
+
+    /**
      * Loads thread structures and invokes callback with an array
-     * of PostIndexEntry objects: Search for a number of $maxThreads, where
-     * the last thread is the thread with $maxThreadId. For every thread, an
-     * array is created, holding the thread index entries in form of
-     * PostIndexEntry objects.
-     * As soon as all PostIndexEntry objects
-     * for one thread have been placed in the array, the $threadIndexCallback
-     * is invoked with the array f PostIndexEntry objects for that thread.
+     * of PostIndexEntry objects. The threads for the given pageNr
+     * are loaded from the db.
+     * For every thread an array of PostIndexEntry is created.
+     * As soon as the array for one thread is fully created, the $threadIndexCallback
+     * is invoked with the array of PostIndexEntry objects for that thread.
      * PostIndexEntry objects inside an array are sorted by the rank
      * value (ascending).
      * Threads are iterated by idthread descending.
      * Hidden posts and their children are not added to the array of
      * PostIndexEntry objects.
-     * @param int $maxThreads Maximum number of threads to load index entries
-     * for.
-     * @param int $maxThreadId Maximum thread id to load index entries for,
-     * the callback will start with the index entries for this thread.
+     * @param int $pageNr Pagination-offset, must be >= 1
+     * @param int $threadsPerPage Pagesize, used to calculate offste
      * @param callable $threadIndexCallback Callback to invoke with an array of
      * ThreadIndexEntry objects.
      * @throws Exception If a database operation fails.
-     */
+     */    
     public function LoadThreadIndexEntries(
-        int $maxThreads, int $maxThreadId,
+        int $pageNr, int $threadsPerPage,
         callable $threadIndexCallback) : void
     {
-        assert($maxThreads > 0);
-        assert($maxThreadId > 0);
+        assert($pageNr > 0);
+        assert($threadsPerPage > 0);
         assert($this->IsConnected());
-        $minThreadId = $maxThreadId - $maxThreads;
+        // get the thread-ids first
+        $threadIds = $this->LoadThreadIds($pageNr, $threadsPerPage);
+        if(empty($threadIds)) {
+            return; // must return here, min / max will fail for empty input
+        }
+        // thrad-ids might have gaps, but they are still from a sequence and
+        // thefore with strictly increasing order
+        $minThreadId = min($threadIds);
+        $maxThreadId = max($threadIds);
         $query = 'SELECT idpost, idthread, parent_idpost, nick, '
                 . 'title, indent, creation_ts, '
                 . 'content IS NOT NULL AS has_content,'
                 . 'hidden '
                 . 'FROM post_table LEFT JOIN '
                 . 'user_table ON post_table.iduser = user_table.iduser '
-                . 'WHERE idthread <= :maxThreadId AND idthread > :minThreadId '
+                . 'WHERE idthread <= :maxThreadId AND idthread >= :minThreadId '
                 . 'ORDER BY idthread DESC, `rank`';
         $stmt = $this->prepare($query);
         $stmt->execute(array(':maxThreadId' => $maxThreadId,
