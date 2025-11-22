@@ -135,5 +135,5 @@ final class YbForumConfig
     /**
      * @var string Revision-string to append to the CSS to enforce reloading on update.
      */
-    const CSS_REV = 'r185';
+    const CSS_REV = 'r2025-11-22';
 }

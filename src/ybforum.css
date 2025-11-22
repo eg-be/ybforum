@@ -53,7 +53,8 @@ a:visited
 
 .fmonospace
 {
-    font-family: monospace;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    text-wrap: nowrap;
 }
 
 .nomargin
