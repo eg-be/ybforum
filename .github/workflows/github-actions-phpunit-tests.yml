@@ -1,6 +1,7 @@
 name: PHPUnit Tests
 run-name: ${{ github.actor }} pushed, running PHPUnit Tests
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
