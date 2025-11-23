@@ -28,6 +28,16 @@ Thats it, now point your browser to the URL serving the content of httpdoc. You 
 
 You are ready to post your first entry now.
 
-## Notes
+## Development setup
+### Development using vscode
+See [Folder .vscode](.vscode) for some notes about howto setup a dev-environment with vscode.
+
+### Running the tests
+See [Folder test](test) for some notes about howto run the tests.
+
+## Backup and restoring the databse
+See [Folder backup_script](backup_script) for some notes about backuping and restoring the database.
+
+## Various notes
 ### sendmail
 Confirmation mails are sent using phps built-in function [mail](https://www.php.net/manual/de/function.mail.php). Make sure that the `sendmail_path` in `php.ini` is configured with a MTA satisfying the [requirements](https://www.php.net/manual/en/mail.requirements.php).
