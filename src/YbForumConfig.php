@@ -100,6 +100,17 @@ final class YbForumConfig
     const MAIL_ALL_BCC = 'mail-monitor@1898.ch';
     
     /**
+     * @var bool If true, a log entry is created if authentication fails with
+     * the reason 'AuthFailedNoSuchUser' (a nick was passed, that doesnt
+     * exists).
+     * This should be set to false as default, as spammers create tons of
+     * log-entries else.
+     * note: Setting this to false, will also supress logging of the 
+     * post-content in case of 'AuthFailedNoSuchUser'.
+     */
+    const LOG_AUTH_FAIL_NO_SUCH_USER = false;
+
+    /**
      * @var bool If true, post content is logged as extended log if
      * posting fails because authentication has failed (user not found,
      * wrong password, user inactive or dummy). A normal log entry is 
@@ -107,8 +118,11 @@ final class YbForumConfig
      * entry is the authentication failure reason. In the 
      * log_extended_info table an entry is added, holding the content (and 
      * subject) of the post that has been discarded. Note; This is mostly
-     * funny to see what spammers want to add, or what stupid newspapers
-     * like 20min are trying to post..
+     * funny to see what spammers want to add, or what newspapers without
+     * an account are tryign to post.
+     * note: If LOG_AUTH_FAIL_NO_SUCH_USER is set to false, the post content
+     * will never be logged if the authentication failure is due to the 
+     * passed nick not beeing found.
      */
     const LOG_EXT_POST_DATA_ON_AUTH_FAILURE = true;
 
