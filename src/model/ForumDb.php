@@ -293,7 +293,9 @@ class ForumDb extends PDO
         $user = $this->LoadUserByNick($nick);
         if(!$user)
         {
-            $logger->LogMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, 'Passed nick: ' . $nick);
+            if(YbForumConfig::LOG_AUTH_FAIL_NO_SUCH_USER) {
+                $logger->LogMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, 'Passed nick: ' . $nick);
+            }
             if(!is_null($authFailReason))
             {
                 $authFailReason = self::AUTH_FAIL_REASON_NO_SUCH_USER;
@@ -334,6 +336,26 @@ class ForumDb extends PDO
             $authFailReason = self::AUTH_FAIL_REASON_PASSWORD_INVALID;
         }        
         return null;
+    }
+
+    const USER_KEY = "user";
+    const AUTH_FAIL_REASON_KEY = "authFailReason";
+    /**
+     * As ForumDb::AuthUser() but returns an array with two properties:
+     * - USER_KEY: which Contains the User if authentication was successfull,
+     *   else null
+     * - AUTH_FAIL_REASON_KEY: If user is null, this contains the reason why
+     *   authentication failed. Else it is null
+     */
+    public function AuthUser2(string $nick, string $password) : array
+    {
+        $authFailReason = 0;
+        $user = $this->AuthUser($nick, $password, $authFailReason);
+        $result = array(
+            self::USER_KEY => $user,
+            self::AUTH_FAIL_REASON_KEY => (is_null($user) ? $authFailReason : null)
+        );
+        return $result;
     }
 
     /**
