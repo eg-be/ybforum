@@ -169,6 +169,23 @@ final class ForumDbTest extends BaseTest
         $this->assertSame(ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID, $reason);
     }
 
+    public function testAuthUser2() : void
+    {
+        // a user that can loggin: failreason set to null
+        $result = $this->db->AuthUser2('admin', 'admin-pass');
+        $this->assertNotNull($result);
+        $this->assertNotNull($result[ForumDb::USER_KEY]);
+        $this->assertSame(1, $result[ForumDb::USER_KEY]->GetId());
+        $this->assertNull($result[ForumDb::AUTH_FAIL_REASON_KEY]);
+
+        // active user fails because password missmatch
+        $result = $this->db->AuthUser2('admin', 'foo');
+        $this->assertNotNull($result);
+        $this->assertNull($result[ForumDb::USER_KEY]);
+        $this->assertNotNull($result[ForumDb::AUTH_FAIL_REASON_KEY]);        
+        $this->assertSame(ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID, $result[ForumDb::AUTH_FAIL_REASON_KEY]);
+    }
+
     public function testCreateThread() : void
     {
         $oldThreadCount = $this->db->GetThreadCount();

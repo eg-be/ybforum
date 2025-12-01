@@ -109,3 +109,22 @@ If, for whatever reason, the collations get mixed up, execute the following to u
 ```
 ALTER TABLE `post_table` CHANGE `title` `title` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_german2_ci NOT NULL;
 ```
+
+# Shrink Database
+To shrink the database, the amount of logs and the amount of posts can be reduced by removing outdated entries.
+
+## Shrink logs
+Simply delete entries older than a given date:
+```
+DELETE FROM dbybforum2.log_table where ts < '2025-10-01';
+```
+
+## Shrink Posts
+Deleting old posts requires two steps: First detach all references to the parents, then delete the threads. The posts will then be deleted due to cascading of the foreign keys:
+```
+-- remove references to parent_idpost:
+update dbybforum2.post_table set parent_idpost = null where idthread in (select idthread from dbybforum2.post_table where parent_idpost is null and creation_ts < '2015-01-01');
+
+-- and now delete from thread_table
+delete from dbybforum2.thread_table where idthread in (select idthread from dbybforum2.post_table where parent_idpost is null and creation_ts < '2015-01-01');
+```

@@ -12,6 +12,7 @@ final class PostEntryHandlerTest extends TestCase
     // required mocks our handler under test depends on
     private ForumDb $db;
     private Logger $logger;
+    private ConfigWrapper $config;
 
     // our actuall handler to test
     private PostEntryHandler $peh;
@@ -20,8 +21,10 @@ final class PostEntryHandlerTest extends TestCase
     {
         $this->db = $this->createMock(ForumDb::class);
         $this->logger = $this->createMock(Logger::class);
+        $this->config = $this->createMock(ConfigWrapper::class);
         $this->peh = new PostEntryHandler();
         $this->peh->SetLogger($this->logger);
+        $this->peh->SetConfigWrapper($this->config);
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
         // must always reset all previously set $_POST entries
@@ -151,7 +154,10 @@ final class PostEntryHandlerTest extends TestCase
         // make the db return a user that needs to migrate
         $user = $this->createMock(User::class);
         $user->method('NeedsMigration')->willReturn(true);
-        $this->db->method('AuthUser')->with('foo', 'bar')->willReturn($user);
+        $this->db->method('AuthUser2')->with('foo', 'bar')->willReturn(array(
+            ForumDb::USER_KEY => $user,
+            ForumDb::AUTH_FAIL_REASON_KEY => null
+        ));
 
         // expect that the logger is called with the correct params when failing
         $this->logger->expects($this->once())->method('LogMessageWithUserId')
@@ -164,19 +170,135 @@ final class PostEntryHandlerTest extends TestCase
 
     public function testPostEntry_authFailed()
     {
-        // test that if a user needs migration, the corresponding exception is thrown
+        // test that if authentication fails, the corresponding exception is thrown
         $_POST[PostEntryHandler::PARAM_PARENTPOSTID] = 0;
         $_POST[PostEntryHandler::PARAM_NICK] = 'foo';
         $_POST[PostEntryHandler::PARAM_PASS] = 'bar';
         $_POST[PostEntryHandler::PARAM_TITLE] = 'abc';
 
         // fail auth
-        $this->db->method('AuthUser')->willReturn(null);
+        $this->db->method('AuthUser2')->with('foo', 'bar')->willReturn(array(
+            ForumDb::USER_KEY => null,
+            ForumDb::AUTH_FAIL_REASON_KEY => ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID
+        ));
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(PostEntryHandler::MSGCODE_AUTH_FAIL);
         $this->peh->HandleRequest($this->db);
     }
+
+    public static function providerAuthFailReasons() : array 
+    {
+        return array(
+            [ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID, PostEntryHandler::MSG_AUTH_FAIL_PASSWORD_INVALID],
+            [ForumDb::AUTH_FAIL_REASON_USER_IS_INACTIVE, PostEntryHandler::MSG_AUTH_FAIL_USER_IS_INACTIVE],
+            [ForumDb::AUTH_FAIL_REASON_USER_IS_DUMMY, PostEntryHandler::MSG_AUTH_FAIL_USER_IS_DUMMY],
+            [ForumDb::AUTH_FAIL_REASON_NO_SUCH_USER, PostEntryHandler::MSG_AUTH_FAIL_NO_SUCH_USER]
+        );
+    }
+
+    #[DataProvider('providerAuthFailReasons')]    
+    public function testPostEntry_authFailedExtendedLogIsCalledForAllReasones(int $authFailReason, string $authFailMessage)
+    {
+        // assume: LOG_EXT_POST_DATA_ON_AUTH_FAILURE is enabled
+        // assume: LOG_AUTH_FAIL_NO_SUCH_USER is enabled
+        // test that the logging of extended messages is called for all reasons
+
+        $_POST[PostEntryHandler::PARAM_PARENTPOSTID] = 0;
+        $_POST[PostEntryHandler::PARAM_NICK] = 'foo';
+        $_POST[PostEntryHandler::PARAM_PASS] = 'bar';
+        $_POST[PostEntryHandler::PARAM_TITLE] = 'abc';        
+
+        // enable the extended logging
+        $this->config->method('getLogExtendedPostDataOnAuthFailure')->willReturn(true);
+        $this->config->method('getLogAuthFailNoSuchUser')->willReturn(true);
+
+        // fail auth
+        $this->db->method('AuthUser2')->with('foo', 'bar')->willReturn(array(
+            ForumDb::USER_KEY => null, 
+            ForumDb::AUTH_FAIL_REASON_KEY => $authFailReason
+        ));        
+
+        // verify logger gets called
+        $this->logger->expects($this->once())->method('LogMessage')
+            ->with(LogType::LOG_EXT_POST_DISCARDED, $authFailMessage);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(PostEntryHandler::MSGCODE_AUTH_FAIL);
+        
+        $this->peh->HandleRequest($this->db);
+    }
+
+    #[DataProvider('providerAuthFailReasons')]    
+    public function testPostEntry_authFailedExtendedLogIsCalledForAllReasonesExceptNoSuchUser(int $authFailReason, string $authFailMessage)
+    {
+        // assume: LOG_EXT_POST_DATA_ON_AUTH_FAILURE is enabled
+        // assume: LOG_AUTH_FAIL_NO_SUCH_USER is disabled
+        // test that the logging of extended messages is called for all reasons,
+        // except for AUTH_FAIL_REASON_NO_SUCH_USER
+
+        $_POST[PostEntryHandler::PARAM_PARENTPOSTID] = 0;
+        $_POST[PostEntryHandler::PARAM_NICK] = 'foo';
+        $_POST[PostEntryHandler::PARAM_PASS] = 'bar';
+        $_POST[PostEntryHandler::PARAM_TITLE] = 'abc';        
+
+        // enable the extended logging
+        $this->config->method('getLogExtendedPostDataOnAuthFailure')->willReturn(true);
+        $this->config->method('getLogAuthFailNoSuchUser')->willReturn(false);
+
+        // fail auth
+        $this->db->method('AuthUser2')->with('foo', 'bar')->willReturn(array(
+            ForumDb::USER_KEY => null, 
+            ForumDb::AUTH_FAIL_REASON_KEY => $authFailReason
+        ));        
+
+        // verify logger gets called / or not called
+        if($authFailReason === ForumDb::AUTH_FAIL_REASON_NO_SUCH_USER)
+        {
+            $this->logger->expects($this->never())->method('LogMessage');
+        }
+        else
+        {
+            $this->logger->expects($this->once())->method('LogMessage')
+                ->with(LogType::LOG_EXT_POST_DISCARDED, $authFailMessage);
+        }
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(PostEntryHandler::MSGCODE_AUTH_FAIL);
+        
+        $this->peh->HandleRequest($this->db);
+    }
+
+    #[DataProvider('providerAuthFailReasons')]    
+    public function testPostEntry_authFailedExtendedLogIsNeverCalled(int $authFailReason, string $authFailMessage)
+    {
+        // assume: LOG_EXT_POST_DATA_ON_AUTH_FAILURE is disabled
+        // assume: LOG_AUTH_FAIL_NO_SUCH_USER is enabled
+        // test that the logging of extended messages is never called
+
+        $_POST[PostEntryHandler::PARAM_PARENTPOSTID] = 0;
+        $_POST[PostEntryHandler::PARAM_NICK] = 'foo';
+        $_POST[PostEntryHandler::PARAM_PASS] = 'bar';
+        $_POST[PostEntryHandler::PARAM_TITLE] = 'abc';        
+
+        // enable the extended logging
+        $this->config->method('getLogExtendedPostDataOnAuthFailure')->willReturn(false);
+        $this->config->method('getLogAuthFailNoSuchUser')->willReturn(true);
+
+        // fail auth
+        $this->db->method('AuthUser2')->with('foo', 'bar')->willReturn(array(
+            ForumDb::USER_KEY => null, 
+            ForumDb::AUTH_FAIL_REASON_KEY => $authFailReason
+        ));        
+
+        // verify logger gets not called
+        $this->logger->expects($this->never())->method('LogMessage');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(PostEntryHandler::MSGCODE_AUTH_FAIL);
+        
+        $this->peh->HandleRequest($this->db);
+    }    
 
     public function testPostEntry_paramValuesStored()
     {
@@ -192,7 +314,10 @@ final class PostEntryHandlerTest extends TestCase
         $_POST[PostEntryHandler::PARAM_IMGURL] = 'https://funny.com/img.jpg';
 
         // fail auth and read-back the values
-        $this->db->method('AuthUser')->willReturn(null);
+        $this->db->method('AuthUser2')->with('foo', 'bar')->willReturn(array(
+            ForumDb::USER_KEY => null,
+            ForumDb::AUTH_FAIL_REASON_KEY => ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID
+        ));
         try 
         {     
             $this->peh->HandleRequest($this->db);
@@ -225,7 +350,10 @@ final class PostEntryHandlerTest extends TestCase
         // make the db return a valid user
         $user = $this->createMock(User::class);
         $user->method('NeedsMigration')->willReturn(false);
-        $this->db->method('AuthUser')->with('foo', 'bar')->willReturn($user);
+        $this->db->method('AuthUser2')->with('foo', 'bar')->willReturn(array(
+            ForumDb::USER_KEY => $user,
+            ForumDb::AUTH_FAIL_REASON_KEY => null
+        ));
 
         // expect that the db is called with the correct params
         $this->db->expects($this->once())->method('CreateThread')
@@ -252,7 +380,10 @@ final class PostEntryHandlerTest extends TestCase
         // make the db return a valid user
         $user = $this->createMock(User::class);
         $user->method('NeedsMigration')->willReturn(false);
-        $this->db->method('AuthUser')->with('foo', 'bar')->willReturn($user);
+        $this->db->method('AuthUser2')->with('foo', 'bar')->willReturn(array(
+            ForumDb::USER_KEY => $user,
+            ForumDb::AUTH_FAIL_REASON_KEY => null
+        ));
 
         // expect that the db is called with the correct params
         $this->db->expects($this->once())->method('CreateReplay')

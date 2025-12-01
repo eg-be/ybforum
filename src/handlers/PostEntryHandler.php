@@ -22,6 +22,7 @@
 require_once __DIR__.'/BaseHandler.php';
 require_once __DIR__.'/../model/ForumDb.php';
 require_once __DIR__.'/../helpers/Logger.php';
+require_once __DIR__.'/../helpers/ConfigWrapper.php';
 
 /**
  * Read all values required to post a new entry, either as an answer or 
@@ -56,6 +57,7 @@ class PostEntryHandler extends BaseHandler
         parent::__construct();
         
         $this->logger = null;
+        $this->config = ConfigWrapper::getInstance();
 
         // Set defaults explicitly
         $this->parentPostId = null;
@@ -161,9 +163,10 @@ class PostEntryHandler extends BaseHandler
         // reset internal values
         $this->newPostId = null;
         // Authenticate
-        // note: The AuthUser of the db will do loggin in case of failure
-        $authFailReason = 0;
-        $user = $db->AuthUser($this->nick, $this->password, $authFailReason);
+        // note: The AuthUser of the db will do logging in case of failure
+        $userAndAuthFailReason = $db->AuthUser2($this->nick, $this->password);
+        $user = $userAndAuthFailReason[ForumDb::USER_KEY];
+        $authFailReason = $userAndAuthFailReason[ForumDb::AUTH_FAIL_REASON_KEY];
         if(!$user)
         {
             // determine a verbose reason for the auth-fail (which is 
@@ -187,10 +190,14 @@ class PostEntryHandler extends BaseHandler
             }
             
             // Maybe log the data of the post that has been discarded
-            if(YbForumConfig::LOG_EXT_POST_DATA_ON_AUTH_FAILURE)
+            if($this->config->getLogExtendedPostDataOnAuthFailure())
             {
-                $this->logger->LogMessage(LogType::LOG_EXT_POST_DISCARDED, 
-                        $authFailMsg, $this->GetExtendedLogMsg());
+                // but if the reason is AUTH_FAIL_REASON_NO_SUCH_USER, only
+                // log if explicitely configured to do so
+                if($authFailReason !== ForumDb::AUTH_FAIL_REASON_NO_SUCH_USER || $this->config->getLogAuthFailNoSuchUser()) {
+                    $this->logger->LogMessage(LogType::LOG_EXT_POST_DISCARDED, 
+                            $authFailMsg, $this->GetExtendedLogMsg());
+                }
             }
             
             throw new InvalidArgumentException($authFailMsg, parent::MSGCODE_AUTH_FAIL);
@@ -272,7 +279,13 @@ class PostEntryHandler extends BaseHandler
         $this->logger = $logger;
     }
 
+    public function SetConfigWrapper(ConfigWrapper $config) : void
+    {
+        $this->config = $config;
+    }
+
     private ?Logger $logger;
+    private ?ConfigWrapper $config;
     
     private ?int $parentPostId;
     private ?string $title;
