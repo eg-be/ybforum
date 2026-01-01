@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 require_once __DIR__.'/../../src/handlers/PostEntryHandler.php';
 
 /**
  * No Database stuff required
  */
+#[AllowMockObjectsWithoutExpectations]
 final class PostEntryHandlerTest extends TestCase
 {
     // required mocks our handler under test depends on
@@ -21,7 +23,7 @@ final class PostEntryHandlerTest extends TestCase
     {
         $this->db = $this->createMock(ForumDb::class);
         $this->logger = $this->createMock(Logger::class);
-        $this->config = $this->createMock(ConfigWrapper::class);
+        $this->config = $this->createStub(ConfigWrapper::class);
         $this->peh = new PostEntryHandler();
         $this->peh->SetLogger($this->logger);
         $this->peh->SetConfigWrapper($this->config);

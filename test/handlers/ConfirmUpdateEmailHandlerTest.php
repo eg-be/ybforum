@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 require_once __DIR__.'/../../src/handlers/ConfirmUpdateEmailHandler.php';
 
 /**
  * No Database stuff required
  */
+#[AllowMockObjectsWithoutExpectations]
 final class ConfirmUpdateEmailHandlerTest extends TestCase
 {
     // required mocks our handler under test depends on
@@ -21,7 +23,7 @@ final class ConfirmUpdateEmailHandlerTest extends TestCase
     {
         $this->db = $this->createMock(ForumDb::class);
         $this->logger = $this->createMock(Logger::class);
-        $this->user = $this->createMock(User::class);
+        $this->user = $this->createStub(User::class);
         $this->cueh = new ConfirmUpdateEmailHandler();
         $this->cueh->SetLogger($this->logger);
         // dont know why we need to set this here, as it is already defined in bootstrap.php

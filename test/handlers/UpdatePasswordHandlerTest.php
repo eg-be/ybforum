@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 require_once __DIR__.'/../../src/handlers/UpdatePasswordHandler.php';
 
 /**
  * No Database stuff required
  */
+#[AllowMockObjectsWithoutExpectations]
 final class UpdatePasswordHandlerTest extends TestCase
 {
     // required mocks our handler under test depends on
@@ -21,7 +23,7 @@ final class UpdatePasswordHandlerTest extends TestCase
     {
         $this->db = $this->createMock(ForumDb::class);
         $this->logger = $this->createMock(Logger::class);
-        $this->user = $this->createMock(User::class);
+        $this->user = $this->createStub(User::class);
         $this->user->method('GetNick')->willReturn('foo');
         $this->user->method('GetEmail')->willReturn('foo@bar.com');
         $this->uph = new UpdatePasswordHandler($this->user);

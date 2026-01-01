@@ -18,7 +18,7 @@ final class SearchHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->db = $this->createMock(ForumDb::class);
+        $this->db = $this->createStub(ForumDb::class);
         //$this->stmt = $this->createMock(PDOStatement::class);
         //$this->db->method('prepare')->willReturn($this->stmt);
         $this->sh = new SearchHandler();
@@ -94,7 +94,7 @@ final class SearchHandlerTest extends TestCase
         $resultsToReturn = 1001;
         $this->db->method('SearchPosts')->willReturnCallback(
             function() use (&$resultsToReturn) {
-                return array_fill(0, $resultsToReturn, $this->createMock(SearchResult::class));
+                return array_fill(0, $resultsToReturn, $this->createStub(SearchResult::class));
             });
 
         // the first call shall have 1000 results and more must be available

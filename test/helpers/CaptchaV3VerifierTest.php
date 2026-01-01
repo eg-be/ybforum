@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 require_once __DIR__.'/../../src/helpers/CaptchaV3Verifier.php';
 
@@ -8,9 +9,10 @@ require_once __DIR__.'/../../src/helpers/CaptchaV3Verifier.php';
 /**
  * No Database stuff required
  */
+#[AllowMockObjectsWithoutExpectations]
 final class CaptchaV3VerifierTest extends TestCase
 {
-    // required mocks our handler under test depends on
+    // required stubs our handler under test depends on
     private Logger $logger;
     private HttpRequest $httpRequest;
 
@@ -20,7 +22,7 @@ final class CaptchaV3VerifierTest extends TestCase
     protected function setUp(): void
     {
         $this->logger = $this->createMock(Logger::class);
-        $this->httpRequest = $this->createMock(HttpRequest::class);
+        $this->httpRequest = $this->createStub(HttpRequest::class);
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER = array();
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';

@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 require_once __DIR__.'/../../src/handlers/RegisterUserHandler.php';
 
 /**
  * No Database stuff required
  */
+#[AllowMockObjectsWithoutExpectations]
 final class RegisterUserHandlerTest extends TestCase
 {
     // required mocks our handler under test depends on

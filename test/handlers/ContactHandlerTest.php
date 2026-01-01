@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 require_once __DIR__.'/../../src/handlers/ContactHandler.php';
 
 /**
  * No Database stuff required
  */
+#[AllowMockObjectsWithoutExpectations]
 final class ContactHandlerTest extends TestCase
 {
     // required mocks our handler under test depends on
@@ -19,7 +21,7 @@ final class ContactHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->db = $this->createMock(ForumDb::class);
+        $this->db = $this->createStub(ForumDb::class);
         $this->mailer = $this->createMock(Mailer::class);
         $this->logger = $this->createMock(Logger::class);
         $this->ch = new ContactHandler();
