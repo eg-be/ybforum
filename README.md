@@ -29,6 +29,17 @@ Thats it, now point your browser to the URL serving the content of httpdoc. You 
 You are ready to post your first entry now.
 
 ## Development setup
+### Install required php-extensions
+The following extensions are required:
+- pdo_mysql
+
+### Composer
+Ensure [composer](https://getcomposer.org) is installed and install the required dependencies:
+```
+composer update
+```
+Note: The only required dependency is [phpunit](https://phpunit.de), which is required during development only.
+
 ### Development using vscode
 See [Folder .vscode](.vscode) for some notes about howto setup a dev-environment with vscode.
 
