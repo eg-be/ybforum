@@ -52,7 +52,7 @@ class TopNavigation
         array(Page::CONTACT, 'Kontakt', 'contact.php')
     );
 
-    public function __construct(int $postId = null)
+    public function __construct(?int $postId = null)
     {
         $uri = $_SERVER['REQUEST_URI'];
         // just try to get the pure page-name

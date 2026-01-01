@@ -282,7 +282,7 @@ class ForumDb extends PDO
      * @param string $password
      * @return User
      */
-    public function AuthUser(string $nick, string $password, int &$authFailReason = null) : ?User
+    public function AuthUser(string $nick, string $password, ?int &$authFailReason = null) : ?User
     {
         assert(!empty($nick));
         assert(!empty($password));

@@ -3,10 +3,13 @@
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/|version|/phpunit.xsd"
          failOnWarning="true" 
          failOnDeprecation="true"
+         failOnNotice="true"
          testdox="true"
+         displayDetailsOnAllIssues="true"
          displayDetailsOnTestsThatTriggerDeprecations="true"
          displayDetailsOnTestsThatTriggerWarnings="true"
          displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnTestsThatTriggerNotices="true"
          bootstrap="test/bootstrap.php">
     <testsuites>
         <testsuite name="model">
