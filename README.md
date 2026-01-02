@@ -40,6 +40,14 @@ composer update
 ```
 Note: The only required dependency is [phpunit](https://phpunit.de), which is required during development only.
 
+### Test-Database
+Follow the instructions in [database](database) to setup the database required for the tests and adjust the database-connection parameters in file [src/model/DbConfig.php](src/model/DbConfig.php).
+
+### Run the tests
+```
+eg@TITANUS-3113:~/dev/ybforum$ ./vendor/phpunit/phpunit/phpunit
+```
+
 ### Development using vscode
 See [Folder .vscode](.vscode) for some notes about howto setup a dev-environment with vscode.
 
