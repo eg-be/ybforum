@@ -6,7 +6,7 @@ A forum with a user-interface stuck in the 90s, but with an implementation from 
 This page provides some information on how to setup your own ybforum.
 
 ## Requirements
-- PHP 8.3
+- PHP 8.4
 - MariaDB or MySQL
 
 ## Install
