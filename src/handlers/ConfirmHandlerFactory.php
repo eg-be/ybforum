@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -19,39 +21,32 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/BaseHandler.php';
-require_once __DIR__.'/ConfirmHandler.php';
-require_once __DIR__.'/ConfirmUserHandler.php';
-require_once __DIR__.'/ConfirmUpdateEmailHandler.php';
-require_once __DIR__.'/ConfirmResetPasswordHandler.php';
+require_once __DIR__ . '/BaseHandler.php';
+require_once __DIR__ . '/ConfirmHandler.php';
+require_once __DIR__ . '/ConfirmUserHandler.php';
+require_once __DIR__ . '/ConfirmUpdateEmailHandler.php';
+require_once __DIR__ . '/ConfirmResetPasswordHandler.php';
 
 /**
  * Factory to create an confirmation handler. Depending on the value of the
- * parameter PARAM_TYPE, a corresponding handler is created. All handlers 
+ * parameter PARAM_TYPE, a corresponding handler is created. All handlers
  * created implement the interface ConfirmHandler.
- * 
+ *
  * @author Elias Gerber
  */
-class ConfirmHandlerFactory 
+class ConfirmHandlerFactory
 {
-    public static function CreateHandler() : ConfirmHandler
+    public static function CreateHandler(): ConfirmHandler
     {
         $type = BaseHandler::ReadRawParamFromGetOrPost(ConfirmHandler::PARAM_TYPE);
-        
-        if($type === ConfirmHandler::VALUE_TYPE_CONFIRM_USER)
-        {
+
+        if ($type === ConfirmHandler::VALUE_TYPE_CONFIRM_USER) {
             return new ConfirmUserHandler();
-        }
-        else if($type === ConfirmHandler::VALUE_TYPE_UPDATEEMAIL)
-        {
+        } elseif ($type === ConfirmHandler::VALUE_TYPE_UPDATEEMAIL) {
             return new ConfirmUpdateEmailHandler();
-        }
-        else if($type === ConfirmHandler::VALUE_TYPE_RESETPASS)
-        {
+        } elseif ($type === ConfirmHandler::VALUE_TYPE_RESETPASS) {
             return new ConfirmResetPasswordHandler();
-        }
-        else
-        {
+        } else {
             throw new InvalidArgumentException('Invalid type', 400);
         }
     }

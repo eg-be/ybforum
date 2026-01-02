@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
-require_once __DIR__.'/../../src/handlers/UpdateEmailHandler.php';
+require_once __DIR__ . '/../../src/handlers/UpdateEmailHandler.php';
 
 /**
  * No Database stuff required
@@ -23,7 +25,7 @@ final class UpdateEmailHandlerTest extends TestCase
     {
         $this->db = $this->createMock(ForumDb::class);
         $this->mailer = $this->createMock(Mailer::class);
-        $this->user = $this->createStub(User::class);
+        $this->user = static::createStub(User::class);
         $this->user->method('GetNick')->willReturn('foo');
         $this->user->method('GetEmail')->willReturn('foo@bar.com');
         $this->ueh = new UpdateEmailHandler($this->user);
@@ -31,27 +33,27 @@ final class UpdateEmailHandlerTest extends TestCase
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
         // must always reset all previously set $_POST entries
-        $_POST = array();
+        $_POST = [];
     }
 
-    public function testUpdateEmail_failsIfNewEmailIsSameAsOld()
+    public function testUpdateEmail_failsIfNewEmailIsSameAsOld(): void
     {
         $_POST[UpdateEmailHandler::PARAM_NEWEMAIL] = 'foo@bar.com';
-        
+
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(UpdateEmailHandler::MSG_EMAIL_NOT_DIFFERENT);
         $this->expectExceptionCode(UpdateEmailHandler::MSGCODE_BAD_PARAM);
 
         $this->ueh->HandleRequest($this->db);
-    }        
+    }
 
-    public function testUpdateEmail_failsIfNewMailUsedInOtherAccount()
+    public function testUpdateEmail_failsIfNewMailUsedInOtherAccount(): void
     {
         $_POST[UpdateEmailHandler::PARAM_NEWEMAIL] = 'used@by-someone-else.com';
 
-        $OtherUser = $this->createStub(User::class);
+        $OtherUser = static::createStub(User::class);
         $this->db->method('LoadUserByEmail')->with('used@by-someone-else.com')->willReturn($OtherUser);
-                
+
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(UpdateEmailHandler::MSG_EMAIL_NOT_UNIQUE);
         $this->expectExceptionCode(UpdateEmailHandler::MSGCODE_BAD_PARAM);
@@ -59,7 +61,7 @@ final class UpdateEmailHandlerTest extends TestCase
         $this->ueh->HandleRequest($this->db);
     }
 
-    public function testUpdateEmail()
+    public function testUpdateEmail(): void
     {
         $_POST[UpdateEmailHandler::PARAM_NEWEMAIL] = 'new@bar.com';
 
@@ -72,12 +74,12 @@ final class UpdateEmailHandlerTest extends TestCase
 
         // and the mailer to actually send the mail
         $this->mailer->expects($this->once())->method('SendUpdateEmailConfirmMessage')
-            ->with('new@bar.com', 'foo', 'confirm-code');                
+            ->with('new@bar.com', 'foo', 'confirm-code');
 
         $this->ueh->HandleRequest($this->db);
     }
 
-    public function test_removeUpdateEmailCodeIfMailingFails()
+    public function test_removeUpdateEmailCodeIfMailingFails(): void
     {
         $_POST[UpdateEmailHandler::PARAM_NEWEMAIL] = 'new@bar.com';
 
@@ -102,5 +104,5 @@ final class UpdateEmailHandlerTest extends TestCase
         $this->expectExceptionCode(UpdateEmailHandler::MSGCODE_INTERNAL_ERROR);
 
         $this->ueh->HandleRequest($this->db);
-    }    
+    }
 }

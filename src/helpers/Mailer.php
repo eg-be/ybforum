@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -19,46 +21,39 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/../YbForumConfig.php';
-require_once __DIR__.'/../model/ForumDb.php';
-require_once __DIR__.'/../handlers/ConfirmHandler.php';
-require_once __DIR__.'/Logger.php';
-require_once __DIR__.'/MailerDelegate.php';
-require_once __DIR__.'/PhpMailer.php';
-require_once __DIR__.'/DebugOutMailer.php';
+require_once __DIR__ . '/../YbForumConfig.php';
+require_once __DIR__ . '/../model/ForumDb.php';
+require_once __DIR__ . '/../handlers/ConfirmHandler.php';
+require_once __DIR__ . '/Logger.php';
+require_once __DIR__ . '/MailerDelegate.php';
+require_once __DIR__ . '/PhpMailer.php';
+require_once __DIR__ . '/DebugOutMailer.php';
 
-/** 
+/**
  * Helper class to send mails.
  *
  * @author Elias Gerber
  */
-class Mailer 
+class Mailer
 {
     /**
-     * Create a new mailer instance. Sets some header values that are the 
+     * Create a new mailer instance. Sets some header values that are the
      * same for all mails being sent: mailfrom, return-path and content-type.
      */
-    public function __construct(?MailerDelegate $delegate = null, ?Logger $logger = null) 
+    public function __construct(?MailerDelegate $delegate = null, ?Logger $logger = null)
     {
-        if(is_null($delegate)) {
-            if(YbForumConfig::MAIL_DEBUG === true) {
+        if (is_null($delegate)) {
+            if (YbForumConfig::MAIL_DEBUG === true) {
                 $this->m_delegate = new DebugOutMailer();
-            }
-            else
-            {
+            } else {
                 $this->m_delegate = new PhpMailer();
             }
-        }
-        else
-        {
+        } else {
             $this->m_delegate = $delegate;
         }
-        if(is_null($logger))
-        {
+        if (is_null($logger)) {
             $this->m_logger = new Logger();
-        }
-        else
-        {
+        } else {
             $this->m_logger = $logger;
         }
 
@@ -67,59 +62,67 @@ class Mailer
         $this->m_allMailBcc = YbForumConfig::MAIL_ALL_BCC;
         $this->m_contentType = 'text/plain; charset=utf-8';
     }
-    
+
     /**
      * Sends an email with a confirmation link to confirm a user migration.
      * @param string $email
      * @param string $confirmationCode
      * @return bool True if sending the mail succeeded
      */
-    public function SendMigrateUserConfirmMessage(string $email, string $nick,
-            string $confirmationCode) : bool
-    {
+    public function SendMigrateUserConfirmMessage(
+        string $email,
+        string $nick,
+        string $confirmationCode
+    ): bool {
         assert(!empty($email));
         assert(!empty($confirmationCode));
-        
-        return $this->SendConfirmMail($email, 
-                '1898-Forum Migration Stammposter',
-                'confirm.php',
-                array(
-                    ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_CONFIRM_USER,
-                    ConfirmHandler::PARAM_CODE => $confirmationCode
-                ),
-                'Bitte besuche den folgenden Link um die Migration '
+
+        return $this->SendConfirmMail(
+            $email,
+            '1898-Forum Migration Stammposter',
+            'confirm.php',
+            [
+                ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_CONFIRM_USER,
+                ConfirmHandler::PARAM_CODE => $confirmationCode,
+            ],
+            'Bitte besuche den folgenden Link um die Migration '
                 . 'deines Stammposterkontos '
                 . $nick
                 . ' für das 1898-Forum '
-                . 'abzuschliessen:');
+                . 'abzuschliessen:'
+        );
     }
-    
+
     /**
-     * Sends an email with a confirmation link to confirm registration of a 
+     * Sends an email with a confirmation link to confirm registration of a
      * user.
      * @param string $email
      * @param string $confirmationCode
      * @return type
      */
-    public function SendRegisterUserConfirmMessage(string $email, string $nick,
-            string $confirmationCode) : bool
-    {
+    public function SendRegisterUserConfirmMessage(
+        string $email,
+        string $nick,
+        string $confirmationCode
+    ): bool {
         assert(!empty($email));
         assert(!empty($confirmationCode));
-        
-        return $this->SendConfirmMail($email, 
-                '1898-Forum Registrierung Stammposter',
-                'confirm.php',
-                array(
-                    ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_CONFIRM_USER,
-                    ConfirmHandler::PARAM_CODE => $confirmationCode
-                ),
-                'Bitte besuche den folgenden Link um die Registrierung '
+
+        return $this->SendConfirmMail(
+            $email,
+            '1898-Forum Registrierung Stammposter',
+            'confirm.php',
+            [
+                ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_CONFIRM_USER,
+                ConfirmHandler::PARAM_CODE => $confirmationCode,
+            ],
+            'Bitte besuche den folgenden Link um die Registrierung '
                 . 'deines Stammposterkontos '
                 . $nick
-                . ' für das 1898-Forum abzuschliessen:');
+                . ' für das 1898-Forum abzuschliessen:'
+        );
     }
-    
+
     /**
      * Sends an email with a confirmation link to confirm updating the email
      * address of a user.
@@ -127,85 +130,93 @@ class Mailer
      * @param string $confirmationCode
      * @return type
      */
-    public function SendUpdateEmailConfirmMessage(string $email, string $nick,
-            string $confirmationCode) : bool
-    {
+    public function SendUpdateEmailConfirmMessage(
+        string $email,
+        string $nick,
+        string $confirmationCode
+    ): bool {
         assert(!empty($email));
         assert(!empty($confirmationCode));
-        
-        return $this->SendConfirmMail($email, 
-                '1898-Forum aktualisierte Stammposter-Mailadresse bestaetigen',
-                'confirm.php',
-                array(
-                    ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_UPDATEEMAIL,
-                    ConfirmHandler::PARAM_CODE => $confirmationCode
-                ),
-                'Bitte besuche den folgenden Link um die Mailadresse die '
+
+        return $this->SendConfirmMail(
+            $email,
+            '1898-Forum aktualisierte Stammposter-Mailadresse bestaetigen',
+            'confirm.php',
+            [
+                ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_UPDATEEMAIL,
+                ConfirmHandler::PARAM_CODE => $confirmationCode,
+            ],
+            'Bitte besuche den folgenden Link um die Mailadresse die '
                 . 'mit deinem 1898-Forum Stammposterkonto '
                 . $nick
-                . ' verknüpft ist auf die Mailadresse ' 
-                . $email 
-                . ' zu aktualisieren:');
-    }    
-    
+                . ' verknüpft ist auf die Mailadresse '
+                . $email
+                . ' zu aktualisieren:'
+        );
+    }
+
     /**
      * Sends an email with a reset password link.
      * @param string $email
      * @param string $confirmationCode
      * @return type
      */
-    public function SendResetPasswordMessage(string $email, string $nick,
-            string $confirmationCode) : bool
-    {
+    public function SendResetPasswordMessage(
+        string $email,
+        string $nick,
+        string $confirmationCode
+    ): bool {
         assert(!empty($email));
         assert(!empty($confirmationCode));
-        
-        return $this->SendConfirmMail($email, 
-                '1898-Forum Stammposter-Passwort zuruecksetzen',
-                'resetpassword.php',
-                array(
+
+        return $this->SendConfirmMail(
+            $email,
+            '1898-Forum Stammposter-Passwort zuruecksetzen',
+            'resetpassword.php',
+            [
                 ConfirmHandler::PARAM_TYPE => ConfirmHandler::VALUE_TYPE_RESETPASS,
-                    ConfirmHandler::PARAM_CODE => $confirmationCode
-                ),
-                'Bitte besuche den folgenden Link um ein neues Passwort '
+                ConfirmHandler::PARAM_CODE => $confirmationCode,
+            ],
+            'Bitte besuche den folgenden Link um ein neues Passwort '
                 . 'für dein 1898-Forum Stammposterkonto '
                 . $nick
-                . ' zu setzen:');
+                . ' zu setzen:'
+        );
     }
-    
+
     /**
      * Sends an email to notify a user that he has been accepted by some admin
      * and can start to post now.
      * @param string $email
      * @return type
      */
-    public function SendNotifyUserAcceptedEmail(string $email, string $nick) : bool
+    public function SendNotifyUserAcceptedEmail(string $email, string $nick): bool
     {
         $subject = 'Stammposter freigeschaltet';
         $mailBody = 'Willkommen im YB-Forum. Deine Registrierung wurde '
                 . 'von einem Administrator freigeschaltet. '
-                . 'Du kannst dein Stammposterkonto ' 
-                . $nick 
+                . 'Du kannst dein Stammposterkonto '
+                . $nick
                 . ' ab sofort verwenden um Beiträge zu posten. '
                 . 'Bitte beachte '
                 . 'die Reihenfolge aus: ' . "\r\n\r\n"
                 . 'https://1898.ch/showentry.php?idpost=672696';
         return $this->m_delegate->sendMessage($email, $subject, $mailBody, $this->GetHeaderString());
     }
-    
+
     /**
-     * Sends an email to notify a user that he has been denied and that his 
+     * Sends an email to notify a user that he has been denied and that his
      * account is probably going to be deleted.
      * @param string $email
      * @return type
      */
-    public function SendNotifyUserDeniedEmail(string $email) : bool
+    public function SendNotifyUserDeniedEmail(string $email): bool
     {
         $subject = 'Registrierung abgelehnt';
         $mailBody = 'Deine Registrierung wurde abgelehnt.';
         return $this->m_delegate->sendMessage($email, $subject, $mailBody, $this->GetHeaderString());
     }
-    
+
     /**
      * Sends a mail to an admin informing that a user has confirmed his registration
      * @param string $confirmedNick nickname of the user who completed registration
@@ -213,15 +224,17 @@ class Mailer
      * @param ?string $registrationMsg A string with the Registration message or null
      * @return boolean True if sending succeeds
      */
-    public function NotifyAdminUserConfirmedRegistration(string $confirmedNick, 
-            string $adminEmail, ?string $registrationMsg) : bool
-    {
+    public function NotifyAdminUserConfirmedRegistration(
+        string $confirmedNick,
+        string $adminEmail,
+        ?string $registrationMsg
+    ): bool {
         $subject = 'Benutzer wartet auf Freischaltung';
         $mailBody = 'Der Benutzer ' . $confirmedNick . ' hat seine '
                 . 'Mailadresse bestätigt und wartet darauf freigeschaltet '
                 . 'zu werden.' . "\r\n\r\n";
-        $mailBody.= 'Registrierungsnachricht: ' . "\r\n";
-        $mailBody.= $registrationMsg;
+        $mailBody .= 'Registrierungsnachricht: ' . "\r\n";
+        $mailBody .= $registrationMsg;
         return $this->m_delegate->sendMessage($adminEmail, $subject, $mailBody, $this->GetHeaderString());
     }
 
@@ -232,26 +245,25 @@ class Mailer
      * @param string $contactEmail Email address provided with the contact message
      * @param string $adminEmail destination email
      */
-    public function SendAdminContactMessage(string $contactEmail,
-            string $contactMsg, string $adminEmail) : bool
-    {
+    public function SendAdminContactMessage(
+        string $contactEmail,
+        string $contactMsg,
+        string $adminEmail
+    ): bool {
         $subject = 'Kontaktnachricht erhalten';
         $mailBody = 'Von der Email ' . $contactEmail . ' wurde '
                 . 'eine Kontaktanfrage gesendet: '
                 . "\r\n\r\n";
-        $mailBody.= $contactMsg . "\r\n";
+        $mailBody .= $contactMsg . "\r\n";
         $sent = $this->m_delegate->sendMessage($adminEmail, $subject, $mailBody, $this->GetHeaderString());
-        if($sent)
-        {
+        if ($sent) {
             $this->m_logger->LogMessage(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $adminEmail);
-        }
-        else
-        {
+        } else {
             $this->m_logger->LogMessage(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $adminEmail);
         }
         return $sent;
     }
-    
+
     /**
      * Sends a mail with a confirmation link using the passed values.
      * @param string $email Destination address.
@@ -259,93 +271,91 @@ class Mailer
      * @param string $page Page to navigate to as confirmation link.
      * @param array $args Arguments that are appended to the link as URL
      * parameters.
-     * @param string $messageText Message to include in the mail before the 
+     * @param string $messageText Message to include in the mail before the
      * link.
      * @return boolean True if sending mail succeeds
      */
-    private function SendConfirmMail(string $email, string $subject,
-            string $page, array $args, 
-            string $messageText) : bool
-    {
+    private function SendConfirmMail(
+        string $email,
+        string $subject,
+        string $page,
+        array $args,
+        string $messageText
+    ): bool {
         assert(!empty($email));
         assert(!empty($messageText));
 
         $link = YbForumConfig::BASE_URL . $page . '?'
                 . http_build_query($args);
-        
-        $validFor = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);        
+
+        $validFor = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);
         $validForText = 'Der Link ist ' . $validFor->format('%h Stunden')
                 . ' lang gültig.';
 
         $mailBody = $messageText . "\r\n\r\n";
-        $mailBody.= $link . "\r\n\r\n";
-        $mailBody.= $validForText . "\r\n";
-        
+        $mailBody .= $link . "\r\n\r\n";
+        $mailBody .= $validForText . "\r\n";
+
         $sent = $this->m_delegate->sendMessage($email, $subject, $mailBody, $this->GetHeaderString());
-        if($sent)
-        {
+        if ($sent) {
             $this->m_logger->LogMessage(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $email);
-        }
-        else
-        {
+        } else {
             $this->m_logger->LogMessage(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $email);
         }
         return $sent;
     }
-        
+
     /**
      * Format some string holding some reasonable email header values.
      * @return string
      */
-    private function GetHeaderString() : string
+    private function GetHeaderString(): string
     {
-        $headers = array(
+        $headers = [
             'From' => $this->m_mailFrom,
             'Return-Path' => $this->m_returnPath,
             'MIME-Version' => '1.0',
             'Content-Type' => $this->m_contentType,
-            'Date' => date('r')             
-        );
-        if($this->m_allMailBcc)
-        {
+            'Date' => date('r'),
+        ];
+        if ($this->m_allMailBcc) {
             $headers['Bcc'] = $this->m_allMailBcc;
         }
-        
+
         $str = '';
-        foreach($headers as $key => $item) 
-        {
+        foreach ($headers as $key => $item) {
             $str .= $key . ': ' . $item . PHP_EOL;
         }
         rtrim($str, PHP_EOL);
         return $str;
     }
 
-    public function getMailFrom() : string
+    public function getMailFrom(): string
     {
         return $this->m_mailFrom;
     }
 
-    public function getReturnPath() : string
+    public function getReturnPath(): string
     {
         return $this->m_returnPath;
     }
 
-    public function getContentType() : string
+    public function getContentType(): string
     {
         return $this->m_contentType;
     }
-    
-    public function getAllMailBcc() : string
+
+    public function getAllMailBcc(): string
     {
         return $this->m_allMailBcc;
     }
 
-    public function GetLogger() : Logger
+    public function GetLogger(): Logger
     {
         return $this->m_logger;
     }
 
-    public function GetMailerDelegate() : MailerDelegate
+    public function GetMailerDelegate(): MailerDelegate
     {
         return $this->m_delegate;
     }

@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -20,7 +22,7 @@
 */
 
 /**
- * The fields from post_table (and user_table.nick) required to display an 
+ * The fields from post_table (and user_table.nick) required to display an
  * entry in the index table
  */
 class PostIndexEntry
@@ -41,7 +43,7 @@ class PostIndexEntry
         assert(!empty($this->creation_ts));
         $this->creation_ts_dt = new DateTime($this->creation_ts);
     }
-    
+
     private int $idpost;
     private int $idthread;
     private ?int $parent_idpost;
@@ -49,7 +51,7 @@ class PostIndexEntry
     private string $title;
     private int $indent;
     private string $creation_ts; // this is just the value from the corresponding field post_table creation_ts
-                                    // pdo->fetchObject() injects a string-value
+    // pdo->fetchObject() injects a string-value
     private DateTime $creation_ts_dt; // the same but converted to a DateTime
     private int $has_content; // assigned from pdo
     private int $hidden;
@@ -57,7 +59,7 @@ class PostIndexEntry
     /**
      * @return int Field idthread
      */
-    public function GetThreadId() : int
+    public function GetThreadId(): int
     {
         return $this->idthread;
     }
@@ -65,15 +67,15 @@ class PostIndexEntry
     /**
      * @return int Field idpost.
      */
-    public function GetPostId() : int
+    public function GetPostId(): int
     {
         return $this->idpost;
     }
-    
+
     /**
      * @return ?int Field parent_idpost: id of parent post, or null if no parent
      */
-    public function GetParentPostId() : ?int
+    public function GetParentPostId(): ?int
     {
         return $this->parent_idpost;
     }
@@ -81,31 +83,31 @@ class PostIndexEntry
     /**
      * @return int Field indent.
      */
-    public function GetIndent() : int
+    public function GetIndent(): int
     {
         return $this->indent;
     }
-    
+
     /**
      * @return string Field title.
      */
-    public function GetTitle() : string
+    public function GetTitle(): string
     {
         return $this->title;
     }
-    
+
     /**
      * @return bool True if field content of this post is not null.
      */
-    public function HasContent() : bool
+    public function HasContent(): bool
     {
         return $this->has_content > 0;
     }
-    
+
     /**
-     * @return string Non empty nick (field user_table.nick) who wrote this post. 
+     * @return string Non empty nick (field user_table.nick) who wrote this post.
      */
-    public function GetNick() : string
+    public function GetNick(): string
     {
         return $this->nick;
     }
@@ -113,15 +115,15 @@ class PostIndexEntry
     /**
      * @return DateTime of the field creation_ts.
      */
-    public function GetPostTimestamp() : DateTime
+    public function GetPostTimestamp(): DateTime
     {
         return $this->creation_ts_dt;
     }
-    
+
     /**
      * @return boolean True if field hidden is > 0.
      */
-    public function IsHidden() : bool
+    public function IsHidden(): bool
     {
         return $this->hidden > 0;
     }

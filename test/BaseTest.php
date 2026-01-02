@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__.'/../src/model/ForumDb.php';
+require_once __DIR__ . '/../src/model/ForumDb.php';
 
 /**
  * Can be used as base-class for tests requiring a DB.
@@ -10,43 +12,43 @@ require_once __DIR__.'/../src/model/ForumDb.php';
  */
 class BaseTest extends TestCase
 {
-    const TEST_DB = [
-        __DIR__.'/../database/dbybforum-no-data.dump.sql',
-        __DIR__.'/../database/log_type_table_data.dump.sql',
-        __DIR__.'/data/users.sql',
-        __DIR__.'/data/threads.sql',
-        __DIR__.'/data/posts.sql',
-        __DIR__.'/data/blacklist.sql'
+    public const TEST_DB = [
+        __DIR__ . '/../database/dbybforum-no-data.dump.sql',
+        __DIR__ . '/../database/log_type_table_data.dump.sql',
+        __DIR__ . '/data/users.sql',
+        __DIR__ . '/data/threads.sql',
+        __DIR__ . '/data/posts.sql',
+        __DIR__ . '/data/blacklist.sql',
     ];
 
     /**
      * Run the scripts defined in TEST_DB
      * @param bool $verbose If true, the cmd executed and all output is printed
      */
-    protected static function createTestDatabase(bool $verbose = false) : void
+    protected static function createTestDatabase(bool $verbose = false): void
     {
         // restore an empty database for the tests
-        foreach(self::TEST_DB as $file)
-        {
-            $cmd = sprintf('mariadb -h localhost -P 3306 -u %s -p%s %s < %s 2>&1', 
-            DbConfig::RW_USERNAME, DbConfig::RW_PASSWORD, DbConfig::DEFAULT_DB, $file);
+        foreach (self::TEST_DB as $file) {
+            $cmd = sprintf(
+                'mariadb -h localhost -P 3306 -u %s -p%s %s < %s 2>&1',
+                DbConfig::RW_USERNAME,
+                DbConfig::RW_PASSWORD,
+                DbConfig::DEFAULT_DB,
+                $file
+            );
             $output = null;
             $result_code = null;
-            if($verbose === true)
-            {
+            if ($verbose === true) {
                 fwrite(STDOUT, 'Executing: ' . $cmd . PHP_EOL);
             }
             $res = exec($cmd, $output, $result_code);
-            if($res === false || $result_code !== 0)
-            {
+            if ($res === false || $result_code !== 0) {
                 $msg = 'Failed to init test-datase [cmd-executed: ' . $cmd . ']: ' . implode(PHP_EOL, $output);
                 fwrite(STDOUT, $msg);
                 throw new Exception($msg);
             }
-            if($verbose === true)
-            {
-                foreach($output as $res)
-                {
+            if ($verbose === true) {
+                foreach ($output as $res) {
                     fwrite(STDOUT, $res . PHP_EOL);
                 }
             }
@@ -58,12 +60,18 @@ class BaseTest extends TestCase
      * Object is created using reflection and is an instance of User,
      * so assertions like assertObjectEquals() can be used.
      */
-    protected static function mockUser(int $iduser, string $nick, ?string $email,
-        int $admin, int $active, 
-        string $registration_ts, ?string $registration_msg, 
+    protected static function mockUser(
+        int $iduser,
+        string $nick,
+        ?string $email,
+        int $admin,
+        int $active,
+        string $registration_ts,
+        ?string $registration_msg,
         ?string $confirmation_ts,
-        ?string $password, ?string $old_passwd) : User
-    {
+        ?string $password,
+        ?string $old_passwd
+    ): User {
 
         $ref = new ReflectionClass(User::class);
         $ctor = $ref->getConstructor();
@@ -80,7 +88,7 @@ class BaseTest extends TestCase
         $ref->getProperty('password')->setValue($user, $password);
         $ref->getProperty('old_passwd')->setValue($user, $old_passwd);
         $ctor->invoke($user);
-        return $user;        
+        return $user;
     }
 
     /**
@@ -88,17 +96,25 @@ class BaseTest extends TestCase
      * Object is created using reflection and is an instance of User,
      * so assertions like assertObjectEquals() can be used.
      */
-    protected static function mockPost(int $idpost, int $idthread, 
-        ?int $parent_idpost, string $nick, int $iduser,
-        string $title, ?string $content,
-        int $rank, int $indent,
+    protected static function mockPost(
+        int $idpost,
+        int $idthread,
+        ?int $parent_idpost,
+        string $nick,
+        int $iduser,
+        string $title,
+        ?string $content,
+        int $rank,
+        int $indent,
         string $creation_ts,
         ?string $email,
-        ?string $link_url, ?string $link_text, ?string $img_url,
+        ?string $link_url,
+        ?string $link_text,
+        ?string $img_url,
         ?int $old_no,
         int $hidden,
-        string $ip_address) : Post
-    {
+        string $ip_address
+    ): Post {
 
         $ref = new ReflectionClass(Post::class);
         $ctor = $ref->getConstructor();
@@ -132,7 +148,7 @@ class BaseTest extends TestCase
      */
     protected static function mockPostIndexEntry(
         int $idpost,
-        int $idthread, 
+        int $idthread,
         ?int $parent_idpost,
         string $nick,
         string $title,
@@ -140,8 +156,7 @@ class BaseTest extends TestCase
         string $creation_ts,
         int $has_content,
         int $hidden
-    ) : PostIndexEntry
-    {
+    ): PostIndexEntry {
         $ref = new ReflectionClass(PostIndexEntry::class);
         $ctor = $ref->getConstructor();
         $ctor->setAccessible(true);
@@ -165,8 +180,7 @@ class BaseTest extends TestCase
         string $title,
         string $creation_ts,
         ?float $relevance
-    ) : SearchResult 
-    {
+    ): SearchResult {
         $ref = new ReflectionClass(SearchResult::class);
         $ctor = $ref->getConstructor();
         $ctor->setAccessible(true);
@@ -175,7 +189,7 @@ class BaseTest extends TestCase
         $ref->getProperty('nick')->setValue($searchResult, $nick);
         $ref->getProperty('title')->setValue($searchResult, $title);
         $ref->getProperty('creation_ts')->setValue($searchResult, $creation_ts);
-        if(!is_null($relevance)) {
+        if (!is_null($relevance)) {
             $ref->getProperty('relevance')->setValue($searchResult, $relevance);
         }
         $ctor->invoke($searchResult);

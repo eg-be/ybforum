@@ -2,7 +2,7 @@
 
 /**
  * Copyright 2017 Elias Gerber
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -23,41 +23,33 @@
 header('Cache-Control: no-cache, must-revalidate');
 header('Expires: Wed, 26 Jan 1983 01:00:00 GMT');
 
-require_once __DIR__.'/../model/ForumDb.php';
-require_once __DIR__.'/../helpers/ErrorHandler.php';
-require_once __DIR__.'/../helpers/Logger.php';
+require_once __DIR__ . '/../model/ForumDb.php';
+require_once __DIR__ . '/../helpers/ErrorHandler.php';
+require_once __DIR__ . '/../helpers/Logger.php';
 
-try
-{
-    if(!session_start())
-    {
+try {
+    if (!session_start()) {
         throw new Exception('session_start() failed');
     }
     $db = new ForumDb();
     $logger = new Logger($db);
     $loginFailed = false;
-    if(filter_input(INPUT_GET, 'login', FILTER_VALIDATE_INT))
-    {
+    if (filter_input(INPUT_GET, 'login', FILTER_VALIDATE_INT)) {
         // do the login, reset first
         unset($_SESSION['adminuserid']);
         $nick = trim(filter_input(INPUT_POST, 'nick'));
         $pass = trim(filter_input(INPUT_POST, 'pass'));
 
-        if($nick && $pass)
-        {
+        if ($nick && $pass) {
             $user = $db->AuthUser($nick, $pass);
-            if($user)
-            {
-                if($user->IsAdmin())
-                {
+            if ($user) {
+                if ($user->IsAdmin()) {
                     // Lgin succeeded, move on toe index page
                     $logger->LogMessageWithUserId(LogType::LOG_ADMIN_LOGIN, $user);
                     $_SESSION['adminuserid'] = $user->GetId();
                     header('Location: index.php');
                     exit;
-                }
-                else
-                {
+                } else {
                     $logger->LogMessageWithUserId(LogType::LOG_ADMIN_LOGIN_FAILED_USER_IS_NOT_ADMIN, $user);
                 }
             }
@@ -65,9 +57,7 @@ try
         // login failed
         $loginFailed = true;
     }
-} 
-catch (Exception $ex) 
-{
+} catch (Exception $ex) {
     ErrorHandler::OnException($ex);
 }
 
@@ -88,10 +78,9 @@ catch (Exception $ex)
             </table>
         </form>
         <?php
-        if($loginFailed)
-        {
+        if ($loginFailed) {
             echo '<div>Login failed</div>';
         }
-        ?>
+?>
     </body>
 </html>

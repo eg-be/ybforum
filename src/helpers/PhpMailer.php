@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -19,8 +21,8 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/../YbForumConfig.php';
-require_once __DIR__.'/MailerDelegate.php';
+require_once __DIR__ . '/../YbForumConfig.php';
+require_once __DIR__ . '/MailerDelegate.php';
 
 /**
  * Send mail using phps built-in mail function
@@ -28,7 +30,7 @@ require_once __DIR__.'/MailerDelegate.php';
  */
 class PhpMailer implements MailerDelegate
 {
-    public function sendMessage(string $to, string $subject, string $content, string $headers) : bool
+    public function sendMessage(string $to, string $subject, string $content, string $headers): bool
     {
         // If we do not force a sender, the reply-to: address is still set to www-data (?)
         // so we just use that -f switch

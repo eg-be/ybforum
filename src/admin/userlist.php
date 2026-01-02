@@ -2,7 +2,7 @@
 
 /**
  * Copyright 2017 Elias Gerber
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -23,36 +23,28 @@
 header('Cache-Control: no-cache, must-revalidate');
 header('Expires: Wed, 26 Jan 1983 01:00:00 GMT');
 
-require_once __DIR__.'/../model/ForumDb.php';
-require_once __DIR__.'/../helpers/ErrorHandler.php';
+require_once __DIR__ . '/../model/ForumDb.php';
+require_once __DIR__ . '/../helpers/ErrorHandler.php';
 
-try
-{
-    if(!session_start())
-    {
+try {
+    if (!session_start()) {
         throw new Exception('session_start() failed');
     }
     $adminUser = null;
     // if there is no adminuserid set, exit
-    if(!isset($_SESSION['adminuserid']))
-    {
+    if (!isset($_SESSION['adminuserid'])) {
         header('Location: login.php');
         exit;
-    }    
-    else
-    {
+    } else {
         // check that this adminuserid is still valid
         $db = new ForumDb();
         $adminUser = $db->LoadUserById($_SESSION['adminuserid']);
-        if(!($adminUser && $adminUser->IsActive() && $adminUser->IsAdmin()))
-        {
+        if (!($adminUser && $adminUser->IsActive() && $adminUser->IsAdmin())) {
             header('Location: login.php');
             exit;
         }
     }
-} 
-catch (Exception $ex) 
-{
+} catch (Exception $ex) {
     ErrorHandler::OnException($ex);
 }
 ?>
@@ -63,7 +55,7 @@ catch (Exception $ex)
         <link rel="stylesheet" type="text/css" href="admin.css">
         <title>YB Forum Admin Bereich</title>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
         <div>
@@ -72,25 +64,21 @@ catch (Exception $ex)
 <?php
 $sortField = 'iduser';
 $sortFieldValue = filter_input(INPUT_GET, 'sort', FILTER_UNSAFE_RAW);
-if($sortFieldValue === 'id' || $sortFieldValue === 'nick'
+if ($sortFieldValue === 'id' || $sortFieldValue === 'nick'
         || $sortFieldValue === 'email' || $sortFieldValue === 'registration_ts'
         || $sortFieldValue === 'registration_msg' || $sortFieldValue === 'confirmation_ts'
         || $sortFieldValue === 'active' || $sortFieldValue === 'admin'
         || $sortFieldValue === 'is_dummy' || $sortFieldValue === 'has_password'
-        || $sortFieldValue === 'has_old_passwd')
-{
+        || $sortFieldValue === 'has_old_passwd') {
     $sortField = $sortFieldValue;
 }
 $sortOrder = 'ASC';
 $sortOrderReverse = 'DESC';
 $sortOrderValue = filter_input(INPUT_GET, 'order', FILTER_UNSAFE_RAW);
-if($sortOrderValue === 'ASC')
-{
+if ($sortOrderValue === 'ASC') {
     $sortOrder = 'ASC';
     $sortOrderReverse = 'DESC';
-}
-else if($sortOrderValue === 'DESC')
-{
+} elseif ($sortOrderValue === 'DESC') {
     $sortOrder = 'DESC';
     $sortOrderReverse = 'ASC';
 }
@@ -108,8 +96,7 @@ else if($sortOrderValue === 'DESC')
                     <th><a href="userlist.php?sort=has_old_passwd&order=<?php echo $sortOrderReverse; ?>">Hat altes Passwort</a></th>
                 </tr>
 <?php
-try
-{
+try {
     $query = 'SELECT iduser, nick, email, admin, active, '
             . 'registration_ts, registration_msg, '
             . 'confirmation_ts, '
@@ -118,35 +105,31 @@ try
             . '(ISNULL(email) AND ISNULL(password) '
             . 'AND ISNULL(old_passwd)) AS is_dummy '
             . 'FROM user_table';
-    if($sortField && $sortOrder)
-    {
-        $query.= ' ORDER BY ' . $sortField . ' ' . $sortOrder;
+    if ($sortField && $sortOrder) {
+        $query .= ' ORDER BY ' . $sortField . ' ' . $sortOrder;
     }
     $stmt = $db->prepare($query);
     $stmt->execute();
-    while($row = $stmt->fetch())
-    {
+    while ($row = $stmt->fetch()) {
         $rowStr = '<tr>';
-        $rowStr.= '<td>' . $row['iduser'] . '</td>';        
-        $rowStr.= '<td>' . htmlspecialchars($row['nick']) . '</td>';
-        $rowStr.= '<td>' . htmlspecialchars($row['email']) . '</td>';
-        $rowStr.= '<td>' . (new DateTime($row['registration_ts']))->format('d.m.Y H:i:s') . '</td>';
-        $rowStr.= '<td>' . $row['registration_msg'] . '</td>';
-        $rowStr.= '<td>' . ($row['confirmation_ts'] ? (new DateTime($row['confirmation_ts']))->format('d.m.Y H:i:s') : '') . '</td>';
-        $rowStr.= '<td>' . $row['active'] . '</td>';
-        $rowStr.= '<td>' . $row['admin'] . '</td>';
-        $rowStr.= '<td>' . ($row['is_dummy'] ? 'Ja' : 'Nein') . '</td>';
-        $rowStr.= '<td>' . ($row['has_password'] ? 'Ja' : 'Nein') . '</td>';
-        $rowStr.= '<td>' . ($row['has_old_passwd'] ? 'Ja' : 'Nein') . '</td>';
-        $rowStr.= '<tr>';
+        $rowStr .= '<td>' . $row['iduser'] . '</td>';
+        $rowStr .= '<td>' . htmlspecialchars($row['nick']) . '</td>';
+        $rowStr .= '<td>' . htmlspecialchars($row['email']) . '</td>';
+        $rowStr .= '<td>' . new DateTime($row['registration_ts'])->format('d.m.Y H:i:s') . '</td>';
+        $rowStr .= '<td>' . $row['registration_msg'] . '</td>';
+        $rowStr .= '<td>' . ($row['confirmation_ts'] ? new DateTime($row['confirmation_ts'])->format('d.m.Y H:i:s') : '') . '</td>';
+        $rowStr .= '<td>' . $row['active'] . '</td>';
+        $rowStr .= '<td>' . $row['admin'] . '</td>';
+        $rowStr .= '<td>' . ($row['is_dummy'] ? 'Ja' : 'Nein') . '</td>';
+        $rowStr .= '<td>' . ($row['has_password'] ? 'Ja' : 'Nein') . '</td>';
+        $rowStr .= '<td>' . ($row['has_old_passwd'] ? 'Ja' : 'Nein') . '</td>';
+        $rowStr .= '<tr>';
         echo $rowStr;
     }
-}
-catch(Exception $ex)
-{
+} catch (Exception $ex) {
     ErrorHandler::OnException($ex);
 }
-?>                
+?>
             </table>
         </div>
     </body>

@@ -3,7 +3,7 @@
 
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -20,8 +20,8 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/pageparts/TopNavigation.php';
-require_once __DIR__.'/pageparts/Logo.php';
+require_once __DIR__ . '/pageparts/TopNavigation.php';
+require_once __DIR__ . '/pageparts/Logo.php';
 ?>
 
 <html lang="de-ch">
@@ -33,7 +33,7 @@ require_once __DIR__.'/pageparts/Logo.php';
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="theme-color" content="#FFCC00">
         <style>
-            table, th, td 
+            table, th, td
             {
                 text-align: left;
                 border-top: 1px solid #ffffff;
@@ -69,33 +69,27 @@ require_once __DIR__.'/pageparts/Logo.php';
                 renderColors($(this));
             });
         });
-        </script>        
+        </script>
     </head>
     <body>
         <?php
-        try
-        {
+        try {
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             ErrorHandler::OnException($ex);
         }
-        ?> 
+?>
         <div class="fullwidthcenter generictitle">Textformatierung</div>
         <hr>
         <?php
-        try
-        {
-            $topNav = new TopNavigation();
-            echo $topNav->renderHtmlDiv();
-        }
-        catch(Exception $ex)
-        {
-            ErrorHandler::OnException($ex);
-        }
-        ?>
+try {
+    $topNav = new TopNavigation();
+    echo $topNav->renderHtmlDiv();
+} catch (Exception $ex) {
+    ErrorHandler::OnException($ex);
+}
+?>
         <hr>
         <div class="fullwidth">
             <p>
@@ -143,14 +137,14 @@ require_once __DIR__.'/pageparts/Logo.php';
                         [blue]blue[/blue] [fuchsia]fuchsia[/fuchsia]
                         [aqua]aqua[/aqua] [white]white[/white]
                     </td>
-                </tr>                
+                </tr>
             </table>
             <p>
                 Die Pseudotags müssen exakt in der dargestellten Schreibweise verwenden werden (keine Leerzeichen, alle Zeichen in Kleinschreibung).
             </p>
         </div>
         <?php
-        include __DIR__.'/pageparts/StandWithUkr.php';
-        ?>
+include __DIR__ . '/pageparts/StandWithUkr.php';
+?>
     </body>
 </html>

@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
-require_once __DIR__.'/../../src/handlers/ConfirmUserHandler.php';
+require_once __DIR__ . '/../../src/handlers/ConfirmUserHandler.php';
 
 /**
  * No Database stuff required
@@ -25,19 +27,19 @@ final class ConfirmUserHandlerTest extends TestCase
         $this->db = $this->createMock(ForumDb::class);
         $this->logger = $this->createMock(Logger::class);
         $this->mailer = $this->createMock(Mailer::class);
-        $this->user = $this->createStub(User::class);
+        $this->user = static::createStub(User::class);
         $this->cuh = new ConfirmUserHandler();
         $this->cuh->SetLogger($this->logger);
         $this->cuh->SetMailer($this->mailer);
         // dont know why we need to set this here, as it is already defined in bootstrap.php
-        $_SERVER = array();
+        $_SERVER = [];
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
         // must always reset all previously set $_POST and $_GET entries
-        $_POST = array();
-        $_GET = array();
+        $_POST = [];
+        $_GET = [];
     }
 
-    public function testValidateParams_failWithoutCodeForGet() : void
+    public function testValidateParams_failWithoutCodeForGet(): void
     {
         // PARAM_CODE must be set, else we must fail wit h an exception
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -51,7 +53,7 @@ final class ConfirmUserHandlerTest extends TestCase
         $this->cuh->HandleRequest($this->db);
     }
 
-    public function testValidateParams_failWithoutCodeForPost() : void
+    public function testValidateParams_failWithoutCodeForPost(): void
     {
         // PARAM_CODE must be set, else we must fail wit h an exception
         $_SERVER['REQUEST_METHOD'] = 'POST';
@@ -65,7 +67,7 @@ final class ConfirmUserHandlerTest extends TestCase
         $this->cuh->HandleRequest($this->db);
     }
 
-    public function testHandleRequest_failForInvalidCode() : void
+    public function testHandleRequest_failForInvalidCode(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_GET[ConfirmHandler::PARAM_CODE] = 'code';
@@ -83,17 +85,17 @@ final class ConfirmUserHandlerTest extends TestCase
         $this->cuh->HandleRequest($this->db);
     }
 
-    public function testHandleRequest_failForNoLongerExistringUser() : void
+    public function testHandleRequest_failForNoLongerExistringUser(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_GET[ConfirmHandler::PARAM_CODE] = 'code';
 
         // Return a user-confirm-entry
-        $this->db->method('VerifyConfirmUserCode')->willReturn(array('iduser' => 1313, 
-            'password' => 'encrypted', 
+        $this->db->method('VerifyConfirmUserCode')->willReturn(['iduser' => 1313,
+            'password' => 'encrypted',
             'email' => 'new@mail.com',
-            'confirm_source' => ForumDb::CONFIRM_SOURCE_NEWUSER
-        ));
+            'confirm_source' => ForumDb::CONFIRM_SOURCE_NEWUSER,
+        ]);
         $this->db->method('LoadUserById')->willReturn(null);
 
         $this->expectException(InvalidArgumentException::class);
@@ -106,17 +108,17 @@ final class ConfirmUserHandlerTest extends TestCase
         $this->cuh->HandleRequest($this->db);
     }
 
-    public function testHandleRequest_failForAlreadyConfirmedUser() : void
+    public function testHandleRequest_failForAlreadyConfirmedUser(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_GET[ConfirmHandler::PARAM_CODE] = 'code';
 
         // Return a user-confirm-entry
-        $this->db->method('VerifyConfirmUserCode')->willReturn(array('iduser' => 1313, 
-            'password' => 'encrypted', 
+        $this->db->method('VerifyConfirmUserCode')->willReturn(['iduser' => 1313,
+            'password' => 'encrypted',
             'email' => 'new@mail.com',
-            'confirm_source' => ForumDb::CONFIRM_SOURCE_NEWUSER
-        ));
+            'confirm_source' => ForumDb::CONFIRM_SOURCE_NEWUSER,
+        ]);
         $this->db->method('LoadUserById')->willReturn($this->user);
         $this->user->method('IsConfirmed')->willReturn(true);
 
@@ -130,17 +132,17 @@ final class ConfirmUserHandlerTest extends TestCase
         $this->cuh->HandleRequest($this->db);
     }
 
-    public function testHandleRequest_failForAlreadyMigratedUser() : void
+    public function testHandleRequest_failForAlreadyMigratedUser(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_GET[ConfirmHandler::PARAM_CODE] = 'code';
 
         // Return a migrate-user-entry
-        $this->db->method('VerifyConfirmUserCode')->willReturn(array('iduser' => 1313, 
-            'password' => 'encrypted', 
+        $this->db->method('VerifyConfirmUserCode')->willReturn(['iduser' => 1313,
+            'password' => 'encrypted',
             'email' => 'new@mail.com',
-            'confirm_source' => ForumDb::CONFIRM_SOURCE_MIGRATE
-        ));
+            'confirm_source' => ForumDb::CONFIRM_SOURCE_MIGRATE,
+        ]);
         $this->db->method('LoadUserById')->willReturn($this->user);
         $this->user->method('NeedsMigration')->willReturn(false);
 
@@ -154,17 +156,17 @@ final class ConfirmUserHandlerTest extends TestCase
         $this->cuh->HandleRequest($this->db);
     }
 
-    public function testHandleRequest_dontConfirmUserInSimulationMode() : void
+    public function testHandleRequest_dontConfirmUserInSimulationMode(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_GET[ConfirmHandler::PARAM_CODE] = 'code';
 
         // Return a user-confirm-entry
-        $this->db->method('VerifyConfirmUserCode')->willReturn(array('iduser' => 1313, 
-            'password' => 'encrypted', 
+        $this->db->method('VerifyConfirmUserCode')->willReturn(['iduser' => 1313,
+            'password' => 'encrypted',
             'email' => 'new@mail.com',
-            'confirm_source' => ForumDb::CONFIRM_SOURCE_NEWUSER
-        ));
+            'confirm_source' => ForumDb::CONFIRM_SOURCE_NEWUSER,
+        ]);
         $this->db->method('LoadUserById')->willReturn($this->user);
         $this->user->method('IsConfirmed')->willReturn(false);
 
@@ -174,20 +176,20 @@ final class ConfirmUserHandlerTest extends TestCase
         $this->cuh->HandleRequest($this->db);
 
         // but internal values must have been update
-        $this->assertEquals('code', $this->cuh->GetCode());
+        static::assertEquals('code', $this->cuh->GetCode());
     }
 
-    public function testHandleRequest_dontMigrateUserInSimulationMode() : void
+    public function testHandleRequest_dontMigrateUserInSimulationMode(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_GET[ConfirmHandler::PARAM_CODE] = 'code';
 
         // Return a user-confirm-entry
-        $this->db->method('VerifyConfirmUserCode')->willReturn(array('iduser' => 1313, 
-            'password' => 'encrypted', 
+        $this->db->method('VerifyConfirmUserCode')->willReturn(['iduser' => 1313,
+            'password' => 'encrypted',
             'email' => 'new@mail.com',
-            'confirm_source' => ForumDb::CONFIRM_SOURCE_MIGRATE
-        ));
+            'confirm_source' => ForumDb::CONFIRM_SOURCE_MIGRATE,
+        ]);
         $this->db->method('LoadUserById')->willReturn($this->user);
         $this->user->method('NeedsMigration')->willReturn(true);
 
@@ -197,23 +199,23 @@ final class ConfirmUserHandlerTest extends TestCase
         $this->cuh->HandleRequest($this->db);
 
         // but internal values must have been update
-        $this->assertEquals('code', $this->cuh->GetCode());
+        static::assertEquals('code', $this->cuh->GetCode());
     }
 
-    public function testHandleRequest_confirmUser() : void
+    public function testHandleRequest_confirmUser(): void
     {
         // if not in simulation mode, we want to update things
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST[ConfirmHandler::PARAM_CODE] = 'code';
 
         // Return a user-confirm-entry
-        $this->db->method('VerifyConfirmUserCode')->willReturn(array('iduser' => 1313, 
-            'password' => 'encrypted', 
+        $this->db->method('VerifyConfirmUserCode')->willReturn(['iduser' => 1313,
+            'password' => 'encrypted',
             'email' => 'new@mail.com',
-            'confirm_source' => ForumDb::CONFIRM_SOURCE_NEWUSER
-        ));
+            'confirm_source' => ForumDb::CONFIRM_SOURCE_NEWUSER,
+        ]);
         $this->db->method('LoadUserById')->willReturn($this->user);
-        $this->db->method('GetAdminMails')->willReturn(array('admin1@mail.com', 'admin2@mail.com'));
+        $this->db->method('GetAdminMails')->willReturn(['admin1@mail.com', 'admin2@mail.com']);
         $this->user->method('IsConfirmed')->willReturn(false);
         $this->user->method('GetNick')->willReturn('MockUser');
         $this->user->method('GetRegistrationMsg')->willReturn('Hello world');
@@ -224,8 +226,7 @@ final class ConfirmUserHandlerTest extends TestCase
         // mailer must be called for every admin
         $matcher = $this->exactly(2);
         $this->mailer->expects($matcher)->method('NotifyAdminUserConfirmedRegistration')
-            ->willReturnCallback(function(string $nick, string $mail, string $registrationMsg) use ($matcher) 
-            {
+            ->willReturnCallback(function (string $nick, string $mail, string $registrationMsg) use ($matcher) {
                 $this->assertEquals('MockUser', $nick);
                 $this->assertEquals('Hello world', $registrationMsg);
                 match ($matcher->numberOfInvocations()) {
@@ -239,61 +240,60 @@ final class ConfirmUserHandlerTest extends TestCase
         $matcher = $this->exactly(2);
         $mockUser = $this->user;
         $this->logger->expects($matcher)->method('LogMessageWithUserId')
-            ->willReturnCallback(function(LogType $logType, User $user, string $msg) use ($matcher, $mockUser) 
-            {
+            ->willReturnCallback(function (LogType $logType, User $user, string $msg) use ($matcher, $mockUser): void {
                 $this->assertEquals(LogType::LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED, $logType);
                 $this->assertEquals($this->user, $user);
                 match ($matcher->numberOfInvocations()) {
                     1 => $this->assertEquals('Mail sent to: admin1@mail.com', $msg),
                     2 => $this->assertEquals('Mail sent to: admin2@mail.com', $msg)
                 };
-            });            
-        
+            });
+
         $this->cuh->HandleRequest($this->db);
 
         // and property must have been update
-        $this->assertEquals('code', $this->cuh->GetCode());
+        static::assertEquals('code', $this->cuh->GetCode());
 
         // must return something non-empty
-        $this->assertTrue(strlen($this->cuh->GetConfirmText()) > 0);
-        $this->assertStringContainsString('Registrierung', $this->cuh->GetConfirmText());
-        $this->assertTrue(strlen($this->cuh->GetSuccessText()) > 0);
-        $this->assertStringContainsString('Registrierung', $this->cuh->GetSuccessText());
+        static::assertTrue(strlen($this->cuh->GetConfirmText()) > 0);
+        static::assertStringContainsString('Registrierung', $this->cuh->GetConfirmText());
+        static::assertTrue(strlen($this->cuh->GetSuccessText()) > 0);
+        static::assertStringContainsString('Registrierung', $this->cuh->GetSuccessText());
     }
 
-    public function testHandleRequest_migrateUser() : void
+    public function testHandleRequest_migrateUser(): void
     {
         // if not in simulation mode, we want to update things
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST[ConfirmHandler::PARAM_CODE] = 'code';
 
         // Return a user-migration-entry
-        $this->db->method('VerifyConfirmUserCode')->willReturn(array('iduser' => 1313, 
-            'password' => 'encrypted', 
+        $this->db->method('VerifyConfirmUserCode')->willReturn(['iduser' => 1313,
+            'password' => 'encrypted',
             'email' => 'new@mail.com',
-            'confirm_source' => ForumDb::CONFIRM_SOURCE_MIGRATE
-        ));
+            'confirm_source' => ForumDb::CONFIRM_SOURCE_MIGRATE,
+        ]);
         $this->db->method('LoadUserById')->willReturn($this->user);
-        $this->db->method('GetAdminMails')->willReturn(array('admin1@mail.com', 'admin2@mail.com'));
+        $this->db->method('GetAdminMails')->willReturn(['admin1@mail.com', 'admin2@mail.com']);
         $this->user->method('NeedsMigration')->willReturn(true);
 
         // method to actually migrate (=activate) must be called
-        $this->db->expects($this->once())->method('ConfirmUser')->with($this->user, 'encrypted', 'new@mail.com', true);          
-        
+        $this->db->expects($this->once())->method('ConfirmUser')->with($this->user, 'encrypted', 'new@mail.com', true);
+
         $this->cuh->HandleRequest($this->db);
 
         // and property must have been update
-        $this->assertEquals('code', $this->cuh->GetCode());
+        static::assertEquals('code', $this->cuh->GetCode());
 
         // must return something non-empty
-        $this->assertTrue(strlen($this->cuh->GetConfirmText()) > 0);
-        $this->assertStringContainsString('Migration', $this->cuh->GetConfirmText());
-        $this->assertTrue(strlen($this->cuh->GetSuccessText()) > 0);
-        $this->assertStringContainsString('Migration', $this->cuh->GetSuccessText());
+        static::assertTrue(strlen($this->cuh->GetConfirmText()) > 0);
+        static::assertStringContainsString('Migration', $this->cuh->GetConfirmText());
+        static::assertTrue(strlen($this->cuh->GetSuccessText()) > 0);
+        static::assertStringContainsString('Migration', $this->cuh->GetSuccessText());
     }
 
-    public function testGetType() : void
+    public function testGetType(): void
     {
-        $this->assertEquals(ConfirmHandler::VALUE_TYPE_CONFIRM_USER, $this->cuh->GetType());
+        static::assertEquals(ConfirmHandler::VALUE_TYPE_CONFIRM_USER, $this->cuh->GetType());
     }
 }

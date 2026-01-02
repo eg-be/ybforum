@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -29,58 +31,58 @@
  * The confirmation can later be executed by a simple form forcing the user
  * to click some button, to avoid accidental confirmation from a tool like
  * the ones mentioned above.
- * 
+ *
  * @author Elias Gerber
  */
-interface ConfirmHandler 
+interface ConfirmHandler
 {
     /**
      * @var string Parameter name for confirmation type.
      */
-    final const PARAM_TYPE = 'type';
-    
+    final public const PARAM_TYPE = 'type';
+
     /**
      * @var string Parameter name for confirmation code.
      */
-    final const PARAM_CODE = 'code';
-    
+    final public const PARAM_CODE = 'code';
+
     /**
      * @var string Parameter value for the confirm type of confirming
      * a user (migration / registration)
      */
-    final const VALUE_TYPE_CONFIRM_USER = 'confirmuser';
-    
+    final public const VALUE_TYPE_CONFIRM_USER = 'confirmuser';
+
     /**
      * @var string Parameter value for the confirm type of confirming a
      * new email address for a user.
      */
-    final const VALUE_TYPE_UPDATEEMAIL = 'updateemail';    
-    
+    final public const VALUE_TYPE_UPDATEEMAIL = 'updateemail';
+
     /**
-     * @var string Parameter value for the confirmation link to reset a 
+     * @var string Parameter value for the confirmation link to reset a
      * password.
-     */    
-    final const VALUE_TYPE_RESETPASS = 'resetpass';
-    
+     */
+    final public const VALUE_TYPE_RESETPASS = 'resetpass';
+
     /**
      * @return string Get the confirmation code.
      */
-    public function GetCode() : ?string;
-    
+    public function GetCode(): ?string;
+
     /**
      * @return string Get the confirmation type.
      */
-    public function GetType() : string;
-    
+    public function GetType(): string;
+
     /**
      * @return string Get the text to display to the user, asking him to
      * trigger some button to complete the confirmation process.
      */
-    public function GetConfirmText() : string;
-    
+    public function GetConfirmText(): string;
+
     /**
      * @return string Get the text to display to the user once confirmation
      * process has completed with success.
      */
-    public function GetSuccessText() : string;
+    public function GetSuccessText(): string;
 }

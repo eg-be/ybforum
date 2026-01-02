@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -19,11 +21,11 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/../model/ForumDb.php';
-require_once __DIR__.'/../model/User.php';
+require_once __DIR__ . '/../model/ForumDb.php';
+require_once __DIR__ . '/../model/User.php';
 
-enum LogType : string {
-    
+enum LogType: string
+{
     // Auth logs
     case LOG_AUTH_FAILED_NO_SUCH_USER = 'AuthFailedNoSuchUser';
     case LOG_AUTH_FAILED_USER_IS_DUMMY = 'AuthFailedUserIsDummy';
@@ -44,18 +46,18 @@ enum LogType : string {
     case LOG_OPERATION_FAILED_USER_IS_INACTIVE = 'OperationFailedUserIsInactive';
     case LOG_OPERATION_FAILED_EMAIL_BLACKLISTED = 'OperationFailedEmailBlacklisted';
     case LOG_OPERATION_FAILED_EMAIL_REGEX_BLACKLISTED = 'OperationFailedEmailRegexBlacklisted';
-    
+
     // confirmation codes requested and created with success
     case LOG_CONFIRM_MIGRATION_CODE_CREATED = 'ConfirmMigrationCodeCreated';
     case LOG_CONFIRM_REGISTRATION_CODE_CREATED = 'ConfirmRegistrationCodeCreated';
     case LOG_PASS_RESET_CODE_CREATED = 'ConfirmResetPasswordCodeCreated';
     case LOG_CONFIRM_EMAIL_CODE_CREATED = 'ConfirmEmailCodeCreated';
-    
+
     // confirm code failures
     case LOG_CONFIRM_CODE_FAILED_CODE_INVALID = 'ConfirmFailedCodeInvalid';
     case LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER = 'ConfirmFailedNoMatchingUser';
     case LOG_CONFIRM_REQUEST_IGNORED_IS_PREVIEW = 'ConfirmRequestIgnoredIsPreview';
-    
+
     // user modified with success
     case LOG_USER_PASSWORD_UPDATED = 'UserPasswordUpdated';
     case LOG_USER_EMAIL_UPDATED = 'UserEmailUpdated';
@@ -69,27 +71,27 @@ enum LogType : string {
     case LOG_USER_CREATED = 'UserCreated';
     case LOG_USER_DELETED = 'UserDeleted';
     case LOG_USER_TURNED_INTO_DUMMY = 'UserTurnedIntoDummy';
-    
+
     // notifications sent not related to confirm code
     case LOG_NOTIFIED_USER_ACCEPTED = 'NotifiedUserAccepted';
     case LOG_NOTIFIED_USER_DENIED = 'NotifiedUserDenied';
     case LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED = 'NotifiedAdminUserConfiremdRegistration';
-    
+
     // stammposter
     case LOG_STAMMPOSTER_LOGIN = 'StammposterLogin';
-    
+
     // admin functions
     case LOG_ADMIN_LOGIN = 'AdminLogin';
     case LOG_ADMIN_LOGIN_FAILED_USER_IS_NOT_ADMIN = 'AdminLoginFailedUserIsNoAdmin';
-    
+
     // post modifications
     case LOG_POST_HIDDEN = 'PostHidden';
     case LOG_POST_SHOW = 'PostShow';
-    
+
     // generic mailing failure
     case LOG_MAIL_FAILED = 'MailFailed';
     case LOG_MAIL_SENT = 'MailSent';
-    
+
     // captcha
     case LOG_CAPTCHA_TOKEN_INVALID = 'CaptchaTokenInvalid';
     case LOG_CAPTCHA_SCORE_PASSED = 'CaptchaScorePassed';
@@ -101,10 +103,10 @@ enum LogType : string {
 
     // Blacklist
     case LOG_BLACKLIST_EMAIL_ADDED = 'BlacklistEmailAdded';
-    
+
     // Extended log
     case LOG_EXT_POST_DISCARDED = 'ExtLogPostDiscarded';
-    
+
     // Fatal errors
     case LOG_ERROR_EXCEPTION_THROWN =  'ErrorExceptionThrown';
 }
@@ -114,12 +116,11 @@ enum LogType : string {
  *
  * @author Elias Gerber
  */
-class Logger 
-{  
+class Logger
+{
     public function __construct(?ForumDb $db = null)
     {
-        if(!$db || $db->IsReadOnly())
-        {
+        if (!$db || $db->IsReadOnly()) {
             $db = new ForumDb(false);
         }
         $this->m_db = $db;
@@ -129,44 +130,51 @@ class Logger
         $this->m_insertExtendedInfoStmt = null;
 
         // we must always have an ip and a request_uri
-        $values = filter_var_array($_SERVER, array(
+        $values = filter_var_array($_SERVER, [
             'REMOTE_ADDR' => FILTER_VALIDATE_IP,
-            'REQUEST_URI' => FILTER_DEFAULT
-        ), true);
+            'REQUEST_URI' => FILTER_DEFAULT,
+        ], true);
         $this->m_clientIp = $values['REMOTE_ADDR'];
         $this->m_requestUri = $values['REQUEST_URI'];
     }
 
     // todo: issue #20
-    public function LogMessageWithUserId(LogType $logType, User $user, 
-            ?string $msg = null, ?string $extendedInfo = null) : void
-    {
+    public function LogMessageWithUserId(
+        LogType $logType,
+        User $user,
+        ?string $msg = null,
+        ?string $extendedInfo = null
+    ): void {
         $logTypeId = $this->GetLogTypeId($logType);
         $this->InsertLogEntry($logTypeId, $user, $msg, $extendedInfo);
     }
-    
-    public function LogMessage(LogType $logType, string $msg, 
-            ?string $extendedInfo = null) : void
-    {
+
+    public function LogMessage(
+        LogType $logType,
+        string $msg,
+        ?string $extendedInfo = null
+    ): void {
         $logTypeId = $this->GetLogTypeId($logType);
         $this->InsertLogEntry($logTypeId, null, $msg, $extendedInfo);
     }
-    
+
     /**
      * Log a message to the log_table
      * @param int $logTypeId id of a log_type_table entry
-     * @param User $user If not null, the iduser of an existing entry 
+     * @param User $user If not null, the iduser of an existing entry
      * from user_table
      * @param string $msg The value for the message field
      * @param string $extendedInfo If not null, an antry in log_extended_info
      * is created with the passed value
      * @throws Exception
      */
-    private function InsertLogEntry(int $logTypeId, ?User $user, 
-            ?string $msg, ?string $extendedInfo) : void
-    {
-        if(!$this->m_insertLogEntryStmt)
-        {
+    private function InsertLogEntry(
+        int $logTypeId,
+        ?User $user,
+        ?string $msg,
+        ?string $extendedInfo
+    ): void {
+        if (!$this->m_insertLogEntryStmt) {
             $query = 'INSERT INTO log_table (idlog_type, iduser, '
                     . 'historic_user_context, message, '
                     . 'request_uri, ip_address, admin_iduser) '
@@ -175,90 +183,81 @@ class Logger
                     . ':request_uri, :ip_address, :admin_iduser)';
             $this->m_insertLogEntryStmt = $this->m_db->prepare($query);
         }
-                
+
         $adminIdUser = null;
-        if(isset($_SESSION['adminuserid']))
-        {
+        if (isset($_SESSION['adminuserid'])) {
             $adminIdUser = $_SESSION['adminuserid'];
         }
-        
+
         $historicUserContext = null;
-        if($user)
-        {
+        if ($user) {
             $historicUserContext = $user->GetMinimalUserInfoAsString();
         }
-        
+
         $userId = null;
-        if($user)
-        {
+        if ($user) {
             $userId = $user->GetId();
         }
 
-        $this->m_insertLogEntryStmt->execute(array(
+        $this->m_insertLogEntryStmt->execute([
             ':idlog_type' => $logTypeId,
             ':iduser' => $userId,
             ':historic_user_context' => $historicUserContext,
             ':message' => $msg,
             ':request_uri' => $this->m_requestUri,
             ':ip_address' => $this->m_clientIp,
-            ':admin_iduser' => $adminIdUser
-        ));
-        
-        if($this->m_insertLogEntryStmt->rowCount() !== 1)
-        {
+            ':admin_iduser' => $adminIdUser,
+        ]);
+
+        if ($this->m_insertLogEntryStmt->rowCount() !== 1) {
             throw new Exception('Failed to insert log entry into log_table');
         }
-        
-        if($extendedInfo)
-        {
-            $logId = $this->m_db->lastInsertId();
-            if($logId <= 0)
-            {
-                throw new Exception('Failed to get idlog of newly created entry');                
+
+        if ($extendedInfo) {
+            $logId = intval($this->m_db->lastInsertId());
+            if ($logId <= 0) {
+                throw new Exception('Failed to get idlog of newly created entry');
             }
-            if(!$this->m_insertExtendedInfoStmt)
-            {
+            if (!$this->m_insertExtendedInfoStmt) {
                 $queryExtend = 'INSERT INTO log_extended_info '
                         . '(idlog, info) '
                         . 'VALUES(:idlog, :info)';
                 $this->m_insertExtendedInfoStmt = $this->m_db->prepare($queryExtend);
             }
-            $this->m_insertExtendedInfoStmt->execute(array(
+            $this->m_insertExtendedInfoStmt->execute([
                 ':idlog' => $logId,
-                ':info' => $extendedInfo
-            ));
+                ':info' => $extendedInfo,
+            ]);
         }
     }
-    
+
     /**
      * Lookup an entry in log_type_table where name matches the passed string
      * @param LogType $logType value for column name
      * @return int value of column idlog_type
      * @throws InvalidArgumentException If no matching row is found
      */
-    public function GetLogTypeId(LogType $logType) : int
+    public function GetLogTypeId(LogType $logType): int
     {
-        if(!$this->m_selectTypeStmt)
-        {
+        if (!$this->m_selectTypeStmt) {
             $query = 'SELECT idlog_type FROM log_type_table WHERE name = :name';
             $this->m_selectTypeStmt = $this->m_db->prepare($query);
         }
-        $this->m_selectTypeStmt->execute(array(
-            ':name' => $logType->value
-        ));
+        $this->m_selectTypeStmt->execute([
+            ':name' => $logType->value,
+        ]);
         $row = $this->m_selectTypeStmt->fetch();
-        if(!$row)
-        {
+        if (!$row) {
             throw new InvalidArgumentException('LogType ' . $logType->value . ' is not '
                     . 'defined in log_type_table');
         }
         return $row['idlog_type'];
     }
-    
+
     private ?PDOStatement $m_selectTypeStmt;
     private ?PDOStatement $m_insertLogEntryStmt;
     private ?PDOStatement $m_insertExtendedInfoStmt;
-    
+
     private string $m_clientIp;
     private string $m_requestUri;
 

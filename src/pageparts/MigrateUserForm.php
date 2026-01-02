@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -19,14 +21,14 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/../handlers/MigrateUserHandler.php';
+require_once __DIR__ . '/../handlers/MigrateUserHandler.php';
 
 /**
  * Print a form holding field to migrate a user.
  *
  * @author Elias Gerber
  */
-class MigrateUserForm 
+class MigrateUserForm
 {
     /**
      * Create a form that will use the passed values as initial values for
@@ -34,45 +36,44 @@ class MigrateUserForm
      * @param ?string $initialNick String or null. Initial value for nick field.
      * @param ?string $initialEmail String or null. Initial value for email field.
      * @param ?string $source String or null. URL to use as location if the user
-     * chooses to cancel migration. A 'migrationended=1' parameter will be 
-     * appended to the URL. If null is passed, the user will be 
+     * chooses to cancel migration. A 'migrationended=1' parameter will be
+     * appended to the URL. If null is passed, the user will be
      * redirected to index.php, without any additional arguments.
      */
-    public function __construct(?string $initialNick, ?string $initialEmail, ?string $source) 
+    public function __construct(?string $initialNick, ?string $initialEmail, ?string $source)
     {
         $this->m_initialNick = $initialNick;
         $this->m_initialEmail = $initialEmail;
         $this->m_source = $source;
     }
-    
+
     /**
      * Renders a HTML div holding the migration form. On submit calls
      * 'migrateuser.php?migrate=1'.
      * @return string
      */
-    public function renderHtmlDiv() : string
+    public function renderHtmlDiv(): string
     {
         $returnValue = 'index.php';
-        if($this->m_source)
-        {
+        if ($this->m_source) {
             $returnValue = $this->m_source . '?migrationended=1';
         }
         $nickValue = $this->m_initialNick;
         $emailValue = $this->m_initialEmail;
-        $html = 
-        '<div id="migratediv" style="color: #00BFFF;">
+        $html
+        = '<div id="migratediv" style="color: #00BFFF;">
             <div id="migratetitle" class="fbold noticecolor">Passwort und Mailadresse aktualisieren:</div>
-            <div id="requestmigratediv"> Willkommen im Forum. 
+            <div id="requestmigratediv"> Willkommen im Forum.
                 Die bisherigen Passwörter sind in einem nicht mehr zeitgemässen Format
-                verschlüsselt. Bitte aktualisiere dein Passwort und bei dieser 
-                Gelegenheit auch gleich deine Mailadresse. Um die Migration abzuschliessen 
+                verschlüsselt. Bitte aktualisiere dein Passwort und bei dieser
+                Gelegenheit auch gleich deine Mailadresse. Um die Migration abzuschliessen
                 wird dir ein Link an deine Mailadresse gesendet.
                 <form id="requestmigrateform" method="post" action="migrateuser.php?migrate=1" accept-charset="utf-8">
                     <table style="margin: auto; text-align: left;">
                         <tr>
                             <td><span class="fbold">Stammpostername:</span></td>
                             <td><input type="text" value="' . $nickValue . '" name="' . MigrateUserHandler::PARAM_NICK . '" size="20" maxlength="60"/></td>
-                        </tr>                    
+                        </tr>
                         <tr>
                             <td><span class="fbold">Bisheriges Passwort:</span></td>
                             <td><input type="password" name="' . MigrateUserHandler::PARAM_OLDPASS . '" size="20" maxlength="60"/></td>
@@ -99,14 +100,14 @@ class MigrateUserForm
                                 <input type="submit" value="Passwort ändern und Mailadresse bestätigen"/>
                                 <input type="button" value="Abbrechen" onclick="document.location = \'' . $returnValue . '\';"/>
                             </td>
-                        </tr>          
-                    </table>            
+                        </tr>
+                    </table>
                 </form>
             </div>
         </div>';
         return $html;
     }
-    
+
     private ?string $m_initialNick;
     private ?string $m_initialEmail;
     private ?string $m_source;

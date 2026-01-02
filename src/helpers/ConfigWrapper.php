@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -19,15 +21,15 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/../YbForumConfig.php';
+require_once __DIR__ . '/../YbForumConfig.php';
 
 /**
  * A wrapper around static config-values, for easier testing using
  * dependency injection
  * @author Elias Gerber
  */
-class ConfigWrapper {
-    
+class ConfigWrapper
+{
     private static ?ConfigWrapper $instance = null;
 
     /**
@@ -42,12 +44,12 @@ class ConfigWrapper {
         return self::$instance;
     }
 
-    public function getLogExtendedPostDataOnAuthFailure() : bool
+    public function getLogExtendedPostDataOnAuthFailure(): bool
     {
         return YbForumConfig::LOG_EXT_POST_DATA_ON_AUTH_FAILURE;
     }
 
-    public function getLogAuthFailNoSuchUser() : bool
+    public function getLogAuthFailNoSuchUser(): bool
     {
         return YbForumConfig::LOG_AUTH_FAIL_NO_SUCH_USER;
     }
@@ -56,8 +58,8 @@ class ConfigWrapper {
 
     private function __clone() {}
 
-    public function __wakeup()
+    public function __wakeup(): void
     {
         throw new Exception("Cannot unserialize singleton");
-    }    
+    }
 }

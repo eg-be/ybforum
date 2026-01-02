@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -19,12 +21,13 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/Translation.php';
+require_once __DIR__ . '/Translation.php';
 
 /**
  * Maps db-fields to a translation
  */
-enum SortField : string implements Translation {
+enum SortField: string implements Translation
+{
     case FIELD_RELEVANCE = 'relevance';
     case FIELD_TITLE = 'title';
     case FIELD_NICK = 'nick';
@@ -32,8 +35,7 @@ enum SortField : string implements Translation {
 
     public function getTranslation(): string
     {
-        return match($this)
-        {
+        return match ($this) {
             SortField::FIELD_RELEVANCE => 'Relevanz',
             SortField::FIELD_TITLE => 'Titel',
             SortField::FIELD_NICK => 'Stammposter',
@@ -45,16 +47,16 @@ enum SortField : string implements Translation {
 /**
  * Maps db-sorting to a translation
  */
-enum SortOrder : string implements Translation {
+enum SortOrder: string implements Translation
+{
     case ORDER_ASC = 'ASC';
     case ORDER_DESC = 'DESC';
 
     public function getTranslation(): string
     {
-        return match($this)
-        {
+        return match ($this) {
             SortOrder::ORDER_ASC => 'Aufsteigend',
             SortOrder::ORDER_DESC => 'Absteigend',
         };
-    }    
+    }
 }

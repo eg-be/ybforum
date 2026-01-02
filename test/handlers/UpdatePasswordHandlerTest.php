@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
-require_once __DIR__.'/../../src/handlers/UpdatePasswordHandler.php';
+require_once __DIR__ . '/../../src/handlers/UpdatePasswordHandler.php';
 
 /**
  * No Database stuff required
@@ -23,7 +25,7 @@ final class UpdatePasswordHandlerTest extends TestCase
     {
         $this->db = $this->createMock(ForumDb::class);
         $this->logger = $this->createMock(Logger::class);
-        $this->user = $this->createStub(User::class);
+        $this->user = static::createStub(User::class);
         $this->user->method('GetNick')->willReturn('foo');
         $this->user->method('GetEmail')->willReturn('foo@bar.com');
         $this->uph = new UpdatePasswordHandler($this->user);
@@ -32,14 +34,14 @@ final class UpdatePasswordHandlerTest extends TestCase
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
         // must always reset all previously set $_POST entries
-        $_POST = array();
+        $_POST = [];
     }
 
-    public function testUpdatePassword_failsIfNewPasswordsDoNotMatch()
+    public function testUpdatePassword_failsIfNewPasswordsDoNotMatch(): void
     {
         $_POST[UpdatePasswordHandler::PARAM_NEWPASS] = 'my-password';
         $_POST[UpdatePasswordHandler::PARAM_CONFIRMNEWPASS] = 'my-something-else';
-        
+
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(UpdatePasswordHandler::MSG_PASSWORDS_NOT_MATCH);
         $this->expectExceptionCode(UpdatePasswordHandler::MSGCODE_BAD_PARAM);
@@ -47,13 +49,13 @@ final class UpdatePasswordHandlerTest extends TestCase
         $this->uph->HandleRequest($this->db);
     }
 
-    public function testUpdatePassword_failsIfNewPasswordTooShort()
+    public function testUpdatePassword_failsIfNewPasswordTooShort(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH - 1, 'a');
 
         $_POST[UpdatePasswordHandler::PARAM_NEWPASS] = $password;
         $_POST[UpdatePasswordHandler::PARAM_CONFIRMNEWPASS] = $password;
-        
+
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(UpdatePasswordHandler::MSG_PASSWORD_TOO_SHORT);
         $this->expectExceptionCode(UpdatePasswordHandler::MSGCODE_BAD_PARAM);
@@ -61,16 +63,16 @@ final class UpdatePasswordHandlerTest extends TestCase
         $this->uph->HandleRequest($this->db);
     }
 
-    public function testUpdatePassword_failsIfUserIsInactive()
+    public function testUpdatePassword_failsIfUserIsInactive(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH, 'a');
-        
+
         $_POST[UpdatePasswordHandler::PARAM_NEWPASS] = $password;
         $_POST[UpdatePasswordHandler::PARAM_CONFIRMNEWPASS] = $password;
 
         $this->user->method('IsActive')->willReturn(false);
         $this->user->method('NeedsMigration')->willReturn(false);
-        
+
         // expect that the logger is called with the correct params when failing
         $this->logger->expects($this->once())->method('LogMessageWithUserId')
             ->with(LogType::LOG_OPERATION_FAILED_USER_IS_INACTIVE, $this->user);
@@ -82,16 +84,16 @@ final class UpdatePasswordHandlerTest extends TestCase
         $this->uph->HandleRequest($this->db);
     }
 
-    public function testUpdatePassword_ifUserIsInactiveButNeedsMigration()
+    public function testUpdatePassword_ifUserIsInactiveButNeedsMigration(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH, 'a');
-        
+
         $_POST[UpdatePasswordHandler::PARAM_NEWPASS] = $password;
         $_POST[UpdatePasswordHandler::PARAM_CONFIRMNEWPASS] = $password;
 
         $this->user->method('IsActive')->willReturn(false);
         $this->user->method('NeedsMigration')->willReturn(true);
-        
+
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
         // expect that the db is called with the correct params
@@ -101,15 +103,15 @@ final class UpdatePasswordHandlerTest extends TestCase
         $this->uph->HandleRequest($this->db);
     }
 
-    public function testUpdatePassword_ifUserIsActive()
+    public function testUpdatePassword_ifUserIsActive(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH, 'a');
-        
+
         $_POST[UpdatePasswordHandler::PARAM_NEWPASS] = $password;
         $_POST[UpdatePasswordHandler::PARAM_CONFIRMNEWPASS] = $password;
 
         $this->user->method('IsActive')->willReturn(true);
-        
+
         // expect that the db is called with the correct params
         $this->db->expects($this->once())->method('UpdateUserPassword')
             ->with($this->user, $password);

@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -24,28 +26,22 @@ namespace profile;
 require_once 'ProfileConfig.php';
 
 // Print some stats if configured to do so
-if(ProfileConfig::MEASURE_TIMING)
-{
+if (ProfileConfig::MEASURE_TIMING) {
     $measureTiming->Stop();
 }
-if(ProfileConfig::MEASURE_MEMORY)
-{
+if (ProfileConfig::MEASURE_MEMORY) {
     $measureMemory->Measure();
 }
-if(ProfileConfig::ERRORLOG_MEASURE_RESULTS)
-{
+if (ProfileConfig::ERRORLOG_MEASURE_RESULTS) {
     $measureTiming && $measureTiming->Log();
     $measureMemory && $measureMemory->Log();
 }
-if(ProfileConfig::PRINT_MEASURE_RESULTS && ($measureTiming || $measureMemory))
-{
+if (ProfileConfig::PRINT_MEASURE_RESULTS && ($measureTiming || $measureMemory)) {
     echo '<hr>';
-    if($measureTiming)
-    {
-        echo $measureTiming->renderHtmlDiv();            
+    if ($measureTiming) {
+        echo $measureTiming->renderHtmlDiv();
     }
-    if ($measureMemory)
-    {
+    if ($measureMemory) {
         echo $measureMemory->renderHtmlDiv();
     }
 }

@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -27,40 +29,38 @@ namespace profile;
  *
  * @author Elias Gerber
  */
-class Timings 
+class Timings
 {
-    
-    public function __construct(string $msgPrefix = '') 
+    public function __construct(string $msgPrefix = '')
     {
         $this->m_msgPrefix = $msgPrefix;
         $this->m_start = microtime(true);
     }
-    
-    public function Stop() : void
+
+    public function Stop(): void
     {
         $this->m_time_elapsed_secs = microtime(true) - $this->m_start;
     }
-    
-    private function GetMessage() : string
+
+    private function GetMessage(): string
     {
         $msg = ($this->m_time_elapsed_secs * 1000) . 'ms elapsed.';
-        if(!empty($this->m_msgPrefix))
-        {
+        if (!empty($this->m_msgPrefix)) {
             return $this->m_msgPrefix . ': ' . $msg;
         }
         return $msg;
     }
-    
-    public function Log() : void
+
+    public function Log(): void
     {
         error_log($this->GetMessage(), 0);
     }
-    
-    public function renderHtmlDiv() : string
+
+    public function renderHtmlDiv(): string
     {
-        return '<div>'. $this->GetMessage() . '</div>';
+        return '<div>' . $this->GetMessage() . '</div>';
     }
-    
+
     private float $m_start;
     private float $m_time_elapsed_secs;
     private string $m_msgPrefix;

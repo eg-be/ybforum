@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -22,4 +24,3 @@
 // 301 Moved Permanently
 header("Location: https://www.1898.ch/index.php", true, 301);
 exit;
-?>

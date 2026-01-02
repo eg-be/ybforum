@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
-require_once __DIR__.'/../../src/handlers/ConfirmUpdateEmailHandler.php';
+require_once __DIR__ . '/../../src/handlers/ConfirmUpdateEmailHandler.php';
 
 /**
  * No Database stuff required
@@ -23,18 +25,18 @@ final class ConfirmUpdateEmailHandlerTest extends TestCase
     {
         $this->db = $this->createMock(ForumDb::class);
         $this->logger = $this->createMock(Logger::class);
-        $this->user = $this->createStub(User::class);
+        $this->user = static::createStub(User::class);
         $this->cueh = new ConfirmUpdateEmailHandler();
         $this->cueh->SetLogger($this->logger);
         // dont know why we need to set this here, as it is already defined in bootstrap.php
-        $_SERVER = array();
+        $_SERVER = [];
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
         // must always reset all previously set $_POST and $_GET entries
-        $_POST = array();
-        $_GET = array();
+        $_POST = [];
+        $_GET = [];
     }
 
-    public function testValidateParams_failWithoutCodeForGet() : void
+    public function testValidateParams_failWithoutCodeForGet(): void
     {
         // PARAM_CODE must be set, else we must fail wit h an exception
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -48,7 +50,7 @@ final class ConfirmUpdateEmailHandlerTest extends TestCase
         $this->cueh->HandleRequest($this->db);
     }
 
-    public function testValidateParams_failWithoutCodeForPost() : void
+    public function testValidateParams_failWithoutCodeForPost(): void
     {
         // PARAM_CODE must be set, else we must fail wit h an exception
         $_SERVER['REQUEST_METHOD'] = 'POST';
@@ -62,7 +64,7 @@ final class ConfirmUpdateEmailHandlerTest extends TestCase
         $this->cueh->HandleRequest($this->db);
     }
 
-    public function testHandleRequest_failForInvalidCode() : void
+    public function testHandleRequest_failForInvalidCode(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_GET[ConfirmHandler::PARAM_CODE] = 'code';
@@ -80,13 +82,13 @@ final class ConfirmUpdateEmailHandlerTest extends TestCase
         $this->cueh->HandleRequest($this->db);
     }
 
-    public function testHandleRequest_failForNoLongerExistingUser() : void
+    public function testHandleRequest_failForNoLongerExistingUser(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_GET[ConfirmHandler::PARAM_CODE] = 'code';
 
         // Fail returning a user for the userid stored
-        $this->db->method('VerifyUpdateEmailCode')->willReturn(array('iduser' => 1313, 'email' => 'new@mail.com'));
+        $this->db->method('VerifyUpdateEmailCode')->willReturn(['iduser' => 1313, 'email' => 'new@mail.com']);
         $this->db->method('LoadUserById')->willReturn(null);
 
         $this->expectException(InvalidArgumentException::class);
@@ -99,13 +101,13 @@ final class ConfirmUpdateEmailHandlerTest extends TestCase
         $this->cueh->HandleRequest($this->db);
     }
 
-    public function testHandleRequest_failForDummyUser() : void
+    public function testHandleRequest_failForDummyUser(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_GET[ConfirmHandler::PARAM_CODE] = 'code';
 
         // Return a dummy user
-        $this->db->method('VerifyUpdateEmailCode')->willReturn(array('iduser' => 1313, 'email' => 'new@mail.com'));
+        $this->db->method('VerifyUpdateEmailCode')->willReturn(['iduser' => 1313, 'email' => 'new@mail.com']);
         $this->db->method('LoadUserById')->willReturn($this->user);
         $this->user->method('IsDummyUser')->willReturn(true);
 
@@ -119,13 +121,13 @@ final class ConfirmUpdateEmailHandlerTest extends TestCase
         $this->cueh->HandleRequest($this->db);
     }
 
-    public function testHandleRequest_dontDoAnythingInSimulationMode() : void
+    public function testHandleRequest_dontDoAnythingInSimulationMode(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_GET[ConfirmHandler::PARAM_CODE] = 'code';
 
         // Return a valid user
-        $this->db->method('VerifyUpdateEmailCode')->willReturn(array('iduser' => 1313, 'email' => 'new@mail.com'));
+        $this->db->method('VerifyUpdateEmailCode')->willReturn(['iduser' => 1313, 'email' => 'new@mail.com']);
         $this->db->method('LoadUserById')->willReturn($this->user);
         $this->user->method('IsDummyUser')->willReturn(false);
 
@@ -135,17 +137,17 @@ final class ConfirmUpdateEmailHandlerTest extends TestCase
         $this->cueh->HandleRequest($this->db);
 
         // but property must have been update
-        $this->assertEquals('new@mail.com', $this->cueh->GetNewEmail());
+        static::assertEquals('new@mail.com', $this->cueh->GetNewEmail());
     }
 
-    public function testHandleRequest_updateEmail() : void
+    public function testHandleRequest_updateEmail(): void
     {
         // if not in simulation mode, we want to update things
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST[ConfirmHandler::PARAM_CODE] = 'code';
 
         // Return a valid user
-        $this->db->method('VerifyUpdateEmailCode')->willReturn(array('iduser' => 1313, 'email' => 'new@mail.com'));
+        $this->db->method('VerifyUpdateEmailCode')->willReturn(['iduser' => 1313, 'email' => 'new@mail.com']);
         $this->db->method('LoadUserById')->willReturn($this->user);
         $this->user->method('IsDummyUser')->willReturn(false);
 
@@ -155,16 +157,16 @@ final class ConfirmUpdateEmailHandlerTest extends TestCase
         $this->cueh->HandleRequest($this->db);
 
         // and property must have been update
-        $this->assertEquals('new@mail.com', $this->cueh->GetNewEmail());
-        $this->assertEquals('code', $this->cueh->GetCode());
+        static::assertEquals('new@mail.com', $this->cueh->GetNewEmail());
+        static::assertEquals('code', $this->cueh->GetCode());
 
         // must return something non-empty
-        $this->assertTrue(strlen($this->cueh->GetConfirmText()) > 0);
-        $this->assertTrue(strlen($this->cueh->GetSuccessText()) > 0);
+        static::assertTrue(strlen($this->cueh->GetConfirmText()) > 0);
+        static::assertTrue(strlen($this->cueh->GetSuccessText()) > 0);
     }
 
-    public function testGetType() : void
+    public function testGetType(): void
     {
-        $this->assertEquals(ConfirmHandler::VALUE_TYPE_UPDATEEMAIL, $this->cueh->GetType());
+        static::assertEquals(ConfirmHandler::VALUE_TYPE_UPDATEEMAIL, $this->cueh->GetType());
     }
 }

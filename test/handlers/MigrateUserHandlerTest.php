@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
-require_once __DIR__.'/../../src/handlers/MigrateUserHandler.php';
+require_once __DIR__ . '/../../src/handlers/MigrateUserHandler.php';
 
 /**
  * No Database stuff required
@@ -26,7 +28,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->db = $this->createMock(ForumDb::class);
         $this->logger = $this->createMock(Logger::class);
         $this->mailer = $this->createMock(Mailer::class);
-        $this->user = $this->createStub(User::class);
+        $this->user = static::createStub(User::class);
         $this->user->method('GetNick')->willReturn('foo');
         $this->user->method('GetId')->willReturn(10);
         $this->muh = new MigrateUserHandler();
@@ -36,10 +38,10 @@ final class MigrateUserHandlerTest extends TestCase
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
         // must always reset all previously set $_POST entries
-        $_POST = array();
+        $_POST = [];
     }
 
-    public function testMigrateUser_failsIfNoNickPassed()
+    public function testMigrateUser_failsIfNoNickPassed(): void
     {
         $_POST[MigrateUserHandler::PARAM_NICK] = '';
         $_POST[MigrateUserHandler::PARAM_OLDPASS] = 'old-password';
@@ -54,7 +56,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->muh->HandleRequest($this->db);
     }
 
-    public function testMigrateUser_failsIfNoOldPasswordPassed()
+    public function testMigrateUser_failsIfNoOldPasswordPassed(): void
     {
         $_POST[MigrateUserHandler::PARAM_NICK] = '';
         $_POST[MigrateUserHandler::PARAM_OLDPASS] = '';
@@ -69,7 +71,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->muh->HandleRequest($this->db);
     }
 
-    public function testMigrateUser_failsIfNewPasswortTooShort()
+    public function testMigrateUser_failsIfNewPasswortTooShort(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH - 1, 'a');
 
@@ -86,14 +88,14 @@ final class MigrateUserHandlerTest extends TestCase
         $this->muh->HandleRequest($this->db);
     }
 
-    public function testMigrateUser_failsIfNewPasswordsDoNotMatch()
+    public function testMigrateUser_failsIfNewPasswordsDoNotMatch(): void
     {
         $_POST[MigrateUserHandler::PARAM_NICK] = 'foo';
         $_POST[MigrateUserHandler::PARAM_OLDPASS] = 'old-password';
         $_POST[MigrateUserHandler::PARAM_NEWPASS] = 'my-password';
         $_POST[MigrateUserHandler::PARAM_CONFIRMNEWPASS] = 'my-something-else';
         $_POST[MigrateUserHandler::PARAM_NEWEMAIL] = 'foo@bar.com';
-        
+
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(MigrateUserHandler::MSG_PASSWORDS_NOT_MATCH);
         $this->expectExceptionCode(MigrateUserHandler::MSGCODE_BAD_PARAM);
@@ -101,7 +103,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->muh->HandleRequest($this->db);
     }
 
-    public function testMigrateUser_failsIfNoSuchNick()
+    public function testMigrateUser_failsIfNoSuchNick(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH, 'a');
 
@@ -110,7 +112,7 @@ final class MigrateUserHandlerTest extends TestCase
         $_POST[MigrateUserHandler::PARAM_NEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_CONFIRMNEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_NEWEMAIL] = 'foo@bar.com';
-        
+
         $this->db->method('LoadUserByNick')->with('foo')->willReturn(null);
 
         // expect that the logger is called with the correct params
@@ -124,7 +126,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->muh->HandleRequest($this->db);
     }
 
-    public function testMigrateUser_failsIfUserIsDummy()
+    public function testMigrateUser_failsIfUserIsDummy(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH, 'a');
 
@@ -133,7 +135,7 @@ final class MigrateUserHandlerTest extends TestCase
         $_POST[MigrateUserHandler::PARAM_NEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_CONFIRMNEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_NEWEMAIL] = 'foo@bar.com';
-        
+
         $this->db->method('LoadUserByNick')->with('foo')->willReturn($this->user);
         $this->user->method('IsDummyUser')->willReturn(true);
 
@@ -148,7 +150,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->muh->HandleRequest($this->db);
     }
 
-    public function testMigrateUser_failsIfMigrationNotRequired()
+    public function testMigrateUser_failsIfMigrationNotRequired(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH, 'a');
 
@@ -157,7 +159,7 @@ final class MigrateUserHandlerTest extends TestCase
         $_POST[MigrateUserHandler::PARAM_NEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_CONFIRMNEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_NEWEMAIL] = 'foo@bar.com';
-        
+
         $this->db->method('LoadUserByNick')->with('foo')->willReturn($this->user);
         $this->user->method('IsDummyUser')->willReturn(false);
         $this->user->method('NeedsMigration')->willReturn(false);
@@ -173,7 +175,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->muh->HandleRequest($this->db);
     }
 
-    public function testMigrateUser_failsIfOldPasswordDoesNotMatch()
+    public function testMigrateUser_failsIfOldPasswordDoesNotMatch(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH, 'a');
 
@@ -182,7 +184,7 @@ final class MigrateUserHandlerTest extends TestCase
         $_POST[MigrateUserHandler::PARAM_NEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_CONFIRMNEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_NEWEMAIL] = 'foo@bar.com';
-        
+
         $this->db->method('LoadUserByNick')->with('foo')->willReturn($this->user);
         $this->user->method('IsDummyUser')->willReturn(false);
         $this->user->method('NeedsMigration')->willReturn(true);
@@ -199,7 +201,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->muh->HandleRequest($this->db);
     }
 
-    public function testMigrateUser_failsIfMailUsedForOtherUser()
+    public function testMigrateUser_failsIfMailUsedForOtherUser(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH, 'a');
 
@@ -208,7 +210,7 @@ final class MigrateUserHandlerTest extends TestCase
         $_POST[MigrateUserHandler::PARAM_NEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_CONFIRMNEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_NEWEMAIL] = 'foo@bar.com';
-        
+
         $someUser = $this->createMock(User::class);
         $someUser->method('GetId')->willReturn(100);
         $this->db->method('LoadUserByNick')->with('foo')->willReturn($this->user);
@@ -217,14 +219,14 @@ final class MigrateUserHandlerTest extends TestCase
         $this->user->method('IsDummyUser')->willReturn(false);
         $this->user->method('NeedsMigration')->willReturn(true);
         $this->user->method('OldAuth')->willReturn(true);
-        
+
         // expect that the logger is called with the correct params
         $invokedCount = $this->exactly(2);
         $mockUser = $this->user;
         $this->logger->expects($invokedCount)
             ->method('LogMessageWithUserId')
-            ->willReturnCallback(function ($logType, $user) use ($invokedCount, $mockUser) {
-                if($invokedCount->numberOfInvocations() === 1) {
+            ->willReturnCallback(function ($logType, $user) use ($invokedCount, $mockUser): void {
+                if ($invokedCount->numberOfInvocations() === 1) {
                     $this->assertSame(LogType::LOG_AUTH_USING_OLD_PASSWORD, $logType);
                     $this->assertSame($mockUser, $user);
                 } else {
@@ -240,7 +242,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->muh->HandleRequest($this->db);
     }
 
-    public function testMigrateUser_failsIfEmailBlacklisted()
+    public function testMigrateUser_failsIfEmailBlacklisted(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH, 'a');
 
@@ -249,7 +251,7 @@ final class MigrateUserHandlerTest extends TestCase
         $_POST[MigrateUserHandler::PARAM_NEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_CONFIRMNEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_NEWEMAIL] = 'foo@bar.com';
-        
+
         $someUser = $this->createMock(User::class);
         $someUser->method('GetId')->willReturn(100);
         $this->db->method('LoadUserByNick')->with('foo')->willReturn($this->user);
@@ -259,7 +261,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->user->method('IsDummyUser')->willReturn(false);
         $this->user->method('NeedsMigration')->willReturn(true);
         $this->user->method('OldAuth')->willReturn(true);
-        
+
         // expect that the logger is called with the correct params
         $this->logger->expects($this->once())->method('LogMessageWithUserId')
             ->with(LogType::LOG_AUTH_USING_OLD_PASSWORD, $this->user);
@@ -273,7 +275,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->muh->HandleRequest($this->db);
     }
 
-    public function testMigrateUser_newMailMatchesOldMail()
+    public function testMigrateUser_newMailMatchesOldMail(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH, 'a');
 
@@ -282,7 +284,7 @@ final class MigrateUserHandlerTest extends TestCase
         $_POST[MigrateUserHandler::PARAM_NEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_CONFIRMNEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_NEWEMAIL] = 'foo@bar.com';
-        
+
         $someUser = $this->createMock(User::class);
         $someUser->method('GetId')->willReturn(100);
         $this->db->method('LoadUserByNick')->with('foo')->willReturn($this->user);
@@ -290,20 +292,25 @@ final class MigrateUserHandlerTest extends TestCase
         $this->db->method('IsEmailOnBlacklistExactly')->willReturn(false);
         $this->db->method('RequestConfirmUserCode')->willReturn('confirm-code');
 
-        $this->mailer->method('SendMigrateUserConfirmMessage')->with('foo@bar.com', 'foo', 'confirm-code')->willReturn(true);        
+        $this->mailer->method('SendMigrateUserConfirmMessage')->with('foo@bar.com', 'foo', 'confirm-code')->willReturn(true);
 
         $this->user->method('IsDummyUser')->willReturn(false);
         $this->user->method('NeedsMigration')->willReturn(true);
         $this->user->method('OldAuth')->willReturn(true);
-        
+
         // expect that the logger is called with the correct params
         $this->logger->expects($this->once())->method('LogMessageWithUserId')
             ->with(LogType::LOG_AUTH_USING_OLD_PASSWORD, $this->user);
 
         // expect that the db is called with the correct params
         $this->db->expects($this->once())->method('RequestConfirmUserCode')
-            ->with($this->user, $password, 'foo@bar.com', 
-                ForumDb::CONFIRM_SOURCE_MIGRATE, '13.13.13.13');
+            ->with(
+                $this->user,
+                $password,
+                'foo@bar.com',
+                ForumDb::CONFIRM_SOURCE_MIGRATE,
+                '13.13.13.13'
+            );
 
         // and the mailer to actually try to send the mail
         $this->mailer->expects($this->once())->method('SendMigrateUserConfirmMessage')
@@ -312,7 +319,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->muh->HandleRequest($this->db);
     }
 
-    public function testMigrateUser_noMailSetBeforeAndMailNotUsedSomewhereElse()
+    public function testMigrateUser_noMailSetBeforeAndMailNotUsedSomewhereElse(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH, 'a');
 
@@ -321,7 +328,7 @@ final class MigrateUserHandlerTest extends TestCase
         $_POST[MigrateUserHandler::PARAM_NEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_CONFIRMNEWPASS] = $password;
         $_POST[MigrateUserHandler::PARAM_NEWEMAIL] = 'foo@bar.com';
-        
+
         $someUser = $this->createMock(User::class);
         $someUser->method('GetId')->willReturn(100);
         $this->db->method('LoadUserByNick')->with('foo')->willReturn($this->user);
@@ -334,20 +341,25 @@ final class MigrateUserHandlerTest extends TestCase
         $this->user->method('IsDummyUser')->willReturn(false);
         $this->user->method('NeedsMigration')->willReturn(true);
         $this->user->method('OldAuth')->willReturn(true);
-        
+
         // expect that the logger is called with the correct params
         $this->logger->expects($this->once())->method('LogMessageWithUserId')
             ->with(LogType::LOG_AUTH_USING_OLD_PASSWORD, $this->user);
 
         // expect that the db is called with the correct params
         $this->db->expects($this->once())->method('RequestConfirmUserCode')
-            ->with($this->user, $password, 'foo@bar.com', 
-                ForumDb::CONFIRM_SOURCE_MIGRATE, '13.13.13.13');
+            ->with(
+                $this->user,
+                $password,
+                'foo@bar.com',
+                ForumDb::CONFIRM_SOURCE_MIGRATE,
+                '13.13.13.13'
+            );
 
         // and the mailer to actually try to send the mail
         $this->mailer->expects($this->once())->method('SendMigrateUserConfirmMessage')
         ->with('foo@bar.com', 'foo', 'confirm-code');
 
         $this->muh->HandleRequest($this->db);
-    }    
+    }
 }
