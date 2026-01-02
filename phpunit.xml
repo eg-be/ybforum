@@ -5,7 +5,6 @@
          failOnDeprecation="true"
          failOnNotice="true"
          testdox="true"
-         displayDetailsOnAllIssues="true"
          displayDetailsOnTestsThatTriggerDeprecations="true"
          displayDetailsOnTestsThatTriggerWarnings="true"
          displayDetailsOnTestsThatTriggerErrors="true"
