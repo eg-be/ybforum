@@ -48,7 +48,7 @@ Follow the instructions in [database](database) to setup the database required f
 ### Run the tests
 Running the tests from the top-level source-dir will pick up the required `phpunit.xml` configuration file:
 ```
-eg@TITANUS-3113:~/dev/ybforum$ ./vendor/phpunit/phpunit/phpunit
+eg@TITANUS-3113:~/dev/ybforum$ ./vendor/bin/phpunit
 PHPUnit 12.5.4 by Sebastian Bergmann and contributors.
 
 Runtime:       PHP 8.4.16
@@ -61,7 +61,7 @@ See [Folder test](test) for some more notes about howto run the tests.
 Run with `--coverage-html` to report the test coverage:
 ```
 eg@TITANUS-3113:~/dev/ybforum$ export XDEBUG_MODE=coverage
-eg@TITANUS-3113:~/dev/ybforum$ ./vendor/phpunit/phpunit/phpunit --coverage-html reports
+eg@TITANUS-3113:~/dev/ybforum$ ./vendor/bin/phpunit --coverage-html reports
 ```
 
 ## Backup and restoring the databse
