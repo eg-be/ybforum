@@ -29,6 +29,8 @@ Thats it, now point your browser to the URL serving the content of httpdoc. You 
 You are ready to post your first entry now.
 
 ## Development setup
+The following steps describe the minimal setup for running the tests. See [Folder .vscode](.vscode) for some notes about howto setup a dev-environment with vscode.
+
 ### Install required php-extensions
 The following extensions are required:
 - pdo_mysql
@@ -47,12 +49,7 @@ Follow the instructions in [database](database) to setup the database required f
 ```
 eg@TITANUS-3113:~/dev/ybforum$ ./vendor/phpunit/phpunit/phpunit
 ```
-
-### Development using vscode
-See [Folder .vscode](.vscode) for some notes about howto setup a dev-environment with vscode.
-
-### Running the tests
-See [Folder test](test) for some notes about howto run the tests.
+See [Folder test](test) for some more notes about howto run the tests.
 
 ## Backup and restoring the databse
 See [Folder backup_script](backup_script) for some notes about backuping and restoring the database.
