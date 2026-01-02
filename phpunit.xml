@@ -31,6 +31,8 @@
     <!-- the following is for code-coverage. Run using (note some escaping on the phpunit cmd) -->
     <!-- export XDEBUG_MODE=coverage -->
     <!-- ./phpunit.phar \-\-coverage-html reports/-->
+    <!-- or, if using composer: -->
+    <!-- ./vendor/phpunit/phpunit/phpunit \-\-coverage-html reports -->
     <source>
         <include>
             <directory suffix=".php">src/handlers</directory>
