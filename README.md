@@ -31,8 +31,8 @@ You are ready to post your first entry now.
 ## Development setup
 The following steps describe the minimal setup for running the tests. See [Folder .vscode](.vscode) for some notes about howto setup a dev-environment with vscode.
 
-### Install required php-extensions
-The following extensions are required:
+### Required php-extensions
+The following php-extensions are required and must be installed:
 - pdo_mysql
 
 ### Composer
@@ -50,6 +50,13 @@ Follow the instructions in [database](database) to setup the database required f
 eg@TITANUS-3113:~/dev/ybforum$ ./vendor/phpunit/phpunit/phpunit
 ```
 See [Folder test](test) for some more notes about howto run the tests.
+
+### Test coverage
+Run with `--coverage-html` to report the test coverage:
+```
+eg@TITANUS-3113:~/dev/ybforum$ export XDEBUG_MODE=coverage
+eg@TITANUS-3113:~/dev/ybforum$ ./vendor/phpunit/phpunit/phpunit --coverage-html reports
+```
 
 ## Backup and restoring the databse
 See [Folder backup_script](backup_script) for some notes about backuping and restoring the database.
