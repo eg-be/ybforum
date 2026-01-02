@@ -5,5 +5,3 @@ phpunit.phar
 *.phar
 reports
 vendor
-composer.lock
-composer.json
