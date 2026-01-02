@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 require_once __DIR__.'/../../src/handlers/UpdateEmailHandler.php';
 
 /**
  * No Database stuff required
  */
+#[AllowMockObjectsWithoutExpectations]
 final class UpdateEmailHandlerTest extends TestCase
 {
     // required mocks our handler under test depends on
@@ -21,7 +23,7 @@ final class UpdateEmailHandlerTest extends TestCase
     {
         $this->db = $this->createMock(ForumDb::class);
         $this->mailer = $this->createMock(Mailer::class);
-        $this->user = $this->createMock(User::class);
+        $this->user = $this->createStub(User::class);
         $this->user->method('GetNick')->willReturn('foo');
         $this->user->method('GetEmail')->willReturn('foo@bar.com');
         $this->ueh = new UpdateEmailHandler($this->user);
@@ -35,8 +37,6 @@ final class UpdateEmailHandlerTest extends TestCase
     public function testUpdateEmail_failsIfNewEmailIsSameAsOld()
     {
         $_POST[UpdateEmailHandler::PARAM_NEWEMAIL] = 'foo@bar.com';
-
-//        $this->db->method('LoadUserByEmail')->with('foo@bar.com')->willReturn($this->user);
         
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(UpdateEmailHandler::MSG_EMAIL_NOT_DIFFERENT);
@@ -49,7 +49,7 @@ final class UpdateEmailHandlerTest extends TestCase
     {
         $_POST[UpdateEmailHandler::PARAM_NEWEMAIL] = 'used@by-someone-else.com';
 
-        $OtherUser = $this->createMock(User::class);
+        $OtherUser = $this->createStub(User::class);
         $this->db->method('LoadUserByEmail')->with('used@by-someone-else.com')->willReturn($OtherUser);
                 
         $this->expectException(InvalidArgumentException::class);

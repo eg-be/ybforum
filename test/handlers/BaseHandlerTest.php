@@ -79,11 +79,7 @@ final class BaseHandlerTest extends TestCase
 
     #[DataProvider('providerBlacklistEmail')]
     public function testValidateEmailAgainstBlacklist(string $mail, bool $exactly, bool $regex) {
-        $db = $this->createMock('ForumDb');
-/*        $db->method('IsEmailOnBlacklistExactly')->willReturnMap([
-            ['exactly@m.c', 'is_on_blacklist_exactly'],
-            ['both@m.c', 'is_on_blacklist_exactly'],
-        ]);*/
+        $db = $this->createStub(ForumDb::class);
         $db->method('IsEmailOnBlacklistExactly')->willReturnCallback(
             function() use ($exactly) {
                 if($exactly)
@@ -96,8 +92,10 @@ final class BaseHandlerTest extends TestCase
                     return "is_on_blacklist_regex";
                 return false;
         });
-        $logger = $this->createMock('Logger');
+
+        $logger = $this->createStub(Logger::class);
         if($exactly || $regex) {
+            $logger = $this->createMock(Logger::class);
             $this->expectException(InvalidArgumentException::class);
             $this->expectExceptionCode(BaseHandler::MSGCODE_BAD_PARAM);
             if($exactly) {
@@ -107,8 +105,6 @@ final class BaseHandlerTest extends TestCase
                 $logger->expects($this->once())->method('LogMessage')
                     ->with(LogType::LOG_OPERATION_FAILED_EMAIL_REGEX_BLACKLISTED);
             }
-//            $logger->expects($this->once())->method('LogMessage'); // a log-entry must be created
-//            $logger->expects($this->exactly(1))->method('LogMessage'); // a log-entry must be created
         }
         $res = BaseHandler::ValidateEmailAgainstBlacklist($mail, $db, $logger);
         $this->assertNull($res);

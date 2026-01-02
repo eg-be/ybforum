@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 require_once __DIR__.'/../../src/helpers/Mailer.php';
 
@@ -8,6 +9,7 @@ require_once __DIR__.'/../../src/helpers/Mailer.php';
 /**
  * No Database stuff required
  */
+#[AllowMockObjectsWithoutExpectations]
 final class MailerTest extends TestCase
 {
     // required mocks our handler under test depends on
@@ -24,6 +26,7 @@ final class MailerTest extends TestCase
         $this->mailer = new Mailer($this->delegate, $this->logger);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testConstruct() : void
     {
         // construct without injecting anything

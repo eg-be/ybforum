@@ -19,8 +19,8 @@ final class ConfirmResetPasswordHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->db = $this->createMock(ForumDb::class);
-        $this->user = $this->createMock(User::class);
+        $this->db = $this->createStub(ForumDb::class);
+        $this->user = $this->createStub(User::class);
         $this->crph = new ConfirmResetPasswordHandler();
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER = array();

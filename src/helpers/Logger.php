@@ -116,7 +116,7 @@ enum LogType : string {
  */
 class Logger 
 {  
-    public function __construct(ForumDb $db = null)
+    public function __construct(?ForumDb $db = null)
     {
         if(!$db || $db->IsReadOnly())
         {

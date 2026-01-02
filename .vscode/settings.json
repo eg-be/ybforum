@@ -1,5 +1,5 @@
 {
     //"phpunit.phpunit": "/usr/bin/phpunit"
     //"phpunit.phpunit": "phpunit.phar"
-    "phpunit.phpunit": "phpunit-11.5.18.phar"
+    "phpunit.phpunit": "vendor/phpunit/phpunit/phpunit"
 }

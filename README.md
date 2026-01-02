@@ -6,7 +6,7 @@ A forum with a user-interface stuck in the 90s, but with an implementation from 
 This page provides some information on how to setup your own ybforum.
 
 ## Requirements
-- PHP 8.3
+- PHP 8.4
 - MariaDB or MySQL
 
 ## Install
@@ -29,11 +29,40 @@ Thats it, now point your browser to the URL serving the content of httpdoc. You 
 You are ready to post your first entry now.
 
 ## Development setup
-### Development using vscode
-See [Folder .vscode](.vscode) for some notes about howto setup a dev-environment with vscode.
+The following steps describe the minimal setup for running the tests. See [Folder .vscode](.vscode) for some notes about howto setup a dev-environment with vscode.
 
-### Running the tests
-See [Folder test](test) for some notes about howto run the tests.
+### Required php-extensions
+The following php-extensions are required and must be installed:
+- pdo_mysql
+
+### Composer
+Ensure [composer](https://getcomposer.org) is installed and install the required dependencies:
+```
+composer update
+```
+Note: The only required dependency is [phpunit](https://phpunit.de), which is required during development only.
+
+### Test-Database
+Follow the instructions in [database](database) to setup the database required for the tests and adjust the database-connection parameters in file [src/model/DbConfig.php](src/model/DbConfig.php).
+
+### Run the tests
+Running the tests from the top-level source-dir will pick up the required `phpunit.xml` configuration file:
+```
+eg@TITANUS-3113:~/dev/ybforum$ ./vendor/phpunit/phpunit/phpunit
+PHPUnit 12.5.4 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.16
+Configuration: /home/eg/dev/ybforum/phpunit.xml
+[....]
+```
+See [Folder test](test) for some more notes about howto run the tests.
+
+### Test coverage
+Run with `--coverage-html` to report the test coverage:
+```
+eg@TITANUS-3113:~/dev/ybforum$ export XDEBUG_MODE=coverage
+eg@TITANUS-3113:~/dev/ybforum$ ./vendor/phpunit/phpunit/phpunit --coverage-html reports
+```
 
 ## Backup and restoring the databse
 See [Folder backup_script](backup_script) for some notes about backuping and restoring the database.
