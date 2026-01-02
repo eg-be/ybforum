@@ -46,8 +46,14 @@ Note: The only required dependency is [phpunit](https://phpunit.de), which is re
 Follow the instructions in [database](database) to setup the database required for the tests and adjust the database-connection parameters in file [src/model/DbConfig.php](src/model/DbConfig.php).
 
 ### Run the tests
+Running the tests from the top-level source-dir will pick up the required `phpunit.xml` configuration file:
 ```
 eg@TITANUS-3113:~/dev/ybforum$ ./vendor/phpunit/phpunit/phpunit
+PHPUnit 12.5.4 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.16
+Configuration: /home/eg/dev/ybforum/phpunit.xml
+[....]
 ```
 See [Folder test](test) for some more notes about howto run the tests.
 
