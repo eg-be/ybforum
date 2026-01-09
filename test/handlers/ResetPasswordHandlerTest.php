@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
-require_once __DIR__.'/../../src/handlers/ResetPasswordHandler.php';
+require_once __DIR__ . '/../../src/handlers/ResetPasswordHandler.php';
 
 /**
  * No Database stuff required
@@ -30,26 +32,26 @@ final class ResetPasswordHandlerTest extends TestCase
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
         // must always reset all previously set $_POST entries
-        $_POST = array();
+        $_POST = [];
     }
 
-    public function testConstruct()
+    public function testConstruct(): void
     {
-        $this->assertNull($this->rph->GetNick());
-        $this->assertNull($this->rph->GetEmail());
+        static::assertNull($this->rph->GetNick());
+        static::assertNull($this->rph->GetEmail());
     }
 
-    public static function providerTestResetByNickOrEmail() : array 
+    public static function providerTestResetByNickOrEmail(): array
     {
-        return array(
+        return [
             // EMAIL_OR_NICK
             ['foo'],
-            ['foo@bar.com']
-        );
-    }    
+            ['foo@bar.com'],
+        ];
+    }
 
     #[DataProvider('providerTestResetByNickOrEmail')]
-    public function testReset_byNickOrEmail(string $nickOrEmail)
+    public function testReset_byNickOrEmail(string $nickOrEmail): void
     {
         // test that we interpret the passed value as email first and then as nick
         $_POST[ResetPasswordHandler::PARAM_EMAIL_OR_NICK] = $nickOrEmail;
@@ -77,24 +79,24 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->rph->HandleRequest($this->db);
     }
 
-    public static function providerTestReset_failsIfNickNorMailFound() : array 
+    public static function providerTestReset_failsIfNickNorMailFound(): array
     {
-        return array(
+        return [
             // EMAIL_OR_NICK
             ['notexistring'],
-            ['unknown@bar.com']
-        );
+            ['unknown@bar.com'],
+        ];
     }
 
     #[DataProvider('providerTestReset_failsIfNickNorMailFound')]
-    public function testReset_failsIfNickNorMailFound(string $nickOrEmail)
+    public function testReset_failsIfNickNorMailFound(string $nickOrEmail): void
     {
         $_POST[ResetPasswordHandler::PARAM_EMAIL_OR_NICK] = $nickOrEmail;
 
         // expect that the logger is called with the correct params when failing
         $this->logger->expects($this->once())->method('LogMessage')
             ->with(LogType::LOG_OPERATION_FAILED_NO_MATCHING_NICK_OR_EMAIL, 'Passed nick or email: ' . $nickOrEmail);
-                
+
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(ResetPasswordHandler::MSG_UNKNOWN_EMAIL_OR_NICK);
         $this->expectExceptionCode(ResetPasswordHandler::MSGCODE_BAD_PARAM);
@@ -102,7 +104,7 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->rph->HandleRequest($this->db);
     }
 
-    public function testReset_failsIfUserHasNoMail()
+    public function testReset_failsIfUserHasNoMail(): void
     {
         $_POST[ResetPasswordHandler::PARAM_EMAIL_OR_NICK] = 'foo';
 
@@ -113,7 +115,7 @@ final class ResetPasswordHandlerTest extends TestCase
         // expect that the logger is called with the correct params when failing
         $this->logger->expects($this->once())->method('LogMessageWithUserId')
             ->with(LogType::LOG_OPERATION_FAILED_USER_HAS_NO_EMAIL, $user);
-                
+
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(ResetPasswordHandler::MSG_USER_HAS_NO_EMAIL);
         $this->expectExceptionCode(ResetPasswordHandler::MSGCODE_BAD_PARAM);
@@ -121,7 +123,7 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->rph->HandleRequest($this->db);
     }
 
-    public function testReset_failsIfUserIsDummy()
+    public function testReset_failsIfUserIsDummy(): void
     {
         $_POST[ResetPasswordHandler::PARAM_EMAIL_OR_NICK] = 'foo';
 
@@ -133,7 +135,7 @@ final class ResetPasswordHandlerTest extends TestCase
         // expect that the logger is called with the correct params when failing
         $this->logger->expects($this->once())->method('LogMessageWithUserId')
             ->with(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $user);
-                
+
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(ResetPasswordHandler::MSG_DUMMY_USER);
         $this->expectExceptionCode(ResetPasswordHandler::MSGCODE_BAD_PARAM);
@@ -141,7 +143,7 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->rph->HandleRequest($this->db);
     }
 
-    public function testReset_failsIfUserIsInactive()
+    public function testReset_failsIfUserIsInactive(): void
     {
         $_POST[ResetPasswordHandler::PARAM_EMAIL_OR_NICK] = 'foo';
 
@@ -154,7 +156,7 @@ final class ResetPasswordHandlerTest extends TestCase
         // expect that the logger is called with the correct params when failing
         $this->logger->expects($this->once())->method('LogMessageWithUserId')
             ->with(LogType::LOG_OPERATION_FAILED_USER_IS_INACTIVE, $user);
-                
+
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(ResetPasswordHandler::MSG_USER_INACTIVE);
         $this->expectExceptionCode(ResetPasswordHandler::MSGCODE_BAD_PARAM);
@@ -162,7 +164,7 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->rph->HandleRequest($this->db);
     }
 
-    public function testReset_IfUserIsInactiveButNeedsMigration()
+    public function testReset_IfUserIsInactiveButNeedsMigration(): void
     {
         $_POST[ResetPasswordHandler::PARAM_EMAIL_OR_NICK] = 'foo';
 
@@ -188,7 +190,7 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->rph->HandleRequest($this->db);
     }
 
-    public function testReset_removeResetPasswordCodeIfMailingFails()
+    public function testReset_removeResetPasswordCodeIfMailingFails(): void
     {
         $_POST[ResetPasswordHandler::PARAM_EMAIL_OR_NICK] = 'foo';
 

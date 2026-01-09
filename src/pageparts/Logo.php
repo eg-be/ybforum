@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -19,7 +21,7 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/../YbForumConfig.php';
+require_once __DIR__ . '/../YbForumConfig.php';
 
 /**
  * Helper class to render the html for the logo
@@ -28,22 +30,20 @@ require_once __DIR__.'/../YbForumConfig.php';
  */
 class Logo
 {
-    public function __construct() 
-    {
-    }
-    
+    public function __construct() {}
+
     /**
      * Render a a HTML div element holding an img element with the logo
      * @return string
      */
-    public function renderHtmlDiv() : string
+    public function renderHtmlDiv(): string
     {
         $html = '<div style="max-width: 700px; margin: auto;">';
-        $html.= '<img style="max-width: 100%; height: auto;" src="'
+        $html .= '<img style="max-width: 100%; height: auto;" src="'
         . YbForumConfig::LOGO_FILE
         . '" alt="YB Forum"/>';
-        $html.= '</div>';
-        $html.= PHP_EOL;
+        $html .= '</div>';
+        $html .= PHP_EOL;
         return $html;
     }
 }

@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
-require_once __DIR__.'/../../src/handlers/RegisterUserHandler.php';
+require_once __DIR__ . '/../../src/handlers/RegisterUserHandler.php';
 
 /**
  * No Database stuff required
@@ -31,32 +33,32 @@ final class RegisterUserHandlerTest extends TestCase
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
         $_SERVER['REQUEST_URI'] = 'phpunit';
         // must always reset all previously set $_POST entries
-        $_POST = array();
+        $_POST = [];
     }
 
-    public function testConstruct()
+    public function testConstruct(): void
     {
-        $this->assertNull($this->ruh->GetNick());
-        $this->assertNull($this->ruh->GetEmail());
-        $this->assertNull($this->ruh->GetRegMsg());
-        $this->assertNull($this->ruh->GetPassword());
-        $this->assertNull($this->ruh->GetConfirmPassword());
+        static::assertNull($this->ruh->GetNick());
+        static::assertNull($this->ruh->GetEmail());
+        static::assertNull($this->ruh->GetRegMsg());
+        static::assertNull($this->ruh->GetPassword());
+        static::assertNull($this->ruh->GetConfirmPassword());
     }
 
-    public static function providerTestValidateRequiredParams() : array 
+    public static function providerTestValidateRequiredParams(): array
     {
-        return array(
+        return [
             // NICK     // EMAIL        // PASS         // FAILURE
             [null,      'foo@bar.com',  '12345678',     RegisterUserHandler::MSG_NICK_TOO_SHORT], // nick not set
             ['foob',    'foo@bar.com',  '12345678',     RegisterUserHandler::MSG_NICK_TOO_SHORT], // nick too short
             ['foobar',  null,           '12345678',     RegisterUserHandler::MSG_EMAIL_INVALID],    // mail not set
             ['foobar',  'foo@bar.com',  null,           RegisterUserHandler::MSG_PASSWORD_TOO_SHORT],    // pass not set
-            ['foobar',  'foo@bar.com',  '1234567',      RegisterUserHandler::MSG_PASSWORD_TOO_SHORT]    // pass too short
-        );
+            ['foobar',  'foo@bar.com',  '1234567',      RegisterUserHandler::MSG_PASSWORD_TOO_SHORT],    // pass too short
+        ];
     }
 
     #[DataProvider('providerTestValidateRequiredParams')]
-    public function testValidateRequiredParams(?string $nick, ?string $email, ?string $password, string $failMessage)
+    public function testValidateRequiredParams(?string $nick, ?string $email, ?string $password, string $failMessage): void
     {
         // test that we fail if required params are not set
         $_POST[RegisterUserHandler::PARAM_NICK] = $nick;
@@ -69,7 +71,7 @@ final class RegisterUserHandlerTest extends TestCase
         $this->ruh->HandleRequest($this->db);
     }
 
-    public function testPasswordsMustMatch()
+    public function testPasswordsMustMatch(): void
     {
         $_POST[RegisterUserHandler::PARAM_NICK] = 'nickname';
         $_POST[RegisterUserHandler::PARAM_EMAIL] = 'a@bar.com';
@@ -81,7 +83,7 @@ final class RegisterUserHandlerTest extends TestCase
         $this->ruh->HandleRequest($this->db);
     }
 
-    public function testRegisterUser_nickNotUnique()
+    public function testRegisterUser_nickNotUnique(): void
     {
         $_POST[RegisterUserHandler::PARAM_NICK] = 'nickname';
         $_POST[RegisterUserHandler::PARAM_EMAIL] = 'a@bar.com';
@@ -97,7 +99,7 @@ final class RegisterUserHandlerTest extends TestCase
         $this->ruh->HandleRequest($this->db);
     }
 
-    public function testRegisterUser_emailNotUnique()
+    public function testRegisterUser_emailNotUnique(): void
     {
         $_POST[RegisterUserHandler::PARAM_NICK] = 'nickname';
         $_POST[RegisterUserHandler::PARAM_EMAIL] = 'a@bar.com';
@@ -113,14 +115,14 @@ final class RegisterUserHandlerTest extends TestCase
         $this->ruh->HandleRequest($this->db);
     }
 
-    public function testRegisterUser_emailTestedForBlacklist()
+    public function testRegisterUser_emailTestedForBlacklist(): void
     {
         // todo: fixme, testing would be easier if we use composition over inheritance
         // especially for these static helper methods from the base-class that are called from inside this
-        $this->markTestSkipped('todo');
+        static::markTestSkipped('todo');
     }
 
-    public function testRegisterUser_userCreatedConfirmCodeSent()
+    public function testRegisterUser_userCreatedConfirmCodeSent(): void
     {
         $_POST[RegisterUserHandler::PARAM_NICK] = 'nickname';
         $_POST[RegisterUserHandler::PARAM_EMAIL] = 'a@bar.com';
@@ -144,7 +146,7 @@ final class RegisterUserHandlerTest extends TestCase
         $this->ruh->HandleRequest($this->db);
     }
 
-    public function testRegisterUser_confirmCodeSendFailsUserDeleted()
+    public function testRegisterUser_confirmCodeSendFailsUserDeleted(): void
     {
         // if the confirm code cannot be sent the user must be deleted again
         // as it can never ever be activated

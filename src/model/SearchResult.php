@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -24,10 +26,10 @@
  * search result entry. Provides static method(s) to create such entries.
  */
 
- require_once __DIR__.'/SearchDefinitions.php';
+require_once __DIR__ . '/SearchDefinitions.php';
 
-class SearchResult 
-{   
+class SearchResult
+{
     /**
      * Constructed only from pdo, hide constructor.
      * This constructor will assert that all members have a valid data
@@ -40,51 +42,50 @@ class SearchResult
         assert(!empty($this->nick));
         assert(!empty($this->creation_ts));
         $this->creation_ts_dt = new DateTime($this->creation_ts);
-        if(isset($this->relevance) === false)
-        {
+        if (isset($this->relevance) === false) {
             $this->relevance = 0.0;
         }
     }
-    
+
     /**
      * @return int Field idpost.
      */
-    public function GetPostId() : int
+    public function GetPostId(): int
     {
         return $this->idpost;
     }
-    
+
     /**
      * @return string Field title.
      */
-    public function GetTitle() : string
+    public function GetTitle(): string
     {
         return $this->title;
     }
-    
+
     /**
-     * @return string Non empty nick (field user_table.nick) who wrote this post. 
+     * @return string Non empty nick (field user_table.nick) who wrote this post.
      */
-    public function GetNick() : string
+    public function GetNick(): string
     {
         return $this->nick;
     }
-    
+
     /**
      * @return DateTime of the field creation_ts.
      */
-    public function GetPostTimestamp() : DateTime
+    public function GetPostTimestamp(): DateTime
     {
         return $this->creation_ts_dt;
-    }    
-    
+    }
+
     private int $idpost;
     private string $title;
     private int $has_content;
     private int $iduser;
     private string $nick;
     private string $creation_ts; // this is just the value from the corresponding field post_table class="creation_ts
-                                    // pdo->fetchObject() injects a string-value
+    // pdo->fetchObject() injects a string-value
     private DateTime $creation_ts_dt; // the same but converted to a DateTime
     private float $relevance;
 }

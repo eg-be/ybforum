@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -28,25 +30,25 @@ namespace profile;
  *
  * @author Elias Gerber
  */
-final class ProfileConfig 
+final class ProfileConfig
 {
     /**
      * @var int Set to 1 to enable timing profiling.
      */
-    const MEASURE_TIMING = 0;
-    
+    public const MEASURE_TIMING = 0;
+
     /**
      * @var int Set to 1 to enable memory profiling.
      */
-    const MEASURE_MEMORY = 0;
-    
+    public const MEASURE_MEMORY = 0;
+
     /**
      * @var int Set to 1 to error_log all results.
      */
-    const ERRORLOG_MEASURE_RESULTS = 0;
-    
+    public const ERRORLOG_MEASURE_RESULTS = 0;
+
     /**
      * @var int Set to 1 to echo all results as a HTML div.
      */
-    const PRINT_MEASURE_RESULTS = 1;
+    public const PRINT_MEASURE_RESULTS = 1;
 }

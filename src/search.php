@@ -3,7 +3,7 @@
 
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -20,41 +20,34 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/model/ForumDb.php';
-require_once __DIR__.'/helpers/ErrorHandler.php';
-require_once __DIR__.'/pageparts/PostList.php';
-require_once __DIR__.'/pageparts/SearchForm.php';
-require_once __DIR__.'/pageparts/SearchResultsView.php';
-require_once __DIR__.'/pageparts/TopNavigation.php';
-require_once __DIR__.'/pageparts/Logo.php';
-require_once __DIR__.'/handlers/SearchHandler.php';
+require_once __DIR__ . '/model/ForumDb.php';
+require_once __DIR__ . '/helpers/ErrorHandler.php';
+require_once __DIR__ . '/pageparts/PostList.php';
+require_once __DIR__ . '/pageparts/SearchForm.php';
+require_once __DIR__ . '/pageparts/SearchResultsView.php';
+require_once __DIR__ . '/pageparts/TopNavigation.php';
+require_once __DIR__ . '/pageparts/Logo.php';
+require_once __DIR__ . '/handlers/SearchHandler.php';
 
-include __DIR__.'/profile/profile_start.php';
+include __DIR__ . '/profile/profile_start.php';
 
-try
-{
+try {
     // Create a db for later use
     $db = new ForumDb();
-    
+
     // Check what we have to do
     $searchHandler = null;
-    if(filter_input(INPUT_GET, 'search', FILTER_VALIDATE_INT) > 0)
-    {
+    if (filter_input(INPUT_GET, 'search', FILTER_VALIDATE_INT) > 0) {
         // Try to search using the posted search data
-        try
-        {
+        try {
             $searchHandler = new SearchHandler();
             $searchHandler->HandleRequest($db);
             // searching succeeeded
-        }
-        catch(InvalidArgumentException $ex)
-        {
+        } catch (InvalidArgumentException $ex) {
             // Searching failed. Reshow the form with some error later
         }
     }
-}
-catch(Exception $ex)
-{
+} catch (Exception $ex) {
     ErrorHandler::OnException($ex);
 }
 ?>
@@ -70,64 +63,56 @@ catch(Exception $ex)
     </head>
     <body>
         <?php
-        try
-        {
+        try {
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             ErrorHandler::OnException($ex);
         }
-        ?>
-        <div class="fullwidthcenter generictitle">Beitragssuche</div>    
+?>
+        <div class="fullwidthcenter generictitle">Beitragssuche</div>
         <hr>
         <?php
-        try
-        {
-            $topNav = new TopNavigation();
-            echo $topNav->renderHtmlDiv();
-        }
-        catch(Exception $ex)
-        {
-            ErrorHandler::OnException($ex);
-        }
-        ?>
+try {
+    $topNav = new TopNavigation();
+    echo $topNav->renderHtmlDiv();
+} catch (Exception $ex) {
+    ErrorHandler::OnException($ex);
+}
+?>
         <hr>
         <?php
-        // render an error from a previous search run
-        if($searchHandler && $searchHandler->HasException())
-        {
-            $searchException = $searchHandler->GetLastException();
-            echo '<div id="status" class="fullwidthcenter" style="color: red;">'
-                . '<span class="fbold">Fehler: </span>'
-                . $searchException->GetMessage()
-                . '</div>';
-        }
-        ?>
+// render an error from a previous search run
+if ($searchHandler && $searchHandler->HasException()) {
+    $searchException = $searchHandler->GetLastException();
+    echo '<div id="status" class="fullwidthcenter" style="color: red;">'
+        . '<span class="fbold">Fehler: </span>'
+        . $searchException->GetMessage()
+        . '</div>';
+}
+?>
         <div>
         <?php
-        // Alwyas render the form to start a new search
-        $searchForm = new SearchForm($searchHandler);
-        echo $searchForm->RenderHtmlForm();
-        ?>
+// Alwyas render the form to start a new search
+$searchForm = new SearchForm($searchHandler);
+echo $searchForm->RenderHtmlForm();
+?>
         </div>
         <?php
-        // If we have some pending results, render them
-        if($searchHandler && $searchHandler->HasResults())
-        {
-            $searchResultsView = new SearchResultsView($searchHandler);
-            echo $searchResultsView->RenderResultsNavigationDiv();
-            echo $searchResultsView->RenderSortDiv();
-            echo $searchResultsView->RenderResultsDiv();
-            echo $searchResultsView->RenderResultsNavigationDiv();
-        }
-        ?>
+// If we have some pending results, render them
+if ($searchHandler && $searchHandler->HasResults()) {
+    $searchResultsView = new SearchResultsView($searchHandler);
+    echo $searchResultsView->RenderResultsNavigationDiv();
+    echo $searchResultsView->RenderSortDiv();
+    echo $searchResultsView->RenderResultsDiv();
+    echo $searchResultsView->RenderResultsNavigationDiv();
+}
+?>
         <?php
-        include __DIR__.'/pageparts/StandWithUkr.php';
-        ?>        
+include __DIR__ . '/pageparts/StandWithUkr.php';
+?>
         <?php
-        include __DIR__.'/profile/profile_end.php';
-        ?>        
+include __DIR__ . '/profile/profile_end.php';
+?>
     </body>
 </html>

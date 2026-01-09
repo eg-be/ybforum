@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -21,41 +23,32 @@
 
 namespace standwithukr;
 
-
-require_once(__DIR__.'/../YbForumConfig.php');
+require_once(__DIR__ . '/../YbForumConfig.php');
 
 /**
- * @author Elias Gerber 
+ * @author Elias Gerber
  */
-class StandWithUkr {
-
+class StandWithUkr
+{
     /**
      */
-    public function __construct()
-    {
-    }
-    
+    public function __construct() {}
+
     /**
      * Render a div for a UKR flag
      */
-    public function renderHtmlDiv() : string
+    public function renderHtmlDiv(): string
     {
         $htmlStr = '<div class="standwithukr" title="We stand with Ukraine" id="we-stand-with-ukraine"></div>';
         return $htmlStr;
-    }    
+    }
 }
 
-try
-{
-    if (\YbForumConfig::STAND_WITH_UKR === true )
-    {
+try {
+    if (\YbForumConfig::STAND_WITH_UKR === true) {
         $swu = new StandWithUkr();
         echo $swu->renderHtmlDiv();
     }
-}
-catch(\Exception $ex)
-{
+} catch (\Exception $ex) {
     \ErrorHandler::OnException($ex);
 }
-
-?>

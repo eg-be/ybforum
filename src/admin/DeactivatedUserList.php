@@ -1,21 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
-require_once __DIR__.'/../model/ForumDb.php';
+require_once __DIR__ . '/../model/ForumDb.php';
 
 /**
  * Description of DeactivatedUserList
  *
  * @author eli
  */
-class DeactivatedUserList {
-    
-    public function RenderHtmlDiv(ForumDb $db) : string
+class DeactivatedUserList
+{
+    public function RenderHtmlDiv(ForumDb $db): string
     {
         $haveSome = false;
         $query = 'SELECT d.iduser AS deactivated_id, '
@@ -29,35 +31,31 @@ class DeactivatedUserList {
         $stmt = $db->prepare($query);
         $stmt->execute();
         $htmlTable = '<div><table>';
-        $htmlTable.= '<tr>'
+        $htmlTable .= '<tr>'
                 . '<th>Nick (UserId)</th>'
                 . '<th>Email</th>'
                 . '<th>Deaktviert seit</th>'
                 . '<th>Deaktivert von</th>'
                 . '<th>Grund</th>'
                 . '</tr>';
-        while($row = $stmt->fetch())
-        {
+        while ($row = $stmt->fetch()) {
             $haveSome = true;
             $deactivatedDate = new DateTime($row['deactivated_ts']);
-            $htmlTable.= '<tr>';
-            $htmlTable.= '<td>' . htmlspecialchars($row['deactivated_nick']) 
+            $htmlTable .= '<tr>';
+            $htmlTable .= '<td>' . htmlspecialchars($row['deactivated_nick'])
                     . ' (' . $row['deactivated_id'] . ')</td>';
-            $htmlTable.= '<td>' . htmlspecialchars($row['deactivated_email']) . '</td>';
-            $htmlTable.= '<td>' . $deactivatedDate->format('d.m.Y H:i:s') . '</td>';
-            $htmlTable.= '<td>' . htmlspecialchars($row['deactivated_bynick']) . '</td>';
-            $htmlTable.= '<td>' . htmlspecialchars($row['reason']) . '</td>';
-            $htmlTable.= '</tr>';
+            $htmlTable .= '<td>' . htmlspecialchars($row['deactivated_email']) . '</td>';
+            $htmlTable .= '<td>' . $deactivatedDate->format('d.m.Y H:i:s') . '</td>';
+            $htmlTable .= '<td>' . htmlspecialchars($row['deactivated_bynick']) . '</td>';
+            $htmlTable .= '<td>' . htmlspecialchars($row['reason']) . '</td>';
+            $htmlTable .= '</tr>';
         }
-        $htmlTable.= '</table></div>';
-        if($haveSome)
-        {
+        $htmlTable .= '</table></div>';
+        if ($haveSome) {
             return $htmlTable;
-        }
-        else
-        {
+        } else {
             return '<div class="fitalic noTableEntries">Keine deaktivierten Stammposter vorhanden</div>';
         }
     }
-    
+
 }

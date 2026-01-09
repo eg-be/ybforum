@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -19,80 +21,74 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/../handlers/PostEntryHandler.php';
+require_once __DIR__ . '/../handlers/PostEntryHandler.php';
 
 /**
  * Prints a form to create a new post and some usage hints.
- * 
+ *
  * @author Elias Gerber
  */
-class PostEntryForm 
+class PostEntryForm
 {
     /**
-     * Create a form that will optionally use values from the passed 
+     * Create a form that will optionally use values from the passed
      * PostEntryHandler instance.
      * @param ?Post $parentPost Null or a Post, holding the parent post of
      * this post.
      * @param ?PostEntryHandler $postEntryHandler Null or a PostEntryHandler.
      */
-    public function __construct(?Post $parentPost, ?PostEntryHandler $postEntryHandler) 
+    public function __construct(?Post $parentPost, ?PostEntryHandler $postEntryHandler)
     {
         $this->m_parentPost = $parentPost;
         $this->m_peh = $postEntryHandler;
     }
-    
+
     /**
      * Render a a HTML form element holding all input fields required.
      * On submit, calls 'postentry.php?post=1'. Needs a javascript
      * function 'preview()' that can create a preview of the post.
      * @return string
      */
-    public function renderHtmlForm() : string
+    public function renderHtmlForm(): string
     {
         // If the parent post has a link and/or img, re-use that value
         // but allow the value to be overridden by the current user-values
         $imgUrl = '';
         $linkText = '';
         $linkUrl = '';
-        if($this->m_peh)
-        {
+        if ($this->m_peh) {
             // re-use user values first, from an existing PostEntryHandler:
             $imgUrl = $this->m_peh->GetImgUrl();
             $linkText = $this->m_peh->GetLinkText();
             $linkUrl = $this->m_peh->GetLinkUrl();
-        } 
-        else if($this->m_parentPost)
-        {
+        } elseif ($this->m_parentPost) {
             // If there is a parent-post, use values from that parent-post
             // note: We want users to allow to set the fields to empty values,
             // so this here must be an else part (PostEntryHandler shall win)
-            if($this->m_parentPost->HasImgUrl())
-            {
+            if ($this->m_parentPost->HasImgUrl()) {
                 $imgUrl = $this->m_parentPost->GetImgUrl();
             }
-            if($this->m_parentPost->HasLinkText())
-            {
+            if ($this->m_parentPost->HasLinkText()) {
                 $linkText = $this->m_parentPost->GetLinkText();
             }
-            if($this->m_parentPost->HasLinkUrl())
-            {
+            if ($this->m_parentPost->HasLinkUrl()) {
                 $linkUrl = $this->m_parentPost->GetLinkUrl();
             }
         }
-        
-        $html =
-           '<form id="postform" method="post" action="postentry.php?post=1" accept-charset="utf-8">
+
+        $html
+           = '<form id="postform" method="post" action="postentry.php?post=1" accept-charset="utf-8">
             <table style="margin: auto;">
-                <tr><td><span class="fbold">Name</span> (<a href="register.php">Stammposterregistrierung</a>):</td><td><input type="text" autocomplete="username" value="' . ($this->m_peh ? $this->m_peh->GetNick() : '') .'" name="' . PostEntryHandler::PARAM_NICK . '" size="20" maxlength="60"/></td></tr>
+                <tr><td><span class="fbold">Name</span> (<a href="register.php">Stammposterregistrierung</a>):</td><td><input type="text" autocomplete="username" value="' . ($this->m_peh ? $this->m_peh->GetNick() : '') . '" name="' . PostEntryHandler::PARAM_NICK . '" size="20" maxlength="60"/></td></tr>
                 <tr><td><span class="fbold">Stammposterpasswort:</span></td><td><input type="password" autocomplete="current-password" value="' . ($this->m_peh ? $this->m_peh->GetPassword() : '') . '" name="' . PostEntryHandler::PARAM_PASS . '" size="20" maxlength="60"/></td></tr>
                 <tr><td><span class="fbold">Mailadresse</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . ($this->m_peh ? $this->m_peh->GetEmail() : '') . '" name="' . PostEntryHandler::PARAM_EMAIL . '" size="30" maxlength="254"/></td></tr>
                 <tr><td>Betreff:</td><td>' . $this->renderHtmlFormTitleInput() . '</td></tr>
-                <tr><td colspan="2">Textformattierung: 
+                <tr><td colspan="2">Textformattierung:
                         <img class="addtextstyle" src="img/bold.gif" alt="bold" onclick="formatText(\'b\')"/>
                         <img class="addtextstyle" src="img/italic.gif" alt="italic" onclick="formatText(\'i\')"/>
                         <img class="addtextstyle" src="img/underline.gif" alt="underline" onclick="formatText(\'u\')"/>
                     </td></tr>
-                <tr><td colspan="2">' . $this->renderHtmlFormContentTextArea() . '</td></tr>                
+                <tr><td colspan="2">' . $this->renderHtmlFormContentTextArea() . '</td></tr>
                 <tr><td colspan="2">' . $this->renderHtmlFormParentPostIdInput() . '</td></tr>
                 <tr><td><span class="fbold">URL Link</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . $linkUrl . '" id="post_linkurl" name="' . PostEntryHandler::PARAM_LINKURL . '" size="50" maxlength="255"/></td></tr>
                 <tr><td><span class="fbold">URL Link Text</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . $linkText . '" id="post_linktext" name="' . PostEntryHandler::PARAM_LINKTEXT . '" size="20" maxlength="255"/></td></tr>
@@ -100,23 +96,23 @@ class PostEntryForm
                 <tr><td colspan="2">
                         <input type="submit" value="Eintrag senden"/>
                         <input type="button" value="Vorschau" onclick="preview();"/>
-                        <input type="reset" value="Eintrag löschen"/>                    
+                        <input type="reset" value="Eintrag löschen"/>
                     </td></tr>
             </table>
             </form>';
         return $html;
     }
-    
+
     /**
      * Renders a HTML table element holding some hints how to format a post.
-     * Relies on a javascript function 'addObject()' to directly add format 
+     * Relies on a javascript function 'addObject()' to directly add format
      * objects on to the post.
      * @return string
      */
-    public function renderUsageTable() : string
+    public function renderUsageTable(): string
     {
-        $html = 
-           '<table style="margin: auto">
+        $html
+           = '<table style="margin: auto">
                 <tr><td colspan="2" class="fbold">Tags für Smilies</td></tr>
                 <tr><td colspan="2">
                         <table>
@@ -150,39 +146,36 @@ class PostEntryForm
             </table>';
         return $html;
     }
-    
+
     /**
      * Returns the HTML input element for the title. If a PostEntryHandler
      * has been passed upon construction, the title value of that
-     * PostEntryHandler will be used as default value. 
+     * PostEntryHandler will be used as default value.
      * Else, if a parant post has been passed
      * on construction, a title holding 'Re: <parant-title>' will be used as
      * default value. Else the default value is empty.
      * @return string
      */
-    private function renderHtmlFormTitleInput() : string
+    private function renderHtmlFormTitleInput(): string
     {
         // If a title was already set, use that one
         $title = '';
-        if($this->m_peh)
-        {
+        if ($this->m_peh) {
             $title = $this->m_peh->GetTitle();
         }
-        if(!$title && $this->m_parentPost)
-        {
+        if (!$title && $this->m_parentPost) {
             $title = $this->m_parentPost->GetTitle();
-            if(substr($title, 0, 3) !== 'Re:')
-            {
+            if (substr($title, 0, 3) !== 'Re:') {
                 $title = 'Re: ' . $title;
             }
         }
         $htmlString = '<input type="text" '
             . 'name="' . PostEntryHandler::PARAM_TITLE . '" size="50" '
-            . 'maxlength="100" value="'. htmlspecialchars($title)
+            . 'maxlength="100" value="' . htmlspecialchars($title)
             . '"/>';
         return $htmlString;
     }
-    
+
     /**
      * Returns a HTML textarea element to hold the actual content of the post.
      * If a PostEntryHandler has been passed upon construction, the content
@@ -193,16 +186,14 @@ class PostEntryForm
      * Else, the default value is empty.
      * @return string
      */
-    private function renderHtmlFormContentTextArea() : string
+    private function renderHtmlFormContentTextArea(): string
     {
         // Reuse an old content sent before
         $content = '';
-        if($this->m_peh)
-        {
+        if ($this->m_peh) {
             $content = $this->m_peh->GetContent();
         }
-        if(!$content && $this->m_parentPost && $this->m_parentPost->HasContent())
-        {
+        if (!$content && $this->m_parentPost && $this->m_parentPost->HasContent()) {
             $content = '[i]' . $this->m_parentPost->GetContent() . '[/i]';
         }
         $htmlString = '<textarea name="' . PostEntryHandler::PARAM_CONTENT . '" '
@@ -210,23 +201,20 @@ class PostEntryForm
             . (is_null($content) ? '' : htmlspecialchars($content)) . '</textarea>';
         return $htmlString;
     }
-    
+
     /**
      * Renders a HTML input that is hidden, holding the idpost value of the
      * parent post (if set during construction), or 0 otherwise.
      * @return string
      */
-    private function renderHtmlFormParentPostIdInput() : string
+    private function renderHtmlFormParentPostIdInput(): string
     {
         $parentPostId = 0;
         // If this form has been created as a direct consequence of a reply,
         // a parent post is set
-        if($this->m_parentPost)
-        {
+        if ($this->m_parentPost) {
             $parentPostId = $this->m_parentPost->GetId();
-        }
-        else if($this->m_peh && $this->m_peh->GetParentPostId() > 0)
-        {
+        } elseif ($this->m_peh && $this->m_peh->GetParentPostId() > 0) {
             // or, if we have already failed once, all information is in the post-handler
             $parentPostId = $this->m_peh->GetParentPostId();
         }
@@ -234,7 +222,7 @@ class PostEntryForm
             . 'name="' . PostEntryHandler::PARAM_PARENTPOSTID . '" value="' . $parentPostId . '"/>';
         return $htmlString;
     }
-    
+
     private ?Post $m_parentPost;
     private ?PostEntryHandler $m_peh;
 }

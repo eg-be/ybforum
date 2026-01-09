@@ -3,7 +3,7 @@
 
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -20,29 +20,25 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/YbForumConfig.php';
-require_once __DIR__.'/model/ForumDb.php';
-require_once __DIR__.'/pageparts/PageNavigationView.php';
-require_once __DIR__.'/pageparts/ThreadIndexView.php';
-require_once __DIR__.'/pageparts/TopNavigation.php';
-require_once __DIR__.'/pageparts/Logo.php';
-require_once __DIR__.'/helpers/ErrorHandler.php';
-include __DIR__.'/profile/profile_start.php';
+require_once __DIR__ . '/YbForumConfig.php';
+require_once __DIR__ . '/model/ForumDb.php';
+require_once __DIR__ . '/pageparts/PageNavigationView.php';
+require_once __DIR__ . '/pageparts/ThreadIndexView.php';
+require_once __DIR__ . '/pageparts/TopNavigation.php';
+require_once __DIR__ . '/pageparts/Logo.php';
+require_once __DIR__ . '/helpers/ErrorHandler.php';
+include __DIR__ . '/profile/profile_start.php';
 
-try
-{
+try {
     // Read the arguments required
     $pageNr = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT);
-    if(!$pageNr || $pageNr < 1)
-    {
+    if (!$pageNr || $pageNr < 1) {
         $pageNr = 1;
     }
 
     // And create a db connection for later use
     $db = new ForumDb();
-}
-catch(Exception $ex)
-{
+} catch (Exception $ex) {
     ErrorHandler::OnException($ex);
 }
 ?>
@@ -60,73 +56,66 @@ catch(Exception $ex)
     </head>
     <body>
         <?php
-        try
-        {
+        try {
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             ErrorHandler::OnException($ex);
         }
-        ?>
+?>
         <hr>
         <?php
-        try
-        {
-            $topNav = new TopNavigation();
-            echo $topNav->renderHtmlDiv();
-        }
-        catch(Exception $ex)
-        {
-            ErrorHandler::OnException($ex);
-        }
-        ?>
+try {
+    $topNav = new TopNavigation();
+    echo $topNav->renderHtmlDiv();
+} catch (Exception $ex) {
+    ErrorHandler::OnException($ex);
+}
+?>
         <hr>
         <div class="fullwidthcenter fbold">Seiten des Forums</div>
         <div class="fullwidthcenter">
         <?php
-        // Add the navigation
-        try
-        {
-            $pageNav = new PageNavigationView($pageNr, 
-                YbForumConfig::MAX_THREADS_PER_PAGE,
-                YbForumConfig::MAX_PAGE_NAV_ELEMENTS, $db->GetThreadCount());
-            echo $pageNav->renderHtmlDivContent();
-        }
-        catch(Exception $ex)
-        {
-            ErrorHandler::OnException($ex);
-        }
-        ?>
+// Add the navigation
+try {
+    $pageNav = new PageNavigationView(
+        $pageNr,
+        YbForumConfig::MAX_THREADS_PER_PAGE,
+        YbForumConfig::MAX_PAGE_NAV_ELEMENTS,
+        $db->GetThreadCount()
+    );
+    echo $pageNav->renderHtmlDivContent();
+} catch (Exception $ex) {
+    ErrorHandler::OnException($ex);
+}
+?>
         </div>
         <hr>
         <div>
         <?php
-        // Add the threads of this page
-        try
-        {
-            $threadIndex = new ThreadIndexView($db, 
-                YbForumConfig::MAX_THREADS_PER_PAGE,  $pageNr);
-            $threadIndex->renderHtmlDivPerThread(function($htmlPerThread)
-            {
-                // we get one callback per thread, containg a div with that thread.
-                // note: threads with thousends of posts might still make the
-                // memory explode
-                echo $htmlPerThread;
-            });
-        }
-        catch(Exception $ex)
-        {
-            ErrorHandler::OnException($ex);
-        }
-        ?>
+// Add the threads of this page
+try {
+    $threadIndex = new ThreadIndexView(
+        $db,
+        YbForumConfig::MAX_THREADS_PER_PAGE,
+        $pageNr
+    );
+    $threadIndex->renderHtmlDivPerThread(function ($htmlPerThread): void {
+        // we get one callback per thread, containg a div with that thread.
+        // note: threads with thousends of posts might still make the
+        // memory explode
+        echo $htmlPerThread;
+    });
+} catch (Exception $ex) {
+    ErrorHandler::OnException($ex);
+}
+?>
         </div>
         <?php
-        include __DIR__.'/pageparts/StandWithUkr.php';
-        ?>
+include __DIR__ . '/pageparts/StandWithUkr.php';
+?>
         <?php
-        include __DIR__.'/profile/profile_end.php';
-        ?>
+include __DIR__ . '/profile/profile_end.php';
+?>
     </body>
 </html>

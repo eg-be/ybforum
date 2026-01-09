@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -26,42 +28,40 @@ namespace profile;
  *
  * @author Elias Gerber
  */
-class Memory 
+class Memory
 {
-
-    public function __construct(string $msgPrefix = '') 
+    public function __construct(string $msgPrefix = '')
     {
         $this->m_msgPrefix = $msgPrefix;
     }
-    
-    public function Measure() : void
+
+    public function Measure(): void
     {
         $this->m_peakBytes = memory_get_peak_usage();
         $this->m_currentBytes = memory_get_usage();
     }
-    
-    private function GetMessage() : string
+
+    private function GetMessage(): string
     {
         $msg = '';
-        if(!empty($this->m_msgPrefix))
-        {
+        if (!empty($this->m_msgPrefix)) {
             $msg = $this->m_msgPrefix . ': ';
         }
-        $msg.= 'Memory peak: ' . $this->m_peakBytes . 'Bytes; Current usage: '
+        $msg .= 'Memory peak: ' . $this->m_peakBytes . 'Bytes; Current usage: '
                 . $this->m_currentBytes . 'Bytes.';
         return $msg;
-    }    
-    
-    
-    public function Log() : void
+    }
+
+
+    public function Log(): void
     {
         error_log($this->GetMessage(), 0);
     }
-    
-    public function renderHtmlDiv() : string
+
+    public function renderHtmlDiv(): string
     {
         return '<div>' . $this->GetMessage() . '</div>';
-    }    
+    }
 
     private string $m_msgPrefix;
     private int $m_peakBytes;

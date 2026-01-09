@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
-require_once __DIR__.'/../../src/helpers/Mailer.php';
+require_once __DIR__ . '/../../src/helpers/Mailer.php';
 
 
 /**
@@ -27,31 +29,31 @@ final class MailerTest extends TestCase
     }
 
     #[AllowMockObjectsWithoutExpectations]
-    public function testConstruct() : void
+    public function testConstruct(): void
     {
         // construct without injecting anything
         $mailer = new Mailer();
         $mailFrom = YbForumConfig::MAIL_FROM_NAME . ' <' . YbForumConfig::MAIL_FROM . '>';
-        $this->assertEquals($mailFrom, $mailer->getMailFrom());
-        $this->assertEquals(YbForumConfig::MAIL_FROM, $mailer->getReturnPath());
-        $this->assertEquals(YbForumConfig::MAIL_ALL_BCC, $mailer->getAllMailBcc());
-        $this->assertEquals('text/plain; charset=utf-8', $mailer->getContentType());
-     
-        $this->assertInstanceOf(Logger::class, $mailer->GetLogger());
-        $this->assertInstanceOf(PhpMailer::class, $mailer->GetMailerDelegate());
+        static::assertEquals($mailFrom, $mailer->getMailFrom());
+        static::assertEquals(YbForumConfig::MAIL_FROM, $mailer->getReturnPath());
+        static::assertEquals(YbForumConfig::MAIL_ALL_BCC, $mailer->getAllMailBcc());
+        static::assertEquals('text/plain; charset=utf-8', $mailer->getContentType());
+
+        static::assertInstanceOf(Logger::class, $mailer->GetLogger());
+        static::assertInstanceOf(PhpMailer::class, $mailer->GetMailerDelegate());
     }
 
 
-    public static function providerSendingSucceeds() : array 
+    public static function providerSendingSucceeds(): array
     {
-        return array(
+        return [
             [true],
-            [false]
-        );
+            [false],
+        ];
     }
 
     #[DataProvider('providerSendingSucceeds')]
-    public function testSendMigrateUserConfirmMessage(bool $sendingSucceeds) : void
+    public function testSendMigrateUserConfirmMessage(bool $sendingSucceeds): void
     {
         $mailto = 'user@mail.com';
         $expectedSubject = '1898-Forum Migration Stammposter';
@@ -62,9 +64,7 @@ final class MailerTest extends TestCase
         $matcher = $this->once();
         $this->delegate->expects($matcher)
             ->method('sendMessage')
-            ->willReturnCallback(function(string $to, string $subject, string $content, $headers) 
-                use ($matcher, $mailto, $expectedSubject, $expectedLink, $sendingSucceeds)
-            {
+            ->willReturnCallback(function (string $to, string $subject, string $content, $headers) use ($matcher, $mailto, $expectedSubject, $expectedLink, $sendingSucceeds) {
                 $this->assertEquals($mailto, $to);
                 $this->assertEquals($expectedSubject, $subject);
                 $this->assertStringContainsString($expectedLink, $content);
@@ -72,14 +72,11 @@ final class MailerTest extends TestCase
             });
 
         // and the logger in case of success / failure
-        if($sendingSucceeds)
-        {
+        if ($sendingSucceeds) {
             $this->logger->expects($this->once())
                 ->method('LogMessage')
                 ->with(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $mailto);
-        }
-        else
-        {
+        } else {
             $this->logger->expects($this->once())
                 ->method('LogMessage')
                 ->with(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $mailto);
@@ -89,7 +86,7 @@ final class MailerTest extends TestCase
     }
 
     #[DataProvider('providerSendingSucceeds')]
-    public function testSendRegisterUserConfirmMessage(bool $sendingSucceeds) : void
+    public function testSendRegisterUserConfirmMessage(bool $sendingSucceeds): void
     {
         $mailto = 'user@mail.com';
         $expectedSubject = '1898-Forum Registrierung Stammposter';
@@ -100,9 +97,7 @@ final class MailerTest extends TestCase
         $matcher = $this->once();
         $this->delegate->expects($matcher)
             ->method('sendMessage')
-            ->willReturnCallback(function(string $to, string $subject, string $content, $headers) 
-                use ($matcher, $mailto, $expectedSubject, $expectedLink, $sendingSucceeds)
-            {
+            ->willReturnCallback(function (string $to, string $subject, string $content, $headers) use ($matcher, $mailto, $expectedSubject, $expectedLink, $sendingSucceeds) {
                 $this->assertEquals($mailto, $to);
                 $this->assertEquals($expectedSubject, $subject);
                 $this->assertStringContainsString($expectedLink, $content);
@@ -110,14 +105,11 @@ final class MailerTest extends TestCase
             });
 
         // and the logger in case of success / failure
-        if($sendingSucceeds)
-        {
+        if ($sendingSucceeds) {
             $this->logger->expects($this->once())
                 ->method('LogMessage')
                 ->with(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $mailto);
-        }
-        else
-        {
+        } else {
             $this->logger->expects($this->once())
                 ->method('LogMessage')
                 ->with(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $mailto);
@@ -125,9 +117,9 @@ final class MailerTest extends TestCase
 
         $this->mailer->SendRegisterUserConfirmMessage($mailto, 'nick', $code);
     }
-    
+
     #[DataProvider('providerSendingSucceeds')]
-    public function testSendUpdateEmailConfirmMessage(bool $sendingSucceeds) : void
+    public function testSendUpdateEmailConfirmMessage(bool $sendingSucceeds): void
     {
         $mailto = 'user@mail.com';
         $expectedSubject = '1898-Forum aktualisierte Stammposter-Mailadresse bestaetigen';
@@ -138,9 +130,7 @@ final class MailerTest extends TestCase
         $matcher = $this->once();
         $this->delegate->expects($matcher)
             ->method('sendMessage')
-            ->willReturnCallback(function(string $to, string $subject, string $content, $headers) 
-                use ($matcher, $mailto, $expectedSubject, $expectedLink, $sendingSucceeds)
-            {
+            ->willReturnCallback(function (string $to, string $subject, string $content, $headers) use ($matcher, $mailto, $expectedSubject, $expectedLink, $sendingSucceeds) {
                 $this->assertEquals($mailto, $to);
                 $this->assertEquals($expectedSubject, $subject);
                 $this->assertStringContainsString($expectedLink, $content);
@@ -148,14 +138,11 @@ final class MailerTest extends TestCase
             });
 
         // and the logger in case of success / failure
-        if($sendingSucceeds)
-        {
+        if ($sendingSucceeds) {
             $this->logger->expects($this->once())
                 ->method('LogMessage')
                 ->with(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $mailto);
-        }
-        else
-        {
+        } else {
             $this->logger->expects($this->once())
                 ->method('LogMessage')
                 ->with(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $mailto);
@@ -165,7 +152,7 @@ final class MailerTest extends TestCase
     }
 
     #[DataProvider('providerSendingSucceeds')]
-    public function testSendResetPasswordMessage(bool $sendingSucceeds) : void
+    public function testSendResetPasswordMessage(bool $sendingSucceeds): void
     {
         $mailto = 'user@mail.com';
         $expectedSubject = '1898-Forum Stammposter-Passwort zuruecksetzen';
@@ -176,9 +163,7 @@ final class MailerTest extends TestCase
         $matcher = $this->once();
         $this->delegate->expects($matcher)
             ->method('sendMessage')
-            ->willReturnCallback(function(string $to, string $subject, string $content, $headers) 
-                use ($matcher, $mailto, $expectedSubject, $expectedLink, $sendingSucceeds)
-            {
+            ->willReturnCallback(function (string $to, string $subject, string $content, $headers) use ($matcher, $mailto, $expectedSubject, $expectedLink, $sendingSucceeds) {
                 $this->assertEquals($mailto, $to);
                 $this->assertEquals($expectedSubject, $subject);
                 $this->assertStringContainsString($expectedLink, $content);
@@ -186,14 +171,11 @@ final class MailerTest extends TestCase
             });
 
         // and the logger in case of success / failure
-        if($sendingSucceeds)
-        {
+        if ($sendingSucceeds) {
             $this->logger->expects($this->once())
                 ->method('LogMessage')
                 ->with(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $mailto);
-        }
-        else
-        {
+        } else {
             $this->logger->expects($this->once())
                 ->method('LogMessage')
                 ->with(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $mailto);
@@ -202,7 +184,7 @@ final class MailerTest extends TestCase
         $this->mailer->SendResetPasswordMessage($mailto, 'nick', $code);
     }
 
-    public function testSendNotifyUserAcceptedEmail() : void
+    public function testSendNotifyUserAcceptedEmail(): void
     {
         $mailto = 'admin@mail.com';
         $expectedSubject = 'Stammposter freigeschaltet';
@@ -211,9 +193,7 @@ final class MailerTest extends TestCase
         $matcher = $this->once();
         $this->delegate->expects($matcher)
             ->method('sendMessage')
-            ->willReturnCallback(function(string $to, string $subject, string $content, $headers) 
-                use ($matcher, $mailto, $expectedSubject)
-            {
+            ->willReturnCallback(function (string $to, string $subject, string $content, $headers) use ($matcher, $mailto, $expectedSubject) {
                 $this->assertEquals($mailto, $to);
                 $this->assertEquals($expectedSubject, $subject);
                 return true;
@@ -222,7 +202,7 @@ final class MailerTest extends TestCase
         $this->mailer->SendNotifyUserAcceptedEmail($mailto, 'nick');
     }
 
-    public function testSendNotifyUserDeniedEmail() : void
+    public function testSendNotifyUserDeniedEmail(): void
     {
         $mailto = 'admin@mail.com';
         $expectedSubject = 'Registrierung abgelehnt';
@@ -231,9 +211,7 @@ final class MailerTest extends TestCase
         $matcher = $this->once();
         $this->delegate->expects($matcher)
             ->method('sendMessage')
-            ->willReturnCallback(function(string $to, string $subject, string $content, $headers) 
-                use ($matcher, $mailto, $expectedSubject)
-            {
+            ->willReturnCallback(function (string $to, string $subject, string $content, $headers) use ($matcher, $mailto, $expectedSubject) {
                 $this->assertEquals($mailto, $to);
                 $this->assertEquals($expectedSubject, $subject);
                 return true;
@@ -242,7 +220,7 @@ final class MailerTest extends TestCase
         $this->mailer->SendNotifyUserDeniedEmail($mailto, 'nick');
     }
 
-    public function testNotifyAdminUserConfirmedRegistration() : void
+    public function testNotifyAdminUserConfirmedRegistration(): void
     {
         $mailto = 'admin@mail.com';
         $expectedSubject = 'Benutzer wartet auf Freischaltung';
@@ -251,9 +229,7 @@ final class MailerTest extends TestCase
         $matcher = $this->once();
         $this->delegate->expects($matcher)
             ->method('sendMessage')
-            ->willReturnCallback(function(string $to, string $subject, string $content, $headers) 
-                use ($matcher, $mailto, $expectedSubject)
-            {
+            ->willReturnCallback(function (string $to, string $subject, string $content, $headers) use ($matcher, $mailto, $expectedSubject) {
                 $this->assertEquals($mailto, $to);
                 $this->assertEquals($expectedSubject, $subject);
                 return true;
@@ -263,7 +239,7 @@ final class MailerTest extends TestCase
     }
 
     #[DataProvider('providerSendingSucceeds')]
-    public function testSendAdminContactMessage($sendingSucceeds) : void
+    public function testSendAdminContactMessage($sendingSucceeds): void
     {
         $mailto = 'admin@mail.com';
         $expectedSubject = 'Kontaktnachricht erhalten';
@@ -273,9 +249,7 @@ final class MailerTest extends TestCase
         $matcher = $this->once();
         $this->delegate->expects($matcher)
             ->method('sendMessage')
-            ->willReturnCallback(function(string $to, string $subject, string $content, $headers) 
-                use ($matcher, $mailto, $expectedSubject, $expectedContactMail, $sendingSucceeds)
-            {
+            ->willReturnCallback(function (string $to, string $subject, string $content, $headers) use ($matcher, $mailto, $expectedSubject, $expectedContactMail, $sendingSucceeds) {
                 $this->assertEquals($mailto, $to);
                 $this->assertEquals($expectedSubject, $subject);
                 $this->assertStringContainsString($expectedContactMail, $content);
@@ -283,14 +257,11 @@ final class MailerTest extends TestCase
             });
 
         // and the logger in case of success / failure
-        if($sendingSucceeds)
-        {
+        if ($sendingSucceeds) {
             $this->logger->expects($this->once())
                 ->method('LogMessage')
                 ->with(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $mailto);
-        }
-        else
-        {
+        } else {
             $this->logger->expects($this->once())
                 ->method('LogMessage')
                 ->with(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $mailto);

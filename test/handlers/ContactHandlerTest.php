@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
-require_once __DIR__.'/../../src/handlers/ContactHandler.php';
+require_once __DIR__ . '/../../src/handlers/ContactHandler.php';
 
 /**
  * No Database stuff required
@@ -21,7 +23,7 @@ final class ContactHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->db = $this->createStub(ForumDb::class);
+        $this->db = static::createStub(ForumDb::class);
         $this->mailer = $this->createMock(Mailer::class);
         $this->logger = $this->createMock(Logger::class);
         $this->ch = new ContactHandler();
@@ -31,14 +33,14 @@ final class ContactHandlerTest extends TestCase
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
     }
 
-    public function testConstruct()
+    public function testConstruct(): void
     {
-        $this->assertNull($this->ch->GetEmail());
-        $this->assertNull($this->ch->GetEmailRepeat());
-        $this->assertNull($this->ch->GetMsg());
+        static::assertNull($this->ch->GetEmail());
+        static::assertNull($this->ch->GetEmailRepeat());
+        static::assertNull($this->ch->GetMsg());
     }
 
-    public function testEmailsMustMatch()
+    public function testEmailsMustMatch(): void
     {
         $_POST[ContactHandler::PARAM_MSG] = 'hello';
         $_POST[ContactHandler::PARAM_EMAIL] = 'a@bar.com';
@@ -49,7 +51,7 @@ final class ContactHandlerTest extends TestCase
         $this->ch->HandleRequest($this->db);
     }
 
-    public function testMsgNotEmpty()
+    public function testMsgNotEmpty(): void
     {
         $_POST[ContactHandler::PARAM_MSG] = '';
         $_POST[ContactHandler::PARAM_EMAIL] = 'a@bar.com';
@@ -60,28 +62,26 @@ final class ContactHandlerTest extends TestCase
         $this->ch->HandleRequest($this->db);
     }
 
-    public function testNonValidParamValuesStored()
+    public function testNonValidParamValuesStored(): void
     {
         // When trying to handle, and param validation fails,
         // the previously tested values must still be present
         $_POST[ContactHandler::PARAM_MSG] = 'hello';
         $_POST[ContactHandler::PARAM_EMAIL] = 'a@bar.com';
         $_POST[ContactHandler::PARAM_EMAIL_REPEAT] = 'b@bar.com';
-        try 
-        {
+        try {
             $this->ch->HandleRequest($this->db);
-            $this->assertTrue(false); // must never be reached
-        }catch(InvalidArgumentException $ex) 
-        { 
+            static::assertTrue(false); // must never be reached
+        } catch (InvalidArgumentException $ex) {
             // nothing to do here
         }
         // values must be readable now
-        $this->assertSame('a@bar.com', $this->ch->GetEmail());
-        $this->assertSame('b@bar.com', $this->ch->GetEmailRepeat());
-        $this->assertSame('hello', $this->ch->GetMsg());
+        static::assertSame('a@bar.com', $this->ch->GetEmail());
+        static::assertSame('b@bar.com', $this->ch->GetEmailRepeat());
+        static::assertSame('hello', $this->ch->GetMsg());
     }
 
-    public function testSendMsg()
+    public function testSendMsg(): void
     {
         // setup with correct params: matching mails and non-empty msg
         // must have a log entry and the mailer must have been called
@@ -92,11 +92,11 @@ final class ContactHandlerTest extends TestCase
         // make the db return a fake admin-user
         $admin = $this->createMock(User::class);
         $admin->method('GetEmail')->willReturn('admin@1898.ch');
-        $this->db->method('GetAdminUsers')->willReturn(array($admin));
+        $this->db->method('GetAdminUsers')->willReturn([$admin]);
 
         // make the mailer return true, if it is called with the correct args:
         $this->mailer->method('SendAdminContactMessage')->willReturnMap([
-            ['a@bar.com', 'hello', 'admin@1898.ch', true]
+            ['a@bar.com', 'hello', 'admin@1898.ch', true],
         ]);
 
         // expect that the logger is called with the correct params
@@ -106,7 +106,7 @@ final class ContactHandlerTest extends TestCase
         $this->ch->HandleRequest($this->db);
     }
 
-    public function testSendMsg_throwsIfSendingFails()
+    public function testSendMsg_throwsIfSendingFails(): void
     {
         // setup with correct params: matching mails and non-empty msg
         // must have a log entry and the mailer must have been called
@@ -117,7 +117,7 @@ final class ContactHandlerTest extends TestCase
         // make the db return a fake admin-user
         $admin = $this->createMock(User::class);
         $admin->method('GetEmail')->willReturn('admin@1898.ch');
-        $this->db->method('GetAdminUsers')->willReturn(array($admin));
+        $this->db->method('GetAdminUsers')->willReturn([$admin]);
 
         // make the mailer return false, if it is called with the correct args:
         $this->mailer->method('SendAdminContactMessage')->willReturn(false);
@@ -128,7 +128,7 @@ final class ContactHandlerTest extends TestCase
         $this->ch->HandleRequest($this->db);
     }
 
-    public function testSendMsg_throwsIfNoAdminIsDefined()
+    public function testSendMsg_throwsIfNoAdminIsDefined(): void
     {
         // setup with correct params: matching mails and non-empty msg
         // must have a log entry and the mailer must have been called
@@ -144,5 +144,5 @@ final class ContactHandlerTest extends TestCase
         $this->expectExceptionMessage(ContactHandler::MSG_NO_ADMINS_DEFINED);
         $this->expectExceptionCode(BaseHandler::MSGCODE_INTERNAL_ERROR);
         $this->ch->HandleRequest($this->db);
-    }    
+    }
 }

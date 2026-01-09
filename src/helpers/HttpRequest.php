@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -24,13 +26,13 @@
  * @author Elias Gerber
  */
 
-interface HttpRequest {
-
+interface HttpRequest
+{
     /**
-     * executes a POST to the passed url. The passed args posted as 
+     * executes a POST to the passed url. The passed args posted as
      * url encoded string.
      * The returned data is expected to be json.
      * @return ?array The decoded json array or null if anything fails
      */
-    public function postReceiveJson(string $url, array $args) : ?array;
+    public function postReceiveJson(string $url, array $args): ?array;
 }

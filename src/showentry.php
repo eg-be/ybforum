@@ -3,7 +3,7 @@
 
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -20,19 +20,17 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/model/ForumDb.php';
-require_once __DIR__.'/pageparts/PostView.php';
-require_once __DIR__.'/pageparts/ThreadIndexView.php';
-require_once __DIR__.'/pageparts/TopNavigation.php';
-require_once __DIR__.'/pageparts/Logo.php';
-require_once __DIR__.'/helpers/ErrorHandler.php';
+require_once __DIR__ . '/model/ForumDb.php';
+require_once __DIR__ . '/pageparts/PostView.php';
+require_once __DIR__ . '/pageparts/ThreadIndexView.php';
+require_once __DIR__ . '/pageparts/TopNavigation.php';
+require_once __DIR__ . '/pageparts/Logo.php';
+require_once __DIR__ . '/helpers/ErrorHandler.php';
 
-try
-{
+try {
     // Read the arguments required
     $idPost = filter_input(INPUT_GET, 'idpost', FILTER_VALIDATE_INT);
-    if(!$idPost)
-    {
+    if (!$idPost) {
         return;
     }
 
@@ -41,19 +39,15 @@ try
 
     // Load the post we want to display and its parent (if one exists)
     $post = $db->LoadPost($idPost);
-    if(!$post || $post->IsHidden())
-    {
+    if (!$post || $post->IsHidden()) {
         return;
     }
     $parentPostId = $post->GetParentPostId();
     $parentPost = null;
-    if($parentPostId)
-    {
+    if ($parentPostId) {
         $parentPost = $db->LoadPost($parentPostId);
     }
-}
-catch(Exception $ex)
-{
+} catch (Exception $ex) {
     ErrorHandler::OnException($ex);
 }
 ?>
@@ -76,56 +70,44 @@ catch(Exception $ex)
     </head>
     <body>
         <?php
-        try
-        {
+        try {
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             ErrorHandler::OnException($ex);
         }
-        ?>     
+?>
         <hr>
         <!-- The page header is really simple, in line that -->
         <?php
-        try
-        {
-            $topNav = new TopNavigation($post->GetId());
-            echo $topNav->renderHtmlDiv();
-        }
-        catch(Exception $ex)
-        {
-            ErrorHandler::OnException($ex);
-        }
-        ?>
+try {
+    $topNav = new TopNavigation($post->GetId());
+    echo $topNav->renderHtmlDiv();
+} catch (Exception $ex) {
+    ErrorHandler::OnException($ex);
+}
+?>
         <div>
         <?php
-        try
-        {
-            // put the title in that div
-            $postView = new PostView($db, $post, $parentPost);
-            echo $postView->renderHtmlTitleDivContent();
-        }
-        catch(Exception $ex)
-        {
-            ErrorHandler::OnException($ex);
-        }
-        ?>
+try {
+    // put the title in that div
+    $postView = new PostView($db, $post, $parentPost);
+    echo $postView->renderHtmlTitleDivContent();
+} catch (Exception $ex) {
+    ErrorHandler::OnException($ex);
+}
+?>
         </div>
         <hr>
         <div id="postcontainer" class="postcontainer">
         <?php
-        try
-        {
-            // put the content in this div here
-            echo $postView->renderHtmlPostContentDivContent();
-        }
-        catch(Exception $ex)
-        {
-            ErrorHandler::OnException($ex);
-        }
-        ?>
+try {
+    // put the content in this div here
+    echo $postView->renderHtmlPostContentDivContent();
+} catch (Exception $ex) {
+    ErrorHandler::OnException($ex);
+}
+?>
         </div>
         <hr>
         <div>
@@ -134,21 +116,18 @@ catch(Exception $ex)
             </div>
             <div>
             <?php
-            try
-            {
-                // And the threads following this post
-                echo $postView->renderHtmlThreadDivContent();
-            }
-            catch(Exception $ex)
-            {
-                ErrorHandler::OnException($ex);                
-            }
-            ?>
+    try {
+        // And the threads following this post
+        echo $postView->renderHtmlThreadDivContent();
+    } catch (Exception $ex) {
+        ErrorHandler::OnException($ex);
+    }
+?>
             </div>
         </div>
         <hr>
         <?php
-        include __DIR__.'/pageparts/StandWithUkr.php';
-        ?>        
+        include __DIR__ . '/pageparts/StandWithUkr.php';
+?>
     </body>
 </html>

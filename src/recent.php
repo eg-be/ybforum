@@ -3,7 +3,7 @@
 
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -20,23 +20,19 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/model/ForumDb.php';
-require_once __DIR__.'/helpers/ErrorHandler.php';
-require_once __DIR__.'/pageparts/PostList.php';
-require_once __DIR__.'/pageparts/TopNavigation.php';
-require_once __DIR__.'/pageparts/Logo.php';
+require_once __DIR__ . '/model/ForumDb.php';
+require_once __DIR__ . '/helpers/ErrorHandler.php';
+require_once __DIR__ . '/pageparts/PostList.php';
+require_once __DIR__ . '/pageparts/TopNavigation.php';
+require_once __DIR__ . '/pageparts/Logo.php';
 
-try
-{
-    if(!session_start())
-    {
+try {
+    if (!session_start()) {
         throw new Exception('session_start() failed');
     }
 
     $db = new ForumDb();
-}
-catch(Exception $ex)
-{
+} catch (Exception $ex) {
     ErrorHandler::OnException($ex);
 }
 ?>
@@ -48,48 +44,39 @@ catch(Exception $ex)
         <title>YB Forum</title>
         <meta charset="UTF-8">
         <meta name="theme-color" content="#FFCC00">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
         <?php
-        try
-        {
+        try {
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             ErrorHandler::OnException($ex);
         }
-        ?>
-        <div class="fullwidthcenter generictitle">Neue Beiträge</div>    
+?>
+        <div class="fullwidthcenter generictitle">Neue Beiträge</div>
         <hr>
         <?php
-        try
-        {
-            $topNav = new TopNavigation();
-            echo $topNav->renderHtmlDiv();
-        }
-        catch(Exception $ex)
-        {
-            ErrorHandler::OnException($ex);
-        }
-        ?>
+try {
+    $topNav = new TopNavigation();
+    echo $topNav->renderHtmlDiv();
+} catch (Exception $ex) {
+    ErrorHandler::OnException($ex);
+}
+?>
         <hr>
         <?php
-        try
-        {
-            $replies = $db->LoadRecentPosts(YbForumConfig::RECENT_ENTRIES_COUNT);
-            $pl = new PostList($replies);
-            echo $pl->RenderListDiv();
-        }
-        catch(Exception $ex)
-        {
-            ErrorHandler::OnException($ex);
-        }
-        ?>
+try {
+    $replies = $db->LoadRecentPosts(YbForumConfig::RECENT_ENTRIES_COUNT);
+    $pl = new PostList($replies);
+    echo $pl->RenderListDiv();
+} catch (Exception $ex) {
+    ErrorHandler::OnException($ex);
+}
+?>
         <?php
-        include __DIR__.'/pageparts/StandWithUkr.php';
-        ?>        
+include __DIR__ . '/pageparts/StandWithUkr.php';
+?>
     </body>
 </html>

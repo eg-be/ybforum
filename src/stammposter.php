@@ -3,7 +3,7 @@
 
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -20,26 +20,23 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/model/ForumDb.php';
-require_once __DIR__.'/helpers/ErrorHandler.php';
-require_once __DIR__.'/helpers/Logger.php';
-require_once __DIR__.'/handlers/ResetPasswordHandler.php';
-require_once __DIR__.'/pageparts/TopNavigation.php';
-require_once __DIR__.'/pageparts/Logo.php';
+require_once __DIR__ . '/model/ForumDb.php';
+require_once __DIR__ . '/helpers/ErrorHandler.php';
+require_once __DIR__ . '/helpers/Logger.php';
+require_once __DIR__ . '/handlers/ResetPasswordHandler.php';
+require_once __DIR__ . '/pageparts/TopNavigation.php';
+require_once __DIR__ . '/pageparts/Logo.php';
 
-try
-{
-    if(!session_start())
-    {
+try {
+    if (!session_start()) {
         throw new Exception('session_start() failed');
     }
-    
+
     $loginValue = filter_input(INPUT_GET, 'login', FILTER_VALIDATE_INT);
     $loginFailed = false;
     $authFailReason = 0;
     $resetPasswordHandler = null;
-    if($loginValue && $loginValue > 0)
-    {
+    if ($loginValue && $loginValue > 0) {
         // for the login, a read-only db is enough
         $db = new ForumDb();
         // do the login, reset first
@@ -47,15 +44,12 @@ try
         $nick = trim(filter_input(INPUT_POST, 'login_nick'));
         $pass = trim(filter_input(INPUT_POST, 'login_pass'));
 
-        if($nick && $pass)
-        {
+        if ($nick && $pass) {
             // Note: AuthUser will take care of logging
             $user = $db->AuthUser($nick, $pass, $authFailReason);
-            if($user)
-            {
+            if ($user) {
                 $logger = new Logger($db);
-                if($user->NeedsMigration())
-                {
+                if ($user->NeedsMigration()) {
                     $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user);
                     header('Location: migrateuser.php?source=stammposter.php&nick=' . urlencode($user->GetNick()) . '&email=' . urlencode($user->GetEmail()));
                     exit;
@@ -65,27 +59,20 @@ try
                 header('Location: user/index.php');
             }
         }
-        if(!(isset($_SESSION['userid']) && $_SESSION['userid'] > 0))
-        {
+        if (!(isset($_SESSION['userid']) && $_SESSION['userid'] > 0)) {
             $loginFailed = true;
         }
-    }else if(filter_input(INPUT_GET, 'resetpassword', FILTER_VALIDATE_INT) > 0)
-    {
-        try
-        {
+    } elseif (filter_input(INPUT_GET, 'resetpassword', FILTER_VALIDATE_INT) > 0) {
+        try {
             // Requires a writeable db
             $db = new ForumDb(false);
             $resetPasswordHandler = new ResetPasswordHandler();
             $resetPasswordHandler->HandleRequest($db);
-        }
-        catch(InvalidArgumentException $ex)
-        {
+        } catch (InvalidArgumentException $ex) {
             // show some error later
         }
     }
-}
-catch(Exception $ex)
-{
+} catch (Exception $ex) {
     ErrorHandler::OnException($ex);
 }
 ?>
@@ -102,36 +89,30 @@ catch(Exception $ex)
     </head>
     <body>
         <?php
-        try
-        {
+        try {
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             ErrorHandler::OnException($ex);
         }
-        ?>
-        <div class="fullwidthcenter generictitle">Stammposter-Bereich</div>    
+?>
+        <div class="fullwidthcenter generictitle">Stammposter-Bereich</div>
         <hr>
         <?php
-        try
-        {
-            $topNav = new TopNavigation();
-            echo $topNav->renderHtmlDiv();
-        }
-        catch(Exception $ex)
-        {
-            ErrorHandler::OnException($ex);
-        }
-        ?>
+try {
+    $topNav = new TopNavigation();
+    echo $topNav->renderHtmlDiv();
+} catch (Exception $ex) {
+    ErrorHandler::OnException($ex);
+}
+?>
         <hr>
         <div class="fullwidthcenter">Als Stammposter kannst du hier deine
-        Einstellungen ändern oder dir einen Link zum Setzen eines neuen 
+        Einstellungen ändern oder dir einen Link zum Setzen eines neuen
         Passwortes an deine hinterlegte Mailadresse zusenden lassen.
         </div>
         <div class="fullwidthcenter">
-            <form id="loginform" method="post" action="stammposter.php?login=1" accept-charset="utf-8">            
+            <form id="loginform" method="post" action="stammposter.php?login=1" accept-charset="utf-8">
                 <table style="margin: auto; text-align: left; padding-top: 2em;">
                     <tr><td colspan="2" class="genericsmalltitle">Login</td></tr>
                     <tr><td class="fbold">Stammpostername:</td><td><input type="text" id="login_nick" name="login_nick" size="20" maxlength="60"/></td></tr>
@@ -140,27 +121,22 @@ catch(Exception $ex)
                 </table>
             </form>
             <?php
-            if($loginFailed)
-            {
-                $authFailMsg = null;
-                if ($authFailReason === ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID)
-                {
-                    $authFailMsg = 'Ungültiges Passwort';
-                }
-                else if($authFailReason === ForumDb::AUTH_FAIL_REASON_NO_SUCH_USER)
-                {
-                    $authFailMsg  = 'Unbekannter Stammposter';
-                }                
-                echo '<div class="fullwidthcenter" style="color: red">Login fehlgeschlagen';
-                if($authFailMsg)
-                {
-                    echo ': ' . $authFailMsg;
-                }
-                echo '</div>';
-            }
-            ?>            
+    if ($loginFailed) {
+        $authFailMsg = null;
+        if ($authFailReason === ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID) {
+            $authFailMsg = 'Ungültiges Passwort';
+        } elseif ($authFailReason === ForumDb::AUTH_FAIL_REASON_NO_SUCH_USER) {
+            $authFailMsg  = 'Unbekannter Stammposter';
+        }
+        echo '<div class="fullwidthcenter" style="color: red">Login fehlgeschlagen';
+        if ($authFailMsg) {
+            echo ': ' . $authFailMsg;
+        }
+        echo '</div>';
+    }
+?>
             <form id="resetpasswordform" method="post" action="stammposter.php?resetpassword=1" accept-charset="utf-8">
-                <table style="margin: auto; text-align: left; padding-top: 2em;">                
+                <table style="margin: auto; text-align: left; padding-top: 2em;">
                     <tr><td colspan="2" class="genericsmalltitle" style="padding-top: 2em">Neues Passwort anfordern</td></tr>
                     <tr>
                         <td class="fbold">Stammpostername<br>oder Mailadresse:</td>
@@ -170,22 +146,18 @@ catch(Exception $ex)
                 </table>
             </form>
             <?php
-            if($resetPasswordHandler)
-            {
-                if($resetPasswordHandler->HasException())
-                {
-                    $ex = $resetPasswordHandler->GetLastException();
-                    echo '<div class="fullwidthcenter" style="color: red"><span style="font-weight: bold;">Fehler: </span>' . $ex->GetMessage() . '</div>';
-                }
-                else
-                {
-                    echo '<div class="fullwidthcenter" style="color: #33cc33">Eine Mail mit einem Link zum zurücksetzen des Passwortes wurde an die hinterlegte Adresse gesendet.</div>';
-                }
-            }
-            ?>
+if ($resetPasswordHandler) {
+    if ($resetPasswordHandler->HasException()) {
+        $ex = $resetPasswordHandler->GetLastException();
+        echo '<div class="fullwidthcenter" style="color: red"><span style="font-weight: bold;">Fehler: </span>' . $ex->GetMessage() . '</div>';
+    } else {
+        echo '<div class="fullwidthcenter" style="color: #33cc33">Eine Mail mit einem Link zum zurücksetzen des Passwortes wurde an die hinterlegte Adresse gesendet.</div>';
+    }
+}
+?>
         </div>
         <?php
-        include __DIR__.'/pageparts/StandWithUkr.php';
-        ?>
+        include __DIR__ . '/pageparts/StandWithUkr.php';
+?>
     </body>
 </html>

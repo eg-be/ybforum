@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -22,15 +24,15 @@
 /**
  * The configuration to connect to the database.
  */
-final class DbConfig 
+final class DbConfig
 {
-    const SERVERNAME = '127.0.0.1';
-    const RW_USERNAME = 'dbybforum_rw';
-    const RW_PASSWORD = 'rw-password';
-	
-    const RO_USERNAME = 'dbybforum_ro';
-    const RO_PASSWORD = 'ro-password';
-	
-    const DEFAULT_DB = 'dbybforum';
-    const CHARSET = 'utf8mb4';
+    public const SERVERNAME = '127.0.0.1';
+    public const RW_USERNAME = 'dbybforum_rw';
+    public const RW_PASSWORD = 'rw-password';
+
+    public const RO_USERNAME = 'dbybforum_ro';
+    public const RO_PASSWORD = 'ro-password';
+
+    public const DEFAULT_DB = 'dbybforum';
+    public const CHARSET = 'utf8mb4';
 }

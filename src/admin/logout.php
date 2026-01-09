@@ -2,7 +2,7 @@
 
 /**
  * Copyright 2017 Elias Gerber
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -19,19 +19,15 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once __DIR__.'/../helpers/ErrorHandler.php';
+require_once __DIR__ . '/../helpers/ErrorHandler.php';
 
-try
-{
-    if(!session_start())
-    {
+try {
+    if (!session_start()) {
         throw new Exception('session_start() failed');
     }
     session_unset();
     session_destroy();
-} 
-catch (Exception $ex) 
-{
+} catch (Exception $ex) {
     ErrorHandler::OnException($ex);
 }
 ?>

@@ -1,8 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-require_once __DIR__.'/../../src/pageparts/TopNavigation.php';
+require_once __DIR__ . '/../../src/pageparts/TopNavigation.php';
 
 
 /**
@@ -10,22 +12,15 @@ require_once __DIR__.'/../../src/pageparts/TopNavigation.php';
  */
 final class TopNavigationTest extends TestCase
 {
-    public static function setUpBeforeClass(): void
-    {
-    }
+    public static function setUpBeforeClass(): void {}
 
-    protected function setUp(): void
-    {
-    }
+    protected function setUp(): void {}
 
-    protected function assertPreConditions(): void
-    {
+    protected function assertPreConditions(): void {}
 
-    }
-
-    public static function providerPageUris() : array 
+    public static function providerPageUris(): array
     {
-        return array(
+        return [
             ['index.php', Page::INDEX, null],
             ["/", Page::INDEX, null],
             ['', Page::INDEX, null],
@@ -39,22 +34,22 @@ final class TopNavigationTest extends TestCase
             ['register.php', Page::REGISTER, null],
             ['register.php?register=1', Page::REGISTER, null],
             ['showentry.php', Page::SHOW_ENTRY, 22],
-            ['showentry.php?idpost=22', Page::SHOW_ENTRY, 22]
-        );
+            ['showentry.php?idpost=22', Page::SHOW_ENTRY, 22],
+        ];
     }
 
     #[DataProvider('providerPageUris')]
-    public function testConstructTopNavigation(string $pageUri, Page $page, ?int $postId) 
+    public function testConstructTopNavigation(string $pageUri, Page $page, ?int $postId): void
     {
         $_SERVER['REQUEST_URI'] = 'https://somewhere.com/' . $pageUri;
         $nav = new TopNavigation($postId);
-        $this->assertTrue($page === $nav->GetPage());
+        static::assertTrue($page === $nav->GetPage());
     }
 
-    public function testPageIdMustBeSetForShowPage() 
+    public function testPageIdMustBeSetForShowPage(): void
     {
         $_SERVER['REQUEST_URI'] = 'https://somewhere.com/showentry.php';
         $this->expectException(InvalidArgumentException::class);
         $nav = new TopNavigation();
-    }    
+    }
 }

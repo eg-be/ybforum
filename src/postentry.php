@@ -3,7 +3,7 @@
 
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -20,30 +20,26 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/model/ForumDb.php';
-require_once __DIR__.'/pageparts/PostEntryForm.php';
-require_once __DIR__.'/pageparts/MigrateUserForm.php';
-require_once __DIR__.'/pageparts/TopNavigation.php';
-require_once __DIR__.'/pageparts/Logo.php';
-require_once __DIR__.'/helpers/ErrorHandler.php';
-require_once __DIR__.'/handlers/PostEntryHandler.php';
+require_once __DIR__ . '/model/ForumDb.php';
+require_once __DIR__ . '/pageparts/PostEntryForm.php';
+require_once __DIR__ . '/pageparts/MigrateUserForm.php';
+require_once __DIR__ . '/pageparts/TopNavigation.php';
+require_once __DIR__ . '/pageparts/Logo.php';
+require_once __DIR__ . '/helpers/ErrorHandler.php';
+require_once __DIR__ . '/handlers/PostEntryHandler.php';
 
-try
-{
-    if(!session_start())
-    {
+try {
+    if (!session_start()) {
         throw new Exception('start_session() failed');
     }
-    
+
     // Determine what we have to do
     $postEntryHandler = null;
     $parentPost = null;
     $db = new ForumDb(false);
-    if(filter_input(INPUT_GET, 'post', FILTER_VALIDATE_INT) > 0)
-    {
+    if (filter_input(INPUT_GET, 'post', FILTER_VALIDATE_INT) > 0) {
         // Try to submit passed post data
-        try
-        {
+        try {
             $postEntryHandler = new PostEntryHandler();
             $postEntryHandler->HandleRequest($db);
             $newPostId = $postEntryHandler->GetNewPostId();
@@ -51,60 +47,46 @@ try
             session_destroy();
             header('Location: showentry.php?idpost=' . $newPostId);
             exit;
-        }
-        catch(InvalidArgumentException $ex)
-        {
+        } catch (InvalidArgumentException $ex) {
             // Posting failed. Reshow the form or if we are
             // requested to migrate move on to migrate user page
-            if($ex->GetMessage() === PostEntryHandler::MSG_MIGRATION_REQUIRED)
-            {
+            if ($ex->GetMessage() === PostEntryHandler::MSG_MIGRATION_REQUIRED) {
                 // If we know that we need to migrate, we can also pass in some values for email and nick
                 $user = $db->LoadUserByNick($postEntryHandler->GetNick());
                 // Remember the current post data
                 // But clear the last set exception, as that will hold
-                // a stacktrace with some pdo object 
-                $postEntryHandler->ClearLastException();                
+                // a stacktrace with some pdo object
+                $postEntryHandler->ClearLastException();
                 $_SESSION['posthandler'] = $postEntryHandler;
                 header('Location: migrateuser.php?source=postentry.php&nick=' . urlencode($user->GetNick()) . '&email=' . urlencode($user->GetEmail()));
                 exit;
             }
         }
-    }
-    else if(filter_input(INPUT_GET, 'migrationended', FILTER_VALIDATE_INT) > 0)
-    {
+    } elseif (filter_input(INPUT_GET, 'migrationended', FILTER_VALIDATE_INT) > 0) {
         // Try to load an eventually set old post data
-        if(isset($_SESSION['posthandler']))
-        {
+        if (isset($_SESSION['posthandler'])) {
             $postEntryHandler = $_SESSION['posthandler'];
             unset($_SESSION['posthandler']);
             $parentPostId = $postEntryHandler->GetParentPostId();
-            if($parentPostId > 0)
-            {
+            if ($parentPostId > 0) {
                 $parentPost = $db->LoadPost($parentPostId);
             }
-        }
-        else
-        {
+        } else {
             // stupid waited too long. make her return to index.php
             session_destroy();
             header('Location: index.php');
             exit;
         }
-    }
-    else
-    {
-        // Someone arrived here from the index page: If a new thread we have no 
+    } else {
+        // Someone arrived here from the index page: If a new thread we have no
         // idparentpost value set, for an answer the value is set.
         // Or someone arrived here as a completion of a migration
         $parentPostId = filter_input(INPUT_GET, 'idparentpost', FILTER_VALIDATE_INT);
-        if($parentPostId > 0)
-        {
+        if ($parentPostId > 0) {
             $parentPost = $db->LoadPost($parentPostId);
         }
     }
-}
-catch(Exception $ex)
-{
+} catch (Exception $ex) {
     ErrorHandler::OnException($ex);
 }
 ?>
@@ -124,63 +106,50 @@ catch(Exception $ex)
     </head>
     <body>
         <?php
-        try
-        {
+        try {
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             ErrorHandler::OnException($ex);
         }
-        ?>
+?>
         <div class="fullwidthcenter generictitle">Beitrag schreiben</div>
         <hr>
         <?php
-        try
-        {
-            $topNav = new TopNavigation();
-            echo $topNav->renderHtmlDiv();
-        }
-        catch(Exception $ex)
-        {
-            ErrorHandler::OnException($ex);
-        }
-        ?>
+try {
+    $topNav = new TopNavigation();
+    echo $topNav->renderHtmlDiv();
+} catch (Exception $ex) {
+    ErrorHandler::OnException($ex);
+}
+?>
         <hr>
         <?php
-        try
-        {
-            if($postEntryHandler && $postEntryHandler->HasException())
-            {
-                $postException = $postEntryHandler->GetLastException();
-                echo '<div id="status" class="fullwidthcenter" style="color: red;">'
-                    . '<span class="fbold">Fehler: </span>'
-                    . $postException->GetMessage()
-                    . '</div>';
-            }
-        }
-        catch(Exception $ex)
-        {
-            ErrorHandler::OnException($ex);
-        }
-        ?>
+try {
+    if ($postEntryHandler && $postEntryHandler->HasException()) {
+        $postException = $postEntryHandler->GetLastException();
+        echo '<div id="status" class="fullwidthcenter" style="color: red;">'
+            . '<span class="fbold">Fehler: </span>'
+            . $postException->GetMessage()
+            . '</div>';
+    }
+} catch (Exception $ex) {
+    ErrorHandler::OnException($ex);
+}
+?>
         <div id="postformcontainer" class="fullwidth">
-        <?php 
-        try
-        {
-            $pef = new PostEntryForm($parentPost, $postEntryHandler);
-            echo $pef->renderHtmlForm();
-            echo $pef->renderUsageTable();
-        }
-        catch(Exception $ex)
-        {
-            ErrorHandler::OnException($ex);
-        }
-        ?>
+        <?php
+try {
+    $pef = new PostEntryForm($parentPost, $postEntryHandler);
+    echo $pef->renderHtmlForm();
+    echo $pef->renderUsageTable();
+} catch (Exception $ex) {
+    ErrorHandler::OnException($ex);
+}
+?>
         </div>
         <?php
-        include __DIR__.'/pageparts/StandWithUkr.php';
-        ?>        
+include __DIR__ . '/pageparts/StandWithUkr.php';
+?>
     </body>
 </html>

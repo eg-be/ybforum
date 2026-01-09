@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -28,13 +30,11 @@ $profileName = basename(filter_input(INPUT_SERVER, 'PHP_SELF'));
 $measureMemory = null;
 $measureTiming = null;
 
-if(ProfileConfig::MEASURE_MEMORY)
-{
+if (ProfileConfig::MEASURE_MEMORY) {
     require_once 'Memory.php';
     $measureMemory = new Memory($profileName);
 }
-if(ProfileConfig::MEASURE_TIMING)
-{
+if (ProfileConfig::MEASURE_TIMING) {
     require_once 'Timings.php';
     $measureTiming = new Timings($profileName);
 }

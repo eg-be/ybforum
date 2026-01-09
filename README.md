@@ -40,7 +40,9 @@ Ensure [composer](https://getcomposer.org) is installed and install the required
 ```
 composer update
 ```
-Note: The only required dependency is [phpunit](https://phpunit.de), which is required during development only.
+Note: Currently only some dev-dependencies are required:
+- [phpunit](https://phpunit.de)
+- [PHP-CS-Fixer](https://github.com/PHP-CS-Fixer/PHP-CS-Fixer)
 
 ### Test-Database
 Follow the instructions in [database](database) to setup the database required for the tests and adjust the database-connection parameters in file [src/model/DbConfig.php](src/model/DbConfig.php).
@@ -62,6 +64,13 @@ Run with `--coverage-html` to report the test coverage:
 ```
 eg@TITANUS-3113:~/dev/ybforum$ export XDEBUG_MODE=coverage
 eg@TITANUS-3113:~/dev/ybforum$ ./vendor/bin/phpunit --coverage-html reports
+```
+
+### Code formatting
+Run one of the following commands to check / fix:
+```
+eg@TITANUS-3113:~/dev/ybforum$ ./vendor/bin/php-cs-fixer check
+eg@TITANUS-3113:~/dev/ybforum$ ./vendor/bin/php-cs-fixer fix
 ```
 
 ## Backup and restoring the databse

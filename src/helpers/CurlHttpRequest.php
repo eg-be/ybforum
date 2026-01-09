@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -19,7 +21,7 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/HttpRequest.php';
+require_once __DIR__ . '/HttpRequest.php';
 
 /**
  * Uses curl for the underlying http transport
@@ -27,23 +29,24 @@ require_once __DIR__.'/HttpRequest.php';
  */
 class CurlHttpRequest implements HttpRequest
 {
-    public function postReceiveJson(string $url, array $args) : ?array
+    public function postReceiveJson(string $url, array $args): ?array
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, 
-                    http_build_query($args));
+        curl_setopt(
+            $ch,
+            CURLOPT_POSTFIELDS,
+            http_build_query($args)
+        );
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $serverResponse = curl_exec ($ch);
-        curl_close ($ch);
-        if(!$serverResponse)
-        {
+        $serverResponse = curl_exec($ch);
+        curl_close($ch);
+        if (!$serverResponse) {
             return null;
         }
         $decodedResp = json_decode($serverResponse, true);
-        if(!$decodedResp)
-        {
+        if (!$decodedResp) {
             return null;
         }
         return $decodedResp;

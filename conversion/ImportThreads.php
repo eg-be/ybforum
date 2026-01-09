@@ -1,6 +1,8 @@
 <?php
 
-/* 
+declare(strict_types=1);
+
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -10,7 +12,7 @@
 
 require_once 'DataImporter.php';
 
-function PrintAssertOptions()
+function PrintAssertOptions(): void
 {
     echo 'Assert active: ' . assert_options(ASSERT_ACTIVE) . "\n";
     echo 'Assert warning: ' . assert_options(ASSERT_WARNING) . "\n";
@@ -19,22 +21,19 @@ function PrintAssertOptions()
     echo 'Assert callback: ' . assert_options(ASSERT_CALLBACK) . "\n";
 }
 
-function SetAssertOptions()
+function SetAssertOptions(): void
 {
     assert_options(ASSERT_ACTIVE, true);
     assert_options(ASSERT_BAIL, true);
 }
 
-try
-{
+try {
     SetAssertOptions();
     PrintAssertOptions();
     $imp = new DataImporter();
     //$imp->ImportThread(99);
     $imp->ImportThreads();
     echo 'Done' . "\n";
-}
-catch(Exception $ex)
-{
+} catch (Exception $ex) {
     echo 'Failed: ' . $ex->getMessage() . "\n";
 }

@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -24,10 +26,10 @@
  * @author Elias Gerber
  */
 
-interface MailerDelegate {
-
+interface MailerDelegate
+{
     /**
      * Send the message, returns true if sending succeeded, false otherwise
      */
-    public function sendMessage(string $to, string $subject, string $content, string $headers) : bool;
+    public function sendMessage(string $to, string $subject, string $content, string $headers): bool;
 }

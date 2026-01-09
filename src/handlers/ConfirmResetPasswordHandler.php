@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -19,16 +21,16 @@
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__.'/BaseHandler.php';
-require_once __DIR__.'/ConfirmHandler.php';
-require_once __DIR__.'/../model/ForumDb.php';
-require_once __DIR__.'/../helpers/Logger.php';
+require_once __DIR__ . '/BaseHandler.php';
+require_once __DIR__ . '/ConfirmHandler.php';
+require_once __DIR__ . '/../model/ForumDb.php';
+require_once __DIR__ . '/../helpers/Logger.php';
 
 /**
  * Handle a confirmation link with a confirmation code to reset the password
  * of a user
- * Regardless of the REQUEST_METHOD, this handler will try to validate 
- * a value PARAM_CODE to update a password. If the code is valid, the 
+ * Regardless of the REQUEST_METHOD, this handler will try to validate
+ * a value PARAM_CODE to update a password. If the code is valid, the
  * corresponding User is returned from the handler implementation.
  * This handler does not modify any data, but will fail with the same
  * InvalidArgumentException if one of the parameters fails validation.
@@ -37,78 +39,76 @@ require_once __DIR__.'/../helpers/Logger.php';
  */
 class ConfirmResetPasswordHandler extends BaseHandler implements ConfirmHandler
 {
-    const MSG_CODE_UNKNOWN = 'Ungültiger Bestätigungscode';
-    
+    public const MSG_CODE_UNKNOWN = 'Ungültiger Bestätigungscode';
+
     public function __construct()
     {
         parent::__construct();
-        
+
         // Set defaults explicitly
         $this->code = null;
         $this->user = null;
     }
-    
-    protected function ReadParams() : void
+
+    protected function ReadParams(): void
     {
         // Read params - depending on the invocation using GET or through base-handler
         $this->code = self::ReadRawParamFromGetOrPost(ConfirmHandler::PARAM_CODE);
     }
-    
-    protected function ValidateParams() : void
+
+    protected function ValidateParams(): void
     {
         // Check for the parameters required to authenticate
         self::ValidateStringParam($this->code, self::MSG_CODE_UNKNOWN);
     }
-    
-    protected function HandleRequestImpl(ForumDb $db) : void
+
+    protected function HandleRequestImpl(ForumDb $db): void
     {
         // reset the internal values first
         $this->user = null;
-        
+
         // Check if the code matches an existing entry
         $userId = $db->VerifyPasswordResetCode($this->code, false);
-        if($userId <= 0)
-        {
+        if ($userId <= 0) {
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
-        
+
         // Check if a user exists for that code
         $this->user = $db->LoadUserById($userId);
-        if(!$this->user)
-        {
+        if (!$this->user) {
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
-        
+
         // fine, internal member $this->user is set now
     }
-    
-    public function GetCode() : ?string
+
+    public function GetCode(): ?string
     {
         return $this->code;
     }
-    
-    public function GetType() : string
+
+    public function GetType(): string
     {
         return ConfirmHandler::VALUE_TYPE_RESETPASS;
     }
-    
-    public function GetConfirmText() : string
+
+    public function GetConfirmText(): string
     {
         return 'Wähle ein neues Passwort. Das Passwort muss mindestens '
-                . YbForumConfig::MIN_PASSWWORD_LENGTH 
+                . YbForumConfig::MIN_PASSWWORD_LENGTH
                 . ' Zeichen enthalten:';
     }
-    
-    public function GetSuccessText() : string
+
+    public function GetSuccessText(): string
     {
         return 'Passwort erfolgreich aktualisiert';
     }
-    
+
     /**
      * Can be called if HandleRequestImpl succeeded, only
      * in that case an internal user is set.
      */
-    public function GetUser() : ?User 
+    public function GetUser(): ?User
     {
         return $this->user;
     }

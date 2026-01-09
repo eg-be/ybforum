@@ -1,19 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Description of OldDbConfig
  *
  * @author eli
  */
-class ImporterConfig {
-    
-    const SERVERNAME = 'localhost';
-    const USERNAME = 'root2';
-    const PASSWORD = 'master2';
+class ImporterConfig
+{
+    public const SERVERNAME = 'localhost';
+    public const USERNAME = 'root2';
+    public const PASSWORD = 'master2';
 
-    const SOURCE_DB = 'old1898';
-    const SOURCE_CHARSET = 'utf8mb4';
-    
-    const DEST_DB = 'ybforum';
-    const DEST_CHARSET = 'utf8mb4';
+    public const SOURCE_DB = 'old1898';
+    public const SOURCE_CHARSET = 'utf8mb4';
+
+    public const DEST_DB = 'ybforum';
+    public const DEST_CHARSET = 'utf8mb4';
 }

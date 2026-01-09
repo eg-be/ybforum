@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright 2017 Elias Gerber <eg@zame.ch>
- * 
+ *
  * This file is part of YbForum1898.
  *
  * YbForum1898 is free software: you can redistribute it and/or modify
@@ -24,7 +26,7 @@
  *
  * @author Elias Gerber
  */
-class PostList 
+class PostList
 {
     /**
      * Create a new instance, holding the passed list
@@ -34,35 +36,33 @@ class PostList
     {
         $this->m_postIndexEntries = $postIndexEntries;
     }
-    
+
     /**
-     * Returns a HTML div that holds every entry of the array set during 
+     * Returns a HTML div that holds every entry of the array set during
      * construction as p element.
      * @return string
      */
-    public function RenderListDiv() : string
+    public function RenderListDiv(): string
     {
         $htmlStr = '<div class="fullwidth">';
-        foreach($this->m_postIndexEntries as $indexEntry)
-        {
-            $htmlStr.= '<p class="nomargin"><a ';
-            $htmlStr.= 'href="showentry.php?idpost=' 
+        foreach ($this->m_postIndexEntries as $indexEntry) {
+            $htmlStr .= '<p class="nomargin"><a ';
+            $htmlStr .= 'href="showentry.php?idpost='
                 . $indexEntry->GetPostId() . '">';
-            $htmlStr.= $indexEntry->GetTitle();
-            if(!$indexEntry->HasContent())
-            {
-                $htmlStr.= ' (o.T.)';
+            $htmlStr .= $indexEntry->GetTitle();
+            if (!$indexEntry->HasContent()) {
+                $htmlStr .= ' (o.T.)';
             }
-            $htmlStr.= '</a> - <span class="fbold">';
-            $htmlStr.= $indexEntry->GetNick();
-            $htmlStr.= '</span> - ';
-            $htmlStr.= $indexEntry->GetPostTimestamp()->format('d.m.Y H:i:s');
-            $htmlStr.= '</p>';            
+            $htmlStr .= '</a> - <span class="fbold">';
+            $htmlStr .= $indexEntry->GetNick();
+            $htmlStr .= '</span> - ';
+            $htmlStr .= $indexEntry->GetPostTimestamp()->format('d.m.Y H:i:s');
+            $htmlStr .= '</p>';
         }
-        
-        $htmlStr.= '</div>';
+
+        $htmlStr .= '</div>';
         return $htmlStr;
     }
-    
+
     private array $m_postIndexEntries;
 }
