@@ -33,8 +33,7 @@ class Post
      * This constructor will assert that all members have a valid data
      * and set some internal values.
      */
-    protected function __construct()
-    {
+    protected function __construct()  {
         assert($this->idpost > 0);
         assert($this->idthread > 0);
         assert(is_null($this->parent_idpost) || $this->parent_idpost > 0);
