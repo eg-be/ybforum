@@ -75,13 +75,22 @@ class PostEntryForm
                 $linkUrl = $this->m_parentPost->GetLinkUrl();
             }
         }
+        if ($imgUrl) {
+            $imgUrl = htmlspecialchars($imgUrl);
+        }
+        if ($linkText) {
+            $linkText = htmlspecialchars($linkText);
+        }
+        if ($linkUrl) {
+            $linkUrl = htmlspecialchars($linkUrl);
+        }
 
         $html
            = '<form id="postform" method="post" action="postentry.php?post=1" accept-charset="utf-8">
             <table style="margin: auto;">
-                <tr><td><span class="fbold">Name</span> (<a href="register.php">Stammposterregistrierung</a>):</td><td><input type="text" autocomplete="username" value="' . ($this->m_peh ? $this->m_peh->GetNick() : '') . '" name="' . PostEntryHandler::PARAM_NICK . '" size="20" maxlength="60"/></td></tr>
-                <tr><td><span class="fbold">Stammposterpasswort:</span></td><td><input type="password" autocomplete="current-password" value="' . ($this->m_peh ? $this->m_peh->GetPassword() : '') . '" name="' . PostEntryHandler::PARAM_PASS . '" size="20" maxlength="60"/></td></tr>
-                <tr><td><span class="fbold">Mailadresse</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . ($this->m_peh ? $this->m_peh->GetEmail() : '') . '" name="' . PostEntryHandler::PARAM_EMAIL . '" size="30" maxlength="254"/></td></tr>
+                <tr><td><span class="fbold">Name</span> (<a href="register.php">Stammposterregistrierung</a>):</td><td><input type="text" autocomplete="username" value="' . ($this->m_peh && $this->m_peh->GetNick() ? htmlspecialchars($this->m_peh->GetNick()) : '') . '" name="' . PostEntryHandler::PARAM_NICK . '" size="20" maxlength="60"/></td></tr>
+                <tr><td><span class="fbold">Stammposterpasswort:</span></td><td><input type="password" autocomplete="current-password" value="' . ($this->m_peh && $this->m_peh->GetPassword() ? htmlspecialchars($this->m_peh->GetPassword()) : '') . '" name="' . PostEntryHandler::PARAM_PASS . '" size="20" maxlength="60"/></td></tr>
+                <tr><td><span class="fbold">Mailadresse</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . ($this->m_peh && $this->m_peh->GetEmail() ? htmlspecialchars($this->m_peh->GetEmail()) : '') . '" name="' . PostEntryHandler::PARAM_EMAIL . '" size="30" maxlength="254"/></td></tr>
                 <tr><td>Betreff:</td><td>' . $this->renderHtmlFormTitleInput() . '</td></tr>
                 <tr><td colspan="2">Textformattierung:
                         <img class="addtextstyle" src="img/bold.gif" alt="bold" onclick="formatText(\'b\')"/>
@@ -160,7 +169,7 @@ class PostEntryForm
     {
         // If a title was already set, use that one
         $title = '';
-        if ($this->m_peh) {
+        if ($this->m_peh && $this->m_peh->GetTitle()) {
             $title = $this->m_peh->GetTitle();
         }
         if (!$title && $this->m_parentPost) {
@@ -170,9 +179,9 @@ class PostEntryForm
             }
         }
         $htmlString = '<input type="text" '
+            . 'value="' . htmlspecialchars($title) . '" '
             . 'name="' . PostEntryHandler::PARAM_TITLE . '" size="50" '
-            . 'maxlength="100" value="' . htmlspecialchars($title)
-            . '"/>';
+            . 'maxlength="100"/>';
         return $htmlString;
     }
 
