@@ -11,32 +11,11 @@ final class PostViewTest extends TestCase
     // required stubs test depends on
     private $db;
     private $post;
-    /*    private $entry1;
-        private $entry2;
-        private $entries;*/
 
     protected function setUp(): void
     {
         $this->db = static::createStub(ForumDb::class);
-
         $this->post = static::createStub(Post::class);
-
-
-        /*        $this->entry1 = static::createStub(PostIndexEntry::class);
-                $this->entry1->method('GetPostId')->willReturn(11);
-                $this->entry1->method('GetTitle')->willReturn('title 01');
-                $this->entry1->method('HasContent')->willReturn(true);
-                $this->entry1->method('GetNick')->willReturn('nick 01');
-                $this->entry1->method('GetPostTimestamp')->willReturn(DateTime::createFromFormat('d/m/Y H:i:s', '26/01/1983 02:05:13'));
-
-                $this->entry2 = static::createStub(PostIndexEntry::class);
-                $this->entry2->method('GetPostId')->willReturn(22);
-                $this->entry2->method('GetTitle')->willReturn('title 02');
-                $this->entry2->method('HasContent')->willReturn(true);
-                $this->entry2->method('GetNick')->willReturn('nick 02');
-                $this->entry2->method('GetPostTimestamp')->willReturn(DateTime::createFromFormat('d/m/Y H:i:s', '30/03/2018 14:15:10'));
-
-                $this->entries = [$this->entry1, $this->entry2];*/
     }
 
     public function testRenderHtmlTitleDivContent_shouldIncludePostTitleForPostWithContent(): void

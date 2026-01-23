@@ -21,7 +21,7 @@ declare(strict_types=1);
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__ . '/../model/ForumDb.php';
+require_once __DIR__ . '/../handlers/UpdatePasswordHandler.php';
 require_once __DIR__ . '/../handlers/ConfirmResetPasswordHandler.php';
 
 /**
@@ -32,7 +32,7 @@ require_once __DIR__ . '/../handlers/ConfirmResetPasswordHandler.php';
  */
 class ResetPasswordForm
 {
-    public function __construct(ConfirmResetPasswordHandler $confirmHandler)
+    public function __construct(ConfirmHandler $confirmHandler)
     {
         $this->m_confirmHandler = $confirmHandler;
     }
@@ -73,5 +73,5 @@ class ResetPasswordForm
         return $html;
     }
 
-    private ConfirmResetPasswordHandler $m_confirmHandler;
+    private ConfirmHandler $m_confirmHandler;
 }
