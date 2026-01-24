@@ -1539,7 +1539,7 @@ class ForumDb extends PDO
      * @param int $pageNr Pagination-offset, must be >= 1
      * @param int $threadsPerPage Pagesize, used to calculate offste
      * @param callable $threadIndexCallback Callback to invoke with an array of
-     * ThreadIndexEntry objects.
+     * PostIndexEntry objects.
      * @throws Exception If a database operation fails.
      */
     public function LoadThreadIndexEntries(
