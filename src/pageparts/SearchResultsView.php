@@ -142,7 +142,7 @@ class SearchResultsView
                 $sortOrder
             );
             $fieldDesc = $sortField->getTranslation();
-            $html .= '<a href="#"' . $linkClass
+            $html .= '<a href="#" ' . $linkClass
                     . 'onclick="document.getElementById(\'' . $id . '\').submit()">'
                     . $fieldDesc . ' ' . $currentSortSymbol
                     . '</a> | ';
@@ -158,8 +158,8 @@ class SearchResultsView
         foreach ($results as $res) {
             $html .= '<p class="nomargin">';
             $html .= '<a href="showentry.php?idpost=' . $res->GetPostId() . '">';
-            $html .= $res->GetTitle() . '</a>';
-            $html .= ' - <span class="fbold">' . $res->GetNick() . '</span>';
+            $html .= htmlspecialchars($res->GetTitle()) . '</a>';
+            $html .= ' - <span class="fbold">' . htmlspecialchars($res->GetNick()) . '</span>';
             $html .= ' - ' . $res->GetPostTimestamp()->format('d.m.Y H:i:s');
             $html .= '</p>';
         }
