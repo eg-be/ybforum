@@ -117,9 +117,24 @@ final class RegisterUserHandlerTest extends TestCase
 
     public function testRegisterUser_emailTestedForBlacklist(): void
     {
-        // todo: fixme, testing would be easier if we use composition over inheritance
-        // especially for these static helper methods from the base-class that are called from inside this
-        static::markTestSkipped('todo');
+        $_POST[RegisterUserHandler::PARAM_NICK] = 'nickname';
+        $_POST[RegisterUserHandler::PARAM_EMAIL] = 'a@bar.com';
+        $_POST[RegisterUserHandler::PARAM_PASS] = 'password';
+        $_POST[RegisterUserHandler::PARAM_CONFIRMPASS] = 'password';
+
+        $this->db->method('IsEmailOnBlacklistExactly')->with('a@bar.com')->willReturn('This address is blocked');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(RegisterUserHandler::MSG_EMAIL_BLACKLISTED . 'This address is blocked');
+        $this->expectExceptionCode(RegisterUserHandler::MSGCODE_BAD_PARAM);
+
+        $this->logger->expects($this->once())->method('LogMessage')
+            ->with(
+                LogType::LOG_OPERATION_FAILED_EMAIL_BLACKLISTED,
+                'This address is blocked(Mail: a@bar.com)'
+            );
+
+        $this->ruh->HandleRequest($this->db);
     }
 
     public function testRegisterUser_userCreatedConfirmCodeSent(): void
