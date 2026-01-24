@@ -43,15 +43,18 @@ class PageNavigationView
         int $currentPageNr,
         int $maxThreadsPerPage,
         int $maxPageNavEntries,
+        int $skipNrOfPages,
         int $threadCount
     ) {
         assert($currentPageNr >= 1);
         assert($maxThreadsPerPage > 0);
         assert($maxPageNavEntries > 0);
+        assert($skipNrOfPages > 0);
         assert($threadCount >= 0);
 
+        $this->m_skipNrOfPages = $skipNrOfPages;
         $this->m_currentPage = $currentPageNr;
-        $this->m_totalPages = ceil($threadCount / $maxThreadsPerPage);
+        $this->m_totalPages = intval(ceil($threadCount / $maxThreadsPerPage));
 
         // Calculate leftmost page we want to display
         $this->m_leftmostPage = $currentPageNr - $maxPageNavEntries;
@@ -92,7 +95,7 @@ class PageNavigationView
     private function CreateSkipLeftNavElement(): string
     {
         $destinationPageNr
-                = $this->m_currentPage - YbForumConfig::NAV_SKIP_NR_OF_PAGES;
+                = $this->m_currentPage - $this->m_skipNrOfPages;
         if ($destinationPageNr < 1) {
             $destinationPageNr = 1;
         }
@@ -103,7 +106,7 @@ class PageNavigationView
     private function CreateSkipRightNavElement(): string
     {
         $destinationPageNr
-                = $this->m_currentPage + YbForumConfig::NAV_SKIP_NR_OF_PAGES;
+                = $this->m_currentPage + $this->m_skipNrOfPages;
         if ($destinationPageNr > $this->m_totalPages) {
             $destinationPageNr = $this->m_totalPages;
         }
@@ -121,7 +124,7 @@ class PageNavigationView
         // Navigate towards left (only possible if we are not on newest page)
         if ($this->m_currentPage > 1) {
             $htmlStr .= $this->CreateFirstPageNavElement() . ' ';
-            if ($this->m_currentPage - YbForumConfig::NAV_SKIP_NR_OF_PAGES > 1) {
+            if ($this->m_currentPage - $this->m_skipNrOfPages > 1) {
                 $htmlStr .= $this->CreateSkipLeftNavElement() . ' ';
             }
             for ($i = $this->m_leftmostPage; $i < $this->m_currentPage; $i++) {
@@ -135,7 +138,7 @@ class PageNavigationView
             for ($i = $this->m_currentPage + 1; $i <= $this->m_rightmostPage; $i++) {
                 $htmlStr .= $this->CreatePageNavElement($i) . ' ';
             }
-            if ($this->m_currentPage + YbForumConfig::NAV_SKIP_NR_OF_PAGES
+            if ($this->m_currentPage + $this->m_skipNrOfPages
                     < $this->m_totalPages) {
                 $htmlStr .= $this->CreateSkipRightNavElement() . ' ';
             }
@@ -144,6 +147,7 @@ class PageNavigationView
         return $htmlStr;
     }
 
+    private int $m_skipNrOfPages;
     private int $m_currentPage;
     private int $m_totalPages;
     private int $m_leftmostPage;

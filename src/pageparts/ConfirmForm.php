@@ -21,7 +21,6 @@ declare(strict_types=1);
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__ . '/../model/ForumDb.php';
 require_once __DIR__ . '/../handlers/ConfirmHandler.php';
 
 /**

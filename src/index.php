@@ -82,6 +82,7 @@ try {
         $pageNr,
         YbForumConfig::MAX_THREADS_PER_PAGE,
         YbForumConfig::MAX_PAGE_NAV_ELEMENTS,
+        YbForumConfig::NAV_SKIP_NR_OF_PAGES,
         $db->GetThreadCount()
     );
     echo $pageNav->renderHtmlDivContent();

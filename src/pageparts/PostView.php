@@ -21,6 +21,8 @@ declare(strict_types=1);
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+require_once __DIR__ . '/../../src/model/ForumDb.php';
+
 /**
  * Renders the parts of a single post.
  *
@@ -138,8 +140,8 @@ class PostView
         $threadIndexes = $this->m_forumDb->LoadPostReplies($this->m_post);
         $ourPostIndent = $this->m_post->GetIndent();
         foreach ($threadIndexes as $ti) {
-            $htmlStr .= '<p class="nomargin ';
-            $htmlStr .= '" style="text-indent: ';
+            $htmlStr .= '<p class="nomargin" ';
+            $htmlStr .= 'style="text-indent: ';
             $htmlStr .= ($ti->GetIndent() - $ourPostIndent - 1) . 'em"><a ';
             $htmlStr .= 'href="showentry.php?idpost='
                 . $ti->GetPostId() . '">';

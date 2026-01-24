@@ -21,6 +21,7 @@ declare(strict_types=1);
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+require_once __DIR__ . '/../model/ForumDb.php';
 
 /**
  * Renders thread topics as tree.
@@ -68,9 +69,9 @@ class ThreadIndexView
                 $htmlStr = '<div class="threadmargin">';
                 foreach ($threadIndexes as $ti) {
                     $indent = $ti->GetIndent();
-                    $htmlStr .= '<p class="nomargin ';
+                    $htmlStr .= '<p class="nomargin';
                     if ($indent === 0) {
-                        $htmlStr .= 'fbold';
+                        $htmlStr .= ' fbold';
                     }
                     $htmlStr .= '" style="text-indent: ';
                     $htmlStr .= $indent . 'em"><a ';
