@@ -22,7 +22,6 @@ declare(strict_types=1);
 */
 
 require_once __DIR__ . '/../handlers/UpdatePasswordHandler.php';
-require_once __DIR__ . '/../handlers/ConfirmResetPasswordHandler.php';
 
 /**
  * Renders a form with input fields to reset a password
