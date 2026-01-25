@@ -199,6 +199,10 @@ class Logger
             $userId = $user->GetId();
         }
 
+        if ($msg && mb_strlen($msg, 'UTF-8') > 255) {
+            $msg = mb_substr($msg, 0, 255, 'UTF-8');
+        }
+
         $this->m_insertLogEntryStmt->execute([
             ':idlog_type' => $logTypeId,
             ':iduser' => $userId,
