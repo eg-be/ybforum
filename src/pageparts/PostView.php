@@ -21,7 +21,7 @@ declare(strict_types=1);
  * along with YbForum1898.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once __DIR__ . '/../../src/model/ForumDb.php';
+require_once __DIR__ . '/../model/ForumDb.php';
 
 /**
  * Renders the parts of a single post.
