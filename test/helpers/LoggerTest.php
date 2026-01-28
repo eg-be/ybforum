@@ -114,6 +114,37 @@ final class LoggerTest extends BaseTest
         static::assertSame('13.13.13.13', $result['ip_address']);
     }
 
+    public function testLogMessageShouldGetTruncated(): void
+    {
+        // just log a test-message without ext-info
+        // some properties are set from $_SERVER, what is probably not so nice
+        $msg = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit.";
+        $msgTruncated = mb_substr($msg, 0, 255, 'UTF-8');
+
+        $l = new Logger($this->db);
+        $l->LogMessage(LogType::LOG_CONTACT_FORM_SUBMITTED, $msg);
+
+        // get the id to compare later
+        $id1 = $l->GetLogTypeId(LogType::LOG_CONTACT_FORM_SUBMITTED);
+
+        // read back the values
+        $query = 'SELECT idlog, idlog_type, ts, iduser, historic_user_context, message, request_uri, ip_address, admin_iduser '
+        . 'FROM log_table '
+        . 'ORDER BY idlog DESC';
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        static::assertTrue($stmt->rowCount() >= 1);
+        $result = $stmt->fetch();
+        static::assertNotNull($result);
+        static::assertSame($id1, $result['idlog_type']);
+        static::assertNotNull($result['ts']);
+        static::assertNull($result['iduser']);
+        static::assertNull($result['historic_user_context']);
+        static::assertSame($msgTruncated, $result['message']);
+        static::assertSame('phpunit', $result['request_uri']);
+        static::assertSame('13.13.13.13', $result['ip_address']);
+    }
+
     public function testLogMessageWithExtInfo(): void
     {
         $l = new Logger($this->db);
