@@ -58,8 +58,7 @@ require_once __DIR__ . '/pageparts/Logo.php';
             }
         </style>
         <script src="js/renderpost.js"></script>
-        <script src="https://code.jquery.com/jquery-4.0.0.js"></script>
-<script src="https://code.jquery.com/jquery-migrate-4.0.2.js"></script>
+        <script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
         <script type="text/javascript">
         $( document ).ready(function() {
             $( ".formatsample" ).each(function() {
