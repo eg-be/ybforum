@@ -12,7 +12,7 @@ function formatText(tag)
         newTxt+= '[/' + tag + ']';
         newTxt+= txt.substr(cursorEnd);
         $textArea.val(newTxt);
-        $textArea.focus();
+        $textArea.trigger("focus");
     }
 }
 
@@ -28,7 +28,7 @@ function addObject(object)
         newTxt+= object;
         newTxt+= txt.substr(cursorStart);
         $textArea.val(newTxt);
-        $textArea.focus();
+        $textArea.trigger("focus");
         $textArea.prop("selectionEnd", cursorStart + object.length);
     }
 }
