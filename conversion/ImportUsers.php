@@ -31,7 +31,7 @@ try {
     SetAssertOptions();
     PrintAssertOptions();
     $imp = new DataImporter();
-    $imp->ImportUsers();
+    $imp->importUsers();
     echo 'Done' . "\n";
 } catch (Exception $ex) {
     echo 'Failed: ' . $ex->getMessage() . "\n";
