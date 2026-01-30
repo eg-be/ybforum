@@ -36,7 +36,7 @@ class SearchForm
         $this->m_sh = $searchHandler;
     }
 
-    public function RenderHtmlForm(): string
+    public function renderHtmlForm(): string
     {
         $searchString = null;
         $searchNick = null;

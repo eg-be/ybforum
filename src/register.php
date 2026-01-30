@@ -118,7 +118,7 @@ try {
 if ($registerUserHandler && $registerUserHandler->hasException()) {
     echo '<div class="failcolor fullwidthcenter">'
             . '<span class="fbold">Fehler: </span>'
-            . $registerUserHandler->getLastException()->GetMessage()
+            . $registerUserHandler->getLastException()->getMessage()
             . '</div>';
 }
 ?>

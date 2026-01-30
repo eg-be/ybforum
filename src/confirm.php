@@ -67,7 +67,7 @@ require_once __DIR__ . '/pageparts/ConfirmForm.php';
         } catch (InvalidArgumentException $ex) {
             echo '<span class="failcolor">'
                     . '<span class="fbold">Fehler: </span>'
-                    . $ex->GetMessage() . '</span>';
+                    . $ex->getMessage() . '</span>';
         } catch (Exception $ex) {
             ErrorHandler::onException($ex);
         }

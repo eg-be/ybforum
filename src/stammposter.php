@@ -149,7 +149,7 @@ try {
 if ($resetPasswordHandler) {
     if ($resetPasswordHandler->hasException()) {
         $ex = $resetPasswordHandler->getLastException();
-        echo '<div class="fullwidthcenter" style="color: red"><span style="font-weight: bold;">Fehler: </span>' . $ex->GetMessage() . '</div>';
+        echo '<div class="fullwidthcenter" style="color: red"><span style="font-weight: bold;">Fehler: </span>' . $ex->getMessage() . '</div>';
     } else {
         echo '<div class="fullwidthcenter" style="color: #33cc33">Eine Mail mit einem Link zum zurücksetzen des Passwortes wurde an die hinterlegte Adresse gesendet.</div>';
     }

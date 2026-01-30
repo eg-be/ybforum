@@ -35,13 +35,13 @@ class Memory
         $this->m_msgPrefix = $msgPrefix;
     }
 
-    public function Measure(): void
+    public function measure(): void
     {
         $this->m_peakBytes = memory_get_peak_usage();
         $this->m_currentBytes = memory_get_usage();
     }
 
-    private function GetMessage(): string
+    private function getMessage(): string
     {
         $msg = '';
         if (!empty($this->m_msgPrefix)) {
@@ -53,14 +53,14 @@ class Memory
     }
 
 
-    public function Log(): void
+    public function log(): void
     {
-        error_log($this->GetMessage(), 0);
+        error_log($this->getMessage(), 0);
     }
 
     public function renderHtmlDiv(): string
     {
-        return '<div>' . $this->GetMessage() . '</div>';
+        return '<div>' . $this->getMessage() . '</div>';
     }
 
     private string $m_msgPrefix;

@@ -45,7 +45,7 @@ try {
             // migration succeeded, show some info
         } catch (InvalidArgumentException $ex) {
             // Migration failed, show error latee
-            $alreadyMigrated = ($ex->GetMessage() == MigrateUserHandler::MSG_ALREADY_MIGRATED);
+            $alreadyMigrated = ($ex->getMessage() == MigrateUserHandler::MSG_ALREADY_MIGRATED);
         }
     } else {
         // Someone arrived here from a page that requested to migrate
@@ -90,7 +90,7 @@ try {
         $migrationException = $migrateUserHandler->getLastException();
         echo '<div id="status" class="fullwidthcenter failcolor">'
             . '<span class="fbold">Fehler: </span>'
-            . $migrationException->GetMessage()
+            . $migrationException->getMessage()
             . '</div>';
     }
 ?>

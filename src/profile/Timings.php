@@ -37,12 +37,12 @@ class Timings
         $this->m_start = microtime(true);
     }
 
-    public function Stop(): void
+    public function stop(): void
     {
         $this->m_time_elapsed_secs = microtime(true) - $this->m_start;
     }
 
-    private function GetMessage(): string
+    private function getMessage(): string
     {
         $msg = ($this->m_time_elapsed_secs * 1000) . 'ms elapsed.';
         if (!empty($this->m_msgPrefix)) {
@@ -51,14 +51,14 @@ class Timings
         return $msg;
     }
 
-    public function Log(): void
+    public function log(): void
     {
-        error_log($this->GetMessage(), 0);
+        error_log($this->getMessage(), 0);
     }
 
     public function renderHtmlDiv(): string
     {
-        return '<div>' . $this->GetMessage() . '</div>';
+        return '<div>' . $this->getMessage() . '</div>';
     }
 
     private float $m_start;

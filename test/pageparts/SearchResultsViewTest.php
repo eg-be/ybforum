@@ -22,7 +22,7 @@ final class SearchResultsViewTest extends TestCase
         $this->searchHandler->method('MoreRecordsAvailable')->willReturn(false);
 
         $searchResultsView = new SearchResultsView($this->searchHandler);
-        $html = $searchResultsView->RenderResultsNavigationDiv();
+        $html = $searchResultsView->renderResultsNavigationDiv();
 
         static::assertStringContainsString('<div></div>', $html);
     }
@@ -36,7 +36,7 @@ final class SearchResultsViewTest extends TestCase
         $this->searchHandler->method('GetLimit')->willReturn(1000);
 
         $searchResultsView = new SearchResultsView($this->searchHandler);
-        $html = $searchResultsView->RenderResultsNavigationDiv();
+        $html = $searchResultsView->renderResultsNavigationDiv();
 
         static::assertStringContainsString('<a class="fbold" href="#" onclick="document.getElementById(\'form_previous_results\').submit()">&lt;-- Vorherige 1000 Resultate &lt;--</a>', $html);
     }
@@ -50,7 +50,7 @@ final class SearchResultsViewTest extends TestCase
         $this->searchHandler->method('GetLimit')->willReturn(1000);
 
         $searchResultsView = new SearchResultsView($this->searchHandler);
-        $html = $searchResultsView->RenderResultsNavigationDiv();
+        $html = $searchResultsView->renderResultsNavigationDiv();
 
         static::assertStringContainsString('<a class="fbold" style="float: right;" href="#" onclick="document.getElementById(\'form_next_results\').submit()">--&gt; Nächste 1000 Resultate --&gt;</a>', $html);
     }
@@ -68,7 +68,7 @@ final class SearchResultsViewTest extends TestCase
         $this->searchHandler->method('GetNoReplies')->willReturn(true);
 
         $searchResultsView = new SearchResultsView($this->searchHandler);
-        $html = $searchResultsView->RenderResultsNavigationDiv();
+        $html = $searchResultsView->renderResultsNavigationDiv();
 
         static::assertStringContainsString('<form id="form_previous_results" style="display: inline-block;" method="post" action="search.php?search=1" accept-charset="utf-8">', $html);
         static::assertStringContainsString('<input type="hidden" name="' . SearchHandler::PARAM_SEARCH_STRING . '" value="the-search-string"/>', $html);
@@ -92,7 +92,7 @@ final class SearchResultsViewTest extends TestCase
         $this->searchHandler->method('GetNoReplies')->willReturn(true);
 
         $searchResultsView = new SearchResultsView($this->searchHandler);
-        $html = $searchResultsView->RenderResultsNavigationDiv();
+        $html = $searchResultsView->renderResultsNavigationDiv();
 
         static::assertStringContainsString('<form id="form_next_results" style="display: inline-block;" method="post" action="search.php?search=1" accept-charset="utf-8">', $html);
         static::assertStringContainsString('<input type="hidden" name="' . SearchHandler::PARAM_SEARCH_STRING . '" value="the-search-string"/>', $html);
@@ -113,7 +113,7 @@ final class SearchResultsViewTest extends TestCase
         $this->searchHandler->method('GetSearchNick')->willReturn('nick&&&');
 
         $searchResultsView = new SearchResultsView($this->searchHandler);
-        $html = $searchResultsView->RenderResultsNavigationDiv();
+        $html = $searchResultsView->renderResultsNavigationDiv();
 
         static::assertStringContainsString('<input type="hidden" name="' . SearchHandler::PARAM_SEARCH_STRING . '" value="search&amp;&amp;&amp;"/>', $html);
         static::assertStringContainsString('<input type="hidden" name="' . SearchHandler::PARAM_NICK . '" value="nick&amp;&amp;&amp;"/>', $html);
@@ -126,7 +126,7 @@ final class SearchResultsViewTest extends TestCase
         $this->searchHandler->method('GetValidSortFields')->willReturn([SortField::FIELD_DATE, SortField::FIELD_TITLE, SortField::FIELD_NICK]);
 
         $searchResultsView = new SearchResultsView($this->searchHandler);
-        $html = $searchResultsView->RenderSortDiv();
+        $html = $searchResultsView->renderSortDiv();
 
         static::assertStringContainsString('<a href="#" class="fitalic" onclick="document.getElementById(\'form_sort_nick\').submit()">Stammposter &#8593;</a>', $html);
     }
@@ -138,7 +138,7 @@ final class SearchResultsViewTest extends TestCase
         $this->searchHandler->method('GetValidSortFields')->willReturn([SortField::FIELD_DATE, SortField::FIELD_TITLE, SortField::FIELD_NICK]);
 
         $searchResultsView = new SearchResultsView($this->searchHandler);
-        $html = $searchResultsView->RenderSortDiv();
+        $html = $searchResultsView->renderSortDiv();
 
         static::assertStringContainsString('<a href="#" class="fitalic" onclick="document.getElementById(\'form_sort_nick\').submit()">Stammposter &#8595;</a>', $html);
     }
@@ -150,7 +150,7 @@ final class SearchResultsViewTest extends TestCase
         $this->searchHandler->method('GetValidSortFields')->willReturn([SortField::FIELD_DATE, SortField::FIELD_TITLE, SortField::FIELD_NICK]);
 
         $searchResultsView = new SearchResultsView($this->searchHandler);
-        $html = $searchResultsView->RenderSortDiv();
+        $html = $searchResultsView->renderSortDiv();
 
         static::assertStringContainsString('<a href="#" onclick="document.getElementById(\'form_sort_creation_ts\').submit()">Datum </a>', $html);
         static::assertStringContainsString('<a href="#" onclick="document.getElementById(\'form_sort_title\').submit()">Titel </a>', $html);
@@ -163,7 +163,7 @@ final class SearchResultsViewTest extends TestCase
         $this->searchHandler->method('GetValidSortFields')->willReturn([SortField::FIELD_DATE, SortField::FIELD_TITLE, SortField::FIELD_NICK]);
 
         $searchResultsView = new SearchResultsView($this->searchHandler);
-        $html = $searchResultsView->RenderSortDiv();
+        $html = $searchResultsView->renderSortDiv();
 
         static::assertStringContainsString('<form id="form_sort_title" style="display: inline-block;" method="post" action="search.php?search=1" accept-charset="utf-8">', $html);
         static::assertStringContainsString('<form id="form_sort_creation_ts" style="display: inline-block;" method="post" action="search.php?search=1" accept-charset="utf-8">', $html);
@@ -177,7 +177,7 @@ final class SearchResultsViewTest extends TestCase
         $this->searchHandler->method('GetValidSortFields')->willReturn([SortField::FIELD_DATE, SortField::FIELD_TITLE, SortField::FIELD_NICK]);
 
         $searchResultsView = new SearchResultsView($this->searchHandler);
-        $html = $searchResultsView->RenderSortDiv();
+        $html = $searchResultsView->renderSortDiv();
 
         static::assertMatchesRegularExpression('/<form id="form_sort_title".+<input type="hidden" name="search_result_offset" value="0"\/>/', $html);
         static::assertMatchesRegularExpression('/<form id="form_sort_creation_ts".+<input type="hidden" name="search_result_offset" value="0"\/>/', $html);
@@ -201,7 +201,7 @@ final class SearchResultsViewTest extends TestCase
         $this->searchHandler->method('GetResults')->willReturn([$result1, $result2]);
 
         $searchResultsView = new SearchResultsView($this->searchHandler);
-        $html = $searchResultsView->RenderResultsDiv();
+        $html = $searchResultsView->renderResultsDiv();
 
         static::assertStringContainsString('<p class="nomargin"><a href="showentry.php?idpost=101">Title 1</a> - <span class="fbold">Nick 1</span> - 30.03.2020 14:30:05</p>', $html);
         static::assertStringContainsString('<p class="nomargin"><a href="showentry.php?idpost=222">Title 2</a> - <span class="fbold">Nick 2</span> - 30.03.2018 13:00:59</p>', $html);
@@ -218,7 +218,7 @@ final class SearchResultsViewTest extends TestCase
         $this->searchHandler->method('GetResults')->willReturn([$result1]);
 
         $searchResultsView = new SearchResultsView($this->searchHandler);
-        $html = $searchResultsView->RenderResultsDiv();
+        $html = $searchResultsView->renderResultsDiv();
 
         static::assertStringContainsString('<p class="nomargin"><a href="showentry.php?idpost=101">Title &amp;</a> - <span class="fbold">Nick &amp;</span> - 30.03.2020 14:30:05</p>', $html);
     }

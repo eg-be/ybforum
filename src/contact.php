@@ -94,7 +94,7 @@ try {
 if ($contactHandler && $contactHandler->hasException()) {
     echo '<div class="failcolor fullwidthcenter">'
             . '<span class="fbold">Fehler: </span>'
-            . $contactHandler->getLastException()->GetMessage()
+            . $contactHandler->getLastException()->getMessage()
             . '</div>';
 }
 ?>

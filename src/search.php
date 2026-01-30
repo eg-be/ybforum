@@ -87,7 +87,7 @@ if ($searchHandler && $searchHandler->hasException()) {
     $searchException = $searchHandler->getLastException();
     echo '<div id="status" class="fullwidthcenter" style="color: red;">'
         . '<span class="fbold">Fehler: </span>'
-        . $searchException->GetMessage()
+        . $searchException->getMessage()
         . '</div>';
 }
 ?>
@@ -95,17 +95,17 @@ if ($searchHandler && $searchHandler->hasException()) {
         <?php
 // Alwyas render the form to start a new search
 $searchForm = new SearchForm($searchHandler);
-echo $searchForm->RenderHtmlForm();
+echo $searchForm->renderHtmlForm();
 ?>
         </div>
         <?php
 // If we have some pending results, render them
 if ($searchHandler && $searchHandler->hasResults()) {
     $searchResultsView = new SearchResultsView($searchHandler);
-    echo $searchResultsView->RenderResultsNavigationDiv();
-    echo $searchResultsView->RenderSortDiv();
-    echo $searchResultsView->RenderResultsDiv();
-    echo $searchResultsView->RenderResultsNavigationDiv();
+    echo $searchResultsView->renderResultsNavigationDiv();
+    echo $searchResultsView->renderSortDiv();
+    echo $searchResultsView->renderResultsDiv();
+    echo $searchResultsView->renderResultsNavigationDiv();
 }
 ?>
         <?php

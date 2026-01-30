@@ -37,7 +37,7 @@ final class PostListTest extends TestCase
     {
         $postList = new PostList($this->entries);
 
-        $html = $postList->RenderListDiv();
+        $html = $postList->renderListDiv();
 
         static::assertMatchesRegularExpression('/<div class="fullwidth">.+<\/div>/', $html);
     }
@@ -46,7 +46,7 @@ final class PostListTest extends TestCase
     {
         $postList = new PostList([]);
 
-        $html = $postList->RenderListDiv();
+        $html = $postList->renderListDiv();
 
         static::assertStringContainsString('<div class="fullwidth"></div>', $html);
     }
@@ -55,7 +55,7 @@ final class PostListTest extends TestCase
     {
         $postList = new PostList($this->entries);
 
-        $html = $postList->RenderListDiv();
+        $html = $postList->renderListDiv();
 
         static::assertStringContainsString('<a href="showentry.php?idpost=11">title 01</a>', $html);
         static::assertStringContainsString('<a href="showentry.php?idpost=22">title 02</a>', $html);
@@ -71,7 +71,7 @@ final class PostListTest extends TestCase
         $entryNoContent->method('GetPostTimestamp')->willReturn(DateTime::createFromFormat('d/m/Y', '26/01/1983'));
         $postList = new PostList([$entryNoContent]);
 
-        $html = $postList->RenderListDiv();
+        $html = $postList->renderListDiv();
 
         static::assertStringContainsString('<a href="showentry.php?idpost=11">title 01 (o.T.)</a>', $html);
     }
@@ -80,7 +80,7 @@ final class PostListTest extends TestCase
     {
         $postList = new PostList($this->entries);
 
-        $html = $postList->RenderListDiv();
+        $html = $postList->renderListDiv();
 
         static::assertStringContainsString('</a> - <span class="fbold">nick 01</span>', $html);
         static::assertStringContainsString('</a> - <span class="fbold">nick 02</span>', $html);
@@ -90,7 +90,7 @@ final class PostListTest extends TestCase
     {
         $postList = new PostList($this->entries);
 
-        $html = $postList->RenderListDiv();
+        $html = $postList->renderListDiv();
 
         static::assertStringContainsString('26.01.1983 02:05:13', $html);
         static::assertStringContainsString('30.03.2018 14:15:10', $html);
@@ -101,7 +101,7 @@ final class PostListTest extends TestCase
     {
         $postList = new PostList($this->entries);
 
-        $html = $postList->RenderListDiv();
+        $html = $postList->renderListDiv();
 
         static::assertStringContainsString('<p class="nomargin"><a href="showentry.php?idpost=11">title 01</a>', $html);
         static::assertStringContainsString('<p class="nomargin"><a href="showentry.php?idpost=22">title 02</a>', $html);

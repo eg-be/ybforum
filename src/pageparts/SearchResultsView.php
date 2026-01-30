@@ -35,7 +35,7 @@ class SearchResultsView
         $this->m_sh = $searchHandler;
     }
 
-    private function GetHiddenSearchForm(
+    private function getHiddenSearchForm(
         string $id,
         int $offset,
         SortField $sortField,
@@ -76,11 +76,11 @@ class SearchResultsView
         return $html;
     }
 
-    public function RenderResultsNavigationDiv(): string
+    public function renderResultsNavigationDiv(): string
     {
         $html = '<div>';
         if (!$this->m_sh->isFirstRecordBlock()) {
-            $html .= $this->GetHiddenSearchForm(
+            $html .= $this->getHiddenSearchForm(
                 'form_previous_results',
                 $this->m_sh->getPreviousOffset(),
                 $this->m_sh->getSortField(),
@@ -94,7 +94,7 @@ class SearchResultsView
 
 
         if ($this->m_sh->moreRecordsAvailable()) {
-            $html .= $this->GetHiddenSearchForm(
+            $html .= $this->getHiddenSearchForm(
                 'form_next_results',
                 $this->m_sh->getNextOffset(),
                 $this->m_sh->getSortField(),
@@ -109,7 +109,7 @@ class SearchResultsView
         return $html;
     }
 
-    public function RenderSortDiv(): string
+    public function renderSortDiv(): string
     {
         $html = '<div style="padding-bottom: 1em; padding-top: 1em;">';
         $html .= '<span class="fbold">Sortieren nach: </span>';
@@ -135,7 +135,7 @@ class SearchResultsView
                     $sortOrder = SortOrder::ORDER_DESC;
                 }
             }
-            $html .= $this->GetHiddenSearchForm(
+            $html .= $this->getHiddenSearchForm(
                 $id,
                 0,
                 $sortField,
@@ -151,7 +151,7 @@ class SearchResultsView
         return $html;
     }
 
-    public function RenderResultsDiv(): string
+    public function renderResultsDiv(): string
     {
         $html = '<div>';
         $results = $this->m_sh->getResults();

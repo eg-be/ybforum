@@ -50,7 +50,7 @@ try {
         } catch (InvalidArgumentException $ex) {
             // Posting failed. Reshow the form or if we are
             // requested to migrate move on to migrate user page
-            if ($ex->GetMessage() === PostEntryHandler::MSG_MIGRATION_REQUIRED) {
+            if ($ex->getMessage() === PostEntryHandler::MSG_MIGRATION_REQUIRED) {
                 // If we know that we need to migrate, we can also pass in some values for email and nick
                 $user = $db->loadUserByNick($postEntryHandler->getNick());
                 // Remember the current post data
@@ -130,7 +130,7 @@ try {
         $postException = $postEntryHandler->getLastException();
         echo '<div id="status" class="fullwidthcenter" style="color: red;">'
             . '<span class="fbold">Fehler: </span>'
-            . $postException->GetMessage()
+            . $postException->getMessage()
             . '</div>';
     }
 } catch (Exception $ex) {

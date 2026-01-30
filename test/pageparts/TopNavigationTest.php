@@ -43,7 +43,7 @@ final class TopNavigationTest extends TestCase
     {
         $_SERVER['REQUEST_URI'] = 'https://somewhere.com/' . $pageUri;
         $nav = new TopNavigation($postId);
-        static::assertTrue($page === $nav->GetPage());
+        static::assertTrue($page === $nav->getPage());
     }
 
     public function testPostIdMustBeSetForShowPage(): void

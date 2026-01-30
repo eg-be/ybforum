@@ -70,7 +70,7 @@ try {
 try {
     $replies = $db->loadRecentPosts(YbForumConfig::RECENT_ENTRIES_COUNT);
     $pl = new PostList($replies);
-    echo $pl->RenderListDiv();
+    echo $pl->renderListDiv();
 } catch (Exception $ex) {
     ErrorHandler::onException($ex);
 }

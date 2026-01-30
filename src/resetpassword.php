@@ -77,7 +77,7 @@ require_once __DIR__ . '/pageparts/ResetPasswordForm.php';
                     // display the error and show the form again
                     echo '<div class="failcolor">'
                             . '<span class="fbold">Fehler: </span>'
-                            . $ex->GetMessage() . '</span></div>';
+                            . $ex->getMessage() . '</span></div>';
                     $showForm = true;
                 }
             }
@@ -88,7 +88,7 @@ require_once __DIR__ . '/pageparts/ResetPasswordForm.php';
         } catch (InvalidArgumentException $ex) {
             echo '<div class="failcolor">'
                     . '<span class="fbold">Fehler: </span>'
-                    . $ex->GetMessage() . '</span></div>';
+                    . $ex->getMessage() . '</span></div>';
         } catch (Exception $ex) {
             ErrorHandler::onException($ex);
         }
