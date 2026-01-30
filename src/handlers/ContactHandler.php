@@ -60,11 +60,11 @@ class ContactHandler extends BaseHandler
         $this->m_captchaVerifier = null;
     }
 
-    protected function ReadParams(): void
+    protected function readParams(): void
     {
-        $this->email = self::ReadEmailParam(self::PARAM_EMAIL);
-        $this->emailRepeat = self::ReadEmailParam(self::PARAM_EMAIL_REPEAT);
-        $this->msg = self::ReadStringParam(self::PARAM_MSG);
+        $this->email = self::readEmailParam(self::PARAM_EMAIL);
+        $this->emailRepeat = self::readEmailParam(self::PARAM_EMAIL_REPEAT);
+        $this->msg = self::readStringParam(self::PARAM_MSG);
 
         if (CaptchaV3Config::CAPTCHA_VERIFY) {
             $this->m_captchaVerifier = new CaptchaV3Verifier(
@@ -75,12 +75,12 @@ class ContactHandler extends BaseHandler
         }
     }
 
-    protected function ValidateParams(): void
+    protected function validateParams(): void
     {
         // Validate where we cannot accept null values:
-        self::ValidateStringParam($this->msg, self::MSG_EMPTY);
-        self::ValidateEmailValue($this->email);
-        self::ValidateEmailValue($this->emailRepeat);
+        self::validateStringParam($this->msg, self::MSG_EMPTY);
+        self::validateEmailValue($this->email);
+        self::validateEmailValue($this->emailRepeat);
 
         // check that mail-addresses match:
         if ($this->email !== $this->emailRepeat) {
@@ -89,55 +89,55 @@ class ContactHandler extends BaseHandler
 
         // Verify captcha
         if (CaptchaV3Config::CAPTCHA_VERIFY) {
-            $this->m_captchaVerifier->VerifyResponse();
+            $this->m_captchaVerifier->verifyResponse();
         }
     }
 
-    protected function HandleRequestImpl(ForumDb $db): void
+    protected function handleRequestImpl(ForumDb $db): void
     {
         if (is_null($this->logger)) {
             $this->logger = new Logger($db);
         }
         // try to log what we have received
-        $this->logger->LogMessage(LogType::LOG_CONTACT_FORM_SUBMITTED, 'Mail: ' . $this->email . '; Msg: ' . $this->msg);
+        $this->logger->logMessage(LogType::LOG_CONTACT_FORM_SUBMITTED, 'Mail: ' . $this->email . '; Msg: ' . $this->msg);
 
         // Send a mail to all admins
         if (is_null($this->mailer)) {
             $this->mailer = new Mailer();
         }
-        $admins = $db->GetAdminUsers();
+        $admins = $db->getAdminUsers();
         if (count($admins) === 0) {
             throw new InvalidArgumentException(self::MSG_NO_ADMINS_DEFINED, parent::MSGCODE_INTERNAL_ERROR);
         }
         foreach ($admins as $admin) {
-            if (!$this->mailer->SendAdminContactMessage($this->email, $this->msg, $admin->GetEmail())) {
+            if (!$this->mailer->sendAdminContactMessage($this->email, $this->msg, $admin->getEmail())) {
                 // Fail
                 throw new InvalidArgumentException(self::MSG_SENDING_CONTACTMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
             }
         }
     }
 
-    public function GetEmail(): ?string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    public function GetEmailRepeat(): ?string
+    public function getEmailRepeat(): ?string
     {
         return $this->emailRepeat;
     }
 
-    public function GetMsg(): ?string
+    public function getMsg(): ?string
     {
         return $this->msg;
     }
 
-    public function SetMailer(Mailer $mailer): void
+    public function setMailer(Mailer $mailer): void
     {
         $this->mailer = $mailer;
     }
 
-    public function SetLogger(Logger $logger): void
+    public function setLogger(Logger $logger): void
     {
         $this->logger = $logger;
     }

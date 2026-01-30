@@ -70,29 +70,29 @@ class PageNavigationView
     }
 
 
-    private function CreatePageNavElement(int $pageNr): string
+    private function createPageNavElement(int $pageNr): string
     {
         return '<span class="navelement"><a href="index.php?page=' . $pageNr . '">'
                 . $pageNr . '</a></span>';
     }
 
-    private function CreateFirstPageNavElement(): string
+    private function createFirstPageNavElement(): string
     {
         return '<a href="index.php?page=1">&lt;&lt;</a>';
     }
 
-    private function CreateCurrentPagElement(): string
+    private function createCurrentPagElement(): string
     {
         return '<span class="navelement fbold">' . $this->m_currentPage
                 . '</span>';
     }
 
-    private function CreateLastPageNavElement(): string
+    private function createLastPageNavElement(): string
     {
         return '<a href="index.php?page=' . $this->m_totalPages . '">&gt;&gt;</a>';
     }
 
-    private function CreateSkipLeftNavElement(): string
+    private function createSkipLeftNavElement(): string
     {
         $destinationPageNr
                 = $this->m_currentPage - $this->m_skipNrOfPages;
@@ -103,7 +103,7 @@ class PageNavigationView
                 . $destinationPageNr . '">&lt;</a></span>';
     }
 
-    private function CreateSkipRightNavElement(): string
+    private function createSkipRightNavElement(): string
     {
         $destinationPageNr
                 = $this->m_currentPage + $this->m_skipNrOfPages;
@@ -123,26 +123,26 @@ class PageNavigationView
         $htmlStr = '';
         // Navigate towards left (only possible if we are not on newest page)
         if ($this->m_currentPage > 1) {
-            $htmlStr .= $this->CreateFirstPageNavElement() . ' ';
+            $htmlStr .= $this->createFirstPageNavElement() . ' ';
             if ($this->m_currentPage - $this->m_skipNrOfPages > 1) {
-                $htmlStr .= $this->CreateSkipLeftNavElement() . ' ';
+                $htmlStr .= $this->createSkipLeftNavElement() . ' ';
             }
             for ($i = $this->m_leftmostPage; $i < $this->m_currentPage; $i++) {
-                $htmlStr .= $this->CreatePageNavElement($i) . ' ';
+                $htmlStr .= $this->createPageNavElement($i) . ' ';
             }
         }
         // Mark current page
-        $htmlStr .= $this->CreateCurrentPagElement() . ' ';
+        $htmlStr .= $this->createCurrentPagElement() . ' ';
         // and navigate towards right
         if ($this->m_currentPage < $this->m_totalPages) {
             for ($i = $this->m_currentPage + 1; $i <= $this->m_rightmostPage; $i++) {
-                $htmlStr .= $this->CreatePageNavElement($i) . ' ';
+                $htmlStr .= $this->createPageNavElement($i) . ' ';
             }
             if ($this->m_currentPage + $this->m_skipNrOfPages
                     < $this->m_totalPages) {
-                $htmlStr .= $this->CreateSkipRightNavElement() . ' ';
+                $htmlStr .= $this->createSkipRightNavElement() . ' ';
             }
-            $htmlStr .= $this->CreateLastPageNavElement();
+            $htmlStr .= $this->createLastPageNavElement();
         }
         return $htmlStr;
     }

@@ -46,24 +46,24 @@ try {
     } else {
         // check that this adminuserid is still valid
         $db = new ForumDb(false);
-        $adminUser = $db->LoadUserById($_SESSION['adminuserid']);
-        if (!($adminUser && $adminUser->IsActive() && $adminUser->IsAdmin())) {
+        $adminUser = $db->loadUserById($_SESSION['adminuserid']);
+        if (!($adminUser && $adminUser->isActive() && $adminUser->isAdmin())) {
             header('Location: login.php');
             exit;
         }
     }
     // setup required views and do all actions on those views
     $userView = new UserView();
-    $userViewResult = $userView->HandleActionsAndGetResultDiv($db, $_SESSION['adminuserid']);
+    $userViewResult = $userView->handleActionsAndGetResultDiv($db, $_SESSION['adminuserid']);
     $pendingActList = new PendingApprovalUserList();
-    $pendingActListResult = $pendingActList->HandleActionsAndGetResultDiv($db);
+    $pendingActListResult = $pendingActList->handleActionsAndGetResultDiv($db);
     $pendingConfList = new PendingConfirmationUserList();
-    $pendingConfListResult = $pendingConfList->HandleActionsAndGetResultDiv($db);
+    $pendingConfListResult = $pendingConfList->handleActionsAndGetResultDiv($db);
     $postView = new PostView();
-    $postViewResult = $postView->HandleActionsAndGetResultDiv($db);
+    $postViewResult = $postView->handleActionsAndGetResultDiv($db);
 
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
 <!DOCTYPE html>
@@ -79,8 +79,8 @@ try {
         <div>
         <?php
         echo '<span class="fbold">Eingeloggt als:</span> <span class="fitalic">'
-                . htmlspecialchars($adminUser->GetNick())
-                . '</span> (<span class="fitalic">' . htmlspecialchars($adminUser->GetEmail())
+                . htmlspecialchars($adminUser->getNick())
+                . '</span> (<span class="fitalic">' . htmlspecialchars($adminUser->getEmail())
                 . '</span>)';
 echo ' <a href="logout.php">Logout</a> | ';
 echo ' <a href="index.php">Aktualisieren</a>';
@@ -91,10 +91,10 @@ echo ' <a href="index.php">Aktualisieren</a>';
             <div class="pageparttitle">Stammposter die auf die Freischaltung durch einen Admin warten</div>
             <?php
     try {
-        echo $pendingActList->RenderHtmlDiv($db);
+        echo $pendingActList->renderHtmlDiv($db);
         echo $pendingActListResult;
     } catch (Exception $ex) {
-        ErrorHandler::OnException($ex);
+        ErrorHandler::onException($ex);
     }
 ?>
         </div>
@@ -103,10 +103,10 @@ echo ' <a href="index.php">Aktualisieren</a>';
             <div class="pageparttitle">Stammposter die ihre Registrierung oder Migration bestätigen müssen</div>
             <?php
 try {
-    echo $pendingConfList->RenderHtmlDiv($db);
+    echo $pendingConfList->renderHtmlDiv($db);
     echo $pendingConfListResult;
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>
@@ -116,9 +116,9 @@ try {
             <?php
 try {
     $deactList = new DeactivatedUserList();
-    echo $deactList->RenderHtmlDiv($db);
+    echo $deactList->renderHtmlDiv($db);
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>
@@ -128,9 +128,9 @@ try {
             <?php
 try {
     $adminList = new AdminList();
-    echo $adminList->RenderHtmlDiv($db);
+    echo $adminList->renderHtmlDiv($db);
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>
@@ -144,10 +144,10 @@ try {
             </form>
             <?php
 try {
-    echo $userView->RenderHtmlDiv($db);
+    echo $userView->renderHtmlDiv($db);
     echo $userViewResult;
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>
@@ -164,7 +164,7 @@ try {
             </form>
             <?php
     echo $postViewResult;
-echo $postView->RenderHtmlDiv($db);
+echo $postView->renderHtmlDiv($db);
 ?>
         </div>
         <hr>
@@ -173,9 +173,9 @@ echo $postView->RenderHtmlDiv($db);
             <?php
 try {
     $stats = new Statistics();
-    echo $stats->RenderHtmlDiv($db);
+    echo $stats->renderHtmlDiv($db);
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>
@@ -185,9 +185,9 @@ try {
             <?php
 try {
     $logList = new LogEntryList();
-    echo $logList->RenderHtmlDiv($db);
+    echo $logList->renderHtmlDiv($db);
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>

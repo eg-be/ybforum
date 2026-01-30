@@ -38,14 +38,14 @@ try {
     } else {
         // check that this adminuserid is still valid
         $db = new ForumDb();
-        $adminUser = $db->LoadUserById($_SESSION['adminuserid']);
-        if (!($adminUser && $adminUser->IsActive() && $adminUser->IsAdmin())) {
+        $adminUser = $db->loadUserById($_SESSION['adminuserid']);
+        if (!($adminUser && $adminUser->isActive() && $adminUser->isAdmin())) {
             header('Location: login.php');
             exit;
         }
     }
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
 <!DOCTYPE html>
@@ -127,7 +127,7 @@ try {
         echo $rowStr;
     }
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
             </table>

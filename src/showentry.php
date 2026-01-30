@@ -38,17 +38,17 @@ try {
     $db = new ForumDb();
 
     // Load the post we want to display and its parent (if one exists)
-    $post = $db->LoadPost($idPost);
-    if (!$post || $post->IsHidden()) {
+    $post = $db->loadPost($idPost);
+    if (!$post || $post->isHidden()) {
         return;
     }
-    $parentPostId = $post->GetParentPostId();
+    $parentPostId = $post->getParentPostId();
     $parentPost = null;
     if ($parentPostId) {
-        $parentPost = $db->LoadPost($parentPostId);
+        $parentPost = $db->loadPost($parentPostId);
     }
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
 
@@ -74,17 +74,17 @@ try {
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
         } catch (Exception $ex) {
-            ErrorHandler::OnException($ex);
+            ErrorHandler::onException($ex);
         }
 ?>
         <hr>
         <!-- The page header is really simple, in line that -->
         <?php
 try {
-    $topNav = new TopNavigation($post->GetId());
+    $topNav = new TopNavigation($post->getId());
     echo $topNav->renderHtmlDiv();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         <div>
@@ -94,7 +94,7 @@ try {
     $postView = new PostView($db, $post, $parentPost);
     echo $postView->renderHtmlTitleDivContent();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>
@@ -105,7 +105,7 @@ try {
     // put the content in this div here
     echo $postView->renderHtmlPostContentDivContent();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>
@@ -120,7 +120,7 @@ try {
         // And the threads following this post
         echo $postView->renderHtmlThreadDivContent();
     } catch (Exception $ex) {
-        ErrorHandler::OnException($ex);
+        ErrorHandler::onException($ex);
     }
 ?>
             </div>

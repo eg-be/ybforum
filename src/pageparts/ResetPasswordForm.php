@@ -36,11 +36,11 @@ class ResetPasswordForm
         $this->m_confirmHandler = $confirmHandler;
     }
 
-    public function RenderHtmlDiv(): string
+    public function renderHtmlDiv(): string
     {
         $html = '<div class="fullwidthcenter">';
         $html .= '<span class="fbold">';
-        $html .= $this->m_confirmHandler->GetConfirmText();
+        $html .= $this->m_confirmHandler->getConfirmText();
         $html .= '</span>';
         $html .= '<form method="post" action="resetpassword.php" accept-charset="utf-8">';
         $html .= '<table style="margin:auto">';
@@ -57,10 +57,10 @@ class ResetPasswordForm
         $html .= '<tr>';
         $html .= '<td><input type="hidden" name="'
                 . ConfirmHandler::PARAM_TYPE
-                . '" value="' . $this->m_confirmHandler->GetType() . '"/></td>';
+                . '" value="' . $this->m_confirmHandler->getType() . '"/></td>';
         $html .= '<td><input type="hidden" name="'
                 . ConfirmHandler::PARAM_CODE . '" value="'
-                . $this->m_confirmHandler->GetCode() . '"/></td>';
+                . $this->m_confirmHandler->getCode() . '"/></td>';
         $html .= '</tr>';
         $html .= '<tr>';
         $html .= '<td colspan="2"><input type="submit" value="Passwort setzen"/></td>';

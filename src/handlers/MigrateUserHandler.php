@@ -68,23 +68,23 @@ class MigrateUserHandler extends BaseHandler
         $this->newEmail = null;
     }
 
-    protected function ReadParams(): void
+    protected function readParams(): void
     {
         // Read params
-        $this->nick = self::ReadStringParam(self::PARAM_NICK);
-        $this->oldPassword = self::ReadStringParam(self::PARAM_OLDPASS);
-        $this->newPassword = self::ReadStringParam(self::PARAM_NEWPASS);
-        $this->confirmNewPassword = self::ReadStringParam(self::PARAM_CONFIRMNEWPASS);
-        $this->newEmail = self::ReadEmailParam(self::PARAM_NEWEMAIL);
+        $this->nick = self::readStringParam(self::PARAM_NICK);
+        $this->oldPassword = self::readStringParam(self::PARAM_OLDPASS);
+        $this->newPassword = self::readStringParam(self::PARAM_NEWPASS);
+        $this->confirmNewPassword = self::readStringParam(self::PARAM_CONFIRMNEWPASS);
+        $this->newEmail = self::readEmailParam(self::PARAM_NEWEMAIL);
     }
 
-    protected function ValidateParams(): void
+    protected function validateParams(): void
     {
         // And validate the params
-        self::ValidateStringParam($this->nick, self::MSG_AUTH_FAIL);
-        self::ValidateStringParam($this->oldPassword, self::MSG_AUTH_FAIL);
-        self::ValidateStringParam($this->newPassword, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
-        self::ValidateEmailValue($this->newEmail);
+        self::validateStringParam($this->nick, self::MSG_AUTH_FAIL);
+        self::validateStringParam($this->oldPassword, self::MSG_AUTH_FAIL);
+        self::validateStringParam($this->newPassword, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
+        self::validateEmailValue($this->newEmail);
 
         // Passwords must match
         if ($this->newPassword !== $this->confirmNewPassword) {
@@ -92,43 +92,43 @@ class MigrateUserHandler extends BaseHandler
         }
     }
 
-    protected function HandleRequestImpl(ForumDb $db): void
+    protected function handleRequestImpl(ForumDb $db): void
     {
         // First: Check if there is a matching (real) user:
-        $user = $db->LoadUserByNick($this->nick);
+        $user = $db->loadUserByNick($this->nick);
         if (is_null($this->logger)) {
             $this->logger = new Logger($db);
         }
         if (!$user) {
-            $this->logger->LogMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, 'Passed nick: ' . $this->nick);
+            $this->logger->logMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, 'Passed nick: ' . $this->nick);
             throw new InvalidArgumentException(self::MSG_AUTH_FAIL, parent::MSGCODE_AUTH_FAIL);
         }
-        if ($user->IsDummyUser()) {
-            $this->logger->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_USER_IS_DUMMY, $user);
+        if ($user->isDummyUser()) {
+            $this->logger->logMessageWithUserId(LogType::LOG_AUTH_FAILED_USER_IS_DUMMY, $user);
             throw new InvalidArgumentException(self::MSG_AUTH_FAIL, parent::MSGCODE_AUTH_FAIL);
         }
         // Check if user still needs to migrate:
-        if (!$user->NeedsMigration()) {
-            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $user);
+        if (!$user->needsMigration()) {
+            $this->logger->logMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $user);
             throw new InvalidArgumentException(self::MSG_ALREADY_MIGRATED, parent::MSGCODE_BAD_PARAM);
         }
         // Auth using old password
-        if (!$user->OldAuth($this->oldPassword)) {
-            $this->logger->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_USING_OLD_PASSWORD, $user);
+        if (!$user->oldauth($this->oldPassword)) {
+            $this->logger->logMessageWithUserId(LogType::LOG_AUTH_FAILED_USING_OLD_PASSWORD, $user);
             throw new InvalidArgumentException(self::MSG_AUTH_FAIL, parent::MSGCODE_AUTH_FAIL);
         }
         // Authentication using old password succeeded
-        $this->logger->LogMessageWithUserId(LogType::LOG_AUTH_USING_OLD_PASSWORD, $user);
+        $this->logger->logMessageWithUserId(LogType::LOG_AUTH_USING_OLD_PASSWORD, $user);
         // The given Mailaddress must be unique:
-        $userByEmail = $db->LoadUserByEmail($this->newEmail);
-        if ($userByEmail && $userByEmail->GetId() !== $user->GetId()) {
-            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE, $user, 'New Email: ' . $this->newEmail);
+        $userByEmail = $db->loadUserByEmail($this->newEmail);
+        if ($userByEmail && $userByEmail->getId() !== $user->getId()) {
+            $this->logger->logMessageWithUserId(LogType::LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE, $user, 'New Email: ' . $this->newEmail);
             throw new InvalidArgumentException(self::MSG_EMAIL_NOT_UNIQUE, parent::MSGCODE_BAD_PARAM);
         }
         // check that the new email is not blacklisted
-        self::ValidateEmailAgainstBlacklist($this->newEmail, $db, $this->logger);
+        self::validateEmailAgainstBlacklist($this->newEmail, $db, $this->logger);
         // And prepare to migrate
-        $confirmCode = $db->RequestConfirmUserCode(
+        $confirmCode = $db->requestConfirmUserCode(
             $user,
             $this->newPassword,
             $this->newEmail,
@@ -140,27 +140,27 @@ class MigrateUserHandler extends BaseHandler
         if (is_null($this->mailer)) {
             $this->mailer = new Mailer();
         }
-        if (!$this->mailer->SendMigrateUserConfirmMessage($this->newEmail, $this->nick, $confirmCode)) {
+        if (!$this->mailer->sendMigrateUserConfirmMessage($this->newEmail, $this->nick, $confirmCode)) {
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
     }
 
-    public function GetNick(): ?string
+    public function getNick(): ?string
     {
         return $this->nick;
     }
 
-    public function GetNewEmail(): ?string
+    public function getNewEmail(): ?string
     {
         return $this->newEmail;
     }
 
-    public function SetLogger(Logger $logger): void
+    public function setLogger(Logger $logger): void
     {
         $this->logger = $logger;
     }
 
-    public function SetMailer(Mailer $mailer): void
+    public function setMailer(Mailer $mailer): void
     {
         $this->mailer = $mailer;
     }

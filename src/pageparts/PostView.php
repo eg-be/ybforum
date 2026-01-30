@@ -39,8 +39,8 @@ class PostView
      */
     public function __construct(ForumDb $forumDb, Post $post, ?Post $parentPost)
     {
-        assert($forumDb->IsConnected());
-        assert(is_null($parentPost) || $parentPost->GetId() === $post->GetParentPostId());
+        assert($forumDb->isConnected());
+        assert(is_null($parentPost) || $parentPost->getId() === $post->getParentPostId());
         $this->m_forumDb = $forumDb;
         $this->m_post = $post;
         $this->m_parentPost = $parentPost;
@@ -55,25 +55,25 @@ class PostView
     public function renderHtmlTitleDivContent(): string
     {
         $htmlStr = '<div class="fullwidthcenter generictitle">'
-            . htmlspecialchars($this->m_post->GetTitle());
-        if (!$this->m_post->HasContent()) {
+            . htmlspecialchars($this->m_post->getTitle());
+        if (!$this->m_post->hasContent()) {
             $htmlStr .= ' (o.T.)';
         }
         $htmlStr .= '</div>';
         $htmlStr .=  '<div>geschrieben von <span id="postnick">'
-                . htmlspecialchars($this->m_post->GetNick())
+                . htmlspecialchars($this->m_post->getNick())
                 . '</span> am ';
 
-        $timestampStr = $this->m_post->GetPostTimestamp()->format(
+        $timestampStr = $this->m_post->getPostTimestamp()->format(
             'd.m.Y \u\m H:i:s'
         );
         $htmlStr .= $timestampStr;
         if (!is_null($this->m_parentPost)) {
             $htmlStr .= ' - als Antwort auf: <a class="fbold" '
                 . 'href="showentry.php?idpost='
-                . $this->m_parentPost->GetId() . '">'
-                . htmlspecialchars($this->m_parentPost->GetTitle()) . '</a> '
-                . 'von ' . htmlspecialchars($this->m_parentPost->GetNick());
+                . $this->m_parentPost->getId() . '">'
+                . htmlspecialchars($this->m_parentPost->getTitle()) . '</a> '
+                . 'von ' . htmlspecialchars($this->m_parentPost->getNick());
         }
         $htmlStr .= '</div>';
         return $htmlStr;
@@ -90,36 +90,36 @@ class PostView
     {
         $extraData = '';
         // Add all extra data as data-tags
-        if ($this->m_post->IsOldPost()) {
-            $extraData .= 'data-oldno="' . $this->m_post->GetOldPostNo() . '" ';
+        if ($this->m_post->isOldPost()) {
+            $extraData .= 'data-oldno="' . $this->m_post->getOldPostNo() . '" ';
         }
-        if ($this->m_post->HasImgUrl()) {
+        if ($this->m_post->hasImgUrl()) {
             $extraData .= 'data-imgurl="'
-                    . htmlspecialchars($this->m_post->GetImgUrl()) . '" ';
+                    . htmlspecialchars($this->m_post->getImgUrl()) . '" ';
         }
-        if ($this->m_post->HasLinkUrl()) {
+        if ($this->m_post->hasLinkUrl()) {
             $extraData .= 'data-linkurl="'
-                    . htmlspecialchars($this->m_post->GetLinkUrl()) . '" ';
+                    . htmlspecialchars($this->m_post->getLinkUrl()) . '" ';
         }
-        if ($this->m_post->HasLinkText()) {
+        if ($this->m_post->hasLinkText()) {
             $extraData .= 'data-linktext="'
-                    . htmlspecialchars($this->m_post->GetLinkText()) . '" ';
+                    . htmlspecialchars($this->m_post->getLinkText()) . '" ';
         }
-        if ($this->m_post->HasEmail()) {
+        if ($this->m_post->hasEmail()) {
             $extraData .= 'data-email="'
-                    . htmlspecialchars($this->m_post->GetEmail()) . '" ';
+                    . htmlspecialchars($this->m_post->getEmail()) . '" ';
         }
         $html = '<div id="postcontent" ';
         if (!empty($extraData)) {
             $html .= $extraData;
         }
-        if (!$this->m_post->HasContent()) {
+        if (!$this->m_post->hasContent()) {
             $html .= 'class="nocontent fullwidthcenter">'
                 . 'Dieser Eintrag hat keinen Text!'
                 . '</div>';
         } else {
             $html .= 'class="postcontent">'
-                . htmlspecialchars($this->m_post->GetContent())
+                . htmlspecialchars($this->m_post->getContent())
                 . '</div>';
         }
         return $html;
@@ -133,26 +133,26 @@ class PostView
     public function renderHtmlThreadDivContent(): string
     {
         // if this post is already hidden, do not display any children at all
-        if ($this->m_post->IsHidden()) {
+        if ($this->m_post->isHidden()) {
             return '';
         }
         $htmlStr = '';
-        $threadIndexes = $this->m_forumDb->LoadPostReplies($this->m_post);
-        $ourPostIndent = $this->m_post->GetIndent();
+        $threadIndexes = $this->m_forumDb->loadPostReplies($this->m_post);
+        $ourPostIndent = $this->m_post->getIndent();
         foreach ($threadIndexes as $ti) {
             $htmlStr .= '<p class="nomargin" ';
             $htmlStr .= 'style="text-indent: ';
-            $htmlStr .= ($ti->GetIndent() - $ourPostIndent - 1) . 'em"><a ';
+            $htmlStr .= ($ti->getIndent() - $ourPostIndent - 1) . 'em"><a ';
             $htmlStr .= 'href="showentry.php?idpost='
-                . $ti->GetPostId() . '">';
-            $htmlStr .= $ti->GetTitle();
-            if (!$ti->HasContent()) {
+                . $ti->getPostId() . '">';
+            $htmlStr .= $ti->getTitle();
+            if (!$ti->hasContent()) {
                 $htmlStr .= ' (o.T.)';
             }
             $htmlStr .= '</a> - <span class="fbold">';
-            $htmlStr .= $ti->GetNick();
+            $htmlStr .= $ti->getNick();
             $htmlStr .= '</span> - ';
-            $htmlStr .= $ti->GetPostTimestamp()->format('d.m.Y H:i:s');
+            $htmlStr .= $ti->getPostTimestamp()->format('d.m.Y H:i:s');
             $htmlStr .= '</p>';
         }
         return $htmlStr;

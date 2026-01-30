@@ -25,7 +25,7 @@ final class ConfirmFormTest extends TestCase
     {
         $this->confirmHandler->method('GetConfirmText')->willReturn('the-confirm-text-to-display');
 
-        $html = $this->confirmForm->RenderHtmlDiv();
+        $html = $this->confirmForm->renderHtmlDiv();
 
         static::assertStringContainsString('<span class="fbold">the-confirm-text-to-display</span>', $html);
     }
@@ -35,7 +35,7 @@ final class ConfirmFormTest extends TestCase
         $this->confirmHandler->method('GetType')->willReturn('the-confirm-type');
         $this->confirmHandler->method('GetCode')->willReturn('the-confirm-code');
 
-        $html = $this->confirmForm->RenderHtmlDiv();
+        $html = $this->confirmForm->renderHtmlDiv();
 
         static::assertStringContainsString('<input type="hidden" name="' . ConfirmHandler::PARAM_TYPE . '" value="the-confirm-type"/>', $html);
         static::assertStringContainsString('<input type="hidden" name="' . ConfirmHandler::PARAM_CODE . '" value="the-confirm-code"/>', $html);
@@ -43,14 +43,14 @@ final class ConfirmFormTest extends TestCase
 
     public function testRenderHtmlDiv_shouldCallEndpoint(): void
     {
-        $html = $this->confirmForm->RenderHtmlDiv();
+        $html = $this->confirmForm->renderHtmlDiv();
 
         static::assertStringContainsString('<form method="post" action="confirm.php?confirm=1" accept-charset="utf-8">', $html);
     }
 
     public function testRenderHtmlDiv_shouldHaveSumittInput(): void
     {
-        $html = $this->confirmForm->RenderHtmlDiv();
+        $html = $this->confirmForm->renderHtmlDiv();
 
         static::assertStringContainsString('<input type="submit" value="Bestätigen"/>', $html);
     }

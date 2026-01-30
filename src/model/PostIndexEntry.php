@@ -59,7 +59,7 @@ class PostIndexEntry
     /**
      * @return int Field idthread
      */
-    public function GetThreadId(): int
+    public function getThreadId(): int
     {
         return $this->idthread;
     }
@@ -67,7 +67,7 @@ class PostIndexEntry
     /**
      * @return int Field idpost.
      */
-    public function GetPostId(): int
+    public function getPostId(): int
     {
         return $this->idpost;
     }
@@ -75,7 +75,7 @@ class PostIndexEntry
     /**
      * @return ?int Field parent_idpost: id of parent post, or null if no parent
      */
-    public function GetParentPostId(): ?int
+    public function getParentPostId(): ?int
     {
         return $this->parent_idpost;
     }
@@ -83,7 +83,7 @@ class PostIndexEntry
     /**
      * @return int Field indent.
      */
-    public function GetIndent(): int
+    public function getIndent(): int
     {
         return $this->indent;
     }
@@ -91,7 +91,7 @@ class PostIndexEntry
     /**
      * @return string Field title.
      */
-    public function GetTitle(): string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -99,7 +99,7 @@ class PostIndexEntry
     /**
      * @return bool True if field content of this post is not null.
      */
-    public function HasContent(): bool
+    public function hasContent(): bool
     {
         return $this->has_content > 0;
     }
@@ -107,7 +107,7 @@ class PostIndexEntry
     /**
      * @return string Non empty nick (field user_table.nick) who wrote this post.
      */
-    public function GetNick(): string
+    public function getNick(): string
     {
         return $this->nick;
     }
@@ -115,7 +115,7 @@ class PostIndexEntry
     /**
      * @return DateTime of the field creation_ts.
      */
-    public function GetPostTimestamp(): DateTime
+    public function getPostTimestamp(): DateTime
     {
         return $this->creation_ts_dt;
     }
@@ -123,7 +123,7 @@ class PostIndexEntry
     /**
      * @return boolean True if field hidden is > 0.
      */
-    public function IsHidden(): bool
+    public function isHidden(): bool
     {
         return $this->hidden > 0;
     }

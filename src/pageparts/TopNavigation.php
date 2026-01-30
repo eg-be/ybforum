@@ -124,7 +124,7 @@ class TopNavigation
         return $htmlStr;
     }
 
-    public function GetPage(): Page
+    public function getPage(): Page
     {
         return $this->m_page;
     }

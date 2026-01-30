@@ -40,12 +40,12 @@ try {
         // Try to submit passed migration data
         try {
             $migrateUserHandler = new MigrateUserHandler();
-            $migrateUserHandler->HandleRequest($db);
+            $migrateUserHandler->handleRequest($db);
             $migrationSucceeded = true;
             // migration succeeded, show some info
         } catch (InvalidArgumentException $ex) {
             // Migration failed, show error latee
-            $alreadyMigrated = ($ex->GetMessage() == MigrateUserHandler::MSG_ALREADY_MIGRATED);
+            $alreadyMigrated = ($ex->getMessage() == MigrateUserHandler::MSG_ALREADY_MIGRATED);
         }
     } else {
         // Someone arrived here from a page that requested to migrate
@@ -56,7 +56,7 @@ try {
         }
     }
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
 
@@ -76,7 +76,7 @@ try {
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
         } catch (Exception $ex) {
-            ErrorHandler::OnException($ex);
+            ErrorHandler::onException($ex);
         }
 ?>
         <div class="fullwidthcenter generictitle">Benutzer migrieren</div>
@@ -86,11 +86,11 @@ try {
         </div>
         <hr>
         <?php
-    if ($migrateUserHandler && $migrateUserHandler->HasException() && !$alreadyMigrated) {
-        $migrationException = $migrateUserHandler->GetLastException();
+    if ($migrateUserHandler && $migrateUserHandler->hasException() && !$alreadyMigrated) {
+        $migrationException = $migrateUserHandler->getLastException();
         echo '<div id="status" class="fullwidthcenter failcolor">'
             . '<span class="fbold">Fehler: </span>'
-            . $migrationException->GetMessage()
+            . $migrationException->getMessage()
             . '</div>';
     }
 ?>
@@ -115,8 +115,8 @@ if (!($migrationSucceeded || $alreadyMigrated)) {
             $initialEmail = urldecode($initialEmailGetValue);
         }
     } else {
-        $initialNick = $migrateUserHandler->GetNick();
-        $initialEmail = $migrateUserHandler->GetNewEmail();
+        $initialNick = $migrateUserHandler->getNick();
+        $initialEmail = $migrateUserHandler->getNewEmail();
     }
     $muf = new MigrateUserForm($initialNick, $initialEmail, $source);
     echo $muf->renderHtmlDiv();
@@ -124,7 +124,7 @@ if (!($migrationSucceeded || $alreadyMigrated)) {
     if ($migrationSucceeded) {
         echo
         '<div class="fbold successcolor">Ein Bestätigungslink wurde dir an die Mailadresse
-                    <span class="fbold fitalic" id="confirm_mailaddress">' . $migrateUserHandler->GetNewEmail() . '</span> gesendet.
+                    <span class="fbold fitalic" id="confirm_mailaddress">' . $migrateUserHandler->getNewEmail() . '</span> gesendet.
                     Bitte besuche den Link um die Migration abzuschliessen und dein neues Passwort zu aktivieren.
                     </div>';
     } elseif ($alreadyMigrated) {

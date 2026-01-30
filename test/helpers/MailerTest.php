@@ -39,8 +39,8 @@ final class MailerTest extends TestCase
         static::assertEquals(YbForumConfig::MAIL_ALL_BCC, $mailer->getAllMailBcc());
         static::assertEquals('text/plain; charset=utf-8', $mailer->getContentType());
 
-        static::assertInstanceOf(Logger::class, $mailer->GetLogger());
-        static::assertInstanceOf(PhpMailer::class, $mailer->GetMailerDelegate());
+        static::assertInstanceOf(Logger::class, $mailer->getLogger());
+        static::assertInstanceOf(PhpMailer::class, $mailer->getMailerDelegate());
     }
 
 
@@ -53,7 +53,7 @@ final class MailerTest extends TestCase
     }
 
     #[DataProvider('providerSendingSucceeds')]
-    public function testSendMigrateUserConfirmMessage(bool $sendingSucceeds): void
+    public function testsendMigrateUserConfirmMessage(bool $sendingSucceeds): void
     {
         $mailto = 'user@mail.com';
         $expectedSubject = '1898-Forum Migration Stammposter';
@@ -82,11 +82,11 @@ final class MailerTest extends TestCase
                 ->with(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $mailto);
         }
 
-        $this->mailer->SendMigrateUserConfirmMessage($mailto, 'nick', $code);
+        $this->mailer->sendMigrateUserConfirmMessage($mailto, 'nick', $code);
     }
 
     #[DataProvider('providerSendingSucceeds')]
-    public function testSendRegisterUserConfirmMessage(bool $sendingSucceeds): void
+    public function testsendRegisterUserConfirmMessage(bool $sendingSucceeds): void
     {
         $mailto = 'user@mail.com';
         $expectedSubject = '1898-Forum Registrierung Stammposter';
@@ -115,11 +115,11 @@ final class MailerTest extends TestCase
                 ->with(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $mailto);
         }
 
-        $this->mailer->SendRegisterUserConfirmMessage($mailto, 'nick', $code);
+        $this->mailer->sendRegisterUserConfirmMessage($mailto, 'nick', $code);
     }
 
     #[DataProvider('providerSendingSucceeds')]
-    public function testSendUpdateEmailConfirmMessage(bool $sendingSucceeds): void
+    public function testsendUpdateEmailConfirmMessage(bool $sendingSucceeds): void
     {
         $mailto = 'user@mail.com';
         $expectedSubject = '1898-Forum aktualisierte Stammposter-Mailadresse bestaetigen';
@@ -148,11 +148,11 @@ final class MailerTest extends TestCase
                 ->with(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $mailto);
         }
 
-        $this->mailer->SendUpdateEmailConfirmMessage($mailto, 'nick', $code);
+        $this->mailer->sendUpdateEmailConfirmMessage($mailto, 'nick', $code);
     }
 
     #[DataProvider('providerSendingSucceeds')]
-    public function testSendResetPasswordMessage(bool $sendingSucceeds): void
+    public function testsendResetPasswordMessage(bool $sendingSucceeds): void
     {
         $mailto = 'user@mail.com';
         $expectedSubject = '1898-Forum Stammposter-Passwort zuruecksetzen';
@@ -181,10 +181,10 @@ final class MailerTest extends TestCase
                 ->with(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $mailto);
         }
 
-        $this->mailer->SendResetPasswordMessage($mailto, 'nick', $code);
+        $this->mailer->sendResetPasswordMessage($mailto, 'nick', $code);
     }
 
-    public function testSendNotifyUserAcceptedEmail(): void
+    public function testsendNotifyUserAcceptedEmail(): void
     {
         $mailto = 'admin@mail.com';
         $expectedSubject = 'Stammposter freigeschaltet';
@@ -199,10 +199,10 @@ final class MailerTest extends TestCase
                 return true;
             });
 
-        $this->mailer->SendNotifyUserAcceptedEmail($mailto, 'nick');
+        $this->mailer->sendNotifyUserAcceptedEmail($mailto, 'nick');
     }
 
-    public function testSendNotifyUserDeniedEmail(): void
+    public function testsendNotifyUserDeniedEmail(): void
     {
         $mailto = 'admin@mail.com';
         $expectedSubject = 'Registrierung abgelehnt';
@@ -217,10 +217,10 @@ final class MailerTest extends TestCase
                 return true;
             });
 
-        $this->mailer->SendNotifyUserDeniedEmail($mailto, 'nick');
+        $this->mailer->sendNotifyUserDeniedEmail($mailto, 'nick');
     }
 
-    public function testNotifyAdminUserConfirmedRegistration(): void
+    public function testnotifyAdminUserConfirmedRegistration(): void
     {
         $mailto = 'admin@mail.com';
         $expectedSubject = 'Benutzer wartet auf Freischaltung';
@@ -235,11 +235,11 @@ final class MailerTest extends TestCase
                 return true;
             });
 
-        $this->mailer->NotifyAdminUserConfirmedRegistration('nick', $mailto, 'registration-message');
+        $this->mailer->notifyAdminUserConfirmedRegistration('nick', $mailto, 'registration-message');
     }
 
     #[DataProvider('providerSendingSucceeds')]
-    public function testSendAdminContactMessage($sendingSucceeds): void
+    public function testsendAdminContactMessage($sendingSucceeds): void
     {
         $mailto = 'admin@mail.com';
         $expectedSubject = 'Kontaktnachricht erhalten';
@@ -267,6 +267,6 @@ final class MailerTest extends TestCase
                 ->with(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $mailto);
         }
 
-        $this->mailer->SendAdminContactMessage($expectedContactMail, 'contact-message', $mailto);
+        $this->mailer->sendAdminContactMessage($expectedContactMail, 'contact-message', $mailto);
     }
 }

@@ -25,7 +25,7 @@ final class ConfirmHandlerFactoryTest extends TestCase
     {
         $_POST[ConfirmHandler::PARAM_TYPE] = $paramTypeValue;
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        $handler = ConfirmHandlerFactory::CreateHandler();
+        $handler = ConfirmHandlerFactory::createHandler();
         static::assertInstanceOf($instanceType, $handler);
     }
 
@@ -34,7 +34,7 @@ final class ConfirmHandlerFactoryTest extends TestCase
     {
         $_POST[ConfirmHandler::PARAM_TYPE] = $paramTypeValue;
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        $handler = ConfirmHandlerFactory::CreateHandler();
+        $handler = ConfirmHandlerFactory::createHandler();
         static::assertInstanceOf($instanceType, $handler);
     }
 
@@ -47,6 +47,6 @@ final class ConfirmHandlerFactoryTest extends TestCase
         $this->expectExceptionMessage('Invalid type');
         $this->expectExceptionCode(400);
 
-        $handler = ConfirmHandlerFactory::CreateHandler();
+        $handler = ConfirmHandlerFactory::createHandler();
     }
 }

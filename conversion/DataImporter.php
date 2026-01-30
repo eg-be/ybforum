@@ -22,7 +22,7 @@ class DataImporter
 {
     public function __construct()
     {
-        $this->m_sourceDb = $this->CreateDb(
+        $this->m_sourceDb = $this->createDb(
             ImporterConfig::SERVERNAME,
             ImporterConfig::USERNAME,
             ImporterConfig::PASSWORD,
@@ -30,7 +30,7 @@ class DataImporter
             ImporterConfig::SOURCE_DB
         );
 
-        $this->m_destDb = $this->CreateDb(
+        $this->m_destDb = $this->createDb(
             ImporterConfig::SERVERNAME,
             ImporterConfig::USERNAME,
             ImporterConfig::PASSWORD,
@@ -39,7 +39,7 @@ class DataImporter
         );
     }
 
-    public function CreateDb(
+    public function createDb(
         string $server,
         string $user,
         string $pass,
@@ -73,17 +73,17 @@ class DataImporter
      * @param string $txt
      * @return type
      */
-    public function DecryptAll(string $txt)
+    public function decryptAll(string $txt)
     {
         // First decode with this "special" encoding used in functions.php
         // do that until no more changes happen (see for example old post with
         // id 442380: obviously, the title gets decoded only once, what
         // results in an invalid &#27; char, but in the thread view at the end
         // things get decoded at least twice.. )
-        $decrypted = $this->DecryptText($txt);
+        $decrypted = $this->decryptText($txt);
         while ($decrypted !== $txt) {
             $txt = $decrypted;
-            $decrypted = $this->DecryptText($txt);
+            $decrypted = $this->decryptText($txt);
         }
 
         // and decode html_entity. we have them in author names and
@@ -105,7 +105,7 @@ class DataImporter
      * @param string $txt
      * @return string
      */
-    public function CleanText(string $txt)
+    public function cleanText(string $txt)
     {
         if (is_null($txt)) {
             return $txt;
@@ -124,8 +124,8 @@ class DataImporter
         if (empty($endeCleaned)) {
             return null;
         }
-        $imgCleaned = $this->ReplaceIncontentImgTag($endeCleaned);
-        $urlCleaned = $this->ReplaceIncontentLinkTag($imgCleaned);
+        $imgCleaned = $this->replaceIncontentImgTag($endeCleaned);
+        $urlCleaned = $this->replaceIncontentLinkTag($imgCleaned);
 
         return $urlCleaned;
     }
@@ -141,7 +141,7 @@ class DataImporter
      * [img]http://www.bscyb.ch/yb-news-detail?id=15777[/img]
      * @param string $txt
      */
-    public function ReplaceIncontentImgTag(string $txt)
+    public function replaceIncontentImgTag(string $txt)
     {
         $imgRegex = '/<img\s+src="(.+)">/';
         $matches = [];
@@ -174,7 +174,7 @@ class DataImporter
      * [url=http://www.bscyb.ch/yb-news-detail?id=15777]Hauen wir die Basler weg![/url]
      * @param string $txt
      */
-    public function ReplaceIncontentLinkTag(string $txt)
+    public function replaceIncontentLinkTag(string $txt)
     {
         $linkRegex = '/<a\s+href="(.+)".*>(.+)<\/a>/';
         $matches = [];
@@ -199,7 +199,7 @@ class DataImporter
      * @param type $sText
      * @return type
      */
-    public function DecryptText($sText)
+    public function decryptText($sText)
     {
         $sWrkTxt = $sText;
 
@@ -215,7 +215,7 @@ class DataImporter
         return ($sWrkTxt);
     }
 
-    public function ThrowDbException(mysqli $db, string $msg): void
+    public function throwDbException(mysqli $db, string $msg): void
     {
         $errMsg = '';
         if ($msg && !empty($msg)) {
@@ -225,7 +225,7 @@ class DataImporter
         throw new Exception($errMsg);
     }
 
-    public function ThrowStmtException(mysqli_stmt $stmt): void
+    public function throwStmtException(mysqli_stmt $stmt): void
     {
         $errMsg = $stmt->errno . ': ' . $stmt->error;
         throw new Exception($errMsg);
@@ -237,23 +237,23 @@ class DataImporter
      * @param type $oldNr
      * @return int
      */
-    public function GetPostId(int $oldNo)
+    public function getPostId(int $oldNo)
     {
         assert($oldNo > 0);
         $query = 'SELECT idpost FROM post_table WHERE old_no = ?';
         $stmt = $this->m_destDb->prepare($query);
         if (!$stmt) {
-            $this->ThrowDbException($this->m_destDb, null);
+            $this->throwDbException($this->m_destDb, null);
         }
         if (!$stmt->bind_param('i', $oldNo)) {
-            $this->ThrowStmtException($stmt);
+            $this->throwStmtException($stmt);
         }
         if (!$stmt->execute()) {
-            $this->ThrowStmtException($stmt);
+            $this->throwStmtException($stmt);
         }
         $idpost = 0;
         if (!$stmt->bind_result($idpost)) {
-            $this->ThrowStmtException($stmt);
+            $this->throwStmtException($stmt);
         }
         if ($stmt->fetch()) {
             return $idpost;
@@ -266,23 +266,23 @@ class DataImporter
      * If such a row is found, the iduser value is returned, else 0.
      * @param type $author
      */
-    public function GetUserId(string $author)
+    public function getUserId(string $author)
     {
         assert(!empty($author));
         $query = 'SELECT iduser FROM user_table WHERE nick = ?';
         $stmt = $this->m_destDb->prepare($query);
         if (!$stmt) {
-            $this->ThrowDbException($this->m_destDb, null);
+            $this->throwDbException($this->m_destDb, null);
         }
         if (!$stmt->bind_param('s', $author)) {
-            $this->ThrowStmtException($stmt);
+            $this->throwStmtException($stmt);
         }
         if (!$stmt->execute()) {
-            $this->ThrowStmtException($stmt);
+            $this->throwStmtException($stmt);
         }
         $userId = 0;
         if (!$stmt->bind_result($userId)) {
-            $this->ThrowStmtException($stmt);
+            $this->throwStmtException($stmt);
         }
         if ($stmt->fetch()) {
             return $userId;
@@ -296,20 +296,20 @@ class DataImporter
      * creating the user fails, an exception is thrown
      * @param type $author
      */
-    public function CreateMissingUser(string $author)
+    public function createMissingUser(string $author)
     {
         echo 'Creating user entry for missing author with nick ' . $author . "\n";
         assert(!empty($author));
         $query = 'INSERT INTO user_table (nick) VALUES(?)';
         $stmt = $this->m_destDb->prepare($query);
         if (!$stmt) {
-            $this->ThrowDbException($this->m_destDb, null);
+            $this->throwDbException($this->m_destDb, null);
         }
         if (!$stmt->bind_param('s', $author)) {
-            $this->ThrowStmtException($stmt);
+            $this->throwStmtException($stmt);
         }
         if (!$stmt->execute()) {
-            $this->ThrowStmtException($stmt);
+            $this->throwStmtException($stmt);
         }
         $userId = $this->m_destDb->insert_id;
         $stmt->close();
@@ -324,21 +324,21 @@ class DataImporter
      * The id of a user matching $author is returned
      * @param string $author
      */
-    public function EnsureUserId(string $author)
+    public function ensureUserId(string $author)
     {
         assert(!empty($author));
 
         // decode author name
-        $authorDecoded = $this->DecryptAll($author);
-        $userId = $this->GetUserId($authorDecoded);
+        $authorDecoded = $this->decryptAll($author);
+        $userId = $this->getUserId($authorDecoded);
         if ($userId === 0) {
             throw new Exception('Missing user Id ' . $userId . ' but we need all users when appending');
-            $userId = $this->CreateMissingUser($authorDecoded);
+            $userId = $this->createMissingUser($authorDecoded);
         }
         return $userId;
     }
 
-    public function ImportThreads(): void
+    public function importThreads(): void
     {
         $importCount = 0;
         $importSkip = 0;
@@ -359,7 +359,7 @@ class DataImporter
                 continue;
             }*/
             echo 'Import Thread ' . $no . ' with root post no ' . $no . "\n";
-            $threadId = $this->ImportThread($no, $thread);
+            $threadId = $this->importThread($no, $thread);
             if ($threadId > 0) {
                 echo ' Succesfully importeded with new ThreadId ' . $threadId . "\n";
                 $importCount++;
@@ -376,13 +376,13 @@ class DataImporter
         echo 'Skipped ' . $importSkip . ' Threads' . "\n";
     }
 
-    public function ImportThread(int $oldRootPostNo, int $oldThreadNo)
+    public function importThread(int $oldRootPostNo, int $oldThreadNo)
     {
         assert($oldRootPostNo > 0);
         assert($oldThreadNo >= 0);
 
         // check that we have not imported that post-nr yet
-        if ($this->GetPostId($oldRootPostNo)) {
+        if ($this->getPostId($oldRootPostNo)) {
             echo ' A post entry with old_no value ' . $oldRootPostNo
                     . ' already exists' . "\n";
             return 0;
@@ -400,15 +400,15 @@ class DataImporter
         echo ' Created entry in thread_table with idthread ' . $newThreadId
                 . "\n";
 
-        $newPostId = $this->ImportRootPost($oldRootPostNo, $newThreadId);
+        $newPostId = $this->importRootPost($oldRootPostNo, $newThreadId);
 
         // and walk and import all children
-        $this->WalkAndImportChildren($oldRootPostNo, $newPostId);
+        $this->walkAndImportChildren($oldRootPostNo, $newPostId);
 
         return $newThreadId;
     }
 
-    public function ReadOldPostEntry(int $oldPostNo)
+    public function readOldPostEntry(int $oldPostNo)
     {
         assert($oldPostNo > 0);
 
@@ -427,7 +427,7 @@ class DataImporter
         return $resObject;
     }
 
-    public function FormatDatetimeString(string $oldPostDate, string $oldPostTime)
+    public function formatDatetimeString(string $oldPostDate, string $oldPostTime)
     {
         assert(!empty($oldPostDate));
         assert(!empty($oldPostTime));
@@ -438,7 +438,7 @@ class DataImporter
     }
 
 
-    public function ImportRootPost(int $oldPostNr, int $newThreadId)
+    public function importRootPost(int $oldPostNr, int $newThreadId)
     {
         assert($oldPostNr > 0);
         assert($newThreadId > 0);
@@ -447,27 +447,27 @@ class DataImporter
                 . $newThreadId . ".. ";
 
         // Read the existing data into an object where columns match props
-        $oldPostData = $this->ReadOldPostEntry($oldPostNr);
+        $oldPostData = $this->readOldPostEntry($oldPostNr);
 
         // Build all properties required to import
-        $userId = $this->EnsureUserId($oldPostData->author);
-        $title = $this->DecryptAll($oldPostData->subject);
+        $userId = $this->ensureUserId($oldPostData->author);
+        $title = $this->decryptAll($oldPostData->subject);
         if (is_null($title)) {
             $title = 'Empty Title';
         }
         $content = $oldPostData->ptext;
         if (!is_null($content)) {
-            $content = $this->DecryptAll($content);
+            $content = $this->decryptAll($content);
             if (!is_null($content)) {
-                $content = $this->CleanText($content);
+                $content = $this->cleanText($content);
             }
         }
-        $creation = $this->FormatDatetimeString($oldPostData->date, $oldPostData->time);
-        $email = $this->DecryptAll($oldPostData->email);
-        $url = $this->DecryptAll($oldPostData->homeurl);
-        $urlText = $this->DecryptAll($oldPostData->homename);
-        $urlImg = $this->DecryptAll($oldPostData->picurl);
-        $remoteAddr = $this->DecryptAll($oldPostData->ip);
+        $creation = $this->formatDatetimeString($oldPostData->date, $oldPostData->time);
+        $email = $this->decryptAll($oldPostData->email);
+        $url = $this->decryptAll($oldPostData->homeurl);
+        $urlText = $this->decryptAll($oldPostData->homename);
+        $urlImg = $this->decryptAll($oldPostData->picurl);
+        $remoteAddr = $this->decryptAll($oldPostData->ip);
         $del = $oldPostData->del;
         if (is_null($remoteAddr)) {
             $remoteAddr = '127.0.0.1';
@@ -507,7 +507,7 @@ class DataImporter
         return $newPostId;
     }
 
-    public function WalkAndImportChildren(int $oldParentPostNo, int $newParentPostId): void
+    public function walkAndImportChildren(int $oldParentPostNo, int $newParentPostId): void
     {
         assert($oldParentPostNo > 0);
         assert($newParentPostId > 0);
@@ -521,31 +521,31 @@ class DataImporter
 
         $result = $this->m_sourceDb->query($oldPostChildrenQuery);
         if (!$result) {
-            $this->ThrowDbException($this->m_sourceDb, null);
+            $this->throwDbException($this->m_sourceDb, null);
         }
         while ($oldPostData = $result->fetch_object()) {
             // Import this old post
             $no = $oldPostData->no;
             echo '  Importing post with old_no ' . $no . ' as child of '
                 . $newParentPostId . ".. ";
-            $userId = $this->EnsureUserId($oldPostData->author);
-            $title = $this->DecryptAll($oldPostData->subject);
+            $userId = $this->ensureUserId($oldPostData->author);
+            $title = $this->decryptAll($oldPostData->subject);
             if (is_null($title)) {
                 $title = 'Empty Title';
             }
             $content = $oldPostData->ptext;
             if (!is_null($content)) {
-                $content = $this->DecryptAll($content);
+                $content = $this->decryptAll($content);
                 if (!is_null($content)) {
-                    $content = $this->CleanText($content);
+                    $content = $this->cleanText($content);
                 }
             }
-            $creation = $this->FormatDatetimeString($oldPostData->date, $oldPostData->time);
-            $email = $this->DecryptAll($oldPostData->email);
-            $linkUrl = $this->DecryptAll($oldPostData->homeurl);
-            $linkText = $this->DecryptAll($oldPostData->homename);
-            $imgUrl = $this->DecryptAll($oldPostData->picurl);
-            $ipAddress = $this->DecryptAll($oldPostData->ip);
+            $creation = $this->formatDatetimeString($oldPostData->date, $oldPostData->time);
+            $email = $this->decryptAll($oldPostData->email);
+            $linkUrl = $this->decryptAll($oldPostData->homeurl);
+            $linkText = $this->decryptAll($oldPostData->homename);
+            $imgUrl = $this->decryptAll($oldPostData->picurl);
+            $ipAddress = $this->decryptAll($oldPostData->ip);
             if (is_null($ipAddress)) {
                 $ipAddress = '127.0.0.1';
             }
@@ -586,14 +586,14 @@ class DataImporter
             echo 'Done, new postId is ' . $newPostId . "\n";
 
             // And walk the children of the just created post
-            $this->WalkAndImportChildren($no, $newPostId);
+            $this->walkAndImportChildren($no, $newPostId);
         }
     }
 
     // stuff to import users
     // =====================
 
-    public function ImportUsers(): void
+    public function importUsers(): void
     {
         $importCount = 0;
         $importSkip = 0;
@@ -622,7 +622,7 @@ class DataImporter
         $checkEmailUniqueStmt->bind_result($existingEmailUserId);
         $importStmt->bind_param('ssss', $name, $email, $regmsg, $passwd);
         while ($sourceStmt->fetch()) {
-            $name = $this->DecryptAll($name);
+            $name = $this->decryptAll($name);
             $checkNotExistStmt->execute();
             if ($checkNotExistStmt->fetch()) {
                 echo 'Skipping import of user ' . $name . ', such a user '
@@ -649,7 +649,7 @@ class DataImporter
                 if (empty(trim($regmsg))) {
                     $regmsg = null;
                 } else {
-                    $regmsg = $this->DecryptAll($regmsg);
+                    $regmsg = $this->decryptAll($regmsg);
                 }
                 $importStmt->execute();
                 $importCount++;

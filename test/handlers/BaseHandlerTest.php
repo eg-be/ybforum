@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../src/handlers/BaseHandler.php';
  */
 final class BaseHandlerTest extends TestCase
 {
-    public static function providerValidateClientIpValue(): array
+    public static function providervalidateClientIpValue(): array
     {
         return [
             // test         // fail
@@ -25,14 +25,14 @@ final class BaseHandlerTest extends TestCase
     }
 
     #[DataProvider('providerValidateClientIpValue')]
-    public function testValidateClientIpValue(?string $value, bool $fail): void
+    public function testvalidateClientIpValue(?string $value, bool $fail): void
     {
         if ($fail) {
             $this->expectException(InvalidArgumentException::class);
             $this->expectExceptionMessage(BaseHandler::MSG_INVALID_CLIENT_IPADDRESS);
             $this->expectExceptionCode(BaseHandler::MSGCODE_BAD_PARAM);
         }
-        $res = BaseHandler::ValidateClientIpValue($value);
+        $res = BaseHandler::validateClientIpValue($value);
         static::assertNull($res);
     }
 
@@ -61,13 +61,13 @@ final class BaseHandlerTest extends TestCase
                 $this->expectExceptionMessage($errMsg);
             }
         }
-        $res = BaseHandler::ValidateEmailValue($value, $errMsg);
+        $res = BaseHandler::validateEmailValue($value, $errMsg);
         static::assertNull($res);
     }
 
     public function testValidateEmailValueValid(): void
     {
-        BaseHandler::ValidateEmailValue("foo@bar.cc");
+        BaseHandler::validateEmailValue("foo@bar.cc");
         static::assertTrue(true); // just a dummy
     }
 
@@ -83,7 +83,7 @@ final class BaseHandlerTest extends TestCase
     }
 
     #[DataProvider('providerBlacklistEmail')]
-    public function testValidateEmailAgainstBlacklist(string $mail, bool $exactly, bool $regex): void
+    public function testvalidateEmailAgainstBlacklist(string $mail, bool $exactly, bool $regex): void
     {
         $db = static::createStub(ForumDb::class);
         $db->method('IsEmailOnBlacklistExactly')->willReturnCallback(
@@ -116,11 +116,11 @@ final class BaseHandlerTest extends TestCase
                     ->with(LogType::LOG_OPERATION_FAILED_EMAIL_REGEX_BLACKLISTED);
             }
         }
-        $res = BaseHandler::ValidateEmailAgainstBlacklist($mail, $db, $logger);
+        $res = BaseHandler::validateEmailAgainstBlacklist($mail, $db, $logger);
         static::assertNull($res);
     }
 
-    public static function providerValidateHttpUrlValue(): array
+    public static function providervalidateHttpUrlValue(): array
     {
         return [
             // url                      // path     // msg      // fail
@@ -140,7 +140,7 @@ final class BaseHandlerTest extends TestCase
     }
 
     #[DataProvider('providerValidateHttpUrlValue')]
-    public function testValidateHttpUrlValue(?string $value, ?bool $requiresPath, ?string $errMsg, bool $fail): void
+    public function testvalidateHttpUrlValue(?string $value, ?bool $requiresPath, ?string $errMsg, bool $fail): void
     {
         if ($fail) {
             $this->expectException(InvalidArgumentException::class);
@@ -153,26 +153,26 @@ final class BaseHandlerTest extends TestCase
         }
         $res = null;
         if (is_null($requiresPath)) {
-            $res = BaseHandler::ValidateHttpUrlValue($value, $errMsg);
+            $res = BaseHandler::validateHttpUrlValue($value, $errMsg);
         } else {
-            $res = BaseHandler::ValidateHttpUrlValue($value, $errMsg, $requiresPath);
+            $res = BaseHandler::validateHttpUrlValue($value, $errMsg, $requiresPath);
         }
         static::assertNull($res);
     }
 
-    public function testValidateIntParam(): void
+    public function testvalidateIntParam(): void
     {
         $errMsg = 'failing for null';
         // dont fail for non-null
-        BaseHandler::ValidateIntParam(1313, $errMsg);
+        BaseHandler::validateIntParam(1313, $errMsg);
         // fail for null
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(BaseHandler::MSGCODE_BAD_PARAM);
         $this->expectExceptionMessage($errMsg);
-        BaseHandler::ValidateIntParam(null, $errMsg);
+        BaseHandler::validateIntParam(null, $errMsg);
     }
 
-    public static function providerValidateStringParam(): array
+    public static function providervalidateStringParam(): array
     {
         return [
             // value            // min  // fail
@@ -187,7 +187,7 @@ final class BaseHandlerTest extends TestCase
     }
 
     #[DataProvider('providerValidateStringParam')]
-    public function testValidateStringParam(?string $value, int $minLength, bool $fail): void
+    public function testvalidateStringParam(?string $value, int $minLength, bool $fail): void
     {
         $errMsg = 'this is not ok';
         if ($fail) {
@@ -195,12 +195,12 @@ final class BaseHandlerTest extends TestCase
             $this->expectExceptionCode(BaseHandler::MSGCODE_BAD_PARAM);
             $this->expectExceptionMessage($errMsg);
         }
-        $res = BaseHandler::ValidateStringParam($value, $errMsg, $minLength);
+        $res = BaseHandler::validateStringParam($value, $errMsg, $minLength);
         static::assertNull($res);
     }
 
 
-    public static function providerReadClientIpParam(): array
+    public static function providerreadClientIpParam(): array
     {
         return [
             // value            // fail
@@ -214,7 +214,7 @@ final class BaseHandlerTest extends TestCase
     public function testReadClientIpParam(?string $value, bool $fail): void
     {
         $_SERVER['REMOTE_ADDR'] = $value;
-        $filtered = BaseHandler::ReadClientIpParam();
+        $filtered = BaseHandler::readClientIpParam();
         if ($fail) {
             static::assertNull($filtered);
         } else {
@@ -222,7 +222,7 @@ final class BaseHandlerTest extends TestCase
         }
     }
 
-    public static function providerReadEmailParam(): array
+    public static function providerreadEmailParam(): array
     {
         return [
             // value            // fail
@@ -232,11 +232,11 @@ final class BaseHandlerTest extends TestCase
         ];
     }
     #[DataProvider('providerReadEmailParam')]
-    public function testReadEmailParam(?string $value, bool $fail): void
+    public function testreadEmailParam(?string $value, bool $fail): void
     {
         $paramName = 'test';
         $_POST[$paramName] = $value;
-        $filtered = BaseHandler::ReadEmailParam($paramName);
+        $filtered = BaseHandler::readEmailParam($paramName);
         if ($fail) {
             static::assertNull($filtered);
         } else {
@@ -247,11 +247,11 @@ final class BaseHandlerTest extends TestCase
     public function testReadEmailParamNotExisting(): void
     {
         $paramName = 'doesnotexist';
-        $filtered = BaseHandler::ReadEmailParam($paramName);
+        $filtered = BaseHandler::readEmailParam($paramName);
         static::assertNull($filtered);
     }
 
-    public static function providerReadIntParam(): array
+    public static function providerreadIntParam(): array
     {
         return [
             // value            // fail
@@ -263,11 +263,11 @@ final class BaseHandlerTest extends TestCase
         ];
     }
     #[DataProvider('providerReadIntParam')]
-    public function testReadIntParam(?string $value, bool $fail): void
+    public function testreadIntParam(?string $value, bool $fail): void
     {
         $paramName = 'test';
         $_POST[$paramName] = $value;
-        $filtered = BaseHandler::ReadIntParam($paramName);
+        $filtered = BaseHandler::readIntParam($paramName);
         if ($fail) {
             static::assertNull($filtered);
         } else {
@@ -278,11 +278,11 @@ final class BaseHandlerTest extends TestCase
     public function testReadIntParamNotExistring(): void
     {
         $paramName = 'doesnotexist';
-        $filtered = BaseHandler::ReadIntParam($paramName);
+        $filtered = BaseHandler::readIntParam($paramName);
         static::assertNull($filtered);
     }
 
-    public static function providerReadStringParam(): array
+    public static function providerreadStringParam(): array
     {
         return [
             // value            // fail
@@ -294,11 +294,11 @@ final class BaseHandlerTest extends TestCase
         ];
     }
     #[DataProvider('providerReadStringParam')]
-    public function testReadStringParam(?string $value, bool $fail): void
+    public function testreadStringParam(?string $value, bool $fail): void
     {
         $paramName = 'test';
         $_POST[$paramName] = $value;
-        $filtered = BaseHandler::ReadStringParam($paramName);
+        $filtered = BaseHandler::readStringParam($paramName);
         if ($fail) {
             static::assertNull($filtered);
         } else {
@@ -309,7 +309,7 @@ final class BaseHandlerTest extends TestCase
     public function testReadStringParamNotExistring(): void
     {
         $paramName = 'doesnotexist';
-        $filtered = BaseHandler::ReadStringParam($paramName);
+        $filtered = BaseHandler::readStringParam($paramName);
         static::assertNull($filtered);
     }
 
@@ -318,7 +318,7 @@ final class BaseHandlerTest extends TestCase
         $paramName = 'test';
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_GET[$paramName] = 'value';
-        $value = BaseHandler::ReadRawParamFromGetOrPost($paramName);
+        $value = BaseHandler::readRawParamFromGetOrPost($paramName);
         static::assertEquals('value', $value);
     }
 
@@ -327,7 +327,7 @@ final class BaseHandlerTest extends TestCase
         $paramName = 'test';
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST[$paramName] = 'value';
-        $value = BaseHandler::ReadRawParamFromGetOrPost($paramName);
+        $value = BaseHandler::readRawParamFromGetOrPost($paramName);
         static::assertEquals('value', $value);
     }
 
@@ -335,7 +335,7 @@ final class BaseHandlerTest extends TestCase
     {
         $paramName = 'foobar';
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        $value = BaseHandler::ReadRawParamFromGetOrPost($paramName);
+        $value = BaseHandler::readRawParamFromGetOrPost($paramName);
         static::assertNull($value);
     }
 }

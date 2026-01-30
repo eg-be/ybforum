@@ -60,20 +60,20 @@ class SearchHandler extends BaseHandler
         $this->m_noReplies = false;
     }
 
-    protected function ReadParams(): void
+    protected function readParams(): void
     {
-        $this->m_searchString = self::ReadStringParam(self::PARAM_SEARCH_STRING);
-        $this->m_searchNick = self::ReadStringParam(self::PARAM_NICK);
-        $this->m_resultOffset = self::ReadIntParam(self::PARAM_RESULT_OFFSET);
-        $sortField = self::ReadStringParam(self::PARAM_SORT_FIELD);
+        $this->m_searchString = self::readStringParam(self::PARAM_SEARCH_STRING);
+        $this->m_searchNick = self::readStringParam(self::PARAM_NICK);
+        $this->m_resultOffset = self::readIntParam(self::PARAM_RESULT_OFFSET);
+        $sortField = self::readStringParam(self::PARAM_SORT_FIELD);
         if ($sortField) {
             $this->m_sortField = SortField::tryFrom($sortField);
         }
-        $sortOrder = self::ReadStringParam(self::PARAM_SORT_ORDER);
+        $sortOrder = self::readStringParam(self::PARAM_SORT_ORDER);
         if ($sortOrder) {
             $this->m_sortOrder = SortOrder::tryFrom($sortOrder);
         }
-        $noRepliesValue = self::ReadStringParam(self::PARAM_NO_REPLIES);
+        $noRepliesValue = self::readStringParam(self::PARAM_NO_REPLIES);
         if ($noRepliesValue && $noRepliesValue === self::PARAM_NO_REPLIES) {
             $this->m_noReplies = true;
         } else {
@@ -81,7 +81,7 @@ class SearchHandler extends BaseHandler
         }
     }
 
-    protected function ValidateParams(): void
+    protected function validateParams(): void
     {
         // Either a nick or a search string is required
         if (!$this->m_searchString && !$this->m_searchNick) {
@@ -103,7 +103,7 @@ class SearchHandler extends BaseHandler
         }
         // If no sort field / order or an invalid sort order is given, default
         // to the first one that is valid
-        $validSortFields = $this->GetValidSortFields();
+        $validSortFields = $this->getValidSortFields();
         if (!$this->m_sortField || !in_array($this->m_sortField, $validSortFields)) {
             $this->m_sortField = $validSortFields[0];
         }
@@ -113,7 +113,7 @@ class SearchHandler extends BaseHandler
     }
 
 
-    public function GetValidSortFields(): array
+    public function getValidSortFields(): array
     {
         $sortFields = [
             SortField::FIELD_DATE,
@@ -126,7 +126,7 @@ class SearchHandler extends BaseHandler
         return $sortFields;
     }
 
-    protected function HandleRequestImpl(ForumDb $db): void
+    protected function handleRequestImpl(ForumDb $db): void
     {
         // clear any pending results
         $this->m_results = null;
@@ -135,10 +135,10 @@ class SearchHandler extends BaseHandler
         // we fetch one more than the limit, to check if there would
         // be more results available
         try {
-            $this->m_results = $db->SearchPosts(
+            $this->m_results = $db->searchPosts(
                 $this->m_searchString,
                 $this->m_searchNick,
-                $this->GetLimit() + 1,
+                $this->getLimit() + 1,
                 $this->m_resultOffset,
                 $this->m_sortField,
                 $this->m_sortOrder,
@@ -150,7 +150,7 @@ class SearchHandler extends BaseHandler
                 throw new InvalidArgumentException(self::MSG_INVALID_SEARCH_STRING, parent::MSGCODE_BAD_PARAM);
             }
         }
-        if (count($this->m_results) > $this->GetLimit()) {
+        if (count($this->m_results) > $this->getLimit()) {
             // remove last result and indicate we have more
             array_pop($this->m_results);
             $this->m_moreRecordsAvailable = true;
@@ -159,72 +159,72 @@ class SearchHandler extends BaseHandler
         }
     }
 
-    public function GetSearchNick(): ?string
+    public function getSearchNick(): ?string
     {
         return $this->m_searchNick;
     }
 
-    public function GetSearchString(): ?string
+    public function getSearchString(): ?string
     {
         return $this->m_searchString;
     }
 
-    public function HasResults(): bool
+    public function hasResults(): bool
     {
         return !is_null($this->m_results);
     }
 
-    public function GetResults(): array
+    public function getResults(): array
     {
         return $this->m_results;
     }
 
-    public function GetResultOffset(): int
+    public function getResultOffset(): int
     {
         return $this->m_resultOffset;
     }
 
-    public function MoreRecordsAvailable(): bool
+    public function moreRecordsAvailable(): bool
     {
         return $this->m_moreRecordsAvailable;
     }
 
-    public function GetNextOffset(): int
+    public function getNextOffset(): int
     {
-        $nextOffset = $this->m_resultOffset + $this->GetLimit();
+        $nextOffset = $this->m_resultOffset + $this->getLimit();
         return $nextOffset;
     }
 
-    public function GetPreviousOffset(): int
+    public function getPreviousOffset(): int
     {
-        $prevOffset = $this->m_resultOffset - $this->GetLimit();
+        $prevOffset = $this->m_resultOffset - $this->getLimit();
         if ($prevOffset < 0) {
             $prevOffset = 0;
         }
         return $prevOffset;
     }
 
-    public function IsFirstRecordBlock(): bool
+    public function isFirstRecordBlock(): bool
     {
         return $this->m_resultOffset == 0;
     }
 
-    public function GetLimit(): int
+    public function getLimit(): int
     {
         return YbForumConfig::MAX_SEARCH_ENTRIES;
     }
 
-    public function GetSortField(): SortField
+    public function getSortField(): SortField
     {
         return $this->m_sortField;
     }
 
-    public function GetSortOrder(): SortOrder
+    public function getSortOrder(): SortOrder
     {
         return $this->m_sortOrder;
     }
 
-    public function GetNoReplies(): bool
+    public function getNoReplies(): bool
     {
         return $this->m_noReplies;
     }

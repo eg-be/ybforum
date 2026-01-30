@@ -31,8 +31,8 @@ try {
     SetAssertOptions();
     PrintAssertOptions();
     $imp = new DataImporter();
-    //$imp->ImportThread(99);
-    $imp->ImportThreads();
+    //$imp->importThread(99);
+    $imp->importThreads();
     echo 'Done' . "\n";
 } catch (Exception $ex) {
     echo 'Failed: ' . $ex->getMessage() . "\n";

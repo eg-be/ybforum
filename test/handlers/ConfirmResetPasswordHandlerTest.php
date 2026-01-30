@@ -43,7 +43,7 @@ final class ConfirmResetPasswordHandlerTest extends TestCase
         $this->expectExceptionMessage(ConfirmResetPasswordHandler::MSG_CODE_UNKNOWN);
         $this->expectExceptionCode(ConfirmResetPasswordHandler::MSGCODE_BAD_PARAM);
 
-        $this->crph->HandleRequest($this->db);
+        $this->crph->handleRequest($this->db);
     }
 
     public function testValidateParams_failWithoutCodeForPost(): void
@@ -57,7 +57,7 @@ final class ConfirmResetPasswordHandlerTest extends TestCase
         $this->expectExceptionMessage(ConfirmResetPasswordHandler::MSG_CODE_UNKNOWN);
         $this->expectExceptionCode(ConfirmResetPasswordHandler::MSGCODE_BAD_PARAM);
 
-        $this->crph->HandleRequest($this->db);
+        $this->crph->handleRequest($this->db);
     }
 
     public function testHandleRequest_failForInvalidCode(): void
@@ -72,7 +72,7 @@ final class ConfirmResetPasswordHandlerTest extends TestCase
         $this->expectExceptionMessage(ConfirmResetPasswordHandler::MSG_CODE_UNKNOWN);
         $this->expectExceptionCode(ConfirmResetPasswordHandler::MSGCODE_BAD_PARAM);
 
-        $this->crph->HandleRequest($this->db);
+        $this->crph->handleRequest($this->db);
     }
 
     public function testHandleRequest_failForNoLongerExistingUser(): void
@@ -88,7 +88,7 @@ final class ConfirmResetPasswordHandlerTest extends TestCase
         $this->expectExceptionMessage(ConfirmResetPasswordHandler::MSG_CODE_UNKNOWN);
         $this->expectExceptionCode(ConfirmResetPasswordHandler::MSGCODE_BAD_PARAM);
 
-        $this->crph->HandleRequest($this->db);
+        $this->crph->handleRequest($this->db);
     }
 
     public function testGetUser(): void
@@ -103,19 +103,19 @@ final class ConfirmResetPasswordHandlerTest extends TestCase
         $this->db->method('LoadUserById')->willReturn($this->user);
 
         // and the user afterwards
-        $this->crph->HandleRequest($this->db);
+        $this->crph->handleRequest($this->db);
         static::assertEquals($this->user, $this->crph->GetUser());
     }
 
-    public function testGetType(): void
+    public function testgetType(): void
     {
-        static::assertEquals(ConfirmHandler::VALUE_TYPE_RESETPASS, $this->crph->GetType());
+        static::assertEquals(ConfirmHandler::VALUE_TYPE_RESETPASS, $this->crph->getType());
     }
 
-    public function testGetCode(): void
+    public function testgetCode(): void
     {
         // must return null before the request is handled
-        static::assertNull($this->crph->GetCode());
+        static::assertNull($this->crph->getCode());
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_GET[ConfirmHandler::PARAM_CODE] = 'code';
@@ -124,14 +124,14 @@ final class ConfirmResetPasswordHandlerTest extends TestCase
         $this->db->method('LoadUserById')->willReturn($this->user);
 
         // and the user afterwards
-        $this->crph->HandleRequest($this->db);
-        static::assertEquals('code', $this->crph->GetCode());
+        $this->crph->handleRequest($this->db);
+        static::assertEquals('code', $this->crph->getCode());
     }
 
     public function testGetText(): void
     {
         // must return something non-empty
-        static::assertTrue(strlen($this->crph->GetConfirmText()) > 0);
-        static::assertTrue(strlen($this->crph->GetSuccessText()) > 0);
+        static::assertTrue(strlen($this->crph->getConfirmText()) > 0);
+        static::assertTrue(strlen($this->crph->getSuccessText()) > 0);
     }
 }

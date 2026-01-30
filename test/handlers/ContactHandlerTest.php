@@ -27,17 +27,17 @@ final class ContactHandlerTest extends TestCase
         $this->mailer = $this->createMock(Mailer::class);
         $this->logger = $this->createMock(Logger::class);
         $this->ch = new ContactHandler();
-        $this->ch->SetMailer($this->mailer);
-        $this->ch->SetLogger($this->logger);
+        $this->ch->setMailer($this->mailer);
+        $this->ch->setLogger($this->logger);
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
     }
 
     public function testConstruct(): void
     {
-        static::assertNull($this->ch->GetEmail());
-        static::assertNull($this->ch->GetEmailRepeat());
-        static::assertNull($this->ch->GetMsg());
+        static::assertNull($this->ch->getEmail());
+        static::assertNull($this->ch->getEmailRepeat());
+        static::assertNull($this->ch->getMsg());
     }
 
     public function testEmailsMustMatch(): void
@@ -48,7 +48,7 @@ final class ContactHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(ContactHandler::MSG_EMAIL_DO_NOT_MATCH);
         $this->expectExceptionCode(ContactHandler::MSGCODE_BAD_PARAM);
-        $this->ch->HandleRequest($this->db);
+        $this->ch->handleRequest($this->db);
     }
 
     public function testMsgNotEmpty(): void
@@ -59,7 +59,7 @@ final class ContactHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(ContactHandler::MSG_EMPTY);
         $this->expectExceptionCode(ContactHandler::MSGCODE_BAD_PARAM);
-        $this->ch->HandleRequest($this->db);
+        $this->ch->handleRequest($this->db);
     }
 
     public function testNonValidParamValuesStored(): void
@@ -70,15 +70,15 @@ final class ContactHandlerTest extends TestCase
         $_POST[ContactHandler::PARAM_EMAIL] = 'a@bar.com';
         $_POST[ContactHandler::PARAM_EMAIL_REPEAT] = 'b@bar.com';
         try {
-            $this->ch->HandleRequest($this->db);
+            $this->ch->handleRequest($this->db);
             static::assertTrue(false); // must never be reached
         } catch (InvalidArgumentException $ex) {
             // nothing to do here
         }
         // values must be readable now
-        static::assertSame('a@bar.com', $this->ch->GetEmail());
-        static::assertSame('b@bar.com', $this->ch->GetEmailRepeat());
-        static::assertSame('hello', $this->ch->GetMsg());
+        static::assertSame('a@bar.com', $this->ch->getEmail());
+        static::assertSame('b@bar.com', $this->ch->getEmailRepeat());
+        static::assertSame('hello', $this->ch->getMsg());
     }
 
     public function testSendMsg(): void
@@ -103,7 +103,7 @@ final class ContactHandlerTest extends TestCase
         $this->logger->expects($this->once())->method('LogMessage')->with(LogType::LOG_CONTACT_FORM_SUBMITTED, 'Mail: a@bar.com; Msg: hello');
         // and expect that the mailer is called with the correct args:
         $this->mailer->expects($this->once())->method('SendAdminContactMessage')->with('a@bar.com', 'hello', 'admin@1898.ch');
-        $this->ch->HandleRequest($this->db);
+        $this->ch->handleRequest($this->db);
     }
 
     public function testSendMsg_throwsIfSendingFails(): void
@@ -125,7 +125,7 @@ final class ContactHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(ContactHandler::MSG_SENDING_CONTACTMAIL_FAILED);
         $this->expectExceptionCode(BaseHandler::MSGCODE_INTERNAL_ERROR);
-        $this->ch->HandleRequest($this->db);
+        $this->ch->handleRequest($this->db);
     }
 
     public function testSendMsg_throwsIfNoAdminIsDefined(): void
@@ -143,6 +143,6 @@ final class ContactHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(ContactHandler::MSG_NO_ADMINS_DEFINED);
         $this->expectExceptionCode(BaseHandler::MSGCODE_INTERNAL_ERROR);
-        $this->ch->HandleRequest($this->db);
+        $this->ch->handleRequest($this->db);
     }
 }

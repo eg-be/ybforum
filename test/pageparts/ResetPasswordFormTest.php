@@ -24,7 +24,7 @@ final class ResetPasswordFormTest extends TestCase
     {
         $this->confirmHandler->method('GetConfirmText')->willReturn('the-confirm-text-to-display');
 
-        $html = $this->resetPasswordForm->RenderHtmlDiv();
+        $html = $this->resetPasswordForm->renderHtmlDiv();
 
         static::assertStringContainsString('<span class="fbold">the-confirm-text-to-display</span>', $html);
     }
@@ -34,7 +34,7 @@ final class ResetPasswordFormTest extends TestCase
         $this->confirmHandler->method('GetType')->willReturn('the-confirm-type');
         $this->confirmHandler->method('GetCode')->willReturn('the-confirm-code');
 
-        $html = $this->resetPasswordForm->RenderHtmlDiv();
+        $html = $this->resetPasswordForm->renderHtmlDiv();
 
         static::assertStringContainsString('<input type="password" name="' . UpdatePasswordHandler::PARAM_NEWPASS . '" required="required"/>', $html);
         static::assertStringContainsString('<input type="password" name="' . UpdatePasswordHandler::PARAM_CONFIRMNEWPASS . '" required="required"/>', $html);
@@ -46,14 +46,14 @@ final class ResetPasswordFormTest extends TestCase
 
     public function testRenderHtmlDiv_shouldCallEndpoint(): void
     {
-        $html = $this->resetPasswordForm->RenderHtmlDiv();
+        $html = $this->resetPasswordForm->renderHtmlDiv();
 
         static::assertStringContainsString('<form method="post" action="resetpassword.php" accept-charset="utf-8">', $html);
     }
 
     public function testRenderHtmlDiv_shouldHaveSumittInput(): void
     {
-        $html = $this->resetPasswordForm->RenderHtmlDiv();
+        $html = $this->resetPasswordForm->renderHtmlDiv();
 
         static::assertStringContainsString('<input type="submit" value="Passwort setzen"/>', $html);
     }

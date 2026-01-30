@@ -39,7 +39,7 @@ try {
     // And create a db connection for later use
     $db = new ForumDb();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
 
@@ -60,7 +60,7 @@ try {
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
         } catch (Exception $ex) {
-            ErrorHandler::OnException($ex);
+            ErrorHandler::onException($ex);
         }
 ?>
         <hr>
@@ -69,7 +69,7 @@ try {
     $topNav = new TopNavigation();
     echo $topNav->renderHtmlDiv();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         <hr>
@@ -83,11 +83,11 @@ try {
         YbForumConfig::MAX_THREADS_PER_PAGE,
         YbForumConfig::MAX_PAGE_NAV_ELEMENTS,
         YbForumConfig::NAV_SKIP_NR_OF_PAGES,
-        $db->GetThreadCount()
+        $db->getThreadCount()
     );
     echo $pageNav->renderHtmlDivContent();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>
@@ -108,7 +108,7 @@ try {
         echo $htmlPerThread;
     });
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>

@@ -41,7 +41,7 @@ final class PostTest extends BaseTest
             1,
             '::1'
         );
-        static::assertTrue($hidden->IsHidden());
+        static::assertTrue($hidden->isHidden());
         $visible = self::mockPost(
             40,
             8,
@@ -61,7 +61,7 @@ final class PostTest extends BaseTest
             0,
             '::1'
         );
-        static::assertFalse($visible->IsHidden());
+        static::assertFalse($visible->isHidden());
     }
 
     public function testParentPostId(): void
@@ -85,8 +85,8 @@ final class PostTest extends BaseTest
             1,
             '::1'
         );
-        static::assertTrue($answer->HasParentPost());
-        static::assertSame(85, $answer->GetParentPostId());
+        static::assertTrue($answer->hasParentPost());
+        static::assertSame(85, $answer->getParentPostId());
         $top = self::mockPost(
             8,
             8,
@@ -106,8 +106,8 @@ final class PostTest extends BaseTest
             0,
             '::1'
         );
-        static::assertFalse($top->HasParentPost());
-        static::assertNull($top->GetParentPostId());
+        static::assertFalse($top->hasParentPost());
+        static::assertNull($top->getParentPostId());
     }
 
     public function testContent(): void
@@ -131,8 +131,8 @@ final class PostTest extends BaseTest
             1,
             '::1'
         );
-        static::assertFalse($empty->HasContent());
-        static::assertNull($empty->GetContent());
+        static::assertFalse($empty->hasContent());
+        static::assertNull($empty->getContent());
 
         $hasContent = self::mockPost(
             40,
@@ -153,8 +153,8 @@ final class PostTest extends BaseTest
             1,
             '::1'
         );
-        static::assertTrue($hasContent->HasContent());
-        static::assertSame('foobar', $hasContent->GetContent());
+        static::assertTrue($hasContent->hasContent());
+        static::assertSame('foobar', $hasContent->getContent());
     }
 
     public function testOldPost(): void
@@ -178,8 +178,8 @@ final class PostTest extends BaseTest
             1,
             '::1'
         );
-        static::assertTrue($old->IsOldPost());
-        static::assertSame(898, $old->GetOldPostNo());
+        static::assertTrue($old->isOldPost());
+        static::assertSame(898, $old->getOldPostNo());
         $new = self::mockPost(
             40,
             8,
@@ -199,8 +199,8 @@ final class PostTest extends BaseTest
             1,
             '::1'
         );
-        static::assertFalse($new->IsOldPost());
-        static::assertNull($new->GetOldPostNo());
+        static::assertFalse($new->isOldPost());
+        static::assertNull($new->getOldPostNo());
     }
 
     public function testLink(): void
@@ -224,10 +224,10 @@ final class PostTest extends BaseTest
             0,
             '::1'
         );
-        static::assertFalse($noLink->HasLinkUrl());
-        static::assertNull($noLink->GetLinkUrl());
-        static::assertFalse($noLink->HasLinkText());
-        static::assertNull($noLink->GetLinkText());
+        static::assertFalse($noLink->hasLinkUrl());
+        static::assertNull($noLink->getLinkUrl());
+        static::assertFalse($noLink->hasLinkText());
+        static::assertNull($noLink->getLinkText());
         $withLink = self::mockPost(
             40,
             8,
@@ -247,10 +247,10 @@ final class PostTest extends BaseTest
             0,
             '::1'
         );
-        static::assertTrue($withLink->HasLinkUrl());
-        static::assertSame('https://foo.link', $withLink->GetLinkUrl());
-        static::assertTrue($withLink->HasLinkText());
-        static::assertSame('visit this', $withLink->GetLinkText());
+        static::assertTrue($withLink->hasLinkUrl());
+        static::assertSame('https://foo.link', $withLink->getLinkUrl());
+        static::assertTrue($withLink->hasLinkText());
+        static::assertSame('visit this', $withLink->getLinkText());
     }
 
     public function testImg(): void
@@ -274,8 +274,8 @@ final class PostTest extends BaseTest
             0,
             '::1'
         );
-        static::assertTrue($withImg->HasImgUrl());
-        static::assertSame('https://bar.com/foo.gif', $withImg->GetImgUrl());
+        static::assertTrue($withImg->hasImgUrl());
+        static::assertSame('https://bar.com/foo.gif', $withImg->getImgUrl());
         $noImg = self::mockPost(
             40,
             8,
@@ -295,8 +295,8 @@ final class PostTest extends BaseTest
             0,
             '::1'
         );
-        static::assertFalse($noImg->HasImgUrl());
-        static::assertNull($noImg->GetImgUrl());
+        static::assertFalse($noImg->hasImgUrl());
+        static::assertNull($noImg->getImgUrl());
     }
 
     public function testEmail(): void
@@ -320,8 +320,8 @@ final class PostTest extends BaseTest
             0,
             '::1'
         );
-        static::assertTrue($withEmail->HasEmail());
-        static::assertSame('me@mail.com', $withEmail->GetEmail());
+        static::assertTrue($withEmail->hasEmail());
+        static::assertSame('me@mail.com', $withEmail->getEmail());
         $noEmail = self::mockPost(
             40,
             8,
@@ -341,8 +341,8 @@ final class PostTest extends BaseTest
             0,
             '::1'
         );
-        static::assertFalse($noEmail->HasEmail());
-        static::assertNull($noEmail->GetEmail());
+        static::assertFalse($noEmail->hasEmail());
+        static::assertNull($noEmail->getEmail());
     }
 
     // just to make test-coverage look good on stupid accessors
@@ -367,29 +367,29 @@ final class PostTest extends BaseTest
             0,
             '::1'
         );
-        static::assertEquals(40, $topPost->GetId());
-        static::assertEquals(8, $topPost->GetThreadId());
-        static::assertFalse($topPost->IsHidden());
-        static::assertNull($topPost->GetParentPostId());
-        static::assertFalse($topPost->HasParentPost());
-        static::assertEquals('title', $topPost->GetTitle());
-        static::assertEquals('user', $topPost->GetNick());
-        static::assertEquals(99, $topPost->GetUserId());
-        static::assertEquals(new DateTime('2020-03-30 14:50:00'), $topPost->GetPostTimestamp());
-        static::assertTrue($topPost->HasContent());
-        static::assertEquals('content', $topPost->GetContent());
-        static::assertNull($topPost->GetOldPostNo());
-        static::assertFalse($topPost->IsOldPost());
-        static::assertFalse($topPost->HasLinkUrl());
-        static::assertNull($topPost->GetLinkUrl());
-        static::assertFalse($topPost->HasLinkText());
-        static::assertNull($topPost->GetLinkText());
-        static::assertFalse($topPost->HasImgUrl());
-        static::assertNull($topPost->GetImgUrl());
-        static::assertFalse($topPost->HasEmail());
-        static::assertNull($topPost->GetEmail());
-        static::assertEquals(1, $topPost->GetRank());
-        static::assertEquals(0, $topPost->GetIndent());
-        static::assertEquals('::1', $topPost->GetIpAddress());
+        static::assertEquals(40, $topPost->getId());
+        static::assertEquals(8, $topPost->getThreadId());
+        static::assertFalse($topPost->isHidden());
+        static::assertNull($topPost->getParentPostId());
+        static::assertFalse($topPost->hasParentPost());
+        static::assertEquals('title', $topPost->getTitle());
+        static::assertEquals('user', $topPost->getNick());
+        static::assertEquals(99, $topPost->getUserId());
+        static::assertEquals(new DateTime('2020-03-30 14:50:00'), $topPost->getPostTimestamp());
+        static::assertTrue($topPost->hasContent());
+        static::assertEquals('content', $topPost->getContent());
+        static::assertNull($topPost->getOldPostNo());
+        static::assertFalse($topPost->isOldPost());
+        static::assertFalse($topPost->hasLinkUrl());
+        static::assertNull($topPost->getLinkUrl());
+        static::assertFalse($topPost->hasLinkText());
+        static::assertNull($topPost->getLinkText());
+        static::assertFalse($topPost->hasImgUrl());
+        static::assertNull($topPost->getImgUrl());
+        static::assertFalse($topPost->hasEmail());
+        static::assertNull($topPost->getEmail());
+        static::assertEquals(1, $topPost->getRank());
+        static::assertEquals(0, $topPost->getIndent());
+        static::assertEquals('::1', $topPost->getIpAddress());
     }
 }

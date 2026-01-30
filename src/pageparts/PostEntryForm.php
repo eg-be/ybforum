@@ -58,21 +58,21 @@ class PostEntryForm
         $linkUrl = '';
         if ($this->m_peh) {
             // re-use user values first, from an existing PostEntryHandler:
-            $imgUrl = $this->m_peh->GetImgUrl();
-            $linkText = $this->m_peh->GetLinkText();
-            $linkUrl = $this->m_peh->GetLinkUrl();
+            $imgUrl = $this->m_peh->getImgUrl();
+            $linkText = $this->m_peh->getLinkText();
+            $linkUrl = $this->m_peh->getLinkUrl();
         } elseif ($this->m_parentPost) {
             // If there is a parent-post, use values from that parent-post
             // note: We want users to allow to set the fields to empty values,
             // so this here must be an else part (PostEntryHandler shall win)
-            if ($this->m_parentPost->HasImgUrl()) {
-                $imgUrl = $this->m_parentPost->GetImgUrl();
+            if ($this->m_parentPost->hasImgUrl()) {
+                $imgUrl = $this->m_parentPost->getImgUrl();
             }
-            if ($this->m_parentPost->HasLinkText()) {
-                $linkText = $this->m_parentPost->GetLinkText();
+            if ($this->m_parentPost->hasLinkText()) {
+                $linkText = $this->m_parentPost->getLinkText();
             }
-            if ($this->m_parentPost->HasLinkUrl()) {
-                $linkUrl = $this->m_parentPost->GetLinkUrl();
+            if ($this->m_parentPost->hasLinkUrl()) {
+                $linkUrl = $this->m_parentPost->getLinkUrl();
             }
         }
         if ($imgUrl) {
@@ -88,9 +88,9 @@ class PostEntryForm
         $html
            = '<form id="postform" method="post" action="postentry.php?post=1" accept-charset="utf-8">
             <table style="margin: auto;">
-                <tr><td><span class="fbold">Name</span> (<a href="register.php">Stammposterregistrierung</a>):</td><td><input type="text" autocomplete="username" value="' . ($this->m_peh && $this->m_peh->GetNick() ? htmlspecialchars($this->m_peh->GetNick()) : '') . '" name="' . PostEntryHandler::PARAM_NICK . '" size="20" maxlength="60"/></td></tr>
-                <tr><td><span class="fbold">Stammposterpasswort:</span></td><td><input type="password" autocomplete="current-password" value="' . ($this->m_peh && $this->m_peh->GetPassword() ? htmlspecialchars($this->m_peh->GetPassword()) : '') . '" name="' . PostEntryHandler::PARAM_PASS . '" size="20" maxlength="60"/></td></tr>
-                <tr><td><span class="fbold">Mailadresse</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . ($this->m_peh && $this->m_peh->GetEmail() ? htmlspecialchars($this->m_peh->GetEmail()) : '') . '" name="' . PostEntryHandler::PARAM_EMAIL . '" size="30" maxlength="254"/></td></tr>
+                <tr><td><span class="fbold">Name</span> (<a href="register.php">Stammposterregistrierung</a>):</td><td><input type="text" autocomplete="username" value="' . ($this->m_peh && $this->m_peh->getNick() ? htmlspecialchars($this->m_peh->getNick()) : '') . '" name="' . PostEntryHandler::PARAM_NICK . '" size="20" maxlength="60"/></td></tr>
+                <tr><td><span class="fbold">Stammposterpasswort:</span></td><td><input type="password" autocomplete="current-password" value="' . ($this->m_peh && $this->m_peh->getPassword() ? htmlspecialchars($this->m_peh->getPassword()) : '') . '" name="' . PostEntryHandler::PARAM_PASS . '" size="20" maxlength="60"/></td></tr>
+                <tr><td><span class="fbold">Mailadresse</span> (freiwillig):</td><td><input type="text" autocomplete="off" value="' . ($this->m_peh && $this->m_peh->getEmail() ? htmlspecialchars($this->m_peh->getEmail()) : '') . '" name="' . PostEntryHandler::PARAM_EMAIL . '" size="30" maxlength="254"/></td></tr>
                 <tr><td>Betreff:</td><td>' . $this->renderHtmlFormTitleInput() . '</td></tr>
                 <tr><td colspan="2">Textformattierung:
                         <img class="addtextstyle" src="img/bold.gif" alt="bold" onclick="formatText(\'b\')"/>
@@ -169,11 +169,11 @@ class PostEntryForm
     {
         // If a title was already set, use that one
         $title = '';
-        if ($this->m_peh && $this->m_peh->GetTitle()) {
-            $title = $this->m_peh->GetTitle();
+        if ($this->m_peh && $this->m_peh->getTitle()) {
+            $title = $this->m_peh->getTitle();
         }
         if (!$title && $this->m_parentPost) {
-            $title = $this->m_parentPost->GetTitle();
+            $title = $this->m_parentPost->getTitle();
             if (substr($title, 0, 3) !== 'Re:') {
                 $title = 'Re: ' . $title;
             }
@@ -200,10 +200,10 @@ class PostEntryForm
         // Reuse an old content sent before
         $content = '';
         if ($this->m_peh) {
-            $content = $this->m_peh->GetContent();
+            $content = $this->m_peh->getContent();
         }
-        if (!$content && $this->m_parentPost && $this->m_parentPost->HasContent()) {
-            $content = '[i]' . $this->m_parentPost->GetContent() . '[/i]';
+        if (!$content && $this->m_parentPost && $this->m_parentPost->hasContent()) {
+            $content = '[i]' . $this->m_parentPost->getContent() . '[/i]';
         }
         $htmlString = '<textarea name="' . PostEntryHandler::PARAM_CONTENT . '" '
             . 'id="post_content" cols="85" rows="10">'
@@ -222,10 +222,10 @@ class PostEntryForm
         // If this form has been created as a direct consequence of a reply,
         // a parent post is set
         if ($this->m_parentPost) {
-            $parentPostId = $this->m_parentPost->GetId();
-        } elseif ($this->m_peh && $this->m_peh->GetParentPostId() > 0) {
+            $parentPostId = $this->m_parentPost->getId();
+        } elseif ($this->m_peh && $this->m_peh->getParentPostId() > 0) {
             // or, if we have already failed once, all information is in the post-handler
-            $parentPostId = $this->m_peh->GetParentPostId();
+            $parentPostId = $this->m_peh->getParentPostId();
         }
         $htmlString = '<input type="hidden" '
             . 'name="' . PostEntryHandler::PARAM_PARENTPOSTID . '" value="' . $parentPostId . '"/>';

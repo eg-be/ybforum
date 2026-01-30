@@ -57,16 +57,16 @@ class UpdatePasswordHandler extends BaseHandler
         $this->confirmNewPassword = null;
     }
 
-    protected function ReadParams(): void
+    protected function readParams(): void
     {
         // Read params
-        $this->newPassword = self::ReadStringParam(self::PARAM_NEWPASS);
-        $this->confirmNewPassword = self::ReadStringParam(self::PARAM_CONFIRMNEWPASS);
+        $this->newPassword = self::readStringParam(self::PARAM_NEWPASS);
+        $this->confirmNewPassword = self::readStringParam(self::PARAM_CONFIRMNEWPASS);
     }
 
-    protected function ValidateParams(): void
+    protected function validateParams(): void
     {
-        self::ValidateStringParam($this->newPassword, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
+        self::validateStringParam($this->newPassword, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
         // passwords must match
         if ($this->newPassword !== $this->confirmNewPassword) {
             throw new InvalidArgumentException(
@@ -76,34 +76,34 @@ class UpdatePasswordHandler extends BaseHandler
         }
     }
 
-    protected function HandleRequestImpl(ForumDb $db): void
+    protected function handleRequestImpl(ForumDb $db): void
     {
         if (is_null($this->logger)) {
             $this->logger = new Logger($db);
         }
         // dummy user cannot have a password set
-        if ($this->user->IsDummyUser()) {
-            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $this->user);
+        if ($this->user->isDummyUser()) {
+            $this->logger->logMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $this->user);
             throw new InvalidArgumentException(self::MSG_DUMMY_USER, parent::MSGCODE_BAD_PARAM);
         }
         // inactive users cannot change their password,
         // except they are inactive because they need to migrate
-        if (!$this->user->IsActive() && !$this->user->NeedsMigration()) {
-            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_INACTIVE, $this->user);
+        if (!$this->user->isActive() && !$this->user->needsMigration()) {
+            $this->logger->logMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_INACTIVE, $this->user);
             throw new InvalidArgumentException(self::MSG_USER_INACTIVE, parent::MSGCODE_BAD_PARAM);
         }
         // if we need to migrate, migrate
-        if ($this->user->NeedsMigration()) {
+        if ($this->user->needsMigration()) {
             $hashedPassword = password_hash($this->newPassword, PASSWORD_DEFAULT);
-            $db->ConfirmUser(
+            $db->confirmUser(
                 $this->user,
                 $hashedPassword,
-                $this->user->GetEmail(),
+                $this->user->getEmail(),
                 true,
                 $this->clientIpAddress
             );
         } else {
-            $db->UpdateUserPassword(
+            $db->updateUserPassword(
                 $this->user,
                 $this->newPassword,
                 $this->clientIpAddress
@@ -111,7 +111,7 @@ class UpdatePasswordHandler extends BaseHandler
         }
     }
 
-    public function SetLogger(Logger $logger): void
+    public function setLogger(Logger $logger): void
     {
         $this->logger = $logger;
     }

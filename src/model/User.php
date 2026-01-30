@@ -67,19 +67,19 @@ class User
      * Mostly used for logging.
      * @return string
      */
-    public function GetMinimalUserInfoAsString(): string
+    public function getMinimalUserInfoAsString(): string
     {
-        $userStr = 'IdUser: ' . $this->GetId();
-        $userStr .= '; Nick: ' . $this->GetNick();
+        $userStr = 'IdUser: ' . $this->getId();
+        $userStr .= '; Nick: ' . $this->getNick();
         $userStr .= '; Email: ';
-        if ($this->HasEmail()) {
-            $userStr .= $this->GetEmail();
+        if ($this->hasEmail()) {
+            $userStr .= $this->getEmail();
         } else {
             $userStr .= '<No Email set>';
         }
-        $userStr .= '; Active: ' . ($this->IsActive() ? 'Yes' : 'No');
-        $userStr .= '; Confirmed: ' . ($this->IsConfirmed() ? 'Yes' : 'No');
-        $userStr .= '; Needs Migration: ' . ($this->NeedsMigration() ? 'Yes' : 'No');
+        $userStr .= '; Active: ' . ($this->isActive() ? 'Yes' : 'No');
+        $userStr .= '; Confirmed: ' . ($this->isConfirmed() ? 'Yes' : 'No');
+        $userStr .= '; Needs Migration: ' . ($this->needsMigration() ? 'Yes' : 'No');
 
         return $userStr;
     }
@@ -89,26 +89,26 @@ class User
      * Mostly used for logging.
      * @return string
      */
-    public function GetFullUserInfoAsString(): string
+    public function getFullUserInfoAsString(): string
     {
-        $userStr = $this->GetMinimalUserInfoAsString();
-        $userStr .= '; HasPassword: ' . ($this->HasPassword() ? 'Yes' : 'No');
-        $userStr .= '; HasOldPassword: ' . ($this->HasOldPassword() ? 'Yes' : 'No');
-        $userStr .= '; IsAdmin: ' . ($this->IsAdmin() ? 'Yes' : 'No');
-        $userStr .= '; IsDummy: ' . ($this->IsDummyUser() ? 'Yes' : 'No');
+        $userStr = $this->getMinimalUserInfoAsString();
+        $userStr .= '; HasPassword: ' . ($this->hasPassword() ? 'Yes' : 'No');
+        $userStr .= '; HasOldPassword: ' . ($this->hasOldPassword() ? 'Yes' : 'No');
+        $userStr .= '; IsAdmin: ' . ($this->isAdmin() ? 'Yes' : 'No');
+        $userStr .= '; IsDummy: ' . ($this->isDummyUser() ? 'Yes' : 'No');
         // Registration ts is always set
         $userStr .= '; Registration Timestamp: '
-                . $this->GetRegistrationTimestamp()->format('d.m.Y H:i:s');
+                . $this->getRegistrationTimestamp()->format('d.m.Y H:i:s');
         $userStr .= '; Confirmation Timestamp: ';
         // Rest could be null
-        if ($this->IsConfirmed()) {
-            $userStr .= $this->GetConfirmationTimestamp()->format('d.m.Y H:i:s');
+        if ($this->isConfirmed()) {
+            $userStr .= $this->getConfirmationTimestamp()->format('d.m.Y H:i:s');
         } else {
             $userStr .= '<Not Confirmed>';
         }
         $userStr .= '; Registration Message: ';
-        if ($this->HasRegistrationMsg()) {
-            $userStr .= $this->GetRegistrationMsg();
+        if ($this->hasRegistrationMsg()) {
+            $userStr .= $this->getRegistrationMsg();
         } else {
             $userStr .= '<No Registration Message set>';
         }
@@ -119,7 +119,7 @@ class User
     /**
      * @return int Field iduser.
      */
-    public function GetId(): int
+    public function getId(): int
     {
         return $this->iduser;
     }
@@ -127,7 +127,7 @@ class User
     /**
      * @return string Field nick.
      */
-    public function GetNick(): string
+    public function getNick(): string
     {
         return $this->nick;
     }
@@ -135,7 +135,7 @@ class User
     /**
      * @return bool True if field email is not null and not empty.
      */
-    public function HasEmail(): bool
+    public function hasEmail(): bool
     {
         return !is_null($this->email) && !empty($this->email);
     }
@@ -143,7 +143,7 @@ class User
     /**
      * @return string or null. Field email.
      */
-    public function GetEmail(): ?string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -151,7 +151,7 @@ class User
     /**
      * @return bool True if field admin holds a value > 0.
      */
-    public function IsAdmin(): bool
+    public function isAdmin(): bool
     {
         return $this->admin > 0;
     }
@@ -159,7 +159,7 @@ class User
     /**
      * @return bool True if field active holds a value > 0.
      */
-    public function IsActive(): bool
+    public function isActive(): bool
     {
         return $this->active > 0;
     }
@@ -167,7 +167,7 @@ class User
     /**
      * @return DateTime Field registration_ts.
      */
-    public function GetRegistrationTimestamp(): DateTime
+    public function getRegistrationTimestamp(): DateTime
     {
         return $this->registration_ts_dt;
     }
@@ -175,7 +175,7 @@ class User
     /**
      * @return string or null Field registration_msg.
      */
-    public function GetRegistrationMsg(): ?string
+    public function getRegistrationMsg(): ?string
     {
         return $this->registration_msg;
     }
@@ -183,7 +183,7 @@ class User
     /**
      * @return bool True if field registration_msg is not null and not empty.
      */
-    public function HasRegistrationMsg(): bool
+    public function hasRegistrationMsg(): bool
     {
         return !is_null($this->registration_msg) && !empty($this->registration_msg);
     }
@@ -191,7 +191,7 @@ class User
     /**
      * @return boolean True if field confirmation_ts is not null
      */
-    public function IsConfirmed(): bool
+    public function isConfirmed(): bool
     {
         return !is_null($this->confirmation_ts_dt);
     }
@@ -199,7 +199,7 @@ class User
     /**
      * @return DateTime or null Field confirmation_ts.
      */
-    public function GetConfirmationTimestamp(): ?DateTime
+    public function getConfirmationTimestamp(): ?DateTime
     {
         return $this->confirmation_ts_dt;
     }
@@ -208,7 +208,7 @@ class User
      * @return bool True if all three fields password, old_passwd and email
      * hold empty or null values
      */
-    public function IsDummyUser(): bool
+    public function isDummyUser(): bool
     {
         return !$this->password && !$this->old_passwd && !$this->email;
     }
@@ -216,7 +216,7 @@ class User
     /**
      * @return bool True if field old_passwd is not null and not empty.
      */
-    public function NeedsMigration(): bool
+    public function needsMigration(): bool
     {
         return !is_null($this->old_passwd) && !empty($this->old_passwd);
     }
@@ -228,14 +228,14 @@ class User
      * @return boolean True if $password matches non-empty field password
      * and the user is active.
      */
-    public function Auth(string $password): bool
+    public function auth(string $password): bool
     {
         assert(!empty($password));
-        assert($this->HasPassword());
-        if (!$password || !$this->HasPassword()) {
+        assert($this->hasPassword());
+        if (!$password || !$this->hasPassword()) {
             return false;
         }
-        if (!$this->IsActive()) {
+        if (!$this->isActive()) {
             return false;
         }
         return password_verify($password, $this->password);
@@ -248,11 +248,11 @@ class User
      * @return boolean True if $oldPassword matches non-empty field
      * old_passwd.
      */
-    public function OldAuth(string $oldPassword): bool
+    public function oldauth(string $oldPassword): bool
     {
         assert(!empty($oldPassword));
-        assert($this->HasOldPassword());
-        if (!$oldPassword || !$this->HasOldPassword()) {
+        assert($this->hasOldPassword());
+        if (!$oldPassword || !$this->hasOldPassword()) {
             return false;
         }
         return md5($oldPassword) === $this->old_passwd;
@@ -261,7 +261,7 @@ class User
     /**
      * @return boolean True if field password is not null and not empty.
      */
-    public function HasPassword(): bool
+    public function hasPassword(): bool
     {
         return !is_null($this->password) && !empty($this->password);
     }
@@ -269,7 +269,7 @@ class User
     /**
      * @return boolean True if field old_passwd is not null and not empty.
      */
-    public function HasOldPassword(): bool
+    public function hasOldPassword(): bool
     {
         return !is_null($this->old_passwd) && !empty($this->old_passwd);
     }

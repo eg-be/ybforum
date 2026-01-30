@@ -65,23 +65,23 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         $this->simulate = false;
     }
 
-    protected function ReadParams(): void
+    protected function readParams(): void
     {
         // remember invocation-method: we only want to do something, if called
         // from POST (GET may happen as a preview of the confirmation-link)
-        $requestMethod = self::ReadParamToString($_SERVER, 'REQUEST_METHOD', FILTER_UNSAFE_RAW);
+        $requestMethod = self::readParamToString($_SERVER, 'REQUEST_METHOD', FILTER_UNSAFE_RAW);
         $this->simulate = $requestMethod === 'GET';
         // Read params - depending on the invocation using GET or through base-handler
-        $this->code = self::ReadRawParamFromGetOrPost(ConfirmHandler::PARAM_CODE);
+        $this->code = self::readRawParamFromGetOrPost(ConfirmHandler::PARAM_CODE);
     }
 
-    protected function ValidateParams(): void
+    protected function validateParams(): void
     {
         // Check for the parameters required
-        self::ValidateStringParam($this->code, self::MSG_CODE_UNKNOWN);
+        self::validateStringParam($this->code, self::MSG_CODE_UNKNOWN);
     }
 
-    protected function HandleRequestImpl(ForumDb $db): void
+    protected function handleRequestImpl(ForumDb $db): void
     {
         // reset internal values first
         $this->user = null;
@@ -90,25 +90,25 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
             $this->logger = new Logger($db);
         }
         // Valide the code, but only remove it if we are not simulating
-        $values = $db->VerifyConfirmUserCode($this->code, !$this->simulate);
+        $values = $db->verifyConfirmUserCode($this->code, !$this->simulate);
         if (!$values) {
-            $this->logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);
+            $this->logger->logMessage(LogType::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
         // First: Check if there is a matching user who actually needs
         // a confirmation to be migrated / registered:
-        $this->user = $db->LoadUserById($values['iduser']);
+        $this->user = $db->loadUserById($values['iduser']);
         if (!$this->user) {
-            $this->logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found: ' . $values['iduser']);
+            $this->logger->logMessage(LogType::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found: ' . $values['iduser']);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
         $this->confirmSource = $values['confirm_source'];
-        if ($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER && $this->user->IsConfirmed()) {
-            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_CONFIRMED, $this->user);
+        if ($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER && $this->user->isConfirmed()) {
+            $this->logger->logMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_CONFIRMED, $this->user);
             throw new InvalidArgumentException(self::MSG_ALREADY_CONFIRMED, parent::MSGCODE_BAD_PARAM);
         }
-        if ($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE && !$this->user->NeedsMigration()) {
-            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $this->user);
+        if ($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE && !$this->user->needsMigration()) {
+            $this->logger->logMessageWithUserId(LogType::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $this->user);
             throw new InvalidArgumentException(self::MSG_ALREADY_MIGRATED, parent::MSGCODE_BAD_PARAM);
         }
         if ($this->simulate) {
@@ -117,7 +117,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         }
         $activate = ($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE);
         // And migrate that user:
-        $db->ConfirmUser(
+        $db->confirmUser(
             $this->user,
             $values['password'],
             $values['email'],
@@ -128,42 +128,42 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
             if (is_null($this->mailer)) {
                 $this->mailer = new Mailer();
             }
-            $adminMails = $db->GetAdminMails();
+            $adminMails = $db->getAdminMails();
             foreach ($adminMails as $adminMailAddress) {
-                if ($this->mailer->NotifyAdminUserConfirmedRegistration(
-                    $this->user->GetNick(),
+                if ($this->mailer->notifyAdminUserConfirmedRegistration(
+                    $this->user->getNick(),
                     $adminMailAddress,
-                    $this->user->GetRegistrationMsg()
+                    $this->user->getRegistrationMsg()
                 )) {
-                    $this->logger->LogMessageWithUserId(LogType::LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED, $this->user, 'Mail sent to: ' . $adminMailAddress);
+                    $this->logger->logMessageWithUserId(LogType::LOG_NOTIFIED_ADMIN_USER_REGISTRATION_CONFIRMED, $this->user, 'Mail sent to: ' . $adminMailAddress);
                 }
 
             }
         }
     }
 
-    public function GetCode(): ?string
+    public function getCode(): ?string
     {
         return $this->code;
     }
 
-    public function GetType(): string
+    public function getType(): string
     {
         return ConfirmHandler::VALUE_TYPE_CONFIRM_USER;
     }
 
-    public function GetConfirmText(): string
+    public function getConfirmText(): string
     {
         $txt = '';
         if ($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER) {
-            $txt = 'Klicke auf Bestätigen um die Registrierung für den Stampposter ' . $this->user->GetNick() . ' zu bestätigen: ';
+            $txt = 'Klicke auf Bestätigen um die Registrierung für den Stampposter ' . $this->user->getNick() . ' zu bestätigen: ';
         } elseif ($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE) {
-            $txt = 'Klicke auf Bestätigen um die Migration für den Stammposter ' . $this->user->GetNick() . ' abzuschliessen: ';
+            $txt = 'Klicke auf Bestätigen um die Migration für den Stammposter ' . $this->user->getNick() . ' abzuschliessen: ';
         }
         return $txt;
     }
 
-    public function GetSuccessText(): string
+    public function getSuccessText(): string
     {
         $txt = '';
         if ($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER) {
@@ -179,12 +179,12 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         return $txt;
     }
 
-    public function SetMailer(Mailer $mailer): void
+    public function setMailer(Mailer $mailer): void
     {
         $this->mailer = $mailer;
     }
 
-    public function SetLogger(Logger $logger): void
+    public function setLogger(Logger $logger): void
     {
         $this->logger = $logger;
     }

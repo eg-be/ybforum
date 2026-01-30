@@ -36,13 +36,13 @@ class SearchForm
         $this->m_sh = $searchHandler;
     }
 
-    public function RenderHtmlForm(): string
+    public function renderHtmlForm(): string
     {
         $searchString = null;
         $searchNick = null;
         if ($this->m_sh) {
-            $searchString = $this->m_sh->GetSearchString();
-            $searchNick = $this->m_sh->GetSearchNick();
+            $searchString = $this->m_sh->getSearchString();
+            $searchNick = $this->m_sh->getSearchNick();
         }
         $html
            = '<form method="post" action="search.php?search=1" accept-charset="utf-8">
@@ -51,7 +51,7 @@ class SearchForm
                 <tr><td class="fbold">Stammposter:</td><td><input type="text" value="' . (is_null($searchNick) ? '' : htmlspecialchars($searchNick)) . '" name="' . SearchHandler::PARAM_NICK . '" size="20" maxlength="60"/></td></tr>
                 <tr><td class="fbold">Keine Antworten:</td>';
         $html .= '<td><input type="checkbox" value="' . SearchHandler::PARAM_NO_REPLIES . '" name="' . SearchHandler::PARAM_NO_REPLIES . '"';
-        if ($this->m_sh && $this->m_sh->GetNoReplies() === true) {
+        if ($this->m_sh && $this->m_sh->getNoReplies() === true) {
             $html .= ' checked';
         }
         $html .= '/></td></tr>

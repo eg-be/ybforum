@@ -34,7 +34,7 @@ final class LoggerTest extends BaseTest
 
     protected function assertPreConditions(): void
     {
-        static::assertTrue($this->db->IsConnected());
+        static::assertTrue($this->db->isConnected());
     }
 
     public function testConstruct(): void
@@ -42,18 +42,18 @@ final class LoggerTest extends BaseTest
         // no matter if we construct with a rw or a ro-db,
         // or no db at all, logging must just work
         $l1 = new Logger();
-        $l1->LogMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, "msg1");
+        $l1->logMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, "msg1");
 
         // construct using a rw-db
-        static::assertFalse($this->db->IsReadOnly());
+        static::assertFalse($this->db->isReadOnly());
         $l2 = new Logger($this->db);
-        $l2->LogMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, "msg2");
+        $l2->logMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, "msg2");
 
         // construct using a ro-db
         $db = new ForumDb(true);
-        static::assertTrue($db->IsReadOnly());
+        static::assertTrue($db->isReadOnly());
         $l3 = new Logger($db);
-        $l3->LogMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, "msg3");
+        $l3->logMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, "msg3");
 
         // read back
         $query = 'SELECT message '
@@ -73,28 +73,28 @@ final class LoggerTest extends BaseTest
         static::assertSame('msg1', $result['message']);
     }
 
-    public function testGetLogTypeId(): void
+    public function testgetLogTypeId(): void
     {
         $l = new Logger($this->db);
         // just lookup some ids, shall not fail and get different positive ids
-        $id1 = $l->GetLogTypeId(LogType::LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE);
-        $id2 = $l->GetLogTypeId(LogType::LOG_CONFIRM_EMAIL_CODE_CREATED);
-        $id3 = $l->GetLogTypeId(LogType::LOG_USER_MIGRATION_CONFIRMED);
+        $id1 = $l->getLogTypeId(LogType::LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE);
+        $id2 = $l->getLogTypeId(LogType::LOG_CONFIRM_EMAIL_CODE_CREATED);
+        $id3 = $l->getLogTypeId(LogType::LOG_USER_MIGRATION_CONFIRMED);
 
         static::assertNotEquals($id1, $id2);
         static::assertNotEquals($id2, $id3);
     }
 
-    public function testLogMessage(): void
+    public function testlogMessage(): void
     {
         // just log a test-message without ext-info
         // some properties are set from $_SERVER, what is probably not so nice
 
         $l = new Logger($this->db);
-        $l->LogMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, "testLogMessage-msg1");
+        $l->logMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, "testLogMessage-msg1");
 
         // get the id to compare later
-        $id1 = $l->GetLogTypeId(LogType::LOG_AUTH_FAILED_NO_SUCH_USER);
+        $id1 = $l->getLogTypeId(LogType::LOG_AUTH_FAILED_NO_SUCH_USER);
 
         // read back the values
         $query = 'SELECT idlog, idlog_type, ts, iduser, historic_user_context, message, request_uri, ip_address, admin_iduser '
@@ -122,10 +122,10 @@ final class LoggerTest extends BaseTest
         $msgTruncated = mb_substr($msg, 0, 255, 'UTF-8');
 
         $l = new Logger($this->db);
-        $l->LogMessage(LogType::LOG_CONTACT_FORM_SUBMITTED, $msg);
+        $l->logMessage(LogType::LOG_CONTACT_FORM_SUBMITTED, $msg);
 
         // get the id to compare later
-        $id1 = $l->GetLogTypeId(LogType::LOG_CONTACT_FORM_SUBMITTED);
+        $id1 = $l->getLogTypeId(LogType::LOG_CONTACT_FORM_SUBMITTED);
 
         // read back the values
         $query = 'SELECT idlog, idlog_type, ts, iduser, historic_user_context, message, request_uri, ip_address, admin_iduser '
@@ -148,10 +148,10 @@ final class LoggerTest extends BaseTest
     public function testLogMessageWithExtInfo(): void
     {
         $l = new Logger($this->db);
-        $l->LogMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, "testLogMessageWithExtInfo-msg1", "testLogMessageWithExtInfo-ext1");
+        $l->logMessage(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, "testLogMessageWithExtInfo-msg1", "testLogMessageWithExtInfo-ext1");
 
         // get the id to compare later
-        $id1 = $l->GetLogTypeId(LogType::LOG_AUTH_FAILED_NO_SUCH_USER);
+        $id1 = $l->getLogTypeId(LogType::LOG_AUTH_FAILED_NO_SUCH_USER);
 
         // read back the values
         $query = 'SELECT idlog, idlog_type, ts, iduser, historic_user_context, message, request_uri, ip_address, admin_iduser '
@@ -182,7 +182,7 @@ final class LoggerTest extends BaseTest
         static::assertEquals('testLogMessageWithExtInfo-ext1', $result['info']);
     }
 
-    public function testLogMessageWithUserId(): void
+    public function testlogMessageWithUserId(): void
     {
         // just log a test-message with some user-info
         $user101 = static::createStub(User::class);
@@ -190,10 +190,10 @@ final class LoggerTest extends BaseTest
         $user101->method('GetMinimalUserInfoAsString')->willReturn('IdUser: 101;');
 
         $l = new Logger($this->db);
-        $l->LogMessageWithUserId(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, $user101, "testLogMessageWithUserId-msg1");
+        $l->logMessageWithUserId(LogType::LOG_AUTH_FAILED_NO_SUCH_USER, $user101, "testLogMessageWithUserId-msg1");
 
         // get the id to compare later
-        $id1 = $l->GetLogTypeId(LogType::LOG_AUTH_FAILED_NO_SUCH_USER);
+        $id1 = $l->getLogTypeId(LogType::LOG_AUTH_FAILED_NO_SUCH_USER);
 
         // read back the values
         $query = 'SELECT idlog, idlog_type, ts, iduser, historic_user_context, message, request_uri, ip_address, admin_iduser '
@@ -223,10 +223,10 @@ final class LoggerTest extends BaseTest
         $user101->method('GetMinimalUserInfoAsString')->willReturn('IdUser: 101;');
 
         $l = new Logger($this->db);
-        $l->LogMessageWithUserId(LogType::LOG_NOTIFIED_USER_ACCEPTED, $user101);
+        $l->logMessageWithUserId(LogType::LOG_NOTIFIED_USER_ACCEPTED, $user101);
 
         // get the id to compare later
-        $id1 = $l->GetLogTypeId(LogType::LOG_NOTIFIED_USER_ACCEPTED);
+        $id1 = $l->getLogTypeId(LogType::LOG_NOTIFIED_USER_ACCEPTED);
 
         // read back the values
         $query = 'SELECT idlog, idlog_type, ts, iduser, historic_user_context, message, request_uri, ip_address, admin_iduser '
@@ -252,7 +252,7 @@ final class LoggerTest extends BaseTest
         $l = new Logger($this->db);
 
         foreach (LogType::cases() as $lt) {
-            $id = $l->GetLogTypeId($lt);
+            $id = $l->getLogTypeId($lt);
             static::assertGreaterThan(0, $id);
         }
     }

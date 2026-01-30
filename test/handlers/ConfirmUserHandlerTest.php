@@ -29,8 +29,8 @@ final class ConfirmUserHandlerTest extends TestCase
         $this->mailer = $this->createMock(Mailer::class);
         $this->user = static::createStub(User::class);
         $this->cuh = new ConfirmUserHandler();
-        $this->cuh->SetLogger($this->logger);
-        $this->cuh->SetMailer($this->mailer);
+        $this->cuh->setLogger($this->logger);
+        $this->cuh->setMailer($this->mailer);
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER = [];
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
@@ -50,7 +50,7 @@ final class ConfirmUserHandlerTest extends TestCase
         $this->expectExceptionMessage(ConfirmUserHandler::MSG_CODE_UNKNOWN);
         $this->expectExceptionCode(ConfirmUserHandler::MSGCODE_BAD_PARAM);
 
-        $this->cuh->HandleRequest($this->db);
+        $this->cuh->handleRequest($this->db);
     }
 
     public function testValidateParams_failWithoutCodeForPost(): void
@@ -64,7 +64,7 @@ final class ConfirmUserHandlerTest extends TestCase
         $this->expectExceptionMessage(ConfirmUserHandler::MSG_CODE_UNKNOWN);
         $this->expectExceptionCode(ConfirmUserHandler::MSGCODE_BAD_PARAM);
 
-        $this->cuh->HandleRequest($this->db);
+        $this->cuh->handleRequest($this->db);
     }
 
     public function testHandleRequest_failForInvalidCode(): void
@@ -82,7 +82,7 @@ final class ConfirmUserHandlerTest extends TestCase
         // expect that the logger is called with the correct params
         $this->logger->expects($this->once())->method('LogMessage')->with(LogType::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: code');
 
-        $this->cuh->HandleRequest($this->db);
+        $this->cuh->handleRequest($this->db);
     }
 
     public function testHandleRequest_failForNoLongerExistringUser(): void
@@ -105,7 +105,7 @@ final class ConfirmUserHandlerTest extends TestCase
         // expect that the logger is called with the correct params
         $this->logger->expects($this->once())->method('LogMessage')->with(LogType::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found: 1313');
 
-        $this->cuh->HandleRequest($this->db);
+        $this->cuh->handleRequest($this->db);
     }
 
     public function testHandleRequest_failForAlreadyConfirmedUser(): void
@@ -129,7 +129,7 @@ final class ConfirmUserHandlerTest extends TestCase
         // expect that the logger is called with the correct params
         $this->logger->expects($this->once())->method('LogMessageWithUserId')->with(LogType::LOG_OPERATION_FAILED_ALREADY_CONFIRMED, $this->user);
 
-        $this->cuh->HandleRequest($this->db);
+        $this->cuh->handleRequest($this->db);
     }
 
     public function testHandleRequest_failForAlreadyMigratedUser(): void
@@ -153,7 +153,7 @@ final class ConfirmUserHandlerTest extends TestCase
         // expect that the logger is called with the correct params
         $this->logger->expects($this->once())->method('LogMessageWithUserId')->with(LogType::LOG_OPERATION_FAILED_ALREADY_MIGRATED, $this->user);
 
-        $this->cuh->HandleRequest($this->db);
+        $this->cuh->handleRequest($this->db);
     }
 
     public function testHandleRequest_dontConfirmUserInSimulationMode(): void
@@ -173,10 +173,10 @@ final class ConfirmUserHandlerTest extends TestCase
         // method to actually confirm must not be called
         $this->db->expects($this->never())->method('ConfirmUser');
 
-        $this->cuh->HandleRequest($this->db);
+        $this->cuh->handleRequest($this->db);
 
         // but internal values must have been update
-        static::assertEquals('code', $this->cuh->GetCode());
+        static::assertEquals('code', $this->cuh->getCode());
     }
 
     public function testHandleRequest_dontMigrateUserInSimulationMode(): void
@@ -196,10 +196,10 @@ final class ConfirmUserHandlerTest extends TestCase
         // method to actually confirm must not be called
         $this->db->expects($this->never())->method('ConfirmUser');
 
-        $this->cuh->HandleRequest($this->db);
+        $this->cuh->handleRequest($this->db);
 
         // but internal values must have been update
-        static::assertEquals('code', $this->cuh->GetCode());
+        static::assertEquals('code', $this->cuh->getCode());
     }
 
     public function testHandleRequest_confirmUser(): void
@@ -249,16 +249,16 @@ final class ConfirmUserHandlerTest extends TestCase
                 };
             });
 
-        $this->cuh->HandleRequest($this->db);
+        $this->cuh->handleRequest($this->db);
 
         // and property must have been update
-        static::assertEquals('code', $this->cuh->GetCode());
+        static::assertEquals('code', $this->cuh->getCode());
 
         // must return something non-empty
-        static::assertTrue(strlen($this->cuh->GetConfirmText()) > 0);
-        static::assertStringContainsString('Registrierung', $this->cuh->GetConfirmText());
-        static::assertTrue(strlen($this->cuh->GetSuccessText()) > 0);
-        static::assertStringContainsString('Registrierung', $this->cuh->GetSuccessText());
+        static::assertTrue(strlen($this->cuh->getConfirmText()) > 0);
+        static::assertStringContainsString('Registrierung', $this->cuh->getConfirmText());
+        static::assertTrue(strlen($this->cuh->getSuccessText()) > 0);
+        static::assertStringContainsString('Registrierung', $this->cuh->getSuccessText());
     }
 
     public function testHandleRequest_migrateUser(): void
@@ -280,20 +280,20 @@ final class ConfirmUserHandlerTest extends TestCase
         // method to actually migrate (=activate) must be called
         $this->db->expects($this->once())->method('ConfirmUser')->with($this->user, 'encrypted', 'new@mail.com', true);
 
-        $this->cuh->HandleRequest($this->db);
+        $this->cuh->handleRequest($this->db);
 
         // and property must have been update
-        static::assertEquals('code', $this->cuh->GetCode());
+        static::assertEquals('code', $this->cuh->getCode());
 
         // must return something non-empty
-        static::assertTrue(strlen($this->cuh->GetConfirmText()) > 0);
-        static::assertStringContainsString('Migration', $this->cuh->GetConfirmText());
-        static::assertTrue(strlen($this->cuh->GetSuccessText()) > 0);
-        static::assertStringContainsString('Migration', $this->cuh->GetSuccessText());
+        static::assertTrue(strlen($this->cuh->getConfirmText()) > 0);
+        static::assertStringContainsString('Migration', $this->cuh->getConfirmText());
+        static::assertTrue(strlen($this->cuh->getSuccessText()) > 0);
+        static::assertStringContainsString('Migration', $this->cuh->getSuccessText());
     }
 
-    public function testGetType(): void
+    public function testgetType(): void
     {
-        static::assertEquals(ConfirmHandler::VALUE_TYPE_CONFIRM_USER, $this->cuh->GetType());
+        static::assertEquals(ConfirmHandler::VALUE_TYPE_CONFIRM_USER, $this->cuh->getType());
     }
 }

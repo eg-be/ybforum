@@ -50,7 +50,7 @@ class SearchResult
     /**
      * @return int Field idpost.
      */
-    public function GetPostId(): int
+    public function getPostId(): int
     {
         return $this->idpost;
     }
@@ -58,7 +58,7 @@ class SearchResult
     /**
      * @return string Field title.
      */
-    public function GetTitle(): string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -66,7 +66,7 @@ class SearchResult
     /**
      * @return string Non empty nick (field user_table.nick) who wrote this post.
      */
-    public function GetNick(): string
+    public function getNick(): string
     {
         return $this->nick;
     }
@@ -74,7 +74,7 @@ class SearchResult
     /**
      * @return DateTime of the field creation_ts.
      */
-    public function GetPostTimestamp(): DateTime
+    public function getPostTimestamp(): DateTime
     {
         return $this->creation_ts_dt;
     }

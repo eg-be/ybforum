@@ -69,13 +69,13 @@ class RegisterUserHandler extends BaseHandler
         $this->m_captchaVerifier = null;
     }
 
-    protected function ReadParams(): void
+    protected function readParams(): void
     {
-        $this->nick = self::ReadStringParam(self::PARAM_NICK);
-        $this->email = self::ReadEmailParam(self::PARAM_EMAIL);
-        $this->password = self::ReadStringParam(self::PARAM_PASS);
-        $this->confirmpassword = self::ReadStringParam(self::PARAM_CONFIRMPASS);
-        $this->regMsg = self::ReadStringParam(self::PARAM_REGMSG);
+        $this->nick = self::readStringParam(self::PARAM_NICK);
+        $this->email = self::readEmailParam(self::PARAM_EMAIL);
+        $this->password = self::readStringParam(self::PARAM_PASS);
+        $this->confirmpassword = self::readStringParam(self::PARAM_CONFIRMPASS);
+        $this->regMsg = self::readStringParam(self::PARAM_REGMSG);
 
         if (CaptchaV3Config::CAPTCHA_VERIFY) {
             $this->m_captchaVerifier = new CaptchaV3Verifier(
@@ -86,12 +86,12 @@ class RegisterUserHandler extends BaseHandler
         }
     }
 
-    protected function ValidateParams(): void
+    protected function validateParams(): void
     {
         // Validate where we cannot accept null values:
-        self::ValidateStringParam($this->nick, self::MSG_NICK_TOO_SHORT, YbForumConfig::MIN_NICK_LENGTH);
-        self::ValidateEmailValue($this->email);
-        self::ValidateStringParam($this->password, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
+        self::validateStringParam($this->nick, self::MSG_NICK_TOO_SHORT, YbForumConfig::MIN_NICK_LENGTH);
+        self::validateEmailValue($this->email);
+        self::validateStringParam($this->password, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
 
         // passwords must match
         if ($this->confirmpassword !== $this->password) {
@@ -103,46 +103,46 @@ class RegisterUserHandler extends BaseHandler
 
         // Verify captcha
         if (CaptchaV3Config::CAPTCHA_VERIFY) {
-            $this->m_captchaVerifier->VerifyResponse();
+            $this->m_captchaVerifier->verifyResponse();
         }
     }
 
-    protected function HandleRequestImpl(ForumDb $db): void
+    protected function handleRequestImpl(ForumDb $db): void
     {
         if (is_null($this->logger)) {
             $this->logger = new Logger($db);
         }
         // Check that nick and email are unique
-        $userByNick = $db->LoadUserByNick($this->nick);
+        $userByNick = $db->loadUserByNick($this->nick);
         if ($userByNick) {
-            $this->logger->LogMessage(
+            $this->logger->logMessage(
                 LogType::LOG_OPERATION_FAILED_NICK_NOT_UNIQUE,
-                'Requested Nick: ' . $this->nick . ' already used in: ' . $userByNick->GetNick() . ' (' . $userByNick->GetId() . ')'
+                'Requested Nick: ' . $this->nick . ' already used in: ' . $userByNick->getNick() . ' (' . $userByNick->getId() . ')'
             );
             throw new InvalidArgumentException(
                 self::MSG_NICK_NOT_UNIQUE,
                 parent::MSGCODE_BAD_PARAM
             );
         }
-        $userByEmail = $db->LoadUserByEmail($this->email);
+        $userByEmail = $db->loadUserByEmail($this->email);
         if ($userByEmail) {
-            $this->logger->LogMessage(LogType::LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE, 'Passed Email: ' . $this->email);
+            $this->logger->logMessage(LogType::LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE, 'Passed Email: ' . $this->email);
             throw new InvalidArgumentException(
                 self::MSG_EMAIL_NOT_UNIQUE,
                 parent::MSGCODE_BAD_PARAM
             );
         }
         // Check that email is not blacklisted
-        self::ValidateEmailAgainstBlacklist($this->email, $db, $this->logger);
+        self::validateEmailAgainstBlacklist($this->email, $db, $this->logger);
 
         // Create the user and request a confirmation code
-        $user = $db->CreateNewUser(
+        $user = $db->createNewUser(
             $this->nick,
             $this->email,
             $this->regMsg,
             $this->clientIpAddress
         );
-        $confirmCode = $db->RequestConfirmUserCode(
+        $confirmCode = $db->requestConfirmUserCode(
             $user,
             $this->password,
             $this->email,
@@ -154,46 +154,46 @@ class RegisterUserHandler extends BaseHandler
         if (is_null($this->mailer)) {
             $this->mailer = new Mailer();
         }
-        if (!$this->mailer->SendRegisterUserConfirmMessage($this->email, $this->nick, $confirmCode)) {
+        if (!$this->mailer->sendRegisterUserConfirmMessage($this->email, $this->nick, $confirmCode)) {
             // Remove the just created user
-            $db->RemoveConfirmUserCode($user);
-            $db->DeleteUser($user);
+            $db->removeConfirmUserCode($user);
+            $db->deleteUser($user);
             // And fail
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
     }
 
-    public function GetNick(): ?string
+    public function getNick(): ?string
     {
         return $this->nick;
     }
 
-    public function GetEmail(): ?string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    public function GetRegMsg(): ?string
+    public function getRegMsg(): ?string
     {
         return $this->regMsg;
     }
 
-    public function GetPassword(): ?string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function GetConfirmPassword(): ?string
+    public function getConfirmPassword(): ?string
     {
         return $this->confirmpassword;
     }
 
-    public function SetMailer(Mailer $mailer): void
+    public function setMailer(Mailer $mailer): void
     {
         $this->mailer = $mailer;
     }
 
-    public function SetLogger(Logger $logger): void
+    public function setLogger(Logger $logger): void
     {
         $this->logger = $logger;
     }

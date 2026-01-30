@@ -42,21 +42,21 @@ class PostList
      * construction as p element.
      * @return string
      */
-    public function RenderListDiv(): string
+    public function renderListDiv(): string
     {
         $htmlStr = '<div class="fullwidth">';
         foreach ($this->m_postIndexEntries as $indexEntry) {
             $htmlStr .= '<p class="nomargin"><a ';
             $htmlStr .= 'href="showentry.php?idpost='
-                . $indexEntry->GetPostId() . '">';
-            $htmlStr .= $indexEntry->GetTitle();
-            if (!$indexEntry->HasContent()) {
+                . $indexEntry->getPostId() . '">';
+            $htmlStr .= $indexEntry->getTitle();
+            if (!$indexEntry->hasContent()) {
                 $htmlStr .= ' (o.T.)';
             }
             $htmlStr .= '</a> - <span class="fbold">';
-            $htmlStr .= $indexEntry->GetNick();
+            $htmlStr .= $indexEntry->getNick();
             $htmlStr .= '</span> - ';
-            $htmlStr .= $indexEntry->GetPostTimestamp()->format('d.m.Y H:i:s');
+            $htmlStr .= $indexEntry->getPostTimestamp()->format('d.m.Y H:i:s');
             $htmlStr .= '</p>';
         }
 

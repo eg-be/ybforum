@@ -41,14 +41,14 @@ try {
         // Try to search using the posted search data
         try {
             $searchHandler = new SearchHandler();
-            $searchHandler->HandleRequest($db);
+            $searchHandler->handleRequest($db);
             // searching succeeeded
         } catch (InvalidArgumentException $ex) {
             // Searching failed. Reshow the form with some error later
         }
     }
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
 
@@ -67,7 +67,7 @@ try {
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
         } catch (Exception $ex) {
-            ErrorHandler::OnException($ex);
+            ErrorHandler::onException($ex);
         }
 ?>
         <div class="fullwidthcenter generictitle">Beitragssuche</div>
@@ -77,17 +77,17 @@ try {
     $topNav = new TopNavigation();
     echo $topNav->renderHtmlDiv();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         <hr>
         <?php
 // render an error from a previous search run
-if ($searchHandler && $searchHandler->HasException()) {
-    $searchException = $searchHandler->GetLastException();
+if ($searchHandler && $searchHandler->hasException()) {
+    $searchException = $searchHandler->getLastException();
     echo '<div id="status" class="fullwidthcenter" style="color: red;">'
         . '<span class="fbold">Fehler: </span>'
-        . $searchException->GetMessage()
+        . $searchException->getMessage()
         . '</div>';
 }
 ?>
@@ -95,17 +95,17 @@ if ($searchHandler && $searchHandler->HasException()) {
         <?php
 // Alwyas render the form to start a new search
 $searchForm = new SearchForm($searchHandler);
-echo $searchForm->RenderHtmlForm();
+echo $searchForm->renderHtmlForm();
 ?>
         </div>
         <?php
 // If we have some pending results, render them
-if ($searchHandler && $searchHandler->HasResults()) {
+if ($searchHandler && $searchHandler->hasResults()) {
     $searchResultsView = new SearchResultsView($searchHandler);
-    echo $searchResultsView->RenderResultsNavigationDiv();
-    echo $searchResultsView->RenderSortDiv();
-    echo $searchResultsView->RenderResultsDiv();
-    echo $searchResultsView->RenderResultsNavigationDiv();
+    echo $searchResultsView->renderResultsNavigationDiv();
+    echo $searchResultsView->renderSortDiv();
+    echo $searchResultsView->renderResultsDiv();
+    echo $searchResultsView->renderResultsNavigationDiv();
 }
 ?>
         <?php

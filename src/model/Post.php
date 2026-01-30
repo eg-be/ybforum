@@ -77,7 +77,7 @@ class Post
     /**
      * @return int Field idpost
      */
-    public function GetId(): int
+    public function getId(): int
     {
         return $this->idpost;
     }
@@ -85,7 +85,7 @@ class Post
     /**
      * @return int Field idthread
      */
-    public function GetThreadId(): int
+    public function getThreadId(): int
     {
         return $this->idthread;
     }
@@ -93,7 +93,7 @@ class Post
     /**
      * @return bool True if field hidden has a value > 0.
      */
-    public function IsHidden(): bool
+    public function isHidden(): bool
     {
         return $this->hidden > 0;
     }
@@ -101,7 +101,7 @@ class Post
     /**
      * @return null or int. field parent_idpost.
      */
-    public function GetParentPostId(): ?int
+    public function getParentPostId(): ?int
     {
         return $this->parent_idpost;
     }
@@ -109,7 +109,7 @@ class Post
     /**
      * @return boolean True if field parent_idpost has a value > 0
      */
-    public function HasParentPost(): bool
+    public function hasParentPost(): bool
     {
         return !is_null($this->parent_idpost) && $this->parent_idpost > 0;
     }
@@ -117,7 +117,7 @@ class Post
     /**
      * @return string Non empty field title.
      */
-    public function GetTitle(): string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -125,7 +125,7 @@ class Post
     /**
      * @return string Non empty nick (field user_table.nick) who wrote this post.
      */
-    public function GetNick(): string
+    public function getNick(): string
     {
         return $this->nick;
     }
@@ -133,7 +133,7 @@ class Post
     /**
      * @return int User who wrote this post (field post_table.iduser)
      */
-    public function GetUserId(): int
+    public function getUserId(): int
     {
         return $this->iduser;
     }
@@ -141,7 +141,7 @@ class Post
     /**
      * @return DateTime of the field creation_ts.
      */
-    public function GetPostTimestamp(): DateTime
+    public function getPostTimestamp(): DateTime
     {
         return $this->creation_ts_dt;
     }
@@ -149,7 +149,7 @@ class Post
     /**
      * @return bool True if field content is not null.
      */
-    public function HasContent(): bool
+    public function hasContent(): bool
     {
         return !is_null($this->content);
     }
@@ -157,25 +157,25 @@ class Post
     /**
      * @return string or null. Field content.
      */
-    public function GetContent(): ?string
+    public function getContent(): ?string
     {
-        assert($this->HasContent());
+        assert($this->hasContent());
         return $this->content;
     }
 
     /**
      * @return int or null. Field old_no.
      */
-    public function GetOldPostNo(): ?int
+    public function getOldPostNo(): ?int
     {
-        assert($this->IsOldPost());
+        assert($this->isOldPost());
         return $this->old_no;
     }
 
     /**
      * @return bool True if field old_no is not null.
      */
-    public function IsOldPost(): bool
+    public function isOldPost(): bool
     {
         return !is_null($this->old_no);
     }
@@ -183,7 +183,7 @@ class Post
     /**
      * @return bool True if field link_url is not null.
      */
-    public function HasLinkUrl(): bool
+    public function hasLinkUrl(): bool
     {
         return !is_null($this->link_url);
     }
@@ -191,16 +191,16 @@ class Post
     /**
      * @return string or null. Field link_url.
      */
-    public function GetLinkUrl(): ?string
+    public function getLinkUrl(): ?string
     {
-        assert($this->HasLinkUrl());
+        assert($this->hasLinkUrl());
         return $this->link_url;
     }
 
     /**
      * @return bool True if field link_text is not null.
      */
-    public function HasLinkText(): bool
+    public function hasLinkText(): bool
     {
         return !is_null($this->link_text);
     }
@@ -208,16 +208,16 @@ class Post
     /**
      * @return string or null. Field link_text.
      */
-    public function GetLinkText(): ?string
+    public function getLinkText(): ?string
     {
-        assert($this->HasLinkText());
+        assert($this->hasLinkText());
         return $this->link_text;
     }
 
     /**
      * @return bool True if field img_url is not null.
      */
-    public function HasImgUrl(): bool
+    public function hasImgUrl(): bool
     {
         return !is_null($this->img_url);
     }
@@ -225,16 +225,16 @@ class Post
     /**
      * @return string or null. Field img_url.
      */
-    public function GetImgUrl(): ?string
+    public function getImgUrl(): ?string
     {
-        assert($this->HasImgUrl());
+        assert($this->hasImgUrl());
         return $this->img_url;
     }
 
     /**
      * @return bool True if field email is not null.
      */
-    public function HasEmail(): bool
+    public function hasEmail(): bool
     {
         return !is_null($this->email);
     }
@@ -242,16 +242,16 @@ class Post
     /**
      * @return string or email Field email.
      */
-    public function GetEmail(): ?string
+    public function getEmail(): ?string
     {
-        assert($this->HasEmail());
+        assert($this->hasEmail());
         return $this->email;
     }
 
     /**
      * @return int Field rank.
      */
-    public function GetRank(): int
+    public function getRank(): int
     {
         return $this->rank;
     }
@@ -259,7 +259,7 @@ class Post
     /**
      * @return int Field indent.
      */
-    public function GetIndent(): int
+    public function getIndent(): int
     {
         return $this->indent;
     }
@@ -267,7 +267,7 @@ class Post
     /**
      * @return string Field ip_address.
      */
-    public function GetIpAddress(): string
+    public function getIpAddress(): string
     {
         return $this->ip_address;
     }

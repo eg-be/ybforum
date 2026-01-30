@@ -120,7 +120,7 @@ class Logger
 {
     public function __construct(?ForumDb $db = null)
     {
-        if (!$db || $db->IsReadOnly()) {
+        if (!$db || $db->isReadOnly()) {
             $db = new ForumDb(false);
         }
         $this->m_db = $db;
@@ -138,24 +138,23 @@ class Logger
         $this->m_requestUri = $values['REQUEST_URI'];
     }
 
-    // todo: issue #20
-    public function LogMessageWithUserId(
+    public function logMessageWithUserId(
         LogType $logType,
         User $user,
         ?string $msg = null,
         ?string $extendedInfo = null
     ): void {
-        $logTypeId = $this->GetLogTypeId($logType);
-        $this->InsertLogEntry($logTypeId, $user, $msg, $extendedInfo);
+        $logTypeId = $this->getLogTypeId($logType);
+        $this->insertLogEntry($logTypeId, $user, $msg, $extendedInfo);
     }
 
-    public function LogMessage(
+    public function logMessage(
         LogType $logType,
         string $msg,
         ?string $extendedInfo = null
     ): void {
-        $logTypeId = $this->GetLogTypeId($logType);
-        $this->InsertLogEntry($logTypeId, null, $msg, $extendedInfo);
+        $logTypeId = $this->getLogTypeId($logType);
+        $this->insertLogEntry($logTypeId, null, $msg, $extendedInfo);
     }
 
     /**
@@ -168,7 +167,7 @@ class Logger
      * is created with the passed value
      * @throws Exception
      */
-    private function InsertLogEntry(
+    private function insertLogEntry(
         int $logTypeId,
         ?User $user,
         ?string $msg,
@@ -191,12 +190,12 @@ class Logger
 
         $historicUserContext = null;
         if ($user) {
-            $historicUserContext = $user->GetMinimalUserInfoAsString();
+            $historicUserContext = $user->getMinimalUserInfoAsString();
         }
 
         $userId = null;
         if ($user) {
-            $userId = $user->GetId();
+            $userId = $user->getId();
         }
 
         if ($msg && mb_strlen($msg, 'UTF-8') > 255) {
@@ -241,7 +240,7 @@ class Logger
      * @return int value of column idlog_type
      * @throws InvalidArgumentException If no matching row is found
      */
-    public function GetLogTypeId(LogType $logType): int
+    public function getLogTypeId(LogType $logType): int
     {
         if (!$this->m_selectTypeStmt) {
             $query = 'SELECT idlog_type FROM log_type_table WHERE name = :name';

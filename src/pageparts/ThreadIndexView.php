@@ -42,7 +42,7 @@ class ThreadIndexView
         int $nrOfThreadsPerPage,
         int $pageNr
     ) {
-        assert($forumDb->IsConnected());
+        assert($forumDb->isConnected());
         assert($nrOfThreadsPerPage > 0);
         assert($pageNr > 0);
         $this->m_nrOfThreads = $nrOfThreadsPerPage;
@@ -62,13 +62,13 @@ class ThreadIndexView
      */
     public function renderHtmlDivPerThread(callable $htmlPerThreadCallback): void
     {
-        $this->m_forumDb->LoadThreadIndexEntries(
+        $this->m_forumDb->loadThreadIndexEntries(
             $this->m_pageNr,
             $this->m_nrOfThreads,
             function ($threadIndexes) use ($htmlPerThreadCallback): void {
                 $htmlStr = '<div class="threadmargin">';
                 foreach ($threadIndexes as $ti) {
-                    $indent = $ti->GetIndent();
+                    $indent = $ti->getIndent();
                     $htmlStr .= '<p class="nomargin';
                     if ($indent === 0) {
                         $htmlStr .= ' fbold';
@@ -76,15 +76,15 @@ class ThreadIndexView
                     $htmlStr .= '" style="text-indent: ';
                     $htmlStr .= $indent . 'em"><a ';
                     $htmlStr .= 'href="showentry.php?idpost='
-                        . $ti->GetPostId() . '">';
-                    $htmlStr .= $ti->GetTitle();
-                    if (!$ti->HasContent()) {
+                        . $ti->getPostId() . '">';
+                    $htmlStr .= $ti->getTitle();
+                    if (!$ti->hasContent()) {
                         $htmlStr .= ' (o.T.)';
                     }
                     $htmlStr .= '</a> - <span class="fbold">';
-                    $htmlStr .= $ti->GetNick();
+                    $htmlStr .= $ti->getNick();
                     $htmlStr .= '</span> - ';
-                    $htmlStr .= $ti->GetPostTimestamp()->format('d.m.Y H:i:s');
+                    $htmlStr .= $ti->getPostTimestamp()->format('d.m.Y H:i:s');
                     $htmlStr .= '</p>';
                 }
                 $htmlStr .= '</div>';
