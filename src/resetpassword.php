@@ -68,7 +68,7 @@ require_once __DIR__ . '/pageparts/ResetPasswordForm.php';
                     $updatePasswordHandler->handleRequest($db);
                     // changing succeeded, show the success state
                     // and remove the code from the database
-                    $db->RemoveResetPasswordCode($user);
+                    $db->removeResetPasswordCode($user);
                     echo '<div class="fbold successcolor">';
                     echo $handler->getSuccessText();
                     echo ' Dieses Fenster kann jetzt geschlossen werden.';
@@ -90,7 +90,7 @@ require_once __DIR__ . '/pageparts/ResetPasswordForm.php';
                     . '<span class="fbold">Fehler: </span>'
                     . $ex->GetMessage() . '</span></div>';
         } catch (Exception $ex) {
-            ErrorHandler::OnException($ex);
+            ErrorHandler::onException($ex);
         }
 ?>
         </div>

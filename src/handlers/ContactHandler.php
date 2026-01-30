@@ -89,7 +89,7 @@ class ContactHandler extends BaseHandler
 
         // Verify captcha
         if (CaptchaV3Config::CAPTCHA_VERIFY) {
-            $this->m_captchaVerifier->VerifyResponse();
+            $this->m_captchaVerifier->verifyResponse();
         }
     }
 
@@ -99,18 +99,18 @@ class ContactHandler extends BaseHandler
             $this->logger = new Logger($db);
         }
         // try to log what we have received
-        $this->logger->LogMessage(LogType::LOG_CONTACT_FORM_SUBMITTED, 'Mail: ' . $this->email . '; Msg: ' . $this->msg);
+        $this->logger->logMessage(LogType::LOG_CONTACT_FORM_SUBMITTED, 'Mail: ' . $this->email . '; Msg: ' . $this->msg);
 
         // Send a mail to all admins
         if (is_null($this->mailer)) {
             $this->mailer = new Mailer();
         }
-        $admins = $db->GetAdminUsers();
+        $admins = $db->getAdminUsers();
         if (count($admins) === 0) {
             throw new InvalidArgumentException(self::MSG_NO_ADMINS_DEFINED, parent::MSGCODE_INTERNAL_ERROR);
         }
         foreach ($admins as $admin) {
-            if (!$this->mailer->SendAdminContactMessage($this->email, $this->msg, $admin->getEmail())) {
+            if (!$this->mailer->sendAdminContactMessage($this->email, $this->msg, $admin->getEmail())) {
                 // Fail
                 throw new InvalidArgumentException(self::MSG_SENDING_CONTACTMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
             }

@@ -174,9 +174,9 @@ abstract class BaseHandler
         ForumDb $db,
         Logger $logger
     ): void {
-        $mailOnBlacklistExactly = $db->IsEmailOnBlacklistExactly($email);
+        $mailOnBlacklistExactly = $db->isEmailOnBlacklistExactly($email);
         if ($mailOnBlacklistExactly) {
-            $logger->LogMessage(
+            $logger->logMessage(
                 LogType::LOG_OPERATION_FAILED_EMAIL_BLACKLISTED,
                 $mailOnBlacklistExactly
                     . '(Mail: ' . $email . ')'
@@ -186,9 +186,9 @@ abstract class BaseHandler
                 self::MSGCODE_BAD_PARAM
             );
         }
-        $mailMatchesBlacklistRegex = $db->IsEmailOnBlacklistRegex($email);
+        $mailMatchesBlacklistRegex = $db->isEmailOnBlacklistRegex($email);
         if ($mailMatchesBlacklistRegex) {
-            $logger->LogMessage(
+            $logger->logMessage(
                 LogType::LOG_OPERATION_FAILED_EMAIL_REGEX_BLACKLISTED,
                 $mailMatchesBlacklistRegex
                     . '(Mail: ' . $email . ')'

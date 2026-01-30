@@ -50,5 +50,5 @@ try {
         echo $swu->renderHtmlDiv();
     }
 } catch (\Exception $ex) {
-    \ErrorHandler::OnException($ex);
+    \ErrorHandler::onException($ex);
 }

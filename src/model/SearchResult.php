@@ -50,7 +50,7 @@ class SearchResult
     /**
      * @return int Field idpost.
      */
-    public function GetPostId(): int
+    public function getPostId(): int
     {
         return $this->idpost;
     }
@@ -74,7 +74,7 @@ class SearchResult
     /**
      * @return DateTime of the field creation_ts.
      */
-    public function GetPostTimestamp(): DateTime
+    public function getPostTimestamp(): DateTime
     {
         return $this->creation_ts_dt;
     }

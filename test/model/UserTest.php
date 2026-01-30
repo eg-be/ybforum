@@ -22,7 +22,7 @@ final class UserTest extends BaseTest
 
     protected function assertPreConditions(): void {}
 
-    public function testAuth(): void
+    public function testauth(): void
     {
         $admin = self::mockUser(
             1,
@@ -36,8 +36,8 @@ final class UserTest extends BaseTest
             '$2y$10$n.ZGkNoS3BvavZ3qcs50nelspmTfM3dh8ZLSZ5JXfBvW9rQ6i..VC',
             null
         );
-        static::assertTrue($admin->Auth('admin-pass'));
-        static::assertFalse($admin->Auth(' admin-pass'));
+        static::assertTrue($admin->auth('admin-pass'));
+        static::assertFalse($admin->auth(' admin-pass'));
 
         $oldUser = self::mockUser(
             10,
@@ -51,7 +51,7 @@ final class UserTest extends BaseTest
             null,
             '895e1aace5e13c683491bb26dd7453bf'
         );
-        static::assertFalse($oldUser->Auth('old-user-pass'));
+        static::assertFalse($oldUser->auth('old-user-pass'));
 
         $dummy = self::mockUser(
             66,
@@ -65,7 +65,7 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertFalse($dummy->Auth('dummy-pass'));
+        static::assertFalse($dummy->auth('dummy-pass'));
 
         $needsApproval = self::mockUser(
             51,
@@ -79,10 +79,10 @@ final class UserTest extends BaseTest
             '$2y$10$vzzdRF/SrnhQxSwrbVyFNeW07E5dKdx3Nwwix.ONMCDDResM4zq5u',
             null
         );
-        static::assertFalse($needsApproval->Auth('inactive-pass'));
+        static::assertFalse($needsApproval->auth('inactive-pass'));
     }
 
-    public function testOldAuth(): void
+    public function testoldauth(): void
     {
         $oldUser = self::mockUser(
             10,
@@ -96,10 +96,10 @@ final class UserTest extends BaseTest
             null,
             '895e1aace5e13c683491bb26dd7453bf'
         );
-        static::assertFalse($oldUser->Auth('old-user-pass'));
-        static::assertTrue($oldUser->OldAuth('old-user-pass'));
-        static::assertFalse($oldUser->OldAuth(' old-user-pass'));
-        static::assertFalse($oldUser->OldAuth('olD-user-pass'));
+        static::assertFalse($oldUser->auth('old-user-pass'));
+        static::assertTrue($oldUser->oldauth('old-user-pass'));
+        static::assertFalse($oldUser->oldauth(' old-user-pass'));
+        static::assertFalse($oldUser->oldauth('olD-user-pass'));
     }
 
     public function testOldAuth_noOldPasswordSet(): void
@@ -116,7 +116,7 @@ final class UserTest extends BaseTest
             '$2y$10$n.ZGkNoS3BvavZ3qcs50nelspmTfM3dh8ZLSZ5JXfBvW9rQ6i..VC',
             null
         );
-        static::assertFalse($user->OldAuth('some password'));
+        static::assertFalse($user->oldauth('some password'));
     }
 
     public function testEmail(): void
@@ -134,7 +134,7 @@ final class UserTest extends BaseTest
             null
         );
         static::assertSame('mail@foo.com', $mail->getEmail());
-        static::assertTrue($mail->HasEmail());
+        static::assertTrue($mail->hasEmail());
 
         $noMail = self::mockUser(
             13,
@@ -149,7 +149,7 @@ final class UserTest extends BaseTest
             null
         );
         static::assertNull($noMail->getEmail());
-        static::assertFalse($noMail->HasEmail());
+        static::assertFalse($noMail->hasEmail());
     }
 
     public function testAdmin(): void
@@ -166,7 +166,7 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertTrue($admin->IsAdmin());
+        static::assertTrue($admin->isAdmin());
         $admin = self::mockUser(
             13,
             'nick',
@@ -179,7 +179,7 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertTrue($admin->IsAdmin());
+        static::assertTrue($admin->isAdmin());
 
         $noAdmin = self::mockUser(
             13,
@@ -193,7 +193,7 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertFalse($noAdmin->IsAdmin());
+        static::assertFalse($noAdmin->isAdmin());
         $noAdmin = self::mockUser(
             13,
             'nick',
@@ -206,7 +206,7 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertFalse($noAdmin->IsAdmin());
+        static::assertFalse($noAdmin->isAdmin());
     }
 
     public function testActive(): void
@@ -223,7 +223,7 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertTrue($active->IsActive());
+        static::assertTrue($active->isActive());
         $active = self::mockUser(
             13,
             'nick',
@@ -236,7 +236,7 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertTrue($active->IsActive());
+        static::assertTrue($active->isActive());
 
         $inactive = self::mockUser(
             13,
@@ -250,7 +250,7 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertFalse($inactive->IsActive());
+        static::assertFalse($inactive->isActive());
         $inactive = self::mockUser(
             13,
             'nick',
@@ -263,7 +263,7 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertFalse($inactive->IsActive());
+        static::assertFalse($inactive->isActive());
     }
 
     public function testRegistrationMsg(): void
@@ -280,8 +280,8 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertSame('message', $msg->GetRegistrationMsg());
-        static::assertTrue($msg->HasRegistrationMsg());
+        static::assertSame('message', $msg->getRegistrationMsg());
+        static::assertTrue($msg->hasRegistrationMsg());
 
         $noMsg = self::mockUser(
             13,
@@ -295,8 +295,8 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertNull($noMsg->GetRegistrationMsg());
-        static::assertFalse($noMsg->HasRegistrationMsg());
+        static::assertNull($noMsg->getRegistrationMsg());
+        static::assertFalse($noMsg->hasRegistrationMsg());
     }
 
     public function testConfirmed(): void
@@ -313,8 +313,8 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertEquals(new DateTime('2022-06-21 07:30:05'), $conf->GetConfirmationTimestamp());
-        static::assertTrue($conf->IsConfirmed());
+        static::assertEquals(new DateTime('2022-06-21 07:30:05'), $conf->getConfirmationTimestamp());
+        static::assertTrue($conf->isConfirmed());
 
         $notConf = self::mockUser(
             13,
@@ -328,8 +328,8 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertNull($notConf->GetConfirmationTimestamp());
-        static::assertFalse($notConf->IsConfirmed());
+        static::assertNull($notConf->getConfirmationTimestamp());
+        static::assertFalse($notConf->isConfirmed());
     }
 
     public function testDummy(): void
@@ -346,7 +346,7 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertTrue($dummy->IsDummyUser());
+        static::assertTrue($dummy->isDummyUser());
 
         $noDummy = self::mockUser(
             13,
@@ -360,7 +360,7 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertFalse($noDummy->IsDummyUser());
+        static::assertFalse($noDummy->isDummyUser());
         $noDummy = self::mockUser(
             13,
             'nick',
@@ -373,7 +373,7 @@ final class UserTest extends BaseTest
             'password',
             null
         );
-        static::assertFalse($noDummy->IsDummyUser());
+        static::assertFalse($noDummy->isDummyUser());
         $noDummy = self::mockUser(
             13,
             'nick',
@@ -386,7 +386,7 @@ final class UserTest extends BaseTest
             null,
             'old-passwd'
         );
-        static::assertFalse($noDummy->IsDummyUser());
+        static::assertFalse($noDummy->isDummyUser());
     }
 
     public function testMigrationAndPassword(): void
@@ -403,9 +403,9 @@ final class UserTest extends BaseTest
             null,
             'old-pass'
         );
-        static::assertTrue($mig->HasOldPassword());
-        static::assertTrue($mig->NeedsMigration());
-        static::assertFalse($mig->HasPassword());
+        static::assertTrue($mig->hasOldPassword());
+        static::assertTrue($mig->needsMigration());
+        static::assertFalse($mig->hasPassword());
 
         $noMig = self::mockUser(
             13,
@@ -419,9 +419,9 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertFalse($noMig->HasOldPassword());
-        static::assertFalse($noMig->NeedsMigration());
-        static::assertFalse($noMig->HasPassword());
+        static::assertFalse($noMig->hasOldPassword());
+        static::assertFalse($noMig->needsMigration());
+        static::assertFalse($noMig->hasPassword());
 
         $noMig = self::mockUser(
             13,
@@ -435,12 +435,12 @@ final class UserTest extends BaseTest
             'new-password',
             null
         );
-        static::assertFalse($noMig->HasOldPassword());
-        static::assertFalse($noMig->NeedsMigration());
-        static::assertTrue($noMig->HasPassword());
+        static::assertFalse($noMig->hasOldPassword());
+        static::assertFalse($noMig->needsMigration());
+        static::assertTrue($noMig->hasPassword());
     }
 
-    public function testGetFullUserInfoAsString(): void
+    public function testgetFullUserInfoAsString(): void
     {
         $conf = self::mockUser(
             13,
@@ -454,7 +454,7 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertEquals('IdUser: 13; Nick: nick; Email: mail@foo.com; Active: No; Confirmed: Yes; Needs Migration: No; HasPassword: No; HasOldPassword: No; IsAdmin: No; IsDummy: No; Registration Timestamp: 30.03.2020 14:30:05; Confirmation Timestamp: 21.06.2022 07:30:05; Registration Message: message', $conf->GetFullUserInfoAsString());
+        static::assertEquals('IdUser: 13; Nick: nick; Email: mail@foo.com; Active: No; Confirmed: Yes; Needs Migration: No; HasPassword: No; HasOldPassword: No; IsAdmin: No; IsDummy: No; Registration Timestamp: 30.03.2020 14:30:05; Confirmation Timestamp: 21.06.2022 07:30:05; Registration Message: message', $conf->getFullUserInfoAsString());
 
         $notConf = self::mockUser(
             13,
@@ -468,6 +468,6 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertEquals('IdUser: 13; Nick: nick; Email: <No Email set>; Active: No; Confirmed: No; Needs Migration: No; HasPassword: No; HasOldPassword: No; IsAdmin: No; IsDummy: Yes; Registration Timestamp: 30.03.2020 14:30:05; Confirmation Timestamp: <Not Confirmed>; Registration Message: <No Registration Message set>', $notConf->GetFullUserInfoAsString());
+        static::assertEquals('IdUser: 13; Nick: nick; Email: <No Email set>; Active: No; Confirmed: No; Needs Migration: No; HasPassword: No; HasOldPassword: No; IsAdmin: No; IsDummy: Yes; Registration Timestamp: 30.03.2020 14:30:05; Confirmation Timestamp: <Not Confirmed>; Registration Message: <No Registration Message set>', $notConf->getFullUserInfoAsString());
     }
 }

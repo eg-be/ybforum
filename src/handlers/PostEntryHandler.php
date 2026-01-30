@@ -158,7 +158,7 @@ class PostEntryHandler extends BaseHandler
         $this->newPostId = null;
         // Authenticate
         // note: The AuthUser of the db will do logging in case of failure
-        $userAndAuthFailReason = $db->AuthUser2($this->nick, $this->password);
+        $userAndAuthFailReason = $db->authUser2($this->nick, $this->password);
         $user = $userAndAuthFailReason[ForumDb::USER_KEY];
         $authFailReason = $userAndAuthFailReason[ForumDb::AUTH_FAIL_REASON_KEY];
         if (!$user) {
@@ -180,7 +180,7 @@ class PostEntryHandler extends BaseHandler
                 // but if the reason is AUTH_FAIL_REASON_NO_SUCH_USER, only
                 // log if explicitely configured to do so
                 if ($authFailReason !== ForumDb::AUTH_FAIL_REASON_NO_SUCH_USER || $this->config->getLogAuthFailNoSuchUser()) {
-                    $this->logger->LogMessage(
+                    $this->logger->logMessage(
                         LogType::LOG_EXT_POST_DISCARDED,
                         $authFailMsg,
                         $this->getExtendedLogMsg()
@@ -191,12 +191,12 @@ class PostEntryHandler extends BaseHandler
             throw new InvalidArgumentException($authFailMsg, parent::MSGCODE_AUTH_FAIL);
         }
         // Check if migration is required
-        if ($user->NeedsMigration()) {
-            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user);
+        if ($user->needsMigration()) {
+            $this->logger->logMessageWithUserId(LogType::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user);
             throw new InvalidArgumentException(self::MSG_MIGRATION_REQUIRED, parent::MSGCODE_AUTH_FAIL);
         }
         if ($this->parentPostId === 0) {
-            $this->newPostId = $db->CreateThread(
+            $this->newPostId = $db->createThread(
                 $user,
                 $this->title,
                 $this->content,
@@ -207,7 +207,7 @@ class PostEntryHandler extends BaseHandler
                 $this->clientIpAddress
             );
         } else {
-            $this->newPostId = $db->CreateReplay(
+            $this->newPostId = $db->createReplay(
                 $this->parentPostId,
                 $user,
                 $this->title,

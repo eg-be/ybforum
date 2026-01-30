@@ -77,7 +77,7 @@ require_once __DIR__ . '/pageparts/Logo.php';
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
         } catch (Exception $ex) {
-            ErrorHandler::OnException($ex);
+            ErrorHandler::onException($ex);
         }
 ?>
         <div class="fullwidthcenter generictitle">Textformatierung</div>
@@ -87,7 +87,7 @@ try {
     $topNav = new TopNavigation();
     echo $topNav->renderHtmlDiv();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         <hr>

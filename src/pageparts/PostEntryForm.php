@@ -65,13 +65,13 @@ class PostEntryForm
             // If there is a parent-post, use values from that parent-post
             // note: We want users to allow to set the fields to empty values,
             // so this here must be an else part (PostEntryHandler shall win)
-            if ($this->m_parentPost->HasImgUrl()) {
+            if ($this->m_parentPost->hasImgUrl()) {
                 $imgUrl = $this->m_parentPost->getImgUrl();
             }
-            if ($this->m_parentPost->HasLinkText()) {
+            if ($this->m_parentPost->hasLinkText()) {
                 $linkText = $this->m_parentPost->getLinkText();
             }
-            if ($this->m_parentPost->HasLinkUrl()) {
+            if ($this->m_parentPost->hasLinkUrl()) {
                 $linkUrl = $this->m_parentPost->getLinkUrl();
             }
         }
@@ -202,7 +202,7 @@ class PostEntryForm
         if ($this->m_peh) {
             $content = $this->m_peh->getContent();
         }
-        if (!$content && $this->m_parentPost && $this->m_parentPost->HasContent()) {
+        if (!$content && $this->m_parentPost && $this->m_parentPost->hasContent()) {
             $content = '[i]' . $this->m_parentPost->getContent() . '[/i]';
         }
         $htmlString = '<textarea name="' . PostEntryHandler::PARAM_CONTENT . '" '
@@ -222,7 +222,7 @@ class PostEntryForm
         // If this form has been created as a direct consequence of a reply,
         // a parent post is set
         if ($this->m_parentPost) {
-            $parentPostId = $this->m_parentPost->GetId();
+            $parentPostId = $this->m_parentPost->getId();
         } elseif ($this->m_peh && $this->m_peh->getParentPostId() > 0) {
             // or, if we have already failed once, all information is in the post-handler
             $parentPostId = $this->m_peh->getParentPostId();

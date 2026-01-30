@@ -164,7 +164,7 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->rph->handleRequest($this->db);
     }
 
-    public function testReset_IfUserIsInactiveButNeedsMigration(): void
+    public function testReset_IfUserIsInactiveButneedsMigration(): void
     {
         $_POST[ResetPasswordHandler::PARAM_EMAIL_OR_NICK] = 'foo';
 

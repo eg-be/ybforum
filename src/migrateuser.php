@@ -56,7 +56,7 @@ try {
         }
     }
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
 
@@ -76,7 +76,7 @@ try {
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
         } catch (Exception $ex) {
-            ErrorHandler::OnException($ex);
+            ErrorHandler::onException($ex);
         }
 ?>
         <div class="fullwidthcenter generictitle">Benutzer migrieren</div>

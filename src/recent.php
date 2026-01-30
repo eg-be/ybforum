@@ -33,7 +33,7 @@ try {
 
     $db = new ForumDb();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
 
@@ -52,7 +52,7 @@ try {
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
         } catch (Exception $ex) {
-            ErrorHandler::OnException($ex);
+            ErrorHandler::onException($ex);
         }
 ?>
         <div class="fullwidthcenter generictitle">Neue Beiträge</div>
@@ -62,17 +62,17 @@ try {
     $topNav = new TopNavigation();
     echo $topNav->renderHtmlDiv();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         <hr>
         <?php
 try {
-    $replies = $db->LoadRecentPosts(YbForumConfig::RECENT_ENTRIES_COUNT);
+    $replies = $db->loadRecentPosts(YbForumConfig::RECENT_ENTRIES_COUNT);
     $pl = new PostList($replies);
     echo $pl->RenderListDiv();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         <?php

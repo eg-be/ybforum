@@ -28,7 +28,7 @@ try {
     session_unset();
     session_destroy();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
 <!DOCTYPE html>

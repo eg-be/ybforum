@@ -135,7 +135,7 @@ class SearchHandler extends BaseHandler
         // we fetch one more than the limit, to check if there would
         // be more results available
         try {
-            $this->m_results = $db->SearchPosts(
+            $this->m_results = $db->searchPosts(
                 $this->m_searchString,
                 $this->m_searchNick,
                 $this->getLimit() + 1,

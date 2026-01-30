@@ -20,10 +20,10 @@ final class SearchResultTest extends BaseTest
 
     protected function assertPreConditions(): void {}
 
-    public function testGetPostId(): void
+    public function testgetPostId(): void
     {
         $someResult = self::mockSearchResult(99, 'nick', 'title', '2020-03-30 14:50:00', null);
-        static::assertEquals(99, $someResult->GetPostId());
+        static::assertEquals(99, $someResult->getPostId());
     }
 
     public function testgetTitle(): void
@@ -38,9 +38,9 @@ final class SearchResultTest extends BaseTest
         static::assertEquals('nick', $someResult->getNick());
     }
 
-    public function testGetPostTimestamp(): void
+    public function testgetPostTimestamp(): void
     {
         $someResult = self::mockSearchResult(99, 'nick', 'title', '2020-03-30 14:50:00', null);
-        static::assertEquals(new DateTime('2020-03-30 14:50:00'), $someResult->GetPostTimestamp());
+        static::assertEquals(new DateTime('2020-03-30 14:50:00'), $someResult->getPostTimestamp());
     }
 }

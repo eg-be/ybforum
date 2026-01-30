@@ -157,10 +157,10 @@ class SearchResultsView
         $results = $this->m_sh->getResults();
         foreach ($results as $res) {
             $html .= '<p class="nomargin">';
-            $html .= '<a href="showentry.php?idpost=' . $res->GetPostId() . '">';
+            $html .= '<a href="showentry.php?idpost=' . $res->getPostId() . '">';
             $html .= htmlspecialchars($res->getTitle()) . '</a>';
             $html .= ' - <span class="fbold">' . htmlspecialchars($res->getNick()) . '</span>';
-            $html .= ' - ' . $res->GetPostTimestamp()->format('d.m.Y H:i:s');
+            $html .= ' - ' . $res->getPostTimestamp()->format('d.m.Y H:i:s');
             $html .= '</p>';
         }
         $html .= '</div>';

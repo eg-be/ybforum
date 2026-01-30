@@ -46,8 +46,8 @@ try {
     } else {
         // check that this adminuserid is still valid
         $db = new ForumDb(false);
-        $adminUser = $db->LoadUserById($_SESSION['adminuserid']);
-        if (!($adminUser && $adminUser->IsActive() && $adminUser->IsAdmin())) {
+        $adminUser = $db->loadUserById($_SESSION['adminuserid']);
+        if (!($adminUser && $adminUser->isActive() && $adminUser->isAdmin())) {
             header('Location: login.php');
             exit;
         }
@@ -63,7 +63,7 @@ try {
     $postViewResult = $postView->handleActionsAndGetResultDiv($db);
 
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
 <!DOCTYPE html>
@@ -94,7 +94,7 @@ echo ' <a href="index.php">Aktualisieren</a>';
         echo $pendingActList->renderHtmlDiv($db);
         echo $pendingActListResult;
     } catch (Exception $ex) {
-        ErrorHandler::OnException($ex);
+        ErrorHandler::onException($ex);
     }
 ?>
         </div>
@@ -106,7 +106,7 @@ try {
     echo $pendingConfList->renderHtmlDiv($db);
     echo $pendingConfListResult;
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>
@@ -118,7 +118,7 @@ try {
     $deactList = new DeactivatedUserList();
     echo $deactList->renderHtmlDiv($db);
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>
@@ -130,7 +130,7 @@ try {
     $adminList = new AdminList();
     echo $adminList->renderHtmlDiv($db);
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>
@@ -147,7 +147,7 @@ try {
     echo $userView->renderHtmlDiv($db);
     echo $userViewResult;
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>
@@ -175,7 +175,7 @@ try {
     $stats = new Statistics();
     echo $stats->renderHtmlDiv($db);
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>
@@ -187,7 +187,7 @@ try {
     $logList = new LogEntryList();
     echo $logList->renderHtmlDiv($db);
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>

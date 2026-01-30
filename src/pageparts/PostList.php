@@ -48,15 +48,15 @@ class PostList
         foreach ($this->m_postIndexEntries as $indexEntry) {
             $htmlStr .= '<p class="nomargin"><a ';
             $htmlStr .= 'href="showentry.php?idpost='
-                . $indexEntry->GetPostId() . '">';
+                . $indexEntry->getPostId() . '">';
             $htmlStr .= $indexEntry->getTitle();
-            if (!$indexEntry->HasContent()) {
+            if (!$indexEntry->hasContent()) {
                 $htmlStr .= ' (o.T.)';
             }
             $htmlStr .= '</a> - <span class="fbold">';
             $htmlStr .= $indexEntry->getNick();
             $htmlStr .= '</span> - ';
-            $htmlStr .= $indexEntry->GetPostTimestamp()->format('d.m.Y H:i:s');
+            $htmlStr .= $indexEntry->getPostTimestamp()->format('d.m.Y H:i:s');
             $htmlStr .= '</p>';
         }
 

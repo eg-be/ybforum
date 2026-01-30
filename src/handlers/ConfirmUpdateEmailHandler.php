@@ -79,19 +79,19 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
             $this->logger = new Logger($db);
         }
         // Valide the code and remove it if we are not simulating
-        $values = $db->VerifyUpdateEmailCode($this->code, !$this->simulate);
+        $values = $db->verifyUpdateEmailCode($this->code, !$this->simulate);
         if (!$values) {
-            $this->logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);
+            $this->logger->logMessage(LogType::LOG_CONFIRM_CODE_FAILED_CODE_INVALID, 'Passed code: ' . $this->code);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
         // First: Check if there is a matching (real) user:
-        $this->user = $db->LoadUserById($values['iduser']);
+        $this->user = $db->loadUserById($values['iduser']);
         if (!$this->user) {
-            $this->logger->LogMessage(LogType::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found : ' . $values['iduser']);
+            $this->logger->logMessage(LogType::LOG_CONFIRM_CODE_FAILED_NO_MATCHING_USER, 'iduser not found : ' . $values['iduser']);
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
-        if ($this->user->IsDummyUser()) {
-            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $this->user);
+        if ($this->user->isDummyUser()) {
+            $this->logger->logMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $this->user);
             throw new InvalidArgumentException(self::MSG_DUMMY_USER, parent::MSGCODE_BAD_PARAM);
         }
 
@@ -103,7 +103,7 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         }
 
         // And update the email
-        $db->UpdateUserEmail(
+        $db->updateUserEmail(
             $this->user,
             $this->newEmail,
             $this->clientIpAddress

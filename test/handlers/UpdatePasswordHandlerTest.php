@@ -84,7 +84,7 @@ final class UpdatePasswordHandlerTest extends TestCase
         $this->uph->handleRequest($this->db);
     }
 
-    public function testUpdatePassword_ifUserIsInactiveButNeedsMigration(): void
+    public function testUpdatePassword_ifUserIsInactiveButneedsMigration(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH, 'a');
 
@@ -103,7 +103,7 @@ final class UpdatePasswordHandlerTest extends TestCase
         $this->uph->handleRequest($this->db);
     }
 
-    public function testUpdatePassword_ifUserIsActive(): void
+    public function testUpdatePassword_ifUserisActive(): void
     {
         $password = str_pad('', YbForumConfig::MIN_PASSWWORD_LENGTH, 'a');
 

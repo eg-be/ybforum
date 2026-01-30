@@ -103,7 +103,7 @@ class RegisterUserHandler extends BaseHandler
 
         // Verify captcha
         if (CaptchaV3Config::CAPTCHA_VERIFY) {
-            $this->m_captchaVerifier->VerifyResponse();
+            $this->m_captchaVerifier->verifyResponse();
         }
     }
 
@@ -113,20 +113,20 @@ class RegisterUserHandler extends BaseHandler
             $this->logger = new Logger($db);
         }
         // Check that nick and email are unique
-        $userByNick = $db->LoadUserByNick($this->nick);
+        $userByNick = $db->loadUserByNick($this->nick);
         if ($userByNick) {
-            $this->logger->LogMessage(
+            $this->logger->logMessage(
                 LogType::LOG_OPERATION_FAILED_NICK_NOT_UNIQUE,
-                'Requested Nick: ' . $this->nick . ' already used in: ' . $userByNick->getNick() . ' (' . $userByNick->GetId() . ')'
+                'Requested Nick: ' . $this->nick . ' already used in: ' . $userByNick->getNick() . ' (' . $userByNick->getId() . ')'
             );
             throw new InvalidArgumentException(
                 self::MSG_NICK_NOT_UNIQUE,
                 parent::MSGCODE_BAD_PARAM
             );
         }
-        $userByEmail = $db->LoadUserByEmail($this->email);
+        $userByEmail = $db->loadUserByEmail($this->email);
         if ($userByEmail) {
-            $this->logger->LogMessage(LogType::LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE, 'Passed Email: ' . $this->email);
+            $this->logger->logMessage(LogType::LOG_OPERATION_FAILED_EMAIL_NOT_UNIQUE, 'Passed Email: ' . $this->email);
             throw new InvalidArgumentException(
                 self::MSG_EMAIL_NOT_UNIQUE,
                 parent::MSGCODE_BAD_PARAM
@@ -136,13 +136,13 @@ class RegisterUserHandler extends BaseHandler
         self::validateEmailAgainstBlacklist($this->email, $db, $this->logger);
 
         // Create the user and request a confirmation code
-        $user = $db->CreateNewUser(
+        $user = $db->createNewUser(
             $this->nick,
             $this->email,
             $this->regMsg,
             $this->clientIpAddress
         );
-        $confirmCode = $db->RequestConfirmUserCode(
+        $confirmCode = $db->requestConfirmUserCode(
             $user,
             $this->password,
             $this->email,
@@ -154,10 +154,10 @@ class RegisterUserHandler extends BaseHandler
         if (is_null($this->mailer)) {
             $this->mailer = new Mailer();
         }
-        if (!$this->mailer->SendRegisterUserConfirmMessage($this->email, $this->nick, $confirmCode)) {
+        if (!$this->mailer->sendRegisterUserConfirmMessage($this->email, $this->nick, $confirmCode)) {
             // Remove the just created user
-            $db->RemoveConfirmUserCode($user);
-            $db->DeleteUser($user);
+            $db->removeConfirmUserCode($user);
+            $db->deleteUser($user);
             // And fail
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }

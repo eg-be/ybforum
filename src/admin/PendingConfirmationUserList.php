@@ -34,40 +34,40 @@ class PendingConfirmationUserList
             $userActionValue = filter_input(INPUT_POST, self::PARAM_PENDINGCONFIRM_ACTION, FILTER_UNSAFE_RAW);
             $user = null;
             if ($userId > 0) {
-                $user = $db->LoadUserById($userId);
+                $user = $db->loadUserById($userId);
             }
             if ($user && $userActionValue === self::VALUE_DELETE) {
                 // If this is the registration of a new user, also delete
                 // the corresponding entry in the user table
-                $confirmReason = $db->GetConfirmReason($user);
-                $db->RemoveConfirmUserCode($user);
+                $confirmReason = $db->getConfirmReason($user);
+                $db->removeConfirmUserCode($user);
                 if ($confirmReason == ForumDb::CONFIRM_SOURCE_NEWUSER) {
-                    $db->DeleteUser($user);
+                    $db->deleteUser($user);
                     $resultDiv = '<div class="actionSucceeded">Registerungs-Eintrag für Benutzer '
-                            . $user->getNick() . ' (' . $user->GetId() . ') '
+                            . $user->getNick() . ' (' . $user->getId() . ') '
                             . 'entfernt (inkl. Benutzereintrag)</div>';
                 } else {
                     $resultDiv = '<div class="actionSucceeded">Migrations-Eintrag für Benutzer '
-                            . $user->getNick() . ' (' . $user->GetId() . ') '
+                            . $user->getNick() . ' (' . $user->getId() . ') '
                             . 'entfernt</div>';
                 }
             } elseif ($user && $userActionValue === self::VALUE_DELETE_AND_BLOCK) {
                 // If this is the registration of a new user, also delete
                 // the corresponding entry in the user table and add it to the
                 // list of blocked emails
-                $confirmReason = $db->GetConfirmReason($user);
-                $db->RemoveConfirmUserCode($user);
+                $confirmReason = $db->getConfirmReason($user);
+                $db->removeConfirmUserCode($user);
                 if ($confirmReason == ForumDb::CONFIRM_SOURCE_NEWUSER) {
-                    $db->AddBlacklist($user->getEmail(), 'Blocked from admin');
-                    $db->DeleteUser($user);
+                    $db->addBlacklist($user->getEmail(), 'Blocked from admin');
+                    $db->deleteUser($user);
                     $resultDiv = '<div class="actionSucceeded">Registerungs-Eintrag für Benutzer '
-                            . $user->getNick() . ' (' . $user->GetId() . ') '
+                            . $user->getNick() . ' (' . $user->getId() . ') '
                             . 'entfernt (inkl. Benutzereintrag), '
                             . 'Mailadresse ' . $user->getEmail()
                             . ' blockiert</div>';
                 } else {
                     $resultDiv = '<div class="actionSucceeded">Migrations-Eintrag für Benutzer '
-                            . $user->getNick() . ' (' . $user->GetId() . ') '
+                            . $user->getNick() . ' (' . $user->getId() . ') '
                             . 'entfernt</div>';
                 }
             } elseif ($user && $userActionValue === self::VALUE_CONFIRM) {
@@ -76,21 +76,21 @@ class PendingConfirmationUserList
                         . 'FROM confirm_user_table '
                         . 'WHERE iduser = :iduser';
                 $stmt = $db->prepare($query);
-                $stmt->execute([':iduser' => $user->GetId()]);
+                $stmt->execute([':iduser' => $user->getId()]);
                 $result = $stmt->fetch();
                 if (!$result) {
                     throw new InvalidArgumentException('No row found in '
                             . 'confirm_user_table matching iduser '
-                            . $user->GetId());
+                            . $user->getId());
                 }
                 $password = $result['password'];
                 $email = $result['email'];
                 $confirmSource = $result['confirm_source'];
                 $activate = ($confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE);
-                $db->RemoveConfirmUserCode($user);
-                $db->ConfirmUser($user, $password, $email, $activate);
+                $db->removeConfirmUserCode($user);
+                $db->confirmUser($user, $password, $email, $activate);
                 $resultDiv = '<div class="actionSucceeded">Benutzer '
-                        . $user->getNick() . ' (' . $user->GetId() . ')'
+                        . $user->getNick() . ' (' . $user->getId() . ')'
                         . 'bestätigt (Aktiviert: '
                         . ($activate ? 'Ja' : 'Nein') . ')</div>';
             }
@@ -125,7 +125,7 @@ class PendingConfirmationUserList
         while ($row = $stmt->fetch()) {
             $haveSome = true;
             $requestDate = new DateTime($row['request_date']);
-            $codeTooOld = !$db->IsDateWithinConfirmPeriod($requestDate);
+            $codeTooOld = !$db->isDateWithinConfirmPeriod($requestDate);
             $htmlTable .= '<tr>';
             $htmlTable .= '<td>' . htmlspecialchars($row['nick'])
                     . ' (' . $row['iduser'] . ')</td>';

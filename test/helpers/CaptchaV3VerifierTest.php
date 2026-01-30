@@ -39,8 +39,8 @@ final class CaptchaV3VerifierTest extends TestCase
         // ensure param is read if set via post
         $this->verifier = new CaptchaV3Verifier('secret', 0.5, 'the-action', $this->httpRequest, $this->logger);
 
-        static::assertEquals('13.13.13.13', $this->verifier->GetClientIp());
-        static::assertEquals('captcha-response', $this->verifier->GetCaptchaRespone());
+        static::assertEquals('13.13.13.13', $this->verifier->getClientIp());
+        static::assertEquals('captcha-response', $this->verifier->getCaptchaRespone());
     }
 
     public function testVerifyResponseFailIfResponseNotSet(): void
@@ -51,7 +51,7 @@ final class CaptchaV3VerifierTest extends TestCase
 
         $this->verifier = new CaptchaV3Verifier('secret', 0.5, 'the-action', $this->httpRequest, $this->logger);
 
-        $this->verifier->VerifyResponse();
+        $this->verifier->verifyResponse();
     }
 
     public function testVerifyResponseFailIfVerificationFails(): void
@@ -65,7 +65,7 @@ final class CaptchaV3VerifierTest extends TestCase
 
         $this->verifier = new CaptchaV3Verifier('secret', 0.5, 'the-action', $this->httpRequest, $this->logger);
 
-        $this->verifier->VerifyResponse();
+        $this->verifier->verifyResponse();
     }
 
     public function testVerifyResponseFailIfVerificationReturnsNoSuccess(): void
@@ -85,7 +85,7 @@ final class CaptchaV3VerifierTest extends TestCase
 
         $this->verifier = new CaptchaV3Verifier('secret', 0.5, 'the-action', $this->httpRequest, $this->logger);
 
-        $this->verifier->VerifyResponse();
+        $this->verifier->verifyResponse();
     }
 
     public function testVerifyResponseFailIfVerificationIsForDifferentAction(): void
@@ -108,7 +108,7 @@ final class CaptchaV3VerifierTest extends TestCase
 
         $this->verifier = new CaptchaV3Verifier('secret', 0.5, 'the-action', $this->httpRequest, $this->logger);
 
-        $this->verifier->VerifyResponse();
+        $this->verifier->verifyResponse();
     }
 
     public function testVerifyResponseFailIfVerificationScoreIsTooLow(): void
@@ -131,7 +131,7 @@ final class CaptchaV3VerifierTest extends TestCase
 
         $this->verifier = new CaptchaV3Verifier('secret', 0.5, 'the-action', $this->httpRequest, $this->logger);
 
-        $this->verifier->VerifyResponse();
+        $this->verifier->verifyResponse();
     }
 
     public function testVerifyResponseSucceedsForMinimalScore(): void
@@ -151,6 +151,6 @@ final class CaptchaV3VerifierTest extends TestCase
 
         $this->verifier = new CaptchaV3Verifier('secret', 0.5, 'the-action', $this->httpRequest, $this->logger);
 
-        $this->verifier->VerifyResponse();
+        $this->verifier->verifyResponse();
     }
 }

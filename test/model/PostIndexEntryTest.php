@@ -13,7 +13,7 @@ require_once __DIR__ . '/../../src/model/PostIndexEntry.php';
  */
 final class PostIndexEntryTest extends BaseTest
 {
-    public function testIsHidden(): void
+    public function testisHidden(): void
     {
         // test casting of field hidden
         $notHidden = self::mockPostIndexEntry(
@@ -27,7 +27,7 @@ final class PostIndexEntryTest extends BaseTest
             0,  // has_content
             0 // hidden
         );
-        static::assertSame(false, $notHidden->IsHidden());
+        static::assertSame(false, $notHidden->isHidden());
 
         $hidden = self::mockPostIndexEntry(
             1,
@@ -40,10 +40,10 @@ final class PostIndexEntryTest extends BaseTest
             0,  // has_content
             1 // hidden
         );
-        static::assertSame(true, $hidden->IsHidden());
+        static::assertSame(true, $hidden->isHidden());
     }
 
-    public function testHasContent(): void
+    public function testhasContent(): void
     {
         // test casting of field has_content
         $withContent = self::mockPostIndexEntry(
@@ -57,7 +57,7 @@ final class PostIndexEntryTest extends BaseTest
             1,  // has_content
             0 // hidden
         );
-        static::assertSame(true, $withContent->HasContent());
+        static::assertSame(true, $withContent->hasContent());
 
         $withoutContent = self::mockPostIndexEntry(
             1,
@@ -70,10 +70,10 @@ final class PostIndexEntryTest extends BaseTest
             0,  // has_content
             1 // hidden
         );
-        static::assertSame(false, $withoutContent->HasContent());
+        static::assertSame(false, $withoutContent->hasContent());
     }
 
-    public function testGetPostTimestamp(): void
+    public function testgetPostTimestamp(): void
     {
         // test casting of string-value to
         $withContent = self::mockPostIndexEntry(
@@ -87,7 +87,7 @@ final class PostIndexEntryTest extends BaseTest
             1,  // has_content
             0 // hidden
         );
-        static::assertEquals(new DateTime('2020-03-30 14:30:05'), $withContent->GetPostTimestamp());
+        static::assertEquals(new DateTime('2020-03-30 14:30:05'), $withContent->getPostTimestamp());
     }
 
     // just to make test-coverage look good on stupid accessors
@@ -104,14 +104,14 @@ final class PostIndexEntryTest extends BaseTest
             1,  // has_content
             0 // hidden
         );
-        static::assertEquals(11, $topPost->GetPostId());
-        static::assertEquals(111, $topPost->GetThreadId());
+        static::assertEquals(11, $topPost->getPostId());
+        static::assertEquals(111, $topPost->getThreadId());
         static::assertNull($topPost->getParentPostId());
-        static::assertEquals(0, $topPost->GetIndent());
+        static::assertEquals(0, $topPost->getIndent());
         static::assertEquals('title', $topPost->getTitle());
-        static::assertTrue($topPost->HasContent());
+        static::assertTrue($topPost->hasContent());
         static::assertEquals('user', $topPost->getNick());
-        static::assertFalse($topPost->IsHidden());
-        static::assertEquals(new DateTime('2020-03-30 14:30:05'), $topPost->GetPostTimestamp());
+        static::assertFalse($topPost->isHidden());
+        static::assertEquals(new DateTime('2020-03-30 14:30:05'), $topPost->getPostTimestamp());
     }
 }

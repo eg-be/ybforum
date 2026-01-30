@@ -58,144 +58,144 @@ final class ForumDbTest extends BaseTest
 
     protected function assertPreConditions(): void
     {
-        static::assertTrue($this->db->IsConnected());
+        static::assertTrue($this->db->isConnected());
     }
 
-    public function testIsReadOnly(): void
+    public function testisReadOnly(): void
     {
         // a database is ro by default
         $ro = new ForumDb();
-        static::assertTrue($ro->IsReadOnly());
+        static::assertTrue($ro->isReadOnly());
         // except we enfore a rw-db:
         $rw = new ForumDb(false);
-        static::assertFalse($rw->IsReadOnly());
+        static::assertFalse($rw->isReadOnly());
     }
 
-    public function testGetThreadCount(): void
+    public function testgetThreadCount(): void
     {
         BaseTest::createTestDatabase();
-        $count = $this->db->GetThreadCount();
+        $count = $this->db->getThreadCount();
         static::assertSame(12, $count);
     }
 
-    public function testGetPostCount(): void
+    public function testgetPostCount(): void
     {
         BaseTest::createTestDatabase();
-        $count = $this->db->GetPostCount();
+        $count = $this->db->getPostCount();
         static::assertSame(21, $count);
     }
 
-    public function testGetUserCount(): void
+    public function testgetUserCount(): void
     {
         BaseTest::createTestDatabase();
-        $count = $this->db->GetUserCount();
+        $count = $this->db->getUserCount();
         static::assertSame(9, $count);
     }
 
-    public function testGetActiveUserCount(): void
+    public function testgetActiveUserCount(): void
     {
         BaseTest::createTestDatabase();
-        $count = $this->db->GetActiveUserCount();
+        $count = $this->db->getActiveUserCount();
         static::assertSame(4, $count);
     }
 
-    public function testGetFromAdminDeactivatedUserCount(): void
+    public function testgetFromAdminDeactivatedUserCount(): void
     {
         BaseTest::createTestDatabase();
-        $count = $this->db->GetFromAdminDeactivatedUserCount();
+        $count = $this->db->getFromAdminDeactivatedUserCount();
         static::assertSame(1, $count);
     }
 
-    public function testGetPendingAdminApprovalUserCount(): void
+    public function testgetPendingAdminApprovalUserCount(): void
     {
         BaseTest::createTestDatabase();
-        $count = $this->db->GetPendingAdminApprovalUserCount();
+        $count = $this->db->getPendingAdminApprovalUserCount();
         static::assertSame(1, $count);
     }
 
-    public function testGetNeedMigrationUserCount(): void
+    public function testgetNeedMigrationUserCount(): void
     {
         BaseTest::createTestDatabase();
-        $count = $this->db->GetNeedMigrationUserCount();
+        $count = $this->db->getNeedMigrationUserCount();
         static::assertSame(1, $count);
     }
 
-    public function testGetDummyUserCount(): void
+    public function testgetDummyUserCount(): void
     {
         BaseTest::createTestDatabase();
-        $count = $this->db->GetDummyUserCount();
+        $count = $this->db->getDummyUserCount();
         static::assertSame(1, $count);
     }
 
-    public function testGetLastThreadId(): void
+    public function testgetLastThreadId(): void
     {
         BaseTest::createTestDatabase();
-        $id = $this->db->GetLastThreadId();
+        $id = $this->db->getLastThreadId();
         static::assertSame(12, $id);
     }
 
-    public function testAuthUser(): void
+    public function testauthUser(): void
     {
         // a user with a new password that is active is ok:
         $reason = 0;
-        $admin = $this->db->AuthUser('admin', 'admin-pass', $reason);
+        $admin = $this->db->authUser('admin', 'admin-pass', $reason);
         static::assertNotNull($admin);
-        static::assertSame(1, $admin->GetId());
+        static::assertSame(1, $admin->getId());
         // active user fails because password missmatch
-        $admin = $this->db->AuthUser('admin', 'foo', $reason);
+        $admin = $this->db->authUser('admin', 'foo', $reason);
         static::assertNull($admin);
         static::assertSame(ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID, $reason);
         // fail because password is correct, but user is inactive:
-        $deact = $this->db->AuthUser('deactivated', 'deactivated-pass', $reason);
+        $deact = $this->db->authUser('deactivated', 'deactivated-pass', $reason);
         static::assertNull($deact);
         static::assertSame(ForumDb::AUTH_FAIL_REASON_USER_IS_INACTIVE, $reason);
         // fail with wrong password on inactive: must return inactive-reason:
-        $deact = $this->db->AuthUser('deactivated', 'foo', $reason);
+        $deact = $this->db->authUser('deactivated', 'foo', $reason);
         static::assertNull($deact);
         static::assertSame(ForumDb::AUTH_FAIL_REASON_USER_IS_INACTIVE, $reason);
         // fail because its a dummy
-        $dummy = $this->db->AuthUser('dummy', 'foo', $reason);
+        $dummy = $this->db->authUser('dummy', 'foo', $reason);
         static::assertNull($dummy);
         static::assertSame(ForumDb::AUTH_FAIL_REASON_USER_IS_DUMMY, $reason);
         // fails because user is unknown
-        $unknown = $this->db->AuthUser('anyone', 'foo', $reason);
+        $unknown = $this->db->authUser('anyone', 'foo', $reason);
         static::assertNull($unknown);
         static::assertSame(ForumDb::AUTH_FAIL_REASON_NO_SUCH_USER, $reason);
         // and auth a user that needs to migrate (but is not active yet):
-        $old = $this->db->AuthUser('old-user', 'old-user-pass');
+        $old = $this->db->authUser('old-user', 'old-user-pass');
         static::assertNotNull($old);
-        static::assertSame(10, $old->GetId());
+        static::assertSame(10, $old->getId());
         // but fail for an old user if pass is incorrect
-        $old = $this->db->AuthUser('old-user', 'foo', $reason);
+        $old = $this->db->authUser('old-user', 'foo', $reason);
         static::assertNull($old);
         static::assertSame(ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID, $reason);
     }
 
-    public function testAuthUser2(): void
+    public function testauthUser2(): void
     {
         // a user that can loggin: failreason set to null
-        $result = $this->db->AuthUser2('admin', 'admin-pass');
+        $result = $this->db->authUser2('admin', 'admin-pass');
         static::assertNotNull($result);
         static::assertNotNull($result[ForumDb::USER_KEY]);
-        static::assertSame(1, $result[ForumDb::USER_KEY]->GetId());
+        static::assertSame(1, $result[ForumDb::USER_KEY]->getId());
         static::assertNull($result[ForumDb::AUTH_FAIL_REASON_KEY]);
 
         // active user fails because password missmatch
-        $result = $this->db->AuthUser2('admin', 'foo');
+        $result = $this->db->authUser2('admin', 'foo');
         static::assertNotNull($result);
         static::assertNull($result[ForumDb::USER_KEY]);
         static::assertNotNull($result[ForumDb::AUTH_FAIL_REASON_KEY]);
         static::assertSame(ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID, $result[ForumDb::AUTH_FAIL_REASON_KEY]);
     }
 
-    public function testCreateThread(): void
+    public function testcreateThread(): void
     {
-        $oldThreadCount = $this->db->GetThreadCount();
-        $oldPostCount = $this->db->GetPostCount();
-        $user = $this->db->LoadUserByNick('admin');
+        $oldThreadCount = $this->db->getThreadCount();
+        $oldPostCount = $this->db->getPostCount();
+        $user = $this->db->loadUserByNick('admin');
         static::assertNotNull($user);
         // create a new thread with the minimal required arguments
-        $minPostId = $this->db->CreateThread(
+        $minPostId = $this->db->createThread(
             $user,
             'min-thread',
             null,
@@ -205,12 +205,12 @@ final class ForumDbTest extends BaseTest
             null,
             '::1'
         );
-        $newThreadCount = $this->db->GetThreadCount();
-        $newPostCount = $this->db->GetPostCount();
+        $newThreadCount = $this->db->getThreadCount();
+        $newPostCount = $this->db->getPostCount();
         static::assertSame($oldThreadCount + 1, $newThreadCount);
         static::assertSame($oldPostCount + 1, $newPostCount);
         // and one with all possible values set:
-        $allPostId = $this->db->CreateThread(
+        $allPostId = $this->db->createThread(
             $user,
             'all-thread',
             'content',
@@ -220,25 +220,25 @@ final class ForumDbTest extends BaseTest
             'http://foo/bar.gif',
             '::1'
         );
-        $newThreadCount = $this->db->GetThreadCount();
-        $newPostCount = $this->db->GetPostCount();
+        $newThreadCount = $this->db->getThreadCount();
+        $newPostCount = $this->db->getPostCount();
         static::assertSame($oldThreadCount + 2, $newThreadCount);
         static::assertSame($oldPostCount + 2, $newPostCount);
 
         // And check that the newly created threads / posts can be read back:
-        $minPost = $this->db->LoadPost($minPostId);
+        $minPost = $this->db->loadPost($minPostId);
         static::assertNotNull($minPost);
         $minPostRef = self::mockPost(
             $minPostId,
-            $minPost->GetThreadId(), // we cannot know the created thread-id, read from db
+            $minPost->getThreadId(), // we cannot know the created thread-id, read from db
             null,
             $user->getNick(),
-            $user->GetId(),
+            $user->getId(),
             'min-thread',
             null,
             1,
             0,
-            $minPost->GetPostTimestamp()->format('Y-m-d H:i:s'),   // not can we know this value
+            $minPost->getPostTimestamp()->format('Y-m-d H:i:s'),   // not can we know this value
             null,
             null,
             null,
@@ -249,19 +249,19 @@ final class ForumDbTest extends BaseTest
         );
         static::assertObjectEquals($minPostRef, $minPost);
 
-        $allPost = $this->db->LoadPost($allPostId);
+        $allPost = $this->db->loadPost($allPostId);
         static::assertNotNull($allPost);
         $allPostRef = self::mockPost(
             $allPostId,
-            $allPost->GetThreadId(), // we cannot know the created thread-id, read from db
+            $allPost->getThreadId(), // we cannot know the created thread-id, read from db
             null,
             $user->getNick(),
-            $user->GetId(),
+            $user->getId(),
             'all-thread',
             'content',
             1,
             0,
-            $allPost->GetPostTimestamp()->format('Y-m-d H:i:s'),   // not can we know this value
+            $allPost->getPostTimestamp()->format('Y-m-d H:i:s'),   // not can we know this value
             'mail@foo.com',
             'http://visit.me',
             'cool link',
@@ -279,7 +279,7 @@ final class ForumDbTest extends BaseTest
         $inactive->method('IsDummyUser')->willReturn(true);
         $inactive->method('IsActive')->willReturn(false);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->CreateThread(
+        $this->db->createThread(
             $inactive,
             'title',
             null,
@@ -297,7 +297,7 @@ final class ForumDbTest extends BaseTest
         $dummy->method('IsDummyUser')->willReturn(true);
         $dummy->method('IsActive')->willReturn(true);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->CreateThread(
+        $this->db->createThread(
             $dummy,
             'title',
             null,
@@ -311,14 +311,14 @@ final class ForumDbTest extends BaseTest
 
     public function testCreateReply(): void
     {
-        $oldPostCount = $this->db->GetPostCount();
-        $user = $this->db->LoadUserByNick('user2');
+        $oldPostCount = $this->db->getPostCount();
+        $user = $this->db->loadUserByNick('user2');
         static::assertNotNull($user);
-        $parentPost = $this->db->LoadPost(26);
+        $parentPost = $this->db->loadPost(26);
         static::assertNotNull($parentPost);
         // create a new post with the minimal required arguments
-        $minPostId = $this->db->CreateReplay(
-            $parentPost->GetId(),
+        $minPostId = $this->db->createReplay(
+            $parentPost->getId(),
             $user,
             'min-post',
             null,
@@ -328,11 +328,11 @@ final class ForumDbTest extends BaseTest
             null,
             '::1'
         );
-        $newPostCount = $this->db->GetPostCount();
+        $newPostCount = $this->db->getPostCount();
         static::assertSame($oldPostCount + 1, $newPostCount);
         // and one with all possible values set:
-        $allPostId = $this->db->CreateReplay(
-            $parentPost->GetId(),
+        $allPostId = $this->db->createReplay(
+            $parentPost->getId(),
             $user,
             'all-post',
             'content',
@@ -342,23 +342,23 @@ final class ForumDbTest extends BaseTest
             'http://foo/bar.gif',
             '::1'
         );
-        $newPostCount = $this->db->GetPostCount();
+        $newPostCount = $this->db->getPostCount();
         static::assertSame($oldPostCount + 2, $newPostCount);
 
         // And check that the newly created posts can be read back:
-        $minPost = $this->db->LoadPost($minPostId);
+        $minPost = $this->db->loadPost($minPostId);
         static::assertNotNull($minPost);
         $minPostRef = self::mockPost(
             $minPostId,
-            $parentPost->GetThreadId(), // must be part of parent-thread
-            $parentPost->GetId(),
+            $parentPost->getThreadId(), // must be part of parent-thread
+            $parentPost->getId(),
             $user->getNick(),
-            $user->GetId(),
+            $user->getId(),
             'min-post',
             null,
             8,
             3,
-            $minPost->GetPostTimestamp()->format('Y-m-d H:i:s'),   // not can we know this value
+            $minPost->getPostTimestamp()->format('Y-m-d H:i:s'),   // not can we know this value
             null,
             null,
             null,
@@ -369,19 +369,19 @@ final class ForumDbTest extends BaseTest
         );
         static::assertObjectEquals($minPostRef, $minPost);
 
-        $allPost = $this->db->LoadPost($allPostId);
+        $allPost = $this->db->loadPost($allPostId);
         static::assertNotNull($allPost);
         $allPostRef = self::mockPost(
             $allPostId,
-            $parentPost->GetThreadId(), // must be part of parent-thread
-            $parentPost->GetId(),
+            $parentPost->getThreadId(), // must be part of parent-thread
+            $parentPost->getId(),
             $user->getNick(),
-            $user->GetId(),
+            $user->getId(),
             'all-post',
             'content',
             7,
             3,
-            $allPost->GetPostTimestamp()->format('Y-m-d H:i:s'),   // not can we know this value
+            $allPost->getPostTimestamp()->format('Y-m-d H:i:s'),   // not can we know this value
             'mail@foo.com',
             'http://visit.me',
             'cool link',
@@ -399,7 +399,7 @@ final class ForumDbTest extends BaseTest
         $inactive->method('IsDummyUser')->willReturn(false);
         $inactive->method('IsActive')->willReturn(false);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->CreateReplay(
+        $this->db->createReplay(
             30,
             $inactive,
             'min-post',
@@ -418,7 +418,7 @@ final class ForumDbTest extends BaseTest
         $dummy->method('IsDummyUser')->willReturn(true);
         $dummy->method('IsActive')->willReturn(true);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->CreateReplay(
+        $this->db->createReplay(
             30,
             $dummy,
             'min-post',
@@ -442,12 +442,12 @@ final class ForumDbTest extends BaseTest
     #[DataProvider('providerInvalidParentPostId')]
     public function testCreateReplyFailsBecauseOfParent(int $parentPostId): void
     {
-        $user = $this->db->LoadUserByNick('user2');
+        $user = $this->db->loadUserByNick('user2');
         static::assertNotNull($user);
-        $parentPost = $this->db->LoadPost($parentPostId);
+        $parentPost = $this->db->loadPost($parentPostId);
         static::assertNull($parentPost);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->CreateReplay(
+        $this->db->createReplay(
             $parentPostId,
             $user,
             'min-post',
@@ -491,7 +491,7 @@ final class ForumDbTest extends BaseTest
         $user->method('GetNick')->willReturn('user2');
         $user->method('GetEmail')->willReturn('user2@dev');
         $this->expectException(InvalidArgumentException::class);
-        $this->db->CreateReplay(
+        $this->db->createReplay(
             $parentPostId,
             $user,
             $title,
@@ -513,24 +513,24 @@ final class ForumDbTest extends BaseTest
     }
 
     #[DataProvider('providerNewUserData')]
-    public function testCreateNewUser(string $nick, string $mail, ?string $regMsg): void
+    public function testcreateNewUser(string $nick, string $mail, ?string $regMsg): void
     {
         // Creating a user works, if neither nick nor email is already set:
         // registration_msg is optinal
         // new users are inactive, have no password set and no confirmation-ts
 
-        $newUser = $this->db->CreateNewUser($nick, $mail, $regMsg);
+        $newUser = $this->db->createNewUser($nick, $mail, $regMsg);
         static::assertNotNull($newUser);
-        static::assertGreaterThan(0, $newUser->GetId());
+        static::assertGreaterThan(0, $newUser->getId());
         static::assertNotNull($newUser);
 
         $newUserRef = self::mockUser(
-            $newUser->GetId(),
+            $newUser->getId(),
             $nick,
             $mail,
             0,
             0,
-            $newUser->GetRegistrationTimestamp()->Format('Y-m-d H:i:s'),
+            $newUser->getRegistrationTimestamp()->Format('Y-m-d H:i:s'),
             $regMsg,
             null,
             null,
@@ -557,10 +557,10 @@ final class ForumDbTest extends BaseTest
     public function testCreateNewUserFail(string $nick, string $mail): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->db->CreateNewUser($nick, $mail, null);
+        $this->db->createNewUser($nick, $mail, null);
     }
 
-    public static function providerRequestConfirmUserCode(): array
+    public static function providerrequestConfirmUserCode(): array
     {
         return [
             [101, 'new-pass', 'mail@dev', ForumDb::CONFIRM_SOURCE_MIGRATE, '::1'],
@@ -596,7 +596,7 @@ final class ForumDbTest extends BaseTest
         $now = new DateTime();
         $userMock = static::createStub(User::class);
         $userMock->method('GetId')->willReturn($userId);
-        $code = $this->db->RequestConfirmUserCode(
+        $code = $this->db->requestConfirmUserCode(
             $userMock,
             $newPass,
             $newMail,
@@ -651,7 +651,7 @@ final class ForumDbTest extends BaseTest
         $now = new DateTime();
         $userMock = static::createStub(User::class);
         $userMock->method('GetId')->willReturn($userId);
-        $code = $this->db->RequestConfirmUserCode(
+        $code = $this->db->requestConfirmUserCode(
             $userMock,
             $newPass,
             $newMail,
@@ -695,7 +695,7 @@ final class ForumDbTest extends BaseTest
         $this->expectException(Exception::class);
         $userMock = static::createStub(User::class);
         $userMock->method('GetId')->willReturn($userId);
-        $code = $this->db->RequestConfirmUserCode(
+        $code = $this->db->requestConfirmUserCode(
             $userMock,
             $newPass,
             $newMail,
@@ -704,18 +704,18 @@ final class ForumDbTest extends BaseTest
         );
     }
 
-    public function testVerifyConfirmUserCode(): void
+    public function testverifyConfirmUserCode(): void
     {
         // create two entries: one that has elapsed one minute ago
         // and one that will elapse in one minute
-        $elapsedCode = $this->db->RequestConfirmUserCode(
+        $elapsedCode = $this->db->requestConfirmUserCode(
             $this->user101,
             'new-pw',
             'new@mail',
             ForumDb::CONFIRM_SOURCE_MIGRATE,
             '::1'
         );
-        $validCode = $this->db->RequestConfirmUserCode(
+        $validCode = $this->db->requestConfirmUserCode(
             $this->user102,
             'valid-pw',
             'valid@mail',
@@ -740,10 +740,10 @@ final class ForumDbTest extends BaseTest
             ':confirm_code' => $validCode]);
 
         // test that an unknown code fails to validate
-        static::assertNull($this->db->VerifyConfirmUserCode('AB12', true));
+        static::assertNull($this->db->verifyConfirmUserCode('AB12', true));
 
         // test for known, but invalid codes (time has elapsed by one minute)
-        static::assertNull($this->db->VerifyConfirmUserCode($elapsedCode, false));
+        static::assertNull($this->db->verifyConfirmUserCode($elapsedCode, false));
         // test that those entries are removed always (despite we set remove to false)
         $query = 'SELECT confirm_code FROM confirm_user_table '
             . 'WHERE confirm_code = BINARY :confirm_code';
@@ -753,14 +753,14 @@ final class ForumDbTest extends BaseTest
         static::assertFalse($result);
 
         // test for known valid codes: one that will elapse in one minute
-        $values = $this->db->VerifyConfirmUserCode($validCode, false);
+        $values = $this->db->verifyConfirmUserCode($validCode, false);
         static::assertNotNull($values);
         // test it is not removed if not specified
         $stmt->execute([':confirm_code' => $validCode]);
         $result = $stmt->fetch();
         static::assertIsArray($result);
         // test that it is removed if specified
-        $values = $this->db->VerifyConfirmUserCode($validCode, true);
+        $values = $this->db->verifyConfirmUserCode($validCode, true);
         static::assertNotNull($values);
         $stmt->execute([':confirm_code' => $validCode]);
         $result = $stmt->fetch();
@@ -774,27 +774,27 @@ final class ForumDbTest extends BaseTest
         password_verify('valid-pw', $values['password']);
     }
 
-    public function testRemoveConfirmUserCode(): void
+    public function testremoveConfirmUserCode(): void
     {
         // insert some entries, test they are removed
-        $this->db->RequestConfirmUserCode(
+        $this->db->requestConfirmUserCode(
             $this->user101,
             'new',
             'new@mail',
             ForumDb::CONFIRM_SOURCE_MIGRATE,
             '::1'
         );
-        static::assertSame(1, $this->db->RemoveConfirmUserCode($this->user101));
-        static::assertSame(0, $this->db->RemoveConfirmUserCode($this->user102));
+        static::assertSame(1, $this->db->removeConfirmUserCode($this->user101));
+        static::assertSame(0, $this->db->removeConfirmUserCode($this->user102));
         // not existing user entry works (this is rather stupid, how would you ever construct such a user?)
         $user33 = static::createStub(User::class);
         $user33->method('GetId')->willReturn(33);
-        static::assertSame(0, $this->db->RemoveConfirmUserCode($user33));
+        static::assertSame(0, $this->db->removeConfirmUserCode($user33));
     }
 
-    public function testGetConfirmReason(): void
+    public function testgetConfirmReason(): void
     {
-        $this->db->RequestConfirmUserCode(
+        $this->db->requestConfirmUserCode(
             $this->user101,
             'new',
             'new@mail',
@@ -803,9 +803,9 @@ final class ForumDbTest extends BaseTest
         );
         static::assertSame(
             ForumDb::CONFIRM_SOURCE_MIGRATE,
-            $this->db->GetConfirmReason($this->user101)
+            $this->db->getConfirmReason($this->user101)
         );
-        $this->db->RequestConfirmUserCode(
+        $this->db->requestConfirmUserCode(
             $this->user101,
             'new',
             'new@mail',
@@ -814,10 +814,10 @@ final class ForumDbTest extends BaseTest
         );
         static::assertSame(
             ForumDb::CONFIRM_SOURCE_NEWUSER,
-            $this->db->GetConfirmReason($this->user101)
+            $this->db->getConfirmReason($this->user101)
         );
         // test that an invalid reason throws:
-        $this->db->RemoveConfirmUserCode($this->user102);
+        $this->db->removeConfirmUserCode($this->user102);
         $insertQuery = 'INSERT INTO confirm_user_table (iduser, email, '
             . 'password, confirm_code, request_ip_address, '
             . 'confirm_source) '
@@ -830,22 +830,22 @@ final class ForumDbTest extends BaseTest
             ':request_ip_address' => '::1',
             ':confirm_source' => 'Foobar']);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->GetConfirmReason($this->user102);
+        $this->db->getConfirmReason($this->user102);
     }
 
-    public function testConfirmUser(): void
+    public function testconfirmUser(): void
     {
         // need a clean database, must work with a user awaiting confirmation
         self::createTestDatabase();
-        $user = $this->db->LoadUserById(52);
+        $user = $this->db->loadUserById(52);
         static::assertNotNull($user);
-        static::assertFalse($user->IsConfirmed());
-        static::assertFalse($user->IsActive());
+        static::assertFalse($user->isConfirmed());
+        static::assertFalse($user->isActive());
         $newPass = 'new-pw';
         $newMail = 'new@mail';
         // confirm, but dont activate:
         $now = new DateTime();
-        $this->db->ConfirmUser(
+        $this->db->confirmUser(
             $user,
             password_hash($newPass, PASSWORD_DEFAULT),
             $newMail,
@@ -853,43 +853,43 @@ final class ForumDbTest extends BaseTest
         );
         // test that the user-object we passed now reflects the change,
         // without the need to explicitly reload it:
-        static::assertTrue($user->IsConfirmed());
-        static::assertFalse($user->IsActive()); // still not active, only confiremd
+        static::assertTrue($user->isConfirmed());
+        static::assertFalse($user->isActive()); // still not active, only confiremd
         static::assertSame($newMail, $user->getEmail());
         // confirmation-timestamp must be somewhere around now
         static::assertEqualsWithDelta(
             $now->getTimestamp(),
-            $user->GetConfirmationTimestamp()->getTimestamp(),
+            $user->getConfirmationTimestamp()->getTimestamp(),
             2
         );
 
         // confirm and activate:
-        $this->db->ConfirmUser(
+        $this->db->confirmUser(
             $user,
             password_hash($newPass, PASSWORD_DEFAULT),
             $newMail,
             true
         );
-        static::assertTrue($user->IsConfirmed());
-        static::assertTrue($user->IsActive());
+        static::assertTrue($user->isConfirmed());
+        static::assertTrue($user->isActive());
         // note: To verify the hashed-password, just auth
         // but to auth, user mus tbe active so do that down here
-        static::assertTrue($user->Auth($newPass));
+        static::assertTrue($user->auth($newPass));
 
         // fail for unknown user-id
         $this->expectException(InvalidArgumentException::class);
         $user333 = static::createStub(User::class);
         $user333->method('GetId')->willReturn(333);
-        $this->db->ConfirmUser($user333, 'foo', 'foo@mail', true);
+        $this->db->confirmUser($user333, 'foo', 'foo@mail', true);
     }
 
-    public function testRequestPasswordResetCode(): void
+    public function testrequestPasswordResetCode(): void
     {
         // create an entry and verify its created with the proper value
         $now = new DateTime();
-        $user = $this->db->LoadUserById(52);
+        $user = $this->db->loadUserById(52);
         static::assertNotNull($user);
-        $code = $this->db->RequestPasswordResetCode($user, '::1');
+        $code = $this->db->requestPasswordResetCode($user, '::1');
         // verify returned value is in the db
         $query = 'SELECT iduser, request_date '
                 . 'FROM reset_password_table '
@@ -898,7 +898,7 @@ final class ForumDbTest extends BaseTest
         $stmt->execute([':confirm_code' => $code]);
         $result = $stmt->fetch();
         static::assertIsArray($result);
-        static::assertSame($user->GetId(), $result['iduser']);
+        static::assertSame($user->getId(), $result['iduser']);
         $ts = new DateTime($result['request_date']);
         static::assertEqualsWithDelta(
             $now->getTimestamp(),
@@ -906,7 +906,7 @@ final class ForumDbTest extends BaseTest
             2
         );
         // check that there is only one entry, even if we create a second one:
-        $newCode = $this->db->RequestPasswordResetCode($user, '::1');
+        $newCode = $this->db->requestPasswordResetCode($user, '::1');
         static::assertNotSame($code, $newCode);
         $query = 'SELECT confirm_code FROM reset_password_table '
             . 'WHERE iduser = :iduser';
@@ -918,16 +918,16 @@ final class ForumDbTest extends BaseTest
         static::assertFalse($stmt->fetch()); // no more data
     }
 
-    public function testVerifyPasswordResetCode(): void
+    public function testverifyPasswordResetCode(): void
     {
         // create two codes: One that will expire in one minute
         // and one that has expired one minute ago
-        $user101 = $this->db->LoadUserById(101);
-        $user102 = $this->db->LoadUserById(102);
+        $user101 = $this->db->loadUserById(101);
+        $user102 = $this->db->loadUserById(102);
         static::assertNotNull($user101);
         static::assertNotNull($user102);
-        $validCode = $this->db->RequestPasswordResetCode($user101, '::1');
-        $elapsedCode = $this->db->RequestPasswordResetCode($user102, '::1');
+        $validCode = $this->db->requestPasswordResetCode($user101, '::1');
+        $elapsedCode = $this->db->requestPasswordResetCode($user102, '::1');
 
         // modify the timestamps in the db:
         $elapsedDate = new DateTime();
@@ -947,10 +947,10 @@ final class ForumDbTest extends BaseTest
             ':confirm_code' => $validCode]);
 
         // test that an unknown code fails to validate
-        static::assertSame(0, $this->db->VerifyPasswordResetCode('AB12', true));
+        static::assertSame(0, $this->db->verifyPasswordResetCode('AB12', true));
 
         // test for known, but invalid codes (time has elapsed by one minute)
-        static::assertSame(0, $this->db->VerifyPasswordResetCode($elapsedCode, false));
+        static::assertSame(0, $this->db->verifyPasswordResetCode($elapsedCode, false));
         // test that those entries are removed always (despite we set remove to false)
         $query = 'SELECT confirm_code FROM reset_password_table '
             . 'WHERE confirm_code = BINARY :confirm_code';
@@ -960,51 +960,51 @@ final class ForumDbTest extends BaseTest
         static::assertFalse($result);
 
         // test for known valid codes: one that will elapse in one minute
-        $iduser = $this->db->VerifyPasswordResetCode($validCode, false);
+        $iduser = $this->db->verifyPasswordResetCode($validCode, false);
         static::assertSame(101, $iduser);
         // test it is not removed if not specified
         $stmt->execute([':confirm_code' => $validCode]);
         $result = $stmt->fetch();
         static::assertIsArray($result);
         // test that it is removed if specified
-        $values = $this->db->VerifyPasswordResetCode($validCode, true);
+        $values = $this->db->verifyPasswordResetCode($validCode, true);
         static::assertSame(101, $iduser);
         $stmt->execute([':confirm_code' => $validCode]);
         $result = $stmt->fetch();
         static::assertFalse($result);
     }
 
-    public function testRemoveResetPasswordCode(): void
+    public function testremoveResetPasswordCode(): void
     {
         // insert some entries, test they are removed
-        $user101 = $this->db->LoadUserById(101);
+        $user101 = $this->db->loadUserById(101);
         static::assertNotNull($user101);
-        $this->db->RequestPasswordResetCode($user101, '::1');
-        static::assertSame(1, $this->db->RemoveResetPasswordCode($user101));
-        static::assertSame(0, $this->db->RemoveResetPasswordCode($user101));
+        $this->db->requestPasswordResetCode($user101, '::1');
+        static::assertSame(1, $this->db->removeResetPasswordCode($user101));
+        static::assertSame(0, $this->db->removeResetPasswordCode($user101));
         // not existing entry works (altough this is stupid, you can never get into that situation - how would you create the user object?)
         $user33 = static::createStub(User::class);
         $user33->method('GetId')->willReturn(33);
-        static::assertSame(0, $this->db->RemoveResetPasswordCode($user33));
+        static::assertSame(0, $this->db->removeResetPasswordCode($user33));
     }
 
-    public function testUpdateUserPassword(): void
+    public function testupdateUserPassword(): void
     {
-        $user101 = $this->db->LoadUserById(101);
+        $user101 = $this->db->loadUserById(101);
         static::assertNotNull($user101);
-        $this->db->UpdateUserPassword($user101, "foobar");
+        $this->db->updateUserPassword($user101, "foobar");
         // User must reflect the change immediately, reload must have been triggered by UpdateUserPassword
-        static::assertTrue($user101->Auth("foobar"));
-        static::assertFalse($user101->Auth("Foobar"));
+        static::assertTrue($user101->auth("foobar"));
+        static::assertFalse($user101->auth("Foobar"));
     }
 
-    public function testRequestUpdateEmailCode(): void
+    public function testrequestUpdateEmailCode(): void
     {
         // create an entry and verify its created with the proper value
         $now = new DateTime();
-        $user = $this->db->LoadUserById(52);
+        $user = $this->db->loadUserById(52);
         static::assertNotNull($user);
-        $code = $this->db->RequestUpdateEmailCode(
+        $code = $this->db->requestUpdateEmailCode(
             $user,
             'new-mail@mail.com',
             '::1'
@@ -1017,7 +1017,7 @@ final class ForumDbTest extends BaseTest
         $stmt->execute([':confirm_code' => $code]);
         $result = $stmt->fetch();
         static::assertIsArray($result);
-        static::assertSame($user->GetId(), $result['iduser']);
+        static::assertSame($user->getId(), $result['iduser']);
         static::assertSame('new-mail@mail.com', $result['email']);
         $ts = new DateTime($result['request_date']);
         static::assertEqualsWithDelta(
@@ -1026,7 +1026,7 @@ final class ForumDbTest extends BaseTest
             2
         );
         // check that there is only one entry, even if we create a second one:
-        $newCode = $this->db->RequestUpdateEmailCode(
+        $newCode = $this->db->requestUpdateEmailCode(
             $user,
             'another@mail.com',
             '::1'
@@ -1042,20 +1042,20 @@ final class ForumDbTest extends BaseTest
         static::assertFalse($stmt->fetch()); // no more data
     }
 
-    public function testVerifyUpdateEmailCode(): void
+    public function testverifyUpdateEmailCode(): void
     {
         // create two codes: One that will expire in one minute
         // and one that has expired one minute ago
-        $user101 = $this->db->LoadUserById(101);
-        $user102 = $this->db->LoadUserById(102);
+        $user101 = $this->db->loadUserById(101);
+        $user102 = $this->db->loadUserById(102);
         static::assertNotNull($user101);
         static::assertNotNull($user102);
-        $validCode = $this->db->RequestUpdateEmailCode(
+        $validCode = $this->db->requestUpdateEmailCode(
             $user101,
             '101@mail',
             '::1'
         );
-        $elapsedCode = $this->db->RequestUpdateEmailCode(
+        $elapsedCode = $this->db->requestUpdateEmailCode(
             $user102,
             '102@mail',
             '::1'
@@ -1079,10 +1079,10 @@ final class ForumDbTest extends BaseTest
             ':confirm_code' => $validCode]);
 
         // test that an unknown code fails to validate
-        static::assertNull($this->db->VerifyUpdateEmailCode('AB12', true));
+        static::assertNull($this->db->verifyUpdateEmailCode('AB12', true));
 
         // test for known, but invalid codes (time has elapsed by one minute)
-        static::assertNull($this->db->VerifyUpdateEmailCode($elapsedCode, false));
+        static::assertNull($this->db->verifyUpdateEmailCode($elapsedCode, false));
         // test that those entries are removed always (despite we set remove to false)
         $query = 'SELECT confirm_code FROM update_email_table '
             . 'WHERE confirm_code = BINARY :confirm_code';
@@ -1092,14 +1092,14 @@ final class ForumDbTest extends BaseTest
         static::assertFalse($result);
 
         // test for known valid codes: one that will elapse in one minute
-        $values = $this->db->VerifyUpdateEmailCode($validCode, false);
+        $values = $this->db->verifyUpdateEmailCode($validCode, false);
         static::assertNotNull($values);
         // test it is not removed if not specified
         $stmt->execute([':confirm_code' => $validCode]);
         $result = $stmt->fetch();
         static::assertIsArray($result);
         // test that it is removed if specified
-        $values = $this->db->VerifyUpdateEmailCode($validCode, true);
+        $values = $this->db->verifyUpdateEmailCode($validCode, true);
         static::assertNotNull($values);
         $stmt->execute([':confirm_code' => $validCode]);
         $result = $stmt->fetch();
@@ -1110,64 +1110,64 @@ final class ForumDbTest extends BaseTest
         static::assertSame('101@mail', $values['email']);
     }
 
-    public function testRemoveUpdateEmailCode(): void
+    public function testremoveUpdateEmailCode(): void
     {
         // insert some entries, test they are removed
-        $user101 = $this->db->LoadUserById(101);
+        $user101 = $this->db->loadUserById(101);
         static::assertNotNull($user101);
-        $this->db->RequestUpdateEmailCode($user101, 'new@mail', '::1');
-        static::assertSame(1, $this->db->RemoveUpdateEmailCode($user101));
-        static::assertSame(0, $this->db->RemoveUpdateEmailCode($user101));
+        $this->db->requestUpdateEmailCode($user101, 'new@mail', '::1');
+        static::assertSame(1, $this->db->removeUpdateEmailCode($user101));
+        static::assertSame(0, $this->db->removeUpdateEmailCode($user101));
         // not existing entry works
         $user33 = static::createStub(User::class);
         $user33->method('GetId')->willReturn(33);
-        static::assertSame(0, $this->db->RemoveUpdateEmailCode($user33));
+        static::assertSame(0, $this->db->removeUpdateEmailCode($user33));
     }
 
-    public function testUpdateUserEmail(): void
+    public function testupdateUserEmail(): void
     {
-        $user101 = $this->db->LoadUserById(101);
+        $user101 = $this->db->loadUserById(101);
         static::assertNotNull($user101);
-        $this->db->UpdateUserEmail($user101, 'bla@mail');
+        $this->db->updateUserEmail($user101, 'bla@mail');
         // note: User object must reflect the change without reloading
         static::assertNotNull($user101);
         static::assertSame('bla@mail', $user101->getEmail());
     }
 
-    public function testActivateUser(): void
+    public function testactivateUser(): void
     {
         // rely on a test-database
         self::createTestDatabase();
         // activate one that is not active
-        $needsApproval = $this->db->LoadUserById(51);
+        $needsApproval = $this->db->loadUserById(51);
         static::assertNotNull($needsApproval);
-        static::assertFalse($needsApproval->IsActive());
-        $this->db->ActivateUser($needsApproval);
+        static::assertFalse($needsApproval->isActive());
+        $this->db->activateUser($needsApproval);
         // must reload, see #21
-        $needsApproval = $this->db->LoadUserById(51);
-        static::assertTrue($needsApproval->IsActive());
+        $needsApproval = $this->db->loadUserById(51);
+        static::assertTrue($needsApproval->isActive());
 
         // activating one that is already active, does nothing
-        $user101 = $this->db->LoadUserById(101);
+        $user101 = $this->db->loadUserById(101);
         static::assertNotNull($user101);
-        static::assertTrue($user101->IsActive());
-        $this->db->ActivateUser($user101);
+        static::assertTrue($user101->isActive());
+        $this->db->activateUser($user101);
         // User must have been updated
-        static::assertTrue($user101->IsActive());
+        static::assertTrue($user101->isActive());
 
         // Activating one with a deactivated reason, removes that reason
-        $deactivated = $this->db->LoadUserById(50);
+        $deactivated = $this->db->loadUserById(50);
         static::assertNotNull($deactivated);
-        static::assertFalse($deactivated->IsActive());
+        static::assertFalse($deactivated->isActive());
         $query = 'SELECT reason FROM user_deactivated_reason_table '
             . 'WHERE iduser = :iduser';
         $stmt = $this->db->prepare($query);
-        $stmt->execute([':iduser' => $deactivated->GetId()]);
+        $stmt->execute([':iduser' => $deactivated->getId()]);
         $result = $stmt->fetch();
         static::assertIsArray($result);
-        $this->db->ActivateUser($deactivated);
-        static::assertTrue($deactivated->IsActive());
-        $stmt->execute([':iduser' => $deactivated->GetId()]);
+        $this->db->activateUser($deactivated);
+        static::assertTrue($deactivated->isActive());
+        $stmt->execute([':iduser' => $deactivated->getId()]);
         $result = $stmt->fetch();
         static::assertFalse($result);
     }
@@ -1186,10 +1186,10 @@ final class ForumDbTest extends BaseTest
         $user = static::createStub(User::class);
         $user->method('GetId')->willReturn($userId);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->ActivateUser($user);
+        $this->db->activateUser($user);
     }
 
-    public function testDeactivateUser(): void
+    public function testdeactivateUser(): void
     {
         // rely on a test-database
         self::createTestDatabase();
@@ -1200,18 +1200,18 @@ final class ForumDbTest extends BaseTest
         $admin->method('IsActive')->willReturn(true);
 
         // deactivate one that is active
-        $user101 = $this->db->LoadUserById(101);
+        $user101 = $this->db->loadUserById(101);
         static::assertNotNull($user101);
-        static::assertTrue($user101->IsActive());
-        $this->db->DeactivateUser($user101, 'just for fun', $admin);
-        static::assertSame($this->db->GetDeactivationReason($user101), 'just for fun');
-        static::assertFalse($user101->IsActive());
+        static::assertTrue($user101->isActive());
+        $this->db->deactivateUser($user101, 'just for fun', $admin);
+        static::assertSame($this->db->getDeactivationReason($user101), 'just for fun');
+        static::assertFalse($user101->isActive());
 
         // deactivating one that is already deactivated, does nothing
         // especially, it does not alter the deactivation-reason
-        $this->db->DeactivateUser($user101, 'deactivate again', $admin);
-        static::assertFalse($user101->IsActive());
-        static::assertSame($this->db->GetDeactivationReason($user101), 'just for fun');
+        $this->db->deactivateUser($user101, 'deactivate again', $admin);
+        static::assertFalse($user101->isActive());
+        static::assertSame($this->db->getDeactivationReason($user101), 'just for fun');
     }
 
     public static function providerNotActiveAdmin(): array
@@ -1236,44 +1236,44 @@ final class ForumDbTest extends BaseTest
         $inactive = static::createStub(User::class);
         $inactive->method('IsActive')->willReturn(true);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->DeactivateUser($inactive, 'not there', $admin);
+        $this->db->deactivateUser($inactive, 'not there', $admin);
     }
 
 
-    public function testGetDeactivationReason(): void
+    public function testgetDeactivationReason(): void
     {
         // check the message for our deactivated user
-        $reason = $this->db->GetDeactivationReason($this->user50);
+        $reason = $this->db->getDeactivationReason($this->user50);
         static::assertSame('test deactivated by admin', $reason);
         // non-deactived, or non-existing just return null
-        $reason = $this->db->GetDeactivationReason($this->user1);
+        $reason = $this->db->getDeactivationReason($this->user1);
         static::assertNull($reason);
-        $reason = $this->db->GetDeactivationReason($this->user666);
+        $reason = $this->db->getDeactivationReason($this->user666);
         static::assertNull($reason);
     }
 
-    public function testSetAdmin(): void
+    public function testsetAdmin(): void
     {
         // rely on a test-database
         self::createTestDatabase();
         // promote one to an admin that is not yet
-        $user101 = $this->db->LoadUserById(101);
+        $user101 = $this->db->loadUserById(101);
         static::assertNotNull($user101);
-        static::assertFalse($user101->IsAdmin());
-        $this->db->SetAdmin($user101, true);
-        static::assertTrue($user101->IsAdmin());
+        static::assertFalse($user101->isAdmin());
+        $this->db->setAdmin($user101, true);
+        static::assertTrue($user101->isAdmin());
 
         // promote an admin to an admin again, nothing changes
-        $this->db->SetAdmin($user101, true);
-        static::assertTrue($user101->IsAdmin());
+        $this->db->setAdmin($user101, true);
+        static::assertTrue($user101->isAdmin());
 
         // and remove admin
-        $this->db->SetAdmin($user101, false);
-        static::assertFalse($user101->IsAdmin());
+        $this->db->setAdmin($user101, false);
+        static::assertFalse($user101->isAdmin());
 
         // remove admin again, nothing changes
-        $this->db->SetAdmin($user101, false);
-        static::assertFalse($user101->IsAdmin());
+        $this->db->setAdmin($user101, false);
+        static::assertFalse($user101->isAdmin());
     }
 
     public function testSetAdminFails(): void
@@ -1283,25 +1283,25 @@ final class ForumDbTest extends BaseTest
         $user->method('GetId')->willReturn(1313);
         $user->method('IsConfirmed')->willReturn(false);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->SetAdmin($user, true);
+        $this->db->setAdmin($user, true);
     }
 
-    public function testMakeDummy(): void
+    public function testmakeDummy(): void
     {
         // rely on a test-database
         self::createTestDatabase();
         // turn a user into a dummy
-        $user101 = $this->db->LoadUserById(101);
+        $user101 = $this->db->loadUserById(101);
         static::assertNotNull($user101);
-        static::assertFalse($user101->IsDummyUser());
-        $this->db->MakeDummy($user101);
-        static::assertTrue($user101->IsDummyUser());
+        static::assertFalse($user101->isDummyUser());
+        $this->db->makeDummy($user101);
+        static::assertTrue($user101->isDummyUser());
         // a dummy can be turned into a dummy over and over
-        $dummy = $this->db->LoadUserById(66);
+        $dummy = $this->db->loadUserById(66);
         static::assertNotNull($dummy);
-        static::assertTrue($dummy->IsDummyUser());
-        $this->db->MakeDummy($dummy);
-        static::assertTrue($dummy->IsDummyUser());
+        static::assertTrue($dummy->isDummyUser());
+        $this->db->makeDummy($dummy);
+        static::assertTrue($dummy->isDummyUser());
     }
 
 
@@ -1318,21 +1318,21 @@ final class ForumDbTest extends BaseTest
     }
 
     #[DataProvider('providerZeroPosts')]
-    public function testDeleteUser(int $userId): void
+    public function testdeleteUser(int $userId): void
     {
         // rely on a test-database
         self::createTestDatabase();
         // only users with 0 posts can be deleted
         // try to delete all users with zero posts
-        $user = $this->db->LoadUserById($userId);
+        $user = $this->db->loadUserById($userId);
         static::assertNotNull($user);
-        $this->db->DeleteUser($user);
+        $this->db->deleteUser($user);
         // user must be gone by now
-        static::assertNull($this->db->LoadUserById($userId));
+        static::assertNull($this->db->loadUserById($userId));
 
         // check that deactivated_reason_table has been cleared:
         // (yes, is done by constraint of foreign key)
-        $reason = $this->db->GetDeactivationReason($user);
+        $reason = $this->db->getDeactivationReason($user);
         static::assertNull($reason);
     }
 
@@ -1345,51 +1345,51 @@ final class ForumDbTest extends BaseTest
         $user = static::createStub(User::class);
         $user->method('GetId')->willReturn(101);
         $this->expectException(InvalidArgumentException::class);
-        $this->db->DeleteUser($user);
+        $this->db->deleteUser($user);
     }
 
 
-    public function testGetPostByUserCount(): void
+    public function testgetPostByUserCount(): void
     {
         // rely on a test-database
         self::createTestDatabase();
-        static::assertSame(8, $this->db->GetPostByUserCount($this->user101));
-        static::assertSame(6, $this->db->GetPostByUserCount($this->user102));
-        static::assertSame(7, $this->db->GetPostByUserCount($this->user103));
+        static::assertSame(8, $this->db->getPostByUserCount($this->user101));
+        static::assertSame(6, $this->db->getPostByUserCount($this->user102));
+        static::assertSame(7, $this->db->getPostByUserCount($this->user103));
     }
 
-    public function testSetPostVisible(): void
+    public function testsetPostVisible(): void
     {
         // rely on a test-database
         self::createTestDatabase();
         // hide some post within a thread:
         // its child must get hidden too
-        $postA1_2 = $this->db->LoadPost(23);
+        $postA1_2 = $this->db->loadPost(23);
         static::assertNotNull($postA1_2);
-        static::assertFalse($postA1_2->IsHidden());
-        $postA1_2_1 = $this->db->LoadPost(25);
+        static::assertFalse($postA1_2->isHidden());
+        $postA1_2_1 = $this->db->loadPost(25);
         static::assertNotNull($postA1_2_1);
-        static::assertFalse($postA1_2_1->IsHidden());
+        static::assertFalse($postA1_2_1->isHidden());
         static::assertSame(23, $postA1_2_1->getParentPostId());
         // now hide that tree by hiding the parent
-        $this->db->SetPostVisible(23, false);
-        $postA1_2 = $this->db->LoadPost(23);
-        static::assertTrue($postA1_2->IsHidden());
-        $postA1_2_1 = $this->db->LoadPost(25);
-        static::assertTrue($postA1_2_1->IsHidden());
+        $this->db->setPostVisible(23, false);
+        $postA1_2 = $this->db->loadPost(23);
+        static::assertTrue($postA1_2->isHidden());
+        $postA1_2_1 = $this->db->loadPost(25);
+        static::assertTrue($postA1_2_1->isHidden());
         // show again:
-        $this->db->SetPostVisible(23, true);
-        $postA1_2 = $this->db->LoadPost(23);
-        static::assertFalse($postA1_2->IsHidden());
-        $postA1_2_1 = $this->db->LoadPost(25);
-        static::assertFalse($postA1_2_1->IsHidden());
+        $this->db->setPostVisible(23, true);
+        $postA1_2 = $this->db->loadPost(23);
+        static::assertFalse($postA1_2->isHidden());
+        $postA1_2_1 = $this->db->loadPost(25);
+        static::assertFalse($postA1_2_1->isHidden());
 
         // fail for invalid post-ids
         $this->expectException(InvalidArgumentException::class);
-        $this->db->SetPostVisible(666, false);
+        $this->db->setPostVisible(666, false);
     }
 
-    public function testIsDateWithinConfirmPeriod(): void
+    public function testisDateWithinConfirmPeriod(): void
     {
         $codeValidInterval = new DateInterval(YbForumConfig::CONF_CODE_VALID_PERIOD);
         $oneSecondInterval = new DateInterval('PT3S');
@@ -1399,50 +1399,50 @@ final class ForumDbTest extends BaseTest
         $elapsed->sub($oneSecondInterval);
         $valid->sub($codeValidInterval);
         $valid->add($oneSecondInterval);
-        static::assertFalse($this->db->IsDateWithinConfirmPeriod($elapsed));
-        static::assertTrue($this->db->IsDateWithinConfirmPeriod($valid));
+        static::assertFalse($this->db->isDateWithinConfirmPeriod($elapsed));
+        static::assertTrue($this->db->isDateWithinConfirmPeriod($valid));
     }
 
-    public function testIsEmailOnBlacklistExactly(): void
+    public function testisEmailOnBlacklistExactly(): void
     {
         // rely on a test-database
         self::createTestDatabase();
-        $desc = $this->db->IsEmailOnBlacklistExactly('foo@bar.com');
+        $desc = $this->db->isEmailOnBlacklistExactly('foo@bar.com');
         static::assertSame('foo-bar', $desc);
-        $desc = $this->db->IsEmailOnBlacklistExactly('foO@bar.net');
+        $desc = $this->db->isEmailOnBlacklistExactly('foO@bar.net');
         static::assertFalse($desc);
     }
 
-    public function testIsEmailOnBlacklistRegex(): void
+    public function testisEmailOnBlacklistRegex(): void
     {
         // rely on a test-database
         self::createTestDatabase();
-        $desc = $this->db->IsEmailOnBlacklistRegex('foo@bar.ru');
+        $desc = $this->db->isEmailOnBlacklistRegex('foo@bar.ru');
         static::assertSame('Mailadressen aus .ru sind blockiert.', $desc);
-        $desc = $this->db->IsEmailOnBlacklistRegex('foO@bar.com');
+        $desc = $this->db->isEmailOnBlacklistRegex('foO@bar.com');
         static::assertFalse($desc);
     }
 
 
-    public function testAddBlacklist(): void
+    public function testaddBlacklist(): void
     {
         // no one is adding to blacklist from tests, do not restore db
-        $desc = $this->db->IsEmailOnBlacklistExactly('hans@wurst.com');
+        $desc = $this->db->isEmailOnBlacklistExactly('hans@wurst.com');
         static::assertFalse($desc);
-        $this->db->AddBlacklist('hans@wurst.com', 'hans wurst');
-        $desc = $this->db->IsEmailOnBlacklistExactly('hans@wurst.com');
+        $this->db->addBlacklist('hans@wurst.com', 'hans wurst');
+        $desc = $this->db->isEmailOnBlacklistExactly('hans@wurst.com');
         static::assertSame('hans wurst', $desc);
     }
 
-    public function testGetAdminUsers(): void
+    public function testgetAdminUsers(): void
     {
-        $admins = $this->db->GetAdminUsers();
+        $admins = $this->db->getAdminUsers();
         static::assertCount(1, $admins);
         $adminUser = $admins[0];
-        static::assertEquals(1, $adminUser->GetId());
+        static::assertEquals(1, $adminUser->getId());
         static::assertEquals('admin', $adminUser->getNick());
-        static::assertTrue($adminUser->IsAdmin());
-        static::assertTrue($adminUser->IsActive());
+        static::assertTrue($adminUser->isAdmin());
+        static::assertTrue($adminUser->isActive());
     }
 
     public static function providerloadUser(): array
@@ -1492,51 +1492,51 @@ final class ForumDbTest extends BaseTest
     }
 
     #[DataProvider('providerLoadUser')]
-    public function testLoadUserById(User $ref): void
+    public function testloadUserById(User $ref): void
     {
-        $user = $this->db->LoadUserById($ref->GetId());
+        $user = $this->db->loadUserById($ref->getId());
         static::assertNotNull($user);
         static::assertObjectEquals($ref, $user);
     }
 
     public function testLoadUserByIdFail(): void
     {
-        static::assertNull($this->db->LoadUserById(-1));
-        static::assertNull($this->db->LoadUserById(12));
+        static::assertNull($this->db->loadUserById(-1));
+        static::assertNull($this->db->loadUserById(12));
     }
 
     #[DataProvider('providerLoadUser')]
-    public function testLoadUserByNick(User $ref): void
+    public function testloadUserByNick(User $ref): void
     {
-        $user = $this->db->LoadUserByNick($ref->getNick());
+        $user = $this->db->loadUserByNick($ref->getNick());
         static::assertNotNull($user);
         static::assertObjectEquals($ref, $user);
     }
 
     public function testLoadUserByNickFail(): void
     {
-        static::assertNull($this->db->LoadUserByNick('nope'));
-        static::assertNull($this->db->LoadUserByNick(' admin'));
+        static::assertNull($this->db->loadUserByNick('nope'));
+        static::assertNull($this->db->loadUserByNick(' admin'));
 
         // it seems whitespaces get trimmed at the end of a prepared statement:
-        static::assertNotNull($this->db->LoadUserByNick('admin '));
+        static::assertNotNull($this->db->loadUserByNick('admin '));
     }
 
     #[DataProvider('providerLoadUser')]
-    public function testLoadUserByEmail(User $ref): void
+    public function testloadUserByEmail(User $ref): void
     {
-        $user = $this->db->LoadUserByEmail($ref->getEmail());
+        $user = $this->db->loadUserByEmail($ref->getEmail());
         static::assertNotNull($user);
         static::assertObjectEquals($ref, $user);
     }
 
     public function testLoadUserByEmailFail(): void
     {
-        static::assertNull($this->db->LoadUserByEmail('nope@foo'));
-        static::assertNull($this->db->LoadUserByEmail(' eg-be@dev'));
+        static::assertNull($this->db->loadUserByEmail('nope@foo'));
+        static::assertNull($this->db->loadUserByEmail(' eg-be@dev'));
 
         // it seems whitespaces get trimmed at the end of a prepared statement:
-        static::assertNotNull($this->db->LoadUserByEmail('eg-be@dev '));
+        static::assertNotNull($this->db->loadUserByEmail('eg-be@dev '));
     }
 
     public function testLoadThreadIds_noGaps(): void
@@ -1546,24 +1546,24 @@ final class ForumDbTest extends BaseTest
 
         // pagesize 3
         // page 1
-        $threadIds = $this->db->LoadThreadIds(1, 3);
+        $threadIds = $this->db->loadThreadIds(1, 3);
         static::assertEquals([12, 11, 10], $threadIds);
 
         // page 3
-        $threadIds = $this->db->LoadThreadIds(3, 3);
+        $threadIds = $this->db->loadThreadIds(3, 3);
         static::assertEquals([6, 5, 4], $threadIds);
 
         // with pagesize of 5
         // page 1
-        $threadIds = $this->db->LoadThreadIds(1, 5);
+        $threadIds = $this->db->loadThreadIds(1, 5);
         static::assertEquals([12, 11, 10, 9, 8], $threadIds);
 
         // page 3
-        $threadIds = $this->db->LoadThreadIds(3, 5);
+        $threadIds = $this->db->loadThreadIds(3, 5);
         static::assertEquals([2, 1], $threadIds);
 
         // if pagenr is way too high, we expect an empty result
-        $threadIds = $this->db->LoadThreadIds(3, 100);
+        $threadIds = $this->db->loadThreadIds(3, 100);
         static::assertEquals([], $threadIds);
     }
 
@@ -1573,7 +1573,7 @@ final class ForumDbTest extends BaseTest
         BaseTest::createTestDatabase();
 
         // insert some additional threads
-        $maxThreadId = $this->db->GetLastThreadId();
+        $maxThreadId = $this->db->getLastThreadId();
         $insertedThreadIds = []; // holds inserted ids, the newest (=highest id) first
         $query = 'INSERT INTO thread_table (idthread) VALUES(:idthread)';
         $stmt = $this->db->prepare($query);
@@ -1586,12 +1586,12 @@ final class ForumDbTest extends BaseTest
         // pagesize 20
         // page 1 - holds the 20 newest entries
         $expectedEntries = array_slice($insertedThreadIds, 0, 20);
-        $threadIds = $this->db->LoadThreadIds(1, 20);
+        $threadIds = $this->db->loadThreadIds(1, 20);
         static::assertEquals($expectedEntries, $threadIds);
 
         // page 3
         $expectedEntries = array_slice($insertedThreadIds, 2 * 20, 20);
-        $threadIds = $this->db->LoadThreadIds(3, 20);
+        $threadIds = $this->db->loadThreadIds(3, 20);
         static::assertEquals($expectedEntries, $threadIds);
 
         // the very last page, must hold a mix of the inserted stuff and the default available test-data
@@ -1599,17 +1599,17 @@ final class ForumDbTest extends BaseTest
         // with a pagesize of 20 -> 14 pages, but the last page contains only two entries
 
         // page 14
-        $threadIds = $this->db->LoadThreadIds(14, 20);
+        $threadIds = $this->db->loadThreadIds(14, 20);
         static::assertEquals([2, 1], $threadIds);
 
         // page 13
-        $threadIds = $this->db->LoadThreadIds(13, 20);
+        $threadIds = $this->db->loadThreadIds(13, 20);
         $expectedInsertedEntries = array_slice($insertedThreadIds, 12 * 20, 20); // 10 entries from insertions
         $expectedEntries = [...$expectedInsertedEntries, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3]; // and 10 from default-data
         static::assertEquals($expectedEntries, $threadIds);
     }
 
-    public function testLoadThreadIndexEntries(): void
+    public function testloadThreadIndexEntries(): void
     {
         // reset to initial state
         BaseTest::createTestDatabase();
@@ -1617,7 +1617,7 @@ final class ForumDbTest extends BaseTest
         // Load the oldest 4 threads with ids [4, 3, 2, 1]
         // as we have 12 threads in the test-data, they are on page 3, if we assume a page-size of 4
         $threads = [];
-        $this->db->LoadThreadIndexEntries(3, 4, function ($threadIndexes) use (&$threads): void {
+        $this->db->loadThreadIndexEntries(3, 4, function ($threadIndexes) use (&$threads): void {
             array_push($threads, $threadIndexes);
         });
 
@@ -1625,35 +1625,35 @@ final class ForumDbTest extends BaseTest
         static::assertCount(4, $threads);
         // in the correct order, which is reversed, as that makes rendering easier
         // (newest threads shall appear first)
-        static::assertEquals(4, $threads[0][0]->GetThreadId());
+        static::assertEquals(4, $threads[0][0]->getThreadId());
         static::assertEquals('Thread 4', $threads[0][0]->getTitle());
-        static::assertEquals(3, $threads[1][0]->GetThreadId());
+        static::assertEquals(3, $threads[1][0]->getThreadId());
         static::assertEquals('Thread 3', $threads[1][0]->getTitle());
-        static::assertEquals(2, $threads[2][0]->GetThreadId());
+        static::assertEquals(2, $threads[2][0]->getThreadId());
         static::assertEquals('Thread 2', $threads[2][0]->getTitle());
-        static::assertEquals(1, $threads[3][0]->GetThreadId());
+        static::assertEquals(1, $threads[3][0]->getThreadId());
         static::assertEquals('Thread 1', $threads[3][0]->getTitle());
 
         // check that Thread 3 is complete and ready to be rendered:
         $thread3 = $threads[1];
         static::assertCount(8, $thread3);
-        static::assertEquals(3, $threads[1][0]->GetThreadId());
+        static::assertEquals(3, $threads[1][0]->getThreadId());
         static::assertEquals('Thread 3', $thread3[0]->getTitle());
-        static::assertEquals(0, $thread3[0]->GetIndent());
+        static::assertEquals(0, $thread3[0]->getIndent());
         static::assertEquals('Thread 3 - A1', $thread3[1]->getTitle());
-        static::assertEquals(1, $thread3[1]->GetIndent());
+        static::assertEquals(1, $thread3[1]->getIndent());
         static::assertEquals('Thread 3 - A1-1', $thread3[2]->getTitle());
-        static::assertEquals(2, $thread3[2]->GetIndent());
+        static::assertEquals(2, $thread3[2]->getIndent());
         static::assertEquals('Thread 3 - A1-2', $thread3[3]->getTitle());
-        static::assertEquals(2, $thread3[3]->GetIndent());
+        static::assertEquals(2, $thread3[3]->getIndent());
         static::assertEquals('Thread 3 - A1-2-1', $thread3[4]->getTitle());
-        static::assertEquals(3, $thread3[4]->GetIndent());
+        static::assertEquals(3, $thread3[4]->getIndent());
         static::assertEquals('Thread 3 - A1-3', $thread3[5]->getTitle());
-        static::assertEquals(2, $thread3[5]->GetIndent());
+        static::assertEquals(2, $thread3[5]->getIndent());
         static::assertEquals('Thread 3 - A2', $thread3[6]->getTitle());
-        static::assertEquals(1, $thread3[6]->GetIndent());
+        static::assertEquals(1, $thread3[6]->getIndent());
         static::assertEquals('Thread 3 - A2-1', $thread3[7]->getTitle());
-        static::assertEquals(2, $thread3[7]->GetIndent());
+        static::assertEquals(2, $thread3[7]->getIndent());
     }
 
     public function testLoadThreadIndexEntries_HiddenPathNotIncluded(): void
@@ -1662,12 +1662,12 @@ final class ForumDbTest extends BaseTest
         BaseTest::createTestDatabase();
 
         // Hide the part from 'Thread 3 A1-2' on of Thread 3
-        $this->db->SetPostVisible(23, false);
+        $this->db->setPostVisible(23, false);
 
         // Load the oldest 4 threads with ids [4, 3, 2, 1]
         // as we have 12 threads in the test-data, they are on page 3, if we assume a page-size of 4
         $threads = [];
-        $this->db->LoadThreadIndexEntries(3, 4, function ($threadIndexes) use (&$threads): void {
+        $this->db->loadThreadIndexEntries(3, 4, function ($threadIndexes) use (&$threads): void {
             array_push($threads, $threadIndexes);
         });
 
@@ -1675,34 +1675,34 @@ final class ForumDbTest extends BaseTest
         static::assertCount(4, $threads);
         // in the correct order, which is reversed, as that makes rendering easier
         // (newest threads shall appear first)
-        static::assertEquals(4, $threads[0][0]->GetThreadId());
+        static::assertEquals(4, $threads[0][0]->getThreadId());
         static::assertEquals('Thread 4', $threads[0][0]->getTitle());
-        static::assertEquals(3, $threads[1][0]->GetThreadId());
+        static::assertEquals(3, $threads[1][0]->getThreadId());
         static::assertEquals('Thread 3', $threads[1][0]->getTitle());
-        static::assertEquals(2, $threads[2][0]->GetThreadId());
+        static::assertEquals(2, $threads[2][0]->getThreadId());
         static::assertEquals('Thread 2', $threads[2][0]->getTitle());
-        static::assertEquals(1, $threads[3][0]->GetThreadId());
+        static::assertEquals(1, $threads[3][0]->getThreadId());
         static::assertEquals('Thread 1', $threads[3][0]->getTitle());
 
         // check that Thread 3 is complete and ready to be rendered:
         $thread3 = $threads[1];
         static::assertCount(6, $thread3);
-        static::assertEquals(3, $threads[1][0]->GetThreadId());
+        static::assertEquals(3, $threads[1][0]->getThreadId());
         static::assertEquals('Thread 3', $thread3[0]->getTitle());
-        static::assertEquals(0, $thread3[0]->GetIndent());
+        static::assertEquals(0, $thread3[0]->getIndent());
         static::assertEquals('Thread 3 - A1', $thread3[1]->getTitle());
-        static::assertEquals(1, $thread3[1]->GetIndent());
+        static::assertEquals(1, $thread3[1]->getIndent());
         static::assertEquals('Thread 3 - A1-1', $thread3[2]->getTitle());
-        static::assertEquals(2, $thread3[2]->GetIndent());
+        static::assertEquals(2, $thread3[2]->getIndent());
         static::assertEquals('Thread 3 - A1-3', $thread3[3]->getTitle());
-        static::assertEquals(2, $thread3[3]->GetIndent());
+        static::assertEquals(2, $thread3[3]->getIndent());
         static::assertEquals('Thread 3 - A2', $thread3[4]->getTitle());
-        static::assertEquals(1, $thread3[4]->GetIndent());
+        static::assertEquals(1, $thread3[4]->getIndent());
         static::assertEquals('Thread 3 - A2-1', $thread3[5]->getTitle());
-        static::assertEquals(2, $thread3[5]->GetIndent());
+        static::assertEquals(2, $thread3[5]->getIndent());
     }
 
-    public function testLoadPostReplies(): void
+    public function testloadPostReplies(): void
     {
         // reset to initial state
         BaseTest::createTestDatabase();
@@ -1714,7 +1714,7 @@ final class ForumDbTest extends BaseTest
         $post_1->method('GetIndent')->willReturn(0);
         $post_1->method('GetRank')->willReturn(1);
 
-        $replies_1 = $this->db->LoadPostReplies($post_1, false);
+        $replies_1 = $this->db->loadPostReplies($post_1, false);
         static::assertCount(0, $replies_1);
 
         // top-level post 'Thread 3', has 7 (sub-) children
@@ -1724,7 +1724,7 @@ final class ForumDbTest extends BaseTest
         $post_3->method('GetIndent')->willReturn(0);
         $post_3->method('GetRank')->willReturn(1);
 
-        $replies_3 = $this->db->LoadPostReplies($post_3, false);
+        $replies_3 = $this->db->loadPostReplies($post_3, false);
         static::assertCount(7, $replies_3);
         static::assertEquals('Thread 3 - A1', $replies_3[0]->getTitle());
         static::assertEquals('Thread 3 - A1-1', $replies_3[1]->getTitle());
@@ -1741,7 +1741,7 @@ final class ForumDbTest extends BaseTest
         $post_20->method('GetIndent')->willReturn(1);
         $post_20->method('GetRank')->willReturn(2);
 
-        $replies_20 = $this->db->LoadPostReplies($post_20, false);
+        $replies_20 = $this->db->loadPostReplies($post_20, false);
         static::assertCount(4, $replies_20);
         static::assertEquals('Thread 3 - A1-1', $replies_20[0]->getTitle());
         static::assertEquals('Thread 3 - A1-2', $replies_20[1]->getTitle());
@@ -1755,7 +1755,7 @@ final class ForumDbTest extends BaseTest
         BaseTest::createTestDatabase();
 
         // Hide the part from 'Thread 3 A1-2' on of Thread 3
-        $this->db->SetPostVisible(23, false);
+        $this->db->setPostVisible(23, false);
 
         // top-level post 'Thread 3', has 7 (sub-) children, if hidden path is included
         $post_3 = static::createStub(Post::class);
@@ -1764,7 +1764,7 @@ final class ForumDbTest extends BaseTest
         $post_3->method('GetIndent')->willReturn(0);
         $post_3->method('GetRank')->willReturn(1);
 
-        $replies_3 = $this->db->LoadPostReplies($post_3, true);
+        $replies_3 = $this->db->loadPostReplies($post_3, true);
         static::assertCount(7, $replies_3);
         static::assertEquals('Thread 3 - A1', $replies_3[0]->getTitle());
         static::assertEquals('Thread 3 - A1-1', $replies_3[1]->getTitle());
@@ -1781,7 +1781,7 @@ final class ForumDbTest extends BaseTest
         $post_3->method('GetIndent')->willReturn(0);
         $post_3->method('GetRank')->willReturn(1);
 
-        $replies_3 = $this->db->LoadPostReplies($post_3, false);
+        $replies_3 = $this->db->loadPostReplies($post_3, false);
         static::assertCount(5, $replies_3);
         static::assertEquals('Thread 3 - A1', $replies_3[0]->getTitle());
         static::assertEquals('Thread 3 - A1-1', $replies_3[1]->getTitle());
@@ -1790,12 +1790,12 @@ final class ForumDbTest extends BaseTest
         static::assertEquals('Thread 3 - A2-1', $replies_3[4]->getTitle());
     }
 
-    public function testLoadRecentPosts(): void
+    public function testloadRecentPosts(): void
     {
         // reset to initial state
         BaseTest::createTestDatabase();
 
-        $recent = $this->db->LoadRecentPosts(5);
+        $recent = $this->db->loadRecentPosts(5);
         static::assertCount(5, $recent);
         static::assertEquals('Thread 5 - A1', $recent[0]->getTitle());
         static::assertEquals('Thread 3 - A1-3', $recent[1]->getTitle());
@@ -1897,17 +1897,17 @@ final class ForumDbTest extends BaseTest
     }
 
     #[DataProvider('providerPostMock')]
-    public function testLoadPost(Post $ref): void
+    public function testloadPost(Post $ref): void
     {
-        $post = $this->db->LoadPost($ref->GetId());
+        $post = $this->db->loadPost($ref->getId());
         static::assertNotNull($post);
         static::assertObjectEquals($ref, $post);
     }
 
     public function testLoadPostFail(): void
     {
-        static::assertNull($this->db->LoadPost(-1));
-        static::assertNull($this->db->LoadPost(99));
+        static::assertNull($this->db->loadPost(-1));
+        static::assertNull($this->db->loadPost(99));
     }
 
     public static function providerUserMock(): array
@@ -1973,26 +1973,26 @@ final class ForumDbTest extends BaseTest
     }
 
     #[DataProvider('providerSearchStrings')]
-    public function testSearchPosts(string $searchString, ?string $nick, bool $noReplies, int $numberOfResults): void
+    public function testsearchPosts(string $searchString, ?string $nick, bool $noReplies, int $numberOfResults): void
     {
         BaseTest::createTestDatabase();
-        $res = $this->db->SearchPosts($searchString, $nick ? $nick : "", 100, 0, SortField::FIELD_RELEVANCE, SortOrder::ORDER_ASC, $noReplies);
+        $res = $this->db->searchPosts($searchString, $nick ? $nick : "", 100, 0, SortField::FIELD_RELEVANCE, SortOrder::ORDER_ASC, $noReplies);
         $resCount = count($res);
         static::assertEquals($numberOfResults, $resCount);
     }
 
-    public function testGetAdminMails(): void
+    public function testgetAdminMails(): void
     {
         BaseTest::createTestDatabase();
-        $res = $this->db->GetAdminMails();
+        $res = $this->db->getAdminMails();
         static::assertCount(1, $res);
         static::assertEquals('eg-be@dev', $res[0]);
 
         // add another admin
-        $user1 = $this->db->LoadUserByNick('user1');
-        $this->db->SetAdmin($user1, true);
+        $user1 = $this->db->loadUserByNick('user1');
+        $this->db->setAdmin($user1, true);
 
-        $res = $this->db->GetAdminMails();
+        $res = $this->db->getAdminMails();
         static::assertCount(2, $res);
         static::assertEquals('eg-be@dev', $res[0]);
         static::assertEquals('user1@dev', $res[1]);

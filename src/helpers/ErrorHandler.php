@@ -39,7 +39,7 @@ class ErrorHandler
      * Error logs the exception and calls die().
      * @param Exception $e
      */
-    public static function OnException(Exception $e): void
+    public static function onException(Exception $e): void
     {
         $msg = $e->getFile() . '(' . $e->getLine() . '): ' . $e->getMessage();
         if (self::PRINT_STACKTRACE_ON_ERROR) {
@@ -48,7 +48,7 @@ class ErrorHandler
         try {
             // Try to log to log-table too
             $logger = new Logger();
-            $logger->LogMessage(LogType::LOG_ERROR_EXCEPTION_THROWN, $msg);
+            $logger->logMessage(LogType::LOG_ERROR_EXCEPTION_THROWN, $msg);
         } catch (Exception $ex) {
             // Do nothing, $mg will be error_log'ed later anyway
         }

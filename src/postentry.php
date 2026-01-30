@@ -52,7 +52,7 @@ try {
             // requested to migrate move on to migrate user page
             if ($ex->GetMessage() === PostEntryHandler::MSG_MIGRATION_REQUIRED) {
                 // If we know that we need to migrate, we can also pass in some values for email and nick
-                $user = $db->LoadUserByNick($postEntryHandler->getNick());
+                $user = $db->loadUserByNick($postEntryHandler->getNick());
                 // Remember the current post data
                 // But clear the last set exception, as that will hold
                 // a stacktrace with some pdo object
@@ -69,7 +69,7 @@ try {
             unset($_SESSION['posthandler']);
             $parentPostId = $postEntryHandler->getParentPostId();
             if ($parentPostId > 0) {
-                $parentPost = $db->LoadPost($parentPostId);
+                $parentPost = $db->loadPost($parentPostId);
             }
         } else {
             // stupid waited too long. make her return to index.php
@@ -83,11 +83,11 @@ try {
         // Or someone arrived here as a completion of a migration
         $parentPostId = filter_input(INPUT_GET, 'idparentpost', FILTER_VALIDATE_INT);
         if ($parentPostId > 0) {
-            $parentPost = $db->LoadPost($parentPostId);
+            $parentPost = $db->loadPost($parentPostId);
         }
     }
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
 
@@ -110,7 +110,7 @@ try {
             $logo = new Logo();
             echo $logo->renderHtmlDiv();
         } catch (Exception $ex) {
-            ErrorHandler::OnException($ex);
+            ErrorHandler::onException($ex);
         }
 ?>
         <div class="fullwidthcenter generictitle">Beitrag schreiben</div>
@@ -120,7 +120,7 @@ try {
     $topNav = new TopNavigation();
     echo $topNav->renderHtmlDiv();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         <hr>
@@ -134,7 +134,7 @@ try {
             . '</div>';
     }
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         <div id="postformcontainer" class="fullwidth">
@@ -144,7 +144,7 @@ try {
     echo $pef->renderHtmlForm();
     echo $pef->renderUsageTable();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         </div>

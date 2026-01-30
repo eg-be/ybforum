@@ -68,13 +68,13 @@ class ConfirmResetPasswordHandler extends BaseHandler implements ConfirmHandler
         $this->user = null;
 
         // Check if the code matches an existing entry
-        $userId = $db->VerifyPasswordResetCode($this->code, false);
+        $userId = $db->verifyPasswordResetCode($this->code, false);
         if ($userId <= 0) {
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }
 
         // Check if a user exists for that code
-        $this->user = $db->LoadUserById($userId);
+        $this->user = $db->loadUserById($userId);
         if (!$this->user) {
             throw new InvalidArgumentException(self::MSG_CODE_UNKNOWN, parent::MSGCODE_BAD_PARAM);
         }

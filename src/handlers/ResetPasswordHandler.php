@@ -80,10 +80,10 @@ class ResetPasswordHandler extends BaseHandler
         // First: Check if there is a matching user:
         $user = null;
         if ($this->nick) {
-            $user = $db->LoadUserByNick($this->nick);
+            $user = $db->loadUserByNick($this->nick);
         }
         if ($this->email) {
-            $user = $db->LoadUserByEmail($this->email);
+            $user = $db->loadUserByEmail($this->email);
         }
         if (!$user) {
             $passedValue = '';
@@ -93,38 +93,38 @@ class ResetPasswordHandler extends BaseHandler
             if ($this->email) {
                 $passedValue = $this->email;
             }
-            $this->logger->LogMessage(LogType::LOG_OPERATION_FAILED_NO_MATCHING_NICK_OR_EMAIL, 'Passed nick or email: ' . $passedValue);
+            $this->logger->logMessage(LogType::LOG_OPERATION_FAILED_NO_MATCHING_NICK_OR_EMAIL, 'Passed nick or email: ' . $passedValue);
             throw new InvalidArgumentException(self::MSG_UNKNOWN_EMAIL_OR_NICK, parent::MSGCODE_BAD_PARAM);
         }
         // we only need an email
-        if (!$user->HasEmail()) {
-            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_HAS_NO_EMAIL, $user);
+        if (!$user->hasEmail()) {
+            $this->logger->logMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_HAS_NO_EMAIL, $user);
             throw new InvalidArgumentException(self::MSG_USER_HAS_NO_EMAIL, parent::MSGCODE_BAD_PARAM);
         }
         // A dummy never has an email, but check anyway
-        if ($user->IsDummyUser()) {
-            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $user);
+        if ($user->isDummyUser()) {
+            $this->logger->logMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_DUMMY, $user);
             throw new InvalidArgumentException(self::MSG_DUMMY_USER, parent::MSGCODE_BAD_PARAM);
         }
         // Do not allow requesting a password for an inactive user, exept this
         // is a user who needs to migrate:
-        if (!$user->IsActive() && !$user->NeedsMigration()) {
-            $this->logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_INACTIVE, $user);
+        if (!$user->isActive() && !$user->needsMigration()) {
+            $this->logger->logMessageWithUserId(LogType::LOG_OPERATION_FAILED_USER_IS_INACTIVE, $user);
             throw new InvalidArgumentException(self::MSG_USER_INACTIVE, parent::MSGCODE_BAD_PARAM);
         }
         // okay, init the request to change the password
-        $confirmationCode = $db->RequestPasswordResetCode($user, $this->clientIpAddress);
+        $confirmationCode = $db->requestPasswordResetCode($user, $this->clientIpAddress);
 
         // send the email to the address requested
         if (is_null($this->mailer)) {
             $this->mailer = new Mailer();
         }
-        if (!$this->mailer->SendResetPasswordMessage(
+        if (!$this->mailer->sendResetPasswordMessage(
             $user->getEmail(),
             $user->getNick(),
             $confirmationCode
         )) {
-            $db->RemoveResetPasswordCode($user);
+            $db->removeResetPasswordCode($user);
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
     }

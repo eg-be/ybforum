@@ -36,23 +36,23 @@ class PendingApprovalUserList
             $userId = filter_input(INPUT_POST, self::PARAM_USERID, FILTER_VALIDATE_INT);
             $userActionValue = filter_input(INPUT_POST, self::PARAM_PENDINGAPPROVAL_ACTION, FILTER_UNSAFE_RAW);
             if ($userId && $userActionValue) {
-                $user = $db->LoadUserById($userId);
+                $user = $db->loadUserById($userId);
                 $logger = new Logger($db);
                 $mailer = new Mailer();
                 $sent = false;
                 if ($userActionValue === self::VALUE_ACCEPT && $user) {
-                    $db->ActivateUser($user);
-                    $sent = $mailer->SendNotifyUserAcceptedEmail($user->getEmail(), $user->getNick());
-                    $logger->LogMessageWithUserId(LogType::LOG_NOTIFIED_USER_ACCEPTED, $user);
+                    $db->activateUser($user);
+                    $sent = $mailer->sendNotifyUserAcceptedEmail($user->getEmail(), $user->getNick());
+                    $logger->logMessageWithUserId(LogType::LOG_NOTIFIED_USER_ACCEPTED, $user);
                     $resultDiv = '<div class="actionSucceeded">Benutzer '
                             . $user->getNick() . ' freigeschaltet (Mail sent: '
                             . ($sent ? 'Ja' : 'Nein') . ')</div>';
                 } elseif ($userActionValue === self::VALUE_DENY && $user) {
-                    $db->DeleteUser($user);
+                    $db->deleteUser($user);
                     $sent = false;
-                    //$sent = $mailer->SendNotifyUserDeniedEmail($user->getEmail());
+                    //$sent = $mailer->sendNotifyUserDeniedEmail($user->getEmail());
                     if ($sent) {
-                        $logger->LogMessage(LogType::LOG_NOTIFIED_USER_DENIED, 'Deleted user: ' . $user->getNick() . '(' . $user->GetId() . ')');
+                        $logger->logMessage(LogType::LOG_NOTIFIED_USER_DENIED, 'Deleted user: ' . $user->getNick() . '(' . $user->getId() . ')');
                     }
                     return '<div class="actionSucceeded">Benutzer '
                             . $user->getNick() . ' abgelehnt (Mail sent: '

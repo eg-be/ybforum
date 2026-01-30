@@ -53,8 +53,8 @@ class UserView
     public function handleActionsAndGetResultDiv(ForumDb $db, int $adminUserId): string
     {
         try {
-            $admin = $db->LoadUserById($adminUserId);
-            if (!($admin->IsAdmin() && $admin->IsActive())) {
+            $admin = $db->loadUserById($adminUserId);
+            if (!($admin->isAdmin() && $admin->isActive())) {
                 throw new InvalidArgumentException('Admin user required');
             }
             $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
@@ -78,7 +78,7 @@ class UserView
     {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if ($userActionValue === self::VALUE_MAKEDUMMY && $this->m_userId) {
-            $user = $db->LoadUserById($this->m_userId);
+            $user = $db->loadUserById($this->m_userId);
             $htmlStr = '<div class="actionConfirm">ACHTUNG: Durch diese Operation '
                     . 'wird der Stammposter (nahezu) unumkehrbar entfernt. Nur '
                     . 'sein Nick bleibt erhalten. Sicher dass der Stammposter '
@@ -90,9 +90,9 @@ class UserView
             $htmlStr .= '</div>';
             return $htmlStr;
         } elseif ($userActionValue === self::VALUE_CONFIRM_MAKE_DUMMY && $this->m_userId) {
-            $user = $db->LoadUserById($this->m_userId);
-            $db->MakeDummy($user);
-            return '<div class="actionSucceeded">Benutzer ' . $user->GetId() . ' ist jetzt ein Dummy</div>';
+            $user = $db->loadUserById($this->m_userId);
+            $db->makeDummy($user);
+            return '<div class="actionSucceeded">Benutzer ' . $user->getId() . ' ist jetzt ein Dummy</div>';
         } else {
             return '';
         }
@@ -102,13 +102,13 @@ class UserView
     {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if ($userActionValue === self::VALUE_DELETE && $this->m_userId) {
-            $user = $db->LoadUserById($this->m_userId);
-            $db->DeleteUser($user);
-            return '<div class="actionSucceeded">Benutzer ' . $user->GetId() . ' gelöscht</div>';
+            $user = $db->loadUserById($this->m_userId);
+            $db->deleteUser($user);
+            return '<div class="actionSucceeded">Benutzer ' . $user->getId() . ' gelöscht</div>';
         } elseif ($userActionValue === self::VALUE_CONFIRM_MAKE_DUMMY && $this->m_userId) {
-            $user = $db->LoadUserById($this->m_userId);
-            $db->MakeDummy($user);
-            return '<div class="actionSucceeded">Benutzer ' . $user->GetId() . ' ist jetzt ein Dummy</div>';
+            $user = $db->loadUserById($this->m_userId);
+            $db->makeDummy($user);
+            return '<div class="actionSucceeded">Benutzer ' . $user->getId() . ' ist jetzt ein Dummy</div>';
         } else {
             return '';
         }
@@ -120,17 +120,17 @@ class UserView
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if (($userActionValue === self::VALUE_SETADMIN || $userActionValue === self::VALUE_REMOVEADMIN)
             && $this->m_userId) {
-            $user = $db->LoadUserById($this->m_userId);
+            $user = $db->loadUserById($this->m_userId);
             if (!$user) {
                 throw new InvalidArgumentException('No user with id ' . $userId
                         . ' was found');
             }
         }
         if ($userActionValue === self::VALUE_SETADMIN && $user) {
-            $db->SetAdmin($user, true);
+            $db->setAdmin($user, true);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' ist jetzt Admin</div>';
         } elseif ($userActionValue === self::VALUE_REMOVEADMIN && $user) {
-            $db->SetAdmin($user, false);
+            $db->setAdmin($user, false);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' wurden Admin-Rechte entzogen</div>';
         } else {
             return '';
@@ -141,24 +141,24 @@ class UserView
     {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if ($userActionValue === self::VALUE_ACTIVATE && $this->m_userId) {
-            $user = $db->LoadUserById($this->m_userId);
+            $user = $db->loadUserById($this->m_userId);
             if (!$user) {
                 throw new InvalidArgumentException('No user with id ' . $userId
                         . ' was found');
             }
-            $db->ActivateUser($user);
+            $db->activateUser($user);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' aktiviert</div>';
         } elseif ($userActionValue === self::VALUE_DEACTIVATE && $this->m_userId) {
             $reason = filter_input(INPUT_POST, self::PARAM_REASON, FILTER_UNSAFE_RAW);
             if (!$reason) {
                 return '<div class="actionFailed">Es muss ein Grund angegeben werden</div>';
             }
-            $user = $db->LoadUserById($this->m_userId);
+            $user = $db->loadUserById($this->m_userId);
             if (!$user) {
                 throw new InvalidArgumentException('No user with id ' . $userId
                         . ' was found');
             }
-            $db->DeactivateUser($user, $reason, $admin);
+            $db->deactivateUser($user, $reason, $admin);
             return '<div class="actionSucceeded">Benutzer ' . $this->m_userId . ' deaktiviert</div>';
         } else {
             return '';
@@ -169,11 +169,11 @@ class UserView
     {
         $user = null;
         if ($this->m_userId) {
-            $user = $db->LoadUserById($this->m_userId);
+            $user = $db->loadUserById($this->m_userId);
         } elseif ($this->m_email) {
-            $user = $db->LoadUserByEmail($this->m_email);
+            $user = $db->loadUserByEmail($this->m_email);
         } else {
-            $user = $db->LoadUserByNick($this->m_nick);
+            $user = $db->loadUserByNick($this->m_nick);
         }
         return $user;
     }
@@ -181,7 +181,7 @@ class UserView
     private function getTurnIntoDummyForm(User $user): string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
-                . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
+                . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->getId() . '"/>';
         $htmlStr .= '<input type="submit" value="Zu Dummy machen"/>'
                 . '<input type="hidden" name="' . self::PARAM_USERACTION . '" value="' . self::VALUE_MAKEDUMMY . '"/>';
         $htmlStr .= '</form>';
@@ -191,7 +191,7 @@ class UserView
     private function getDeleteUserForm(User $user): string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
-                . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
+                . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->getId() . '"/>';
         $htmlStr .= '<input type="submit" value="Stammposter endgültig löschen"/>'
                 . '<input type="hidden" name="' . self::PARAM_USERACTION . '" value="' . self::VALUE_DELETE . '"/>';
         $htmlStr .= '</form>';
@@ -201,7 +201,7 @@ class UserView
     private function getConfirmTurnInfoDummyForm(User $user): string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
-                . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
+                . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->getId() . '"/>';
         $htmlStr .= '<input type="submit" value="Stammposter ' . $user->getNick() . ' zu einem Dummy machen Bestätigen"/>'
                 . '<input type="hidden" name="' . self::PARAM_USERACTION . '" value="' . self::VALUE_CONFIRM_MAKE_DUMMY . '"/>';
         $htmlStr .= '</form>';
@@ -211,12 +211,12 @@ class UserView
     private function getToggleActiveForm(User $user): string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
-                . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
-        if ($user->IsActive()) {
+                . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->getId() . '"/>';
+        if ($user->isActive()) {
             $htmlStr .= '<input type="submit" value="Deaktivieren"/>Grund: <input type="text" name="' . self::PARAM_REASON . '"/>'
                         . '<input type="hidden" name="' . self::PARAM_USERACTION . '" value="' . self::VALUE_DEACTIVATE . '"/>';
         } else {
-            if ($user->IsConfirmed()) {
+            if ($user->isConfirmed()) {
                 $htmlStr .= '<input type="submit" value="Aktivieren"/>'
                         . '<input type="hidden" name="' . self::PARAM_USERACTION . '" value="' . self::VALUE_ACTIVATE . '"/>';
             } else {
@@ -230,12 +230,12 @@ class UserView
     private function getToggleAdminForm(User $user): string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
-                . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
-        if ($user->IsAdmin()) {
+                . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->getId() . '"/>';
+        if ($user->isAdmin()) {
             $htmlStr .= '<input type="submit" value="Adminrechte entziehen"/>'
                         . '<input type="hidden" name="' . self::PARAM_USERACTION . '" value="' . self::VALUE_REMOVEADMIN . '"/>';
         } else {
-            if ($user->IsConfirmed()) {
+            if ($user->isConfirmed()) {
                 $htmlStr .= '<input type="submit" value="Adminrechte vergeben"/>'
                         . '<input type="hidden" name="' . self::PARAM_USERACTION . '" value="' . self::VALUE_SETADMIN . '"/>';
             } else {
@@ -263,26 +263,26 @@ class UserView
         }
 
         $htmlStr = '<div><table class="actiontable">';
-        $htmlStr .= '<tr><td>Id:</td><td>' . $user->GetId() . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Id:</td><td>' . $user->getId() . '</td><td></td></tr>';
         $htmlStr .= '<tr><td>Stammpostername:</td><td>' . htmlspecialchars($user->getNick()) . '</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Email:</td><td>' . ($user->HasEmail() ? htmlspecialchars($user->getEmail()) : '') . '</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Registriert seit:</td><td>' . $user->GetRegistrationTimestamp()->format('d.m.Y H:i:s') . '</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Registrierungsnachricht:</td><td>' . $user->GetRegistrationMsg() . '</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Email bestätigt am:</td><td>' . ($user->GetConfirmationTimestamp() ? $user->GetConfirmationTimestamp()->format('d.m.Y H:i:s') : '') . '</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Aktiv:</td><td>' . ($user->IsActive() ? 'Ja' : 'Nein')
+        $htmlStr .= '<tr><td>Email:</td><td>' . ($user->hasEmail() ? htmlspecialchars($user->getEmail()) : '') . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Registriert seit:</td><td>' . $user->getRegistrationTimestamp()->format('d.m.Y H:i:s') . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Registrierungsnachricht:</td><td>' . $user->getRegistrationMsg() . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Email bestätigt am:</td><td>' . ($user->getConfirmationTimestamp() ? $user->getConfirmationTimestamp()->format('d.m.Y H:i:s') : '') . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Aktiv:</td><td>' . ($user->isActive() ? 'Ja' : 'Nein')
                 . '</td><td>'
                 . $this->getToggleActiveForm($user)
                 . '</td></tr>';
-        $htmlStr .= '<tr><td>Admin:</td><td>' . ($user->IsAdmin() ? 'Ja' : 'Nein')
+        $htmlStr .= '<tr><td>Admin:</td><td>' . ($user->isAdmin() ? 'Ja' : 'Nein')
                 . '</td><td>'
                 . $this->getToggleAdminForm($user)
                 . '</td></tr>';
-        $htmlStr .= '<tr><td>Dummy:</td><td>' . ($user->IsDummyUser() ? 'Ja' : 'Nein') . '</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Hat neues Passwort</td><td>' . ($user->HasPassword() ? 'Ja' : 'Nein') . '</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Hat altes Passwort</td><td>' . ($user->HasOldPassword() ? 'Ja' : 'Nein') . '</td><td></td></tr>';
-        $postByUserCount = $db->GetPostByUserCount($user);
+        $htmlStr .= '<tr><td>Dummy:</td><td>' . ($user->isDummyUser() ? 'Ja' : 'Nein') . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Hat neues Passwort</td><td>' . ($user->hasPassword() ? 'Ja' : 'Nein') . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Hat altes Passwort</td><td>' . ($user->hasOldPassword() ? 'Ja' : 'Nein') . '</td><td></td></tr>';
+        $postByUserCount = $db->getPostByUserCount($user);
         $htmlStr .= '<tr><td>Anzahl Posts</td><td>' . $postByUserCount . '</td><td>';
-        if ($postByUserCount > 0 && !$user->IsDummyUser()) {
+        if ($postByUserCount > 0 && !$user->isDummyUser()) {
             $htmlStr .= $this->getTurnIntoDummyForm($user);
         } elseif ($postByUserCount == 0) {
             $htmlStr .= $this->getDeleteUserForm($user);

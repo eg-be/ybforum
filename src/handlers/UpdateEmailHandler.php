@@ -74,13 +74,13 @@ class UpdateEmailHandler extends BaseHandler
     {
         // Check that this email address is not already used within some other
         // account
-        $user = $db->LoadUserByEmail($this->newEmail);
+        $user = $db->loadUserByEmail($this->newEmail);
         if ($user) {
             throw new InvalidArgumentException(self::MSG_EMAIL_NOT_UNIQUE, parent::MSGCODE_BAD_PARAM);
         }
 
         // Create a confirmation link to update the email
-        $confirmCode = $db->RequestUpdateEmailCode(
+        $confirmCode = $db->requestUpdateEmailCode(
             $this->user,
             $this->newEmail,
             $this->clientIpAddress
@@ -90,8 +90,8 @@ class UpdateEmailHandler extends BaseHandler
         if (is_null($this->mailer)) {
             $this->mailer = new Mailer();
         }
-        if (!$this->mailer->SendUpdateEmailConfirmMessage($this->newEmail, $this->user->getNick(), $confirmCode)) {
-            $db->RemoveUpdateEmailCode($this->user);
+        if (!$this->mailer->sendUpdateEmailConfirmMessage($this->newEmail, $this->user->getNick(), $confirmCode)) {
+            $db->removeUpdateEmailCode($this->user);
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
     }

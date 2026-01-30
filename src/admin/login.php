@@ -41,16 +41,16 @@ try {
         $pass = trim(filter_input(INPUT_POST, 'pass'));
 
         if ($nick && $pass) {
-            $user = $db->AuthUser($nick, $pass);
+            $user = $db->authUser($nick, $pass);
             if ($user) {
-                if ($user->IsAdmin()) {
+                if ($user->isAdmin()) {
                     // Lgin succeeded, move on toe index page
-                    $logger->LogMessageWithUserId(LogType::LOG_ADMIN_LOGIN, $user);
-                    $_SESSION['adminuserid'] = $user->GetId();
+                    $logger->logMessageWithUserId(LogType::LOG_ADMIN_LOGIN, $user);
+                    $_SESSION['adminuserid'] = $user->getId();
                     header('Location: index.php');
                     exit;
                 } else {
-                    $logger->LogMessageWithUserId(LogType::LOG_ADMIN_LOGIN_FAILED_USER_IS_NOT_ADMIN, $user);
+                    $logger->logMessageWithUserId(LogType::LOG_ADMIN_LOGIN_FAILED_USER_IS_NOT_ADMIN, $user);
                 }
             }
         }
@@ -58,7 +58,7 @@ try {
         $loginFailed = true;
     }
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 
 ?>

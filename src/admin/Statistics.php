@@ -17,15 +17,15 @@ class Statistics
 {
     public function renderHtmlDiv(ForumDb $db): string
     {
-        $htmlStr = '<div>Total Threads: ' . $db->GetThreadCount() . '</div>';
-        $htmlStr .= '<div>Total Posts: ' . $db->GetPostCount() . '</div>';
+        $htmlStr = '<div>Total Threads: ' . $db->getThreadCount() . '</div>';
+        $htmlStr .= '<div>Total Posts: ' . $db->getPostCount() . '</div>';
         $htmlStr .= '<div>';
-        $htmlStr .= '<p style="margin: 0;">Total Stammposter: ' . $db->GetUserCount() . '</p>';
-        $htmlStr .= '<p style="text-indent: 1em; margin: 0;">Aktive: ' . $db->GetActiveUserCount() . '</p>';
-        $htmlStr .= '<p style="text-indent: 1em; margin: 0;">Migration benötigt: ' . $db->GetNeedMigrationUserCount() . '</p>';
-        $htmlStr .= '<p style="text-indent: 1em; margin: 0;">Dummies: ' . $db->GetDummyUserCount() . '</p>';
-        $htmlStr .= '<p style="text-indent: 1em; margin: 0;">Von Admin deaktivierte: ' . $db->GetFromAdminDeactivatedUserCount() . '</p>';
-        $htmlStr .= '<p style="text-indent: 1em; margin: 0;">Wartend auf Freischaltung durch Admin: ' . $db->GetPendingAdminApprovalUserCount() . '</p>';
+        $htmlStr .= '<p style="margin: 0;">Total Stammposter: ' . $db->getUserCount() . '</p>';
+        $htmlStr .= '<p style="text-indent: 1em; margin: 0;">Aktive: ' . $db->getActiveUserCount() . '</p>';
+        $htmlStr .= '<p style="text-indent: 1em; margin: 0;">Migration benötigt: ' . $db->getNeedMigrationUserCount() . '</p>';
+        $htmlStr .= '<p style="text-indent: 1em; margin: 0;">Dummies: ' . $db->getDummyUserCount() . '</p>';
+        $htmlStr .= '<p style="text-indent: 1em; margin: 0;">Von Admin deaktivierte: ' . $db->getFromAdminDeactivatedUserCount() . '</p>';
+        $htmlStr .= '<p style="text-indent: 1em; margin: 0;">Wartend auf Freischaltung durch Admin: ' . $db->getPendingAdminApprovalUserCount() . '</p>';
         $htmlStr .= '</div>';
         return $htmlStr;
     }

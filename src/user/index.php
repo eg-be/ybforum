@@ -51,9 +51,9 @@ try {
 
     // Get and verify user
     $db = new ForumDb(false);
-    $user = $db->LoadUserById($_SESSION['userid']);
+    $user = $db->loadUserById($_SESSION['userid']);
     // If user is a dummy or inactive, get out
-    if ($user->IsDummyUser() || (!$user->IsActive() && !$user->NeedsMigration())) {
+    if ($user->isDummyUser() || (!$user->isActive() && !$user->needsMigration())) {
         session_unset();
         session_destroy();
         header('Location: ../stammposter.php');
@@ -81,7 +81,7 @@ try {
         }
     }
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
 
@@ -102,7 +102,7 @@ try {
             $htmlDiv = str_replace('src="', 'src="../', $htmlDiv);
             echo $htmlDiv;
         } catch (Exception $ex) {
-            ErrorHandler::OnException($ex);
+            ErrorHandler::onException($ex);
         }
 ?>
         <div class="fullwidthcenter generictitle">Stammposter-Bereich von <span class="fitalic"><?php echo $user->getNick(); ?></span></div>

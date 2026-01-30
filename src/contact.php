@@ -43,7 +43,7 @@ try {
         }
     }
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
 
@@ -72,7 +72,7 @@ try {
     $logo = new Logo();
     echo $logo->renderHtmlDiv();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         <div class="fullwidthcenter generictitle">Kontakt</div>
@@ -82,7 +82,7 @@ try {
     $topNav = new TopNavigation();
     echo $topNav->renderHtmlDiv();
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
         <hr>

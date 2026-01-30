@@ -69,7 +69,7 @@ require_once __DIR__ . '/pageparts/ConfirmForm.php';
                     . '<span class="fbold">Fehler: </span>'
                     . $ex->GetMessage() . '</span>';
         } catch (Exception $ex) {
-            ErrorHandler::OnException($ex);
+            ErrorHandler::onException($ex);
         }
 ?>
         </div>

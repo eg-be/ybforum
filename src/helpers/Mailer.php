@@ -69,7 +69,7 @@ class Mailer
      * @param string $confirmationCode
      * @return bool True if sending the mail succeeded
      */
-    public function SendMigrateUserConfirmMessage(
+    public function sendMigrateUserConfirmMessage(
         string $email,
         string $nick,
         string $confirmationCode
@@ -77,7 +77,7 @@ class Mailer
         assert(!empty($email));
         assert(!empty($confirmationCode));
 
-        return $this->SendConfirmMail(
+        return $this->sendConfirmMail(
             $email,
             '1898-Forum Migration Stammposter',
             'confirm.php',
@@ -100,7 +100,7 @@ class Mailer
      * @param string $confirmationCode
      * @return type
      */
-    public function SendRegisterUserConfirmMessage(
+    public function sendRegisterUserConfirmMessage(
         string $email,
         string $nick,
         string $confirmationCode
@@ -108,7 +108,7 @@ class Mailer
         assert(!empty($email));
         assert(!empty($confirmationCode));
 
-        return $this->SendConfirmMail(
+        return $this->sendConfirmMail(
             $email,
             '1898-Forum Registrierung Stammposter',
             'confirm.php',
@@ -130,7 +130,7 @@ class Mailer
      * @param string $confirmationCode
      * @return type
      */
-    public function SendUpdateEmailConfirmMessage(
+    public function sendUpdateEmailConfirmMessage(
         string $email,
         string $nick,
         string $confirmationCode
@@ -138,7 +138,7 @@ class Mailer
         assert(!empty($email));
         assert(!empty($confirmationCode));
 
-        return $this->SendConfirmMail(
+        return $this->sendConfirmMail(
             $email,
             '1898-Forum aktualisierte Stammposter-Mailadresse bestaetigen',
             'confirm.php',
@@ -161,7 +161,7 @@ class Mailer
      * @param string $confirmationCode
      * @return type
      */
-    public function SendResetPasswordMessage(
+    public function sendResetPasswordMessage(
         string $email,
         string $nick,
         string $confirmationCode
@@ -169,7 +169,7 @@ class Mailer
         assert(!empty($email));
         assert(!empty($confirmationCode));
 
-        return $this->SendConfirmMail(
+        return $this->sendConfirmMail(
             $email,
             '1898-Forum Stammposter-Passwort zuruecksetzen',
             'resetpassword.php',
@@ -190,7 +190,7 @@ class Mailer
      * @param string $email
      * @return type
      */
-    public function SendNotifyUserAcceptedEmail(string $email, string $nick): bool
+    public function sendNotifyUserAcceptedEmail(string $email, string $nick): bool
     {
         $subject = 'Stammposter freigeschaltet';
         $mailBody = 'Willkommen im YB-Forum. Deine Registrierung wurde '
@@ -201,7 +201,7 @@ class Mailer
                 . 'Bitte beachte '
                 . 'die Reihenfolge aus: ' . "\r\n\r\n"
                 . 'https://1898.ch/showentry.php?idpost=672696';
-        return $this->m_delegate->sendMessage($email, $subject, $mailBody, $this->GetHeaderString());
+        return $this->m_delegate->sendMessage($email, $subject, $mailBody, $this->getHeaderString());
     }
 
     /**
@@ -210,11 +210,11 @@ class Mailer
      * @param string $email
      * @return type
      */
-    public function SendNotifyUserDeniedEmail(string $email): bool
+    public function sendNotifyUserDeniedEmail(string $email): bool
     {
         $subject = 'Registrierung abgelehnt';
         $mailBody = 'Deine Registrierung wurde abgelehnt.';
-        return $this->m_delegate->sendMessage($email, $subject, $mailBody, $this->GetHeaderString());
+        return $this->m_delegate->sendMessage($email, $subject, $mailBody, $this->getHeaderString());
     }
 
     /**
@@ -224,7 +224,7 @@ class Mailer
      * @param ?string $registrationMsg A string with the Registration message or null
      * @return boolean True if sending succeeds
      */
-    public function NotifyAdminUserConfirmedRegistration(
+    public function notifyAdminUserConfirmedRegistration(
         string $confirmedNick,
         string $adminEmail,
         ?string $registrationMsg
@@ -235,7 +235,7 @@ class Mailer
                 . 'zu werden.' . "\r\n\r\n";
         $mailBody .= 'Registrierungsnachricht: ' . "\r\n";
         $mailBody .= $registrationMsg;
-        return $this->m_delegate->sendMessage($adminEmail, $subject, $mailBody, $this->GetHeaderString());
+        return $this->m_delegate->sendMessage($adminEmail, $subject, $mailBody, $this->getHeaderString());
     }
 
     /**
@@ -245,7 +245,7 @@ class Mailer
      * @param string $contactEmail Email address provided with the contact message
      * @param string $adminEmail destination email
      */
-    public function SendAdminContactMessage(
+    public function sendAdminContactMessage(
         string $contactEmail,
         string $contactMsg,
         string $adminEmail
@@ -255,11 +255,11 @@ class Mailer
                 . 'eine Kontaktanfrage gesendet: '
                 . "\r\n\r\n";
         $mailBody .= $contactMsg . "\r\n";
-        $sent = $this->m_delegate->sendMessage($adminEmail, $subject, $mailBody, $this->GetHeaderString());
+        $sent = $this->m_delegate->sendMessage($adminEmail, $subject, $mailBody, $this->getHeaderString());
         if ($sent) {
-            $this->m_logger->LogMessage(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $adminEmail);
+            $this->m_logger->logMessage(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $adminEmail);
         } else {
-            $this->m_logger->LogMessage(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $adminEmail);
+            $this->m_logger->logMessage(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $adminEmail);
         }
         return $sent;
     }
@@ -275,7 +275,7 @@ class Mailer
      * link.
      * @return boolean True if sending mail succeeds
      */
-    private function SendConfirmMail(
+    private function sendConfirmMail(
         string $email,
         string $subject,
         string $page,
@@ -296,11 +296,11 @@ class Mailer
         $mailBody .= $link . "\r\n\r\n";
         $mailBody .= $validForText . "\r\n";
 
-        $sent = $this->m_delegate->sendMessage($email, $subject, $mailBody, $this->GetHeaderString());
+        $sent = $this->m_delegate->sendMessage($email, $subject, $mailBody, $this->getHeaderString());
         if ($sent) {
-            $this->m_logger->LogMessage(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $email);
+            $this->m_logger->logMessage(LogType::LOG_MAIL_SENT, 'Mail sent to: ' . $email);
         } else {
-            $this->m_logger->LogMessage(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $email);
+            $this->m_logger->logMessage(LogType::LOG_MAIL_FAILED, 'Failed to send mail to: ' . $email);
         }
         return $sent;
     }
@@ -309,7 +309,7 @@ class Mailer
      * Format some string holding some reasonable email header values.
      * @return string
      */
-    private function GetHeaderString(): string
+    private function getHeaderString(): string
     {
         $headers = [
             'From' => $this->m_mailFrom,
@@ -350,12 +350,12 @@ class Mailer
         return $this->m_allMailBcc;
     }
 
-    public function GetLogger(): Logger
+    public function getLogger(): Logger
     {
         return $this->m_logger;
     }
 
-    public function GetMailerDelegate(): MailerDelegate
+    public function getMailerDelegate(): MailerDelegate
     {
         return $this->m_delegate;
     }

@@ -31,7 +31,7 @@ require_once __DIR__ . '/../handlers/BaseHandler.php';
  *
  * Upon construction, tries to read the POST parameter value
  * self::PARAM_CAPTCHA.
- * Call VerifyResponse() to issue a request against google to check
+ * Call verifyResponse() to issue a request against google to check
  * if the read response is verified.
  * @author eli
  */
@@ -81,7 +81,7 @@ class CaptchaV3Verifier
      * or if the read answer cannot be decoded.
      * @throws InvalidArgumentException
      */
-    public function VerifyResponse(): void
+    public function verifyResponse(): void
     {
         if (!$this->m_captchaResponse) {
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
@@ -103,27 +103,27 @@ class CaptchaV3Verifier
             if (is_array($decodedResp['error-codes'])) {
                 $errcodes = implode('', $decodedResp['error-codes']);
             }
-            $this->m_logger->LogMessage(LogType::LOG_CAPTCHA_TOKEN_INVALID, $errcodes);
+            $this->m_logger->logMessage(LogType::LOG_CAPTCHA_TOKEN_INVALID, $errcodes);
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
         }
         if ($decodedResp['action'] !== $this->m_action) {
-            $this->m_logger->LogMessage(LogType::LOG_CAPTCHA_WRONG_ACTION, 'expected action \'' . $this->m_action . '\' but received \'' . $decodedResp['action'] . '\'');
+            $this->m_logger->logMessage(LogType::LOG_CAPTCHA_WRONG_ACTION, 'expected action \'' . $this->m_action . '\' but received \'' . $decodedResp['action'] . '\'');
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
         }
         if ($decodedResp['score'] < $this->m_requiredScore) {
-            $this->m_logger->LogMessage(LogType::LOG_CAPTCHA_SCORE_TOO_LOW, 'min required ' . $this->m_requiredScore . ', received ' . $decodedResp['score']);
+            $this->m_logger->logMessage(LogType::LOG_CAPTCHA_SCORE_TOO_LOW, 'min required ' . $this->m_requiredScore . ', received ' . $decodedResp['score']);
             throw new InvalidArgumentException(self::MSG_GENERIC_INVALID, self::MSGCODE_BAD_PARAM);
         } else {
-            $this->m_logger->LogMessage(LogType::LOG_CAPTCHA_SCORE_PASSED, 'min required ' . $this->m_requiredScore . ', received ' . $decodedResp['score']);
+            $this->m_logger->logMessage(LogType::LOG_CAPTCHA_SCORE_PASSED, 'min required ' . $this->m_requiredScore . ', received ' . $decodedResp['score']);
         }
     }
 
-    public function GetCaptchaRespone(): ?string
+    public function getCaptchaRespone(): ?string
     {
         return $this->m_captchaResponse;
     }
 
-    public function GetClientIp(): string
+    public function getClientIp(): string
     {
         return $this->m_clientIp;
     }

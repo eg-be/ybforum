@@ -38,14 +38,14 @@ try {
     } else {
         // check that this adminuserid is still valid
         $db = new ForumDb();
-        $adminUser = $db->LoadUserById($_SESSION['adminuserid']);
-        if (!($adminUser && $adminUser->IsActive() && $adminUser->IsAdmin())) {
+        $adminUser = $db->loadUserById($_SESSION['adminuserid']);
+        if (!($adminUser && $adminUser->isActive() && $adminUser->isAdmin())) {
             header('Location: login.php');
             exit;
         }
     }
 } catch (Exception $ex) {
-    ErrorHandler::OnException($ex);
+    ErrorHandler::onException($ex);
 }
 ?>
 <html lang="de-ch">
@@ -72,14 +72,14 @@ $stmt = $db->prepare($query);
 $stmt->execute();
 while ($row = $stmt->fetch()) {
     // Get all children of that post
-    $post = $db->LoadPost($row['idpost']);
-    $children = $db->LoadPostReplies($post, true);
+    $post = $db->loadPost($row['idpost']);
+    $children = $db->loadPostReplies($post, true);
     $notHiddenChildren = [];
     $unhiddenLinkList = '';
     foreach ($children as $childPost) {
-        if (!$childPost->IsHidden()) {
+        if (!$childPost->isHidden()) {
             array_push($notHiddenChildren, $childPost);
-            $unhiddenLinkList .= '<a href="../showentry.php?idpost=' . $childPost->GetPostId() . '">' . $childPost->GetPostId() . '</a> ';
+            $unhiddenLinkList .= '<a href="../showentry.php?idpost=' . $childPost->getPostId() . '">' . $childPost->getPostId() . '</a> ';
         }
     }
     if (!empty($notHiddenChildren)) {
@@ -87,7 +87,7 @@ while ($row = $stmt->fetch()) {
     } else {
         $rowStr = '<tr>';
     }
-    $rowStr .= '<td>' . $post->GetId() . '</td>';
+    $rowStr .= '<td>' . $post->getId() . '</td>';
     $rowStr .= '<td>' . $post->getParentPostId() . '</td>';
     $rowStr .= '<td>' . $post->getTitle() . '</td>';
     $rowStr .= '<td>' . count($children) . '</td>';
