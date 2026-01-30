@@ -65,23 +65,23 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         $this->simulate = false;
     }
 
-    protected function ReadParams(): void
+    protected function readParams(): void
     {
         // remember invocation-method: we only want to do something, if called
         // from POST (GET may happen as a preview of the confirmation-link)
-        $requestMethod = self::ReadParamToString($_SERVER, 'REQUEST_METHOD', FILTER_UNSAFE_RAW);
+        $requestMethod = self::readParamToString($_SERVER, 'REQUEST_METHOD', FILTER_UNSAFE_RAW);
         $this->simulate = $requestMethod === 'GET';
         // Read params - depending on the invocation using GET or through base-handler
-        $this->code = self::ReadRawParamFromGetOrPost(ConfirmHandler::PARAM_CODE);
+        $this->code = self::readRawParamFromGetOrPost(ConfirmHandler::PARAM_CODE);
     }
 
-    protected function ValidateParams(): void
+    protected function validateParams(): void
     {
         // Check for the parameters required
-        self::ValidateStringParam($this->code, self::MSG_CODE_UNKNOWN);
+        self::validateStringParam($this->code, self::MSG_CODE_UNKNOWN);
     }
 
-    protected function HandleRequestImpl(ForumDb $db): void
+    protected function handleRequestImpl(ForumDb $db): void
     {
         // reset internal values first
         $this->user = null;
@@ -131,7 +131,7 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
             $adminMails = $db->GetAdminMails();
             foreach ($adminMails as $adminMailAddress) {
                 if ($this->mailer->NotifyAdminUserConfirmedRegistration(
-                    $this->user->GetNick(),
+                    $this->user->getNick(),
                     $adminMailAddress,
                     $this->user->GetRegistrationMsg()
                 )) {
@@ -142,28 +142,28 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         }
     }
 
-    public function GetCode(): ?string
+    public function getCode(): ?string
     {
         return $this->code;
     }
 
-    public function GetType(): string
+    public function getType(): string
     {
         return ConfirmHandler::VALUE_TYPE_CONFIRM_USER;
     }
 
-    public function GetConfirmText(): string
+    public function getConfirmText(): string
     {
         $txt = '';
         if ($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER) {
-            $txt = 'Klicke auf Bestätigen um die Registrierung für den Stampposter ' . $this->user->GetNick() . ' zu bestätigen: ';
+            $txt = 'Klicke auf Bestätigen um die Registrierung für den Stampposter ' . $this->user->getNick() . ' zu bestätigen: ';
         } elseif ($this->confirmSource === ForumDb::CONFIRM_SOURCE_MIGRATE) {
-            $txt = 'Klicke auf Bestätigen um die Migration für den Stammposter ' . $this->user->GetNick() . ' abzuschliessen: ';
+            $txt = 'Klicke auf Bestätigen um die Migration für den Stammposter ' . $this->user->getNick() . ' abzuschliessen: ';
         }
         return $txt;
     }
 
-    public function GetSuccessText(): string
+    public function getSuccessText(): string
     {
         $txt = '';
         if ($this->confirmSource === ForumDb::CONFIRM_SOURCE_NEWUSER) {
@@ -179,12 +179,12 @@ class ConfirmUserHandler extends BaseHandler implements ConfirmHandler
         return $txt;
     }
 
-    public function SetMailer(Mailer $mailer): void
+    public function setMailer(Mailer $mailer): void
     {
         $this->mailer = $mailer;
     }
 
-    public function SetLogger(Logger $logger): void
+    public function setLogger(Logger $logger): void
     {
         $this->logger = $logger;
     }

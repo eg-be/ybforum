@@ -88,8 +88,8 @@ while ($row = $stmt->fetch()) {
         $rowStr = '<tr>';
     }
     $rowStr .= '<td>' . $post->GetId() . '</td>';
-    $rowStr .= '<td>' . $post->GetParentPostId() . '</td>';
-    $rowStr .= '<td>' . $post->GetTitle() . '</td>';
+    $rowStr .= '<td>' . $post->getParentPostId() . '</td>';
+    $rowStr .= '<td>' . $post->getTitle() . '</td>';
     $rowStr .= '<td>' . count($children) . '</td>';
     $rowStr .= '<td>' . count($notHiddenChildren) . ': ' . $unhiddenLinkList;
     $rowStr .= '</td>';

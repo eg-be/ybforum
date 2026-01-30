@@ -36,15 +36,15 @@ class ConfirmForm
         $this->m_confirmHandler = $confirmHandler;
     }
 
-    public function RenderHtmlDiv(): string
+    public function renderHtmlDiv(): string
     {
         $html = '<div>';
         $html .= '<span class="fbold">';
-        $html .= $this->m_confirmHandler->GetConfirmText();
+        $html .= $this->m_confirmHandler->getConfirmText();
         $html .= '</span>';
         $html .= '<form method="post" action="confirm.php?confirm=1" accept-charset="utf-8">';
-        $html .= '<input type="hidden" name="' . ConfirmHandler::PARAM_TYPE . '" value="' . $this->m_confirmHandler->GetType() . '"/>';
-        $html .= '<input type="hidden" name="' . ConfirmHandler::PARAM_CODE . '" value="' . $this->m_confirmHandler->GetCode() . '"/>';
+        $html .= '<input type="hidden" name="' . ConfirmHandler::PARAM_TYPE . '" value="' . $this->m_confirmHandler->getType() . '"/>';
+        $html .= '<input type="hidden" name="' . ConfirmHandler::PARAM_CODE . '" value="' . $this->m_confirmHandler->getCode() . '"/>';
         $html .= '<input type="submit" value="Bestätigen"/>';
         $html .= '</form>';
         $html .= '</div>';

@@ -133,7 +133,7 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertSame('mail@foo.com', $mail->GetEmail());
+        static::assertSame('mail@foo.com', $mail->getEmail());
         static::assertTrue($mail->HasEmail());
 
         $noMail = self::mockUser(
@@ -148,7 +148,7 @@ final class UserTest extends BaseTest
             null,
             null
         );
-        static::assertNull($noMail->GetEmail());
+        static::assertNull($noMail->getEmail());
         static::assertFalse($noMail->HasEmail());
     }
 

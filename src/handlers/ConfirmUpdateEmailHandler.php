@@ -54,23 +54,23 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         $this->newEmail = null;
     }
 
-    protected function ReadParams(): void
+    protected function readParams(): void
     {
         // remember invocation-method: we only want to do something, if called
         // from POST (GET may happen as a preview of the confirmation-link)
-        $requestMethod = self::ReadParamToString($_SERVER, 'REQUEST_METHOD', FILTER_UNSAFE_RAW);
+        $requestMethod = self::readParamToString($_SERVER, 'REQUEST_METHOD', FILTER_UNSAFE_RAW);
         $this->simulate = $requestMethod === 'GET';
         // Read params - depending on the invocation using GET or through base-handler
-        $this->code = self::ReadRawParamFromGetOrPost(ConfirmHandler::PARAM_CODE);
+        $this->code = self::readRawParamFromGetOrPost(ConfirmHandler::PARAM_CODE);
     }
 
-    protected function ValidateParams(): void
+    protected function validateParams(): void
     {
         // Check for the parameters required to authenticate
-        self::ValidateStringParam($this->code, self::MSG_CODE_UNKNOWN);
+        self::validateStringParam($this->code, self::MSG_CODE_UNKNOWN);
     }
 
-    protected function HandleRequestImpl(ForumDb $db): void
+    protected function handleRequestImpl(ForumDb $db): void
     {
         // reset the internal values first
         $this->user = null;
@@ -110,34 +110,34 @@ class ConfirmUpdateEmailHandler extends BaseHandler implements ConfirmHandler
         );
     }
 
-    public function GetNewEmail(): ?string
+    public function getNewEmail(): ?string
     {
         return $this->newEmail;
     }
 
-    public function GetCode(): ?string
+    public function getCode(): ?string
     {
         return $this->code;
     }
 
-    public function GetType(): string
+    public function getType(): string
     {
         return ConfirmHandler::VALUE_TYPE_UPDATEEMAIL;
     }
 
-    public function GetConfirmText(): string
+    public function getConfirmText(): string
     {
         return 'Klicke auf Bestätigen um die Mailadresse '
                 . $this->newEmail . ' für den Benutzer '
-                . $this->user->GetNick() . ' zu bestätigen:';
+                . $this->user->getNick() . ' zu bestätigen:';
     }
 
-    public function GetSuccessText(): string
+    public function getSuccessText(): string
     {
         return 'Emailadresse erfolgreich aktualisiert';
     }
 
-    public function SetLogger(Logger $logger): void
+    public function setLogger(Logger $logger): void
     {
         $this->logger = $logger;
     }

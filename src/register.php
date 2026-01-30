@@ -39,7 +39,7 @@ try {
     if (YbForumConfig::REGISTRATION_OPEN && filter_input(INPUT_GET, 'register', FILTER_VALIDATE_INT) > 0) {
         $registerUserHandler = new RegisterUserHandler();
         try {
-            $registerUserHandler->HandleRequest($db);
+            $registerUserHandler->handleRequest($db);
         } catch (InvalidArgumentException $ex) {
             // do some output of the error later
         }
@@ -115,10 +115,10 @@ try {
 			<div >Bitte hinterlasse uns im Feld Nachricht eine kurze Nachricht.</div>
         </div>
         <?php
-if ($registerUserHandler && $registerUserHandler->HasException()) {
+if ($registerUserHandler && $registerUserHandler->hasException()) {
     echo '<div class="failcolor fullwidthcenter">'
             . '<span class="fbold">Fehler: </span>'
-            . $registerUserHandler->GetLastException()->GetMessage()
+            . $registerUserHandler->getLastException()->GetMessage()
             . '</div>';
 }
 ?>
@@ -129,9 +129,9 @@ if ($registerUserHandler && $registerUserHandler->HasException()) {
 $emailValue = '';
 $regMsgValue = '';
 if ($registerUserHandler) {
-    $nickValue = $registerUserHandler->GetNick();
-    $emailValue = $registerUserHandler->GetEmail();
-    $regMsgValue = $registerUserHandler->GetRegMsg();
+    $nickValue = $registerUserHandler->getNick();
+    $emailValue = $registerUserHandler->getEmail();
+    $regMsgValue = $registerUserHandler->getRegMsg();
 }
 ?>
                 <table style="margin: auto;">
@@ -184,10 +184,10 @@ if ($registerUserHandler) {
             </form>
         </div>
         <?php
-        if ($registerUserHandler && !$registerUserHandler->HasException()) {
+        if ($registerUserHandler && !$registerUserHandler->hasException()) {
             echo
             '<div class="fbold fullwidthcenter successcolor">Ein Bestätigungslink wurde dir an die Mailadresse
-            <span class="fitalic">' . $registerUserHandler->GetEmail() . '</span> gesendet.
+            <span class="fitalic">' . $registerUserHandler->getEmail() . '</span> gesendet.
             Bitte besuche den Link um die angegebene Mailadresse zu bestätigen.
             </div>';
         }

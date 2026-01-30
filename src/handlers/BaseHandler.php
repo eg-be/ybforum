@@ -27,13 +27,13 @@ require_once __DIR__ . '/../helpers/Logger.php';
  * Abstract handler to be used as base for all handlers. Provides methods
  * to syntactically validate arguments that are being read from POST data.
  *
- * Classes extending from BaseHandler must implement ReadParams(),
- * ValiateParams() and HandleRequestImpl(ForumDb $db).
- * If the public HandleRequest(ForumDb $db) of the BaseHandler is called,
- * the BaseHandler will call ReadParams(), ValidateParams() and then
- * HandleRequestImpl(ForumDb $db). If in any of these methods an InvalidArgumentException
+ * Classes extending from BaseHandler must implement readParams(),
+ * ValiateParams() and handleRequestImpl(ForumDb $db).
+ * If the public handleRequest(ForumDb $db) of the BaseHandler is called,
+ * the BaseHandler will call readParams(), validateParams() and then
+ * handleRequestImpl(ForumDb $db). If in any of these methods an InvalidArgumentException
  * occurs, the InvalidArgumentException is stored internally as last exception and then
- * re-thrown. As a general rule the method ReadParams() should not throw,
+ * re-thrown. As a general rule the method readParams() should not throw,
  * but simply stored the parameter values for later use or set them to
  * null if the values are invalid: A form working with a handler can
  * re-read the values passed from the user and set them again.
@@ -70,7 +70,7 @@ abstract class BaseHandler
      * FILTER_VALIDATE_IP.
      * @return string or null if not a valid IP address.
      */
-    public static function ReadClientIpParam(): ?string
+    public static function readClientIpParam(): ?string
     {
         $clientIp = filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
         if (!$clientIp) {
@@ -85,7 +85,7 @@ abstract class BaseHandler
      * @param ?string $value
      * @throws InvalidArgumentException
      */
-    public static function ValidateClientIpValue(?string $value): void
+    public static function validateClientIpValue(?string $value): void
     {
         if (!$value || filter_var($value, FILTER_VALIDATE_IP) === false) {
             throw new InvalidArgumentException(self::MSG_INVALID_CLIENT_IPADDRESS, self::MSGCODE_BAD_PARAM);
@@ -97,14 +97,14 @@ abstract class BaseHandler
      * @param string $paramName The param-name to search for the value
      * @return ?string raw param value or null, if param is not set as GET or POST param
      */
-    public static function ReadRawParamFromGetOrPost($paramName): ?string
+    public static function readRawParamFromGetOrPost($paramName): ?string
     {
         $type = null;
-        $requestMethod = self::ReadParamToString($_SERVER, 'REQUEST_METHOD', FILTER_UNSAFE_RAW);
+        $requestMethod = self::readParamToString($_SERVER, 'REQUEST_METHOD', FILTER_UNSAFE_RAW);
         if ($requestMethod === 'GET') {
-            $type = self::ReadParamToString($_GET, $paramName, FILTER_UNSAFE_RAW);
+            $type = self::readParamToString($_GET, $paramName, FILTER_UNSAFE_RAW);
         } elseif ($requestMethod === 'POST') {
-            $type = self::ReadParamToString($_POST, $paramName, FILTER_UNSAFE_RAW);
+            $type = self::readParamToString($_POST, $paramName, FILTER_UNSAFE_RAW);
         }
         return $type;
     }
@@ -118,7 +118,7 @@ abstract class BaseHandler
      * @param int $filterId one of the filter_var_array filters to apply
      * @return ?string filtered value or null, if param is not set, or filter does not match
      */
-    protected static function ReadParamToString(array $input, string $paramName, int $filterId): ?string
+    protected static function readParamToString(array $input, string $paramName, int $filterId): ?string
     {
         assert(!empty($paramName));
         $filter = filter_var_array($input, [
@@ -138,9 +138,9 @@ abstract class BaseHandler
      * @param string $paramName
      * @return ?string or null if value is not a valid email address.
      */
-    public static function ReadEmailParam(string $paramName): ?string
+    public static function readEmailParam(string $paramName): ?string
     {
-        return self::ReadParamToString($_POST, $paramName, FILTER_VALIDATE_EMAIL);
+        return self::readParamToString($_POST, $paramName, FILTER_VALIDATE_EMAIL);
     }
 
     /**
@@ -151,7 +151,7 @@ abstract class BaseHandler
      * @param string $errMessage
      * @throws InvalidArgumentException
      */
-    public static function ValidateEmailValue(?string $value, ?string $errMessage = null): void
+    public static function validateEmailValue(?string $value, ?string $errMessage = null): void
     {
         if (!$value || filter_var($value, FILTER_VALIDATE_EMAIL) === false) {
             if (!$errMessage) {
@@ -169,7 +169,7 @@ abstract class BaseHandler
      * @param Logger $logger
      * @throws InvalidArgumentException
      */
-    public static function ValidateEmailAgainstBlacklist(
+    public static function validateEmailAgainstBlacklist(
         string $email,
         ForumDb $db,
         Logger $logger
@@ -209,7 +209,7 @@ abstract class BaseHandler
      * @param string $errMessage
      * @throws InvalidArgumentException
      */
-    public static function ValidateHttpUrlValue(
+    public static function validateHttpUrlValue(
         ?string $value,
         ?string $errMessage = null,
         bool $requirePath = false
@@ -235,7 +235,7 @@ abstract class BaseHandler
      * @param string $paramName
      * @return int or null or if no such param exist
      */
-    public static function ReadIntParam(string $paramName): ?int
+    public static function readIntParam(string $paramName): ?int
     {
         assert(!empty($paramName));
         $filter = filter_var_array($_POST, [
@@ -254,7 +254,7 @@ abstract class BaseHandler
      * @param string $errorMsg
      * @throws InvalidArgumentException
      */
-    public static function ValidateIntParam(?int $value, string $errorMsg): void
+    public static function validateIntParam(?int $value, string $errorMsg): void
     {
         assert(!empty($errorMsg));
         if (!is_int($value)) {
@@ -268,9 +268,9 @@ abstract class BaseHandler
      * @return string or null if no such parameter exists, or the value is
      * empty.
      */
-    public static function ReadStringParam(string $paramName): ?string
+    public static function readStringParam(string $paramName): ?string
     {
-        $value = self::ReadParamToString($_POST, $paramName, FILTER_UNSAFE_RAW);
+        $value = self::readParamToString($_POST, $paramName, FILTER_UNSAFE_RAW);
         return $value;
     }
 
@@ -283,7 +283,7 @@ abstract class BaseHandler
      * @param int $minLength
      * @throws InvalidArgumentException
      */
-    public static function ValidateStringParam(?string $value, string $errorMsg, int $minLength = 0): void
+    public static function validateStringParam(?string $value, string $errorMsg, int $minLength = 0): void
     {
         assert(!empty($errorMsg));
         if (!is_string($value) || !trim($value)) {
@@ -295,31 +295,31 @@ abstract class BaseHandler
     }
 
     /**
-     * Reads the client IP address, then calls ReadParams() and
-     * ValidateParams(), followed by HandleRequestImpl().
+     * Reads the client IP address, then calls readParams() and
+     * validateParams(), followed by handleRequestImpl().
      * If any of the methods throws an InvalidArgumentException, that
      * IllegalArgumentExeption is remembered as member lastException and then
      * re-thrown.
-     * If HandleRequestImpl() succeeds, the internal lastException member
+     * If handleRequestImpl() succeeds, the internal lastException member
      * is cleared.
      * @param ForumDb $db Database.
      * @throws InvalidArgumentException
      */
-    public function HandleRequest(ForumDb $db): void
+    public function handleRequest(ForumDb $db): void
     {
         try {
             // Always need client-ip
-            $this->clientIpAddress = self::ReadClientIpParam();
+            $this->clientIpAddress = self::readClientIpParam();
 
             // First read all values, so they can be written back to the user
             // in case of failue
-            $this->ReadParams();
+            $this->readParams();
             // and now validate
-            self::ValidateClientIpValue($this->clientIpAddress);
-            $this->ValidateParams();
+            self::validateClientIpValue($this->clientIpAddress);
+            $this->validateParams();
 
             // And handle. remember an eventually occuring exception
-            $this->HandleRequestImpl($db);
+            $this->handleRequestImpl($db);
             $this->lastException = null;
         } catch (InvalidArgumentException $ex) {
             $this->lastException = $ex;
@@ -330,9 +330,9 @@ abstract class BaseHandler
     /**
      * @return boolean True if during last run of HandleRequest an
      * InvalidArgumentException was thrown and that Exception was not cleared
-     * using ClearLastException().
+     * using clearLastException().
      */
-    public function HasException(): bool
+    public function hasException(): bool
     {
         return $this->lastException !== null;
     }
@@ -340,7 +340,7 @@ abstract class BaseHandler
     /**
      * @return IllegalArgumentExeption or null
      */
-    public function GetLastException(): ?InvalidArgumentException
+    public function getLastException(): ?InvalidArgumentException
     {
         return $this->lastException;
     }
@@ -348,7 +348,7 @@ abstract class BaseHandler
     /**
      * Sets internal member lastExeption to null
      */
-    public function ClearLastException(): void
+    public function clearLastException(): void
     {
         $this->lastException = null;
     }
@@ -356,19 +356,19 @@ abstract class BaseHandler
     /**
      * Read all parameters required, but avoid throwing an Exception.
      */
-    abstract protected function ReadParams(): void;
+    abstract protected function readParams(): void;
 
     /**
      * Check that parameters are (syntactically) valid, throw an
      * InvalidArgumentException if not.
      */
-    abstract protected function ValidateParams(): void;
+    abstract protected function validateParams(): void;
 
     /**
      * Handle the request using the previously read and validated
      * parameters.
      */
-    abstract protected function HandleRequestImpl(ForumDb $db): void;
+    abstract protected function handleRequestImpl(ForumDb $db): void;
 
     protected ?string $clientIpAddress;
 

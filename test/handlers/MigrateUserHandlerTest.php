@@ -32,9 +32,9 @@ final class MigrateUserHandlerTest extends TestCase
         $this->user->method('GetNick')->willReturn('foo');
         $this->user->method('GetId')->willReturn(10);
         $this->muh = new MigrateUserHandler();
-        $this->muh->SetLogger($this->logger);
-        $this->muh->SetMailer($this->mailer);
-        //$this->ueh->SetMailer($this->mailer);
+        $this->muh->setLogger($this->logger);
+        $this->muh->setMailer($this->mailer);
+        //$this->ueh->setMailer($this->mailer);
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
         // must always reset all previously set $_POST entries
@@ -53,7 +53,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->expectExceptionMessage(MigrateUserHandler::MSG_AUTH_FAIL);
         $this->expectExceptionCode(MigrateUserHandler::MSGCODE_BAD_PARAM);
 
-        $this->muh->HandleRequest($this->db);
+        $this->muh->handleRequest($this->db);
     }
 
     public function testMigrateUser_failsIfNoOldPasswordPassed(): void
@@ -68,7 +68,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->expectExceptionMessage(MigrateUserHandler::MSG_AUTH_FAIL);
         $this->expectExceptionCode(MigrateUserHandler::MSGCODE_BAD_PARAM);
 
-        $this->muh->HandleRequest($this->db);
+        $this->muh->handleRequest($this->db);
     }
 
     public function testMigrateUser_failsIfNewPasswortTooShort(): void
@@ -85,7 +85,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->expectExceptionMessage(MigrateUserHandler::MSG_PASSWORD_TOO_SHORT);
         $this->expectExceptionCode(MigrateUserHandler::MSGCODE_BAD_PARAM);
 
-        $this->muh->HandleRequest($this->db);
+        $this->muh->handleRequest($this->db);
     }
 
     public function testMigrateUser_failsIfNewPasswordsDoNotMatch(): void
@@ -100,7 +100,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->expectExceptionMessage(MigrateUserHandler::MSG_PASSWORDS_NOT_MATCH);
         $this->expectExceptionCode(MigrateUserHandler::MSGCODE_BAD_PARAM);
 
-        $this->muh->HandleRequest($this->db);
+        $this->muh->handleRequest($this->db);
     }
 
     public function testMigrateUser_failsIfNoSuchNick(): void
@@ -123,7 +123,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->expectExceptionMessage(MigrateUserHandler::MSG_AUTH_FAIL);
         $this->expectExceptionCode(MigrateUserHandler::MSGCODE_AUTH_FAIL);
 
-        $this->muh->HandleRequest($this->db);
+        $this->muh->handleRequest($this->db);
     }
 
     public function testMigrateUser_failsIfUserIsDummy(): void
@@ -147,7 +147,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->expectExceptionMessage(MigrateUserHandler::MSG_AUTH_FAIL);
         $this->expectExceptionCode(MigrateUserHandler::MSGCODE_AUTH_FAIL);
 
-        $this->muh->HandleRequest($this->db);
+        $this->muh->handleRequest($this->db);
     }
 
     public function testMigrateUser_failsIfMigrationNotRequired(): void
@@ -172,7 +172,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->expectExceptionMessage(MigrateUserHandler::MSG_ALREADY_MIGRATED);
         $this->expectExceptionCode(MigrateUserHandler::MSGCODE_BAD_PARAM);
 
-        $this->muh->HandleRequest($this->db);
+        $this->muh->handleRequest($this->db);
     }
 
     public function testMigrateUser_failsIfOldPasswordDoesNotMatch(): void
@@ -198,7 +198,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->expectExceptionMessage(MigrateUserHandler::MSG_AUTH_FAIL);
         $this->expectExceptionCode(MigrateUserHandler::MSGCODE_AUTH_FAIL);
 
-        $this->muh->HandleRequest($this->db);
+        $this->muh->handleRequest($this->db);
     }
 
     public function testMigrateUser_failsIfMailUsedForOtherUser(): void
@@ -239,7 +239,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->expectExceptionMessage(MigrateUserHandler::MSG_EMAIL_NOT_UNIQUE);
         $this->expectExceptionCode(MigrateUserHandler::MSGCODE_BAD_PARAM);
 
-        $this->muh->HandleRequest($this->db);
+        $this->muh->handleRequest($this->db);
     }
 
     public function testMigrateUser_failsIfEmailBlacklisted(): void
@@ -272,7 +272,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->expectExceptionMessage(MigrateUserHandler::MSG_EMAIL_BLACKLISTED . 'You are blacklisted');
         $this->expectExceptionCode(MigrateUserHandler::MSGCODE_BAD_PARAM);
 
-        $this->muh->HandleRequest($this->db);
+        $this->muh->handleRequest($this->db);
     }
 
     public function testMigrateUser_newMailMatchesOldMail(): void
@@ -316,7 +316,7 @@ final class MigrateUserHandlerTest extends TestCase
         $this->mailer->expects($this->once())->method('SendMigrateUserConfirmMessage')
         ->with('foo@bar.com', 'foo', 'confirm-code');
 
-        $this->muh->HandleRequest($this->db);
+        $this->muh->handleRequest($this->db);
     }
 
     public function testMigrateUser_noMailSetBeforeAndMailNotUsedSomewhereElse(): void
@@ -360,6 +360,6 @@ final class MigrateUserHandlerTest extends TestCase
         $this->mailer->expects($this->once())->method('SendMigrateUserConfirmMessage')
         ->with('foo@bar.com', 'foo', 'confirm-code');
 
-        $this->muh->HandleRequest($this->db);
+        $this->muh->handleRequest($this->db);
     }
 }

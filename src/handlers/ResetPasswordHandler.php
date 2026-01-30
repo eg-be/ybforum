@@ -54,17 +54,17 @@ class ResetPasswordHandler extends BaseHandler
         $this->nick = null;
     }
 
-    protected function ReadParams(): void
+    protected function readParams(): void
     {
         // Try to read email or nick param as email first
-        $this->email = self::ReadEmailParam(self::PARAM_EMAIL_OR_NICK);
+        $this->email = self::readEmailParam(self::PARAM_EMAIL_OR_NICK);
         if (!$this->email) {
             // try to read as nick
-            $this->nick = self::ReadStringParam(self::PARAM_EMAIL_OR_NICK);
+            $this->nick = self::readStringParam(self::PARAM_EMAIL_OR_NICK);
         }
     }
 
-    protected function ValidateParams(): void
+    protected function validateParams(): void
     {
         // need either email or password
         if (!$this->email && !$this->nick) {
@@ -72,7 +72,7 @@ class ResetPasswordHandler extends BaseHandler
         }
     }
 
-    protected function HandleRequestImpl(ForumDb $db): void
+    protected function handleRequestImpl(ForumDb $db): void
     {
         if (is_null($this->logger)) {
             $this->logger = new Logger($db);
@@ -120,8 +120,8 @@ class ResetPasswordHandler extends BaseHandler
             $this->mailer = new Mailer();
         }
         if (!$this->mailer->SendResetPasswordMessage(
-            $user->GetEmail(),
-            $user->GetNick(),
+            $user->getEmail(),
+            $user->getNick(),
             $confirmationCode
         )) {
             $db->RemoveResetPasswordCode($user);
@@ -129,22 +129,22 @@ class ResetPasswordHandler extends BaseHandler
         }
     }
 
-    public function GetNick(): ?string
+    public function getNick(): ?string
     {
         return $this->nick;
     }
 
-    public function GetEmail(): ?string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    public function SetLogger(Logger $logger): void
+    public function setLogger(Logger $logger): void
     {
         $this->logger = $logger;
     }
 
-    public function SetMailer(Mailer $mailer): void
+    public function setMailer(Mailer $mailer): void
     {
         $this->mailer = $mailer;
     }

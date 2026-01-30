@@ -42,7 +42,7 @@ try {
     if (!$post || $post->IsHidden()) {
         return;
     }
-    $parentPostId = $post->GetParentPostId();
+    $parentPostId = $post->getParentPostId();
     $parentPost = null;
     if ($parentPostId) {
         $parentPost = $db->LoadPost($parentPostId);

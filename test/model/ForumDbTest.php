@@ -232,7 +232,7 @@ final class ForumDbTest extends BaseTest
             $minPostId,
             $minPost->GetThreadId(), // we cannot know the created thread-id, read from db
             null,
-            $user->GetNick(),
+            $user->getNick(),
             $user->GetId(),
             'min-thread',
             null,
@@ -255,7 +255,7 @@ final class ForumDbTest extends BaseTest
             $allPostId,
             $allPost->GetThreadId(), // we cannot know the created thread-id, read from db
             null,
-            $user->GetNick(),
+            $user->getNick(),
             $user->GetId(),
             'all-thread',
             'content',
@@ -352,7 +352,7 @@ final class ForumDbTest extends BaseTest
             $minPostId,
             $parentPost->GetThreadId(), // must be part of parent-thread
             $parentPost->GetId(),
-            $user->GetNick(),
+            $user->getNick(),
             $user->GetId(),
             'min-post',
             null,
@@ -375,7 +375,7 @@ final class ForumDbTest extends BaseTest
             $allPostId,
             $parentPost->GetThreadId(), // must be part of parent-thread
             $parentPost->GetId(),
-            $user->GetNick(),
+            $user->getNick(),
             $user->GetId(),
             'all-post',
             'content',
@@ -855,7 +855,7 @@ final class ForumDbTest extends BaseTest
         // without the need to explicitly reload it:
         static::assertTrue($user->IsConfirmed());
         static::assertFalse($user->IsActive()); // still not active, only confiremd
-        static::assertSame($newMail, $user->GetEmail());
+        static::assertSame($newMail, $user->getEmail());
         // confirmation-timestamp must be somewhere around now
         static::assertEqualsWithDelta(
             $now->getTimestamp(),
@@ -1131,7 +1131,7 @@ final class ForumDbTest extends BaseTest
         $this->db->UpdateUserEmail($user101, 'bla@mail');
         // note: User object must reflect the change without reloading
         static::assertNotNull($user101);
-        static::assertSame('bla@mail', $user101->GetEmail());
+        static::assertSame('bla@mail', $user101->getEmail());
     }
 
     public function testActivateUser(): void
@@ -1370,7 +1370,7 @@ final class ForumDbTest extends BaseTest
         $postA1_2_1 = $this->db->LoadPost(25);
         static::assertNotNull($postA1_2_1);
         static::assertFalse($postA1_2_1->IsHidden());
-        static::assertSame(23, $postA1_2_1->GetParentPostId());
+        static::assertSame(23, $postA1_2_1->getParentPostId());
         // now hide that tree by hiding the parent
         $this->db->SetPostVisible(23, false);
         $postA1_2 = $this->db->LoadPost(23);
@@ -1440,12 +1440,12 @@ final class ForumDbTest extends BaseTest
         static::assertCount(1, $admins);
         $adminUser = $admins[0];
         static::assertEquals(1, $adminUser->GetId());
-        static::assertEquals('admin', $adminUser->GetNick());
+        static::assertEquals('admin', $adminUser->getNick());
         static::assertTrue($adminUser->IsAdmin());
         static::assertTrue($adminUser->IsActive());
     }
 
-    public static function providerLoadUser(): array
+    public static function providerloadUser(): array
     {
         $admin = self::mockUser(
             1,
@@ -1508,7 +1508,7 @@ final class ForumDbTest extends BaseTest
     #[DataProvider('providerLoadUser')]
     public function testLoadUserByNick(User $ref): void
     {
-        $user = $this->db->LoadUserByNick($ref->GetNick());
+        $user = $this->db->LoadUserByNick($ref->getNick());
         static::assertNotNull($user);
         static::assertObjectEquals($ref, $user);
     }
@@ -1525,7 +1525,7 @@ final class ForumDbTest extends BaseTest
     #[DataProvider('providerLoadUser')]
     public function testLoadUserByEmail(User $ref): void
     {
-        $user = $this->db->LoadUserByEmail($ref->GetEmail());
+        $user = $this->db->LoadUserByEmail($ref->getEmail());
         static::assertNotNull($user);
         static::assertObjectEquals($ref, $user);
     }
@@ -1626,33 +1626,33 @@ final class ForumDbTest extends BaseTest
         // in the correct order, which is reversed, as that makes rendering easier
         // (newest threads shall appear first)
         static::assertEquals(4, $threads[0][0]->GetThreadId());
-        static::assertEquals('Thread 4', $threads[0][0]->GetTitle());
+        static::assertEquals('Thread 4', $threads[0][0]->getTitle());
         static::assertEquals(3, $threads[1][0]->GetThreadId());
-        static::assertEquals('Thread 3', $threads[1][0]->GetTitle());
+        static::assertEquals('Thread 3', $threads[1][0]->getTitle());
         static::assertEquals(2, $threads[2][0]->GetThreadId());
-        static::assertEquals('Thread 2', $threads[2][0]->GetTitle());
+        static::assertEquals('Thread 2', $threads[2][0]->getTitle());
         static::assertEquals(1, $threads[3][0]->GetThreadId());
-        static::assertEquals('Thread 1', $threads[3][0]->GetTitle());
+        static::assertEquals('Thread 1', $threads[3][0]->getTitle());
 
         // check that Thread 3 is complete and ready to be rendered:
         $thread3 = $threads[1];
         static::assertCount(8, $thread3);
         static::assertEquals(3, $threads[1][0]->GetThreadId());
-        static::assertEquals('Thread 3', $thread3[0]->GetTitle());
+        static::assertEquals('Thread 3', $thread3[0]->getTitle());
         static::assertEquals(0, $thread3[0]->GetIndent());
-        static::assertEquals('Thread 3 - A1', $thread3[1]->GetTitle());
+        static::assertEquals('Thread 3 - A1', $thread3[1]->getTitle());
         static::assertEquals(1, $thread3[1]->GetIndent());
-        static::assertEquals('Thread 3 - A1-1', $thread3[2]->GetTitle());
+        static::assertEquals('Thread 3 - A1-1', $thread3[2]->getTitle());
         static::assertEquals(2, $thread3[2]->GetIndent());
-        static::assertEquals('Thread 3 - A1-2', $thread3[3]->GetTitle());
+        static::assertEquals('Thread 3 - A1-2', $thread3[3]->getTitle());
         static::assertEquals(2, $thread3[3]->GetIndent());
-        static::assertEquals('Thread 3 - A1-2-1', $thread3[4]->GetTitle());
+        static::assertEquals('Thread 3 - A1-2-1', $thread3[4]->getTitle());
         static::assertEquals(3, $thread3[4]->GetIndent());
-        static::assertEquals('Thread 3 - A1-3', $thread3[5]->GetTitle());
+        static::assertEquals('Thread 3 - A1-3', $thread3[5]->getTitle());
         static::assertEquals(2, $thread3[5]->GetIndent());
-        static::assertEquals('Thread 3 - A2', $thread3[6]->GetTitle());
+        static::assertEquals('Thread 3 - A2', $thread3[6]->getTitle());
         static::assertEquals(1, $thread3[6]->GetIndent());
-        static::assertEquals('Thread 3 - A2-1', $thread3[7]->GetTitle());
+        static::assertEquals('Thread 3 - A2-1', $thread3[7]->getTitle());
         static::assertEquals(2, $thread3[7]->GetIndent());
     }
 
@@ -1676,29 +1676,29 @@ final class ForumDbTest extends BaseTest
         // in the correct order, which is reversed, as that makes rendering easier
         // (newest threads shall appear first)
         static::assertEquals(4, $threads[0][0]->GetThreadId());
-        static::assertEquals('Thread 4', $threads[0][0]->GetTitle());
+        static::assertEquals('Thread 4', $threads[0][0]->getTitle());
         static::assertEquals(3, $threads[1][0]->GetThreadId());
-        static::assertEquals('Thread 3', $threads[1][0]->GetTitle());
+        static::assertEquals('Thread 3', $threads[1][0]->getTitle());
         static::assertEquals(2, $threads[2][0]->GetThreadId());
-        static::assertEquals('Thread 2', $threads[2][0]->GetTitle());
+        static::assertEquals('Thread 2', $threads[2][0]->getTitle());
         static::assertEquals(1, $threads[3][0]->GetThreadId());
-        static::assertEquals('Thread 1', $threads[3][0]->GetTitle());
+        static::assertEquals('Thread 1', $threads[3][0]->getTitle());
 
         // check that Thread 3 is complete and ready to be rendered:
         $thread3 = $threads[1];
         static::assertCount(6, $thread3);
         static::assertEquals(3, $threads[1][0]->GetThreadId());
-        static::assertEquals('Thread 3', $thread3[0]->GetTitle());
+        static::assertEquals('Thread 3', $thread3[0]->getTitle());
         static::assertEquals(0, $thread3[0]->GetIndent());
-        static::assertEquals('Thread 3 - A1', $thread3[1]->GetTitle());
+        static::assertEquals('Thread 3 - A1', $thread3[1]->getTitle());
         static::assertEquals(1, $thread3[1]->GetIndent());
-        static::assertEquals('Thread 3 - A1-1', $thread3[2]->GetTitle());
+        static::assertEquals('Thread 3 - A1-1', $thread3[2]->getTitle());
         static::assertEquals(2, $thread3[2]->GetIndent());
-        static::assertEquals('Thread 3 - A1-3', $thread3[3]->GetTitle());
+        static::assertEquals('Thread 3 - A1-3', $thread3[3]->getTitle());
         static::assertEquals(2, $thread3[3]->GetIndent());
-        static::assertEquals('Thread 3 - A2', $thread3[4]->GetTitle());
+        static::assertEquals('Thread 3 - A2', $thread3[4]->getTitle());
         static::assertEquals(1, $thread3[4]->GetIndent());
-        static::assertEquals('Thread 3 - A2-1', $thread3[5]->GetTitle());
+        static::assertEquals('Thread 3 - A2-1', $thread3[5]->getTitle());
         static::assertEquals(2, $thread3[5]->GetIndent());
     }
 
@@ -1726,13 +1726,13 @@ final class ForumDbTest extends BaseTest
 
         $replies_3 = $this->db->LoadPostReplies($post_3, false);
         static::assertCount(7, $replies_3);
-        static::assertEquals('Thread 3 - A1', $replies_3[0]->GetTitle());
-        static::assertEquals('Thread 3 - A1-1', $replies_3[1]->GetTitle());
-        static::assertEquals('Thread 3 - A1-2', $replies_3[2]->GetTitle());
-        static::assertEquals('Thread 3 - A1-2-1', $replies_3[3]->GetTitle());
-        static::assertEquals('Thread 3 - A1-3', $replies_3[4]->GetTitle());
-        static::assertEquals('Thread 3 - A2', $replies_3[5]->GetTitle());
-        static::assertEquals('Thread 3 - A2-1', $replies_3[6]->GetTitle());
+        static::assertEquals('Thread 3 - A1', $replies_3[0]->getTitle());
+        static::assertEquals('Thread 3 - A1-1', $replies_3[1]->getTitle());
+        static::assertEquals('Thread 3 - A1-2', $replies_3[2]->getTitle());
+        static::assertEquals('Thread 3 - A1-2-1', $replies_3[3]->getTitle());
+        static::assertEquals('Thread 3 - A1-3', $replies_3[4]->getTitle());
+        static::assertEquals('Thread 3 - A2', $replies_3[5]->getTitle());
+        static::assertEquals('Thread 3 - A2-1', $replies_3[6]->getTitle());
 
         // only a smaller part of the answers
         $post_20 = static::createStub(Post::class);
@@ -1743,10 +1743,10 @@ final class ForumDbTest extends BaseTest
 
         $replies_20 = $this->db->LoadPostReplies($post_20, false);
         static::assertCount(4, $replies_20);
-        static::assertEquals('Thread 3 - A1-1', $replies_20[0]->GetTitle());
-        static::assertEquals('Thread 3 - A1-2', $replies_20[1]->GetTitle());
-        static::assertEquals('Thread 3 - A1-2-1', $replies_20[2]->GetTitle());
-        static::assertEquals('Thread 3 - A1-3', $replies_20[3]->GetTitle());
+        static::assertEquals('Thread 3 - A1-1', $replies_20[0]->getTitle());
+        static::assertEquals('Thread 3 - A1-2', $replies_20[1]->getTitle());
+        static::assertEquals('Thread 3 - A1-2-1', $replies_20[2]->getTitle());
+        static::assertEquals('Thread 3 - A1-3', $replies_20[3]->getTitle());
     }
 
     public function testLoadPostReplies_HiddenPathNotIncluded(): void
@@ -1766,13 +1766,13 @@ final class ForumDbTest extends BaseTest
 
         $replies_3 = $this->db->LoadPostReplies($post_3, true);
         static::assertCount(7, $replies_3);
-        static::assertEquals('Thread 3 - A1', $replies_3[0]->GetTitle());
-        static::assertEquals('Thread 3 - A1-1', $replies_3[1]->GetTitle());
-        static::assertEquals('Thread 3 - A1-2', $replies_3[2]->GetTitle());
-        static::assertEquals('Thread 3 - A1-2-1', $replies_3[3]->GetTitle());
-        static::assertEquals('Thread 3 - A1-3', $replies_3[4]->GetTitle());
-        static::assertEquals('Thread 3 - A2', $replies_3[5]->GetTitle());
-        static::assertEquals('Thread 3 - A2-1', $replies_3[6]->GetTitle());
+        static::assertEquals('Thread 3 - A1', $replies_3[0]->getTitle());
+        static::assertEquals('Thread 3 - A1-1', $replies_3[1]->getTitle());
+        static::assertEquals('Thread 3 - A1-2', $replies_3[2]->getTitle());
+        static::assertEquals('Thread 3 - A1-2-1', $replies_3[3]->getTitle());
+        static::assertEquals('Thread 3 - A1-3', $replies_3[4]->getTitle());
+        static::assertEquals('Thread 3 - A2', $replies_3[5]->getTitle());
+        static::assertEquals('Thread 3 - A2-1', $replies_3[6]->getTitle());
 
         // top-level post 'Thread 3', has 5 (sub-) children, if hidden path is not included
         $post_3 = static::createStub(Post::class);
@@ -1783,11 +1783,11 @@ final class ForumDbTest extends BaseTest
 
         $replies_3 = $this->db->LoadPostReplies($post_3, false);
         static::assertCount(5, $replies_3);
-        static::assertEquals('Thread 3 - A1', $replies_3[0]->GetTitle());
-        static::assertEquals('Thread 3 - A1-1', $replies_3[1]->GetTitle());
-        static::assertEquals('Thread 3 - A1-3', $replies_3[2]->GetTitle());
-        static::assertEquals('Thread 3 - A2', $replies_3[3]->GetTitle());
-        static::assertEquals('Thread 3 - A2-1', $replies_3[4]->GetTitle());
+        static::assertEquals('Thread 3 - A1', $replies_3[0]->getTitle());
+        static::assertEquals('Thread 3 - A1-1', $replies_3[1]->getTitle());
+        static::assertEquals('Thread 3 - A1-3', $replies_3[2]->getTitle());
+        static::assertEquals('Thread 3 - A2', $replies_3[3]->getTitle());
+        static::assertEquals('Thread 3 - A2-1', $replies_3[4]->getTitle());
     }
 
     public function testLoadRecentPosts(): void
@@ -1797,11 +1797,11 @@ final class ForumDbTest extends BaseTest
 
         $recent = $this->db->LoadRecentPosts(5);
         static::assertCount(5, $recent);
-        static::assertEquals('Thread 5 - A1', $recent[0]->GetTitle());
-        static::assertEquals('Thread 3 - A1-3', $recent[1]->GetTitle());
-        static::assertEquals('Thread 3 - A1-2-1', $recent[2]->GetTitle());
-        static::assertEquals('Thread 3 - A2-1', $recent[3]->GetTitle());
-        static::assertEquals('Thread 3 - A1-2', $recent[4]->GetTitle());
+        static::assertEquals('Thread 5 - A1', $recent[0]->getTitle());
+        static::assertEquals('Thread 3 - A1-3', $recent[1]->getTitle());
+        static::assertEquals('Thread 3 - A1-2-1', $recent[2]->getTitle());
+        static::assertEquals('Thread 3 - A2-1', $recent[3]->getTitle());
+        static::assertEquals('Thread 3 - A1-2', $recent[4]->getTitle());
     }
 
     public static function providerPostMock(): array

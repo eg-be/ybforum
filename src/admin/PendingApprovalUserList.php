@@ -29,7 +29,7 @@ class PendingApprovalUserList
         $this->m_clientIpAddress = filter_input(INPUT_SERVER, 'REMOTE_ADDR', FILTER_VALIDATE_IP);
     }
 
-    public function HandleActionsAndGetResultDiv(ForumDb $db): string
+    public function handleActionsAndGetResultDiv(ForumDb $db): string
     {
         try {
             $resultDiv = '';
@@ -42,20 +42,20 @@ class PendingApprovalUserList
                 $sent = false;
                 if ($userActionValue === self::VALUE_ACCEPT && $user) {
                     $db->ActivateUser($user);
-                    $sent = $mailer->SendNotifyUserAcceptedEmail($user->GetEmail(), $user->GetNick());
+                    $sent = $mailer->SendNotifyUserAcceptedEmail($user->getEmail(), $user->getNick());
                     $logger->LogMessageWithUserId(LogType::LOG_NOTIFIED_USER_ACCEPTED, $user);
                     $resultDiv = '<div class="actionSucceeded">Benutzer '
-                            . $user->GetNick() . ' freigeschaltet (Mail sent: '
+                            . $user->getNick() . ' freigeschaltet (Mail sent: '
                             . ($sent ? 'Ja' : 'Nein') . ')</div>';
                 } elseif ($userActionValue === self::VALUE_DENY && $user) {
                     $db->DeleteUser($user);
                     $sent = false;
-                    //$sent = $mailer->SendNotifyUserDeniedEmail($user->GetEmail());
+                    //$sent = $mailer->SendNotifyUserDeniedEmail($user->getEmail());
                     if ($sent) {
-                        $logger->LogMessage(LogType::LOG_NOTIFIED_USER_DENIED, 'Deleted user: ' . $user->GetNick() . '(' . $user->GetId() . ')');
+                        $logger->LogMessage(LogType::LOG_NOTIFIED_USER_DENIED, 'Deleted user: ' . $user->getNick() . '(' . $user->GetId() . ')');
                     }
                     return '<div class="actionSucceeded">Benutzer '
-                            . $user->GetNick() . ' abgelehnt (Mail sent: '
+                            . $user->getNick() . ' abgelehnt (Mail sent: '
                             . ($sent ? 'Ja' : 'Nein') . ')</div>';
                 }
             }
@@ -65,7 +65,7 @@ class PendingApprovalUserList
         }
     }
 
-    public function RenderHtmlDiv(ForumDb $db): string
+    public function renderHtmlDiv(ForumDb $db): string
     {
         $haveSome = false;
         $query = 'SELECT user_table.iduser, nick, email, registration_ts, '

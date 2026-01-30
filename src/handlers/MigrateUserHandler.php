@@ -68,23 +68,23 @@ class MigrateUserHandler extends BaseHandler
         $this->newEmail = null;
     }
 
-    protected function ReadParams(): void
+    protected function readParams(): void
     {
         // Read params
-        $this->nick = self::ReadStringParam(self::PARAM_NICK);
-        $this->oldPassword = self::ReadStringParam(self::PARAM_OLDPASS);
-        $this->newPassword = self::ReadStringParam(self::PARAM_NEWPASS);
-        $this->confirmNewPassword = self::ReadStringParam(self::PARAM_CONFIRMNEWPASS);
-        $this->newEmail = self::ReadEmailParam(self::PARAM_NEWEMAIL);
+        $this->nick = self::readStringParam(self::PARAM_NICK);
+        $this->oldPassword = self::readStringParam(self::PARAM_OLDPASS);
+        $this->newPassword = self::readStringParam(self::PARAM_NEWPASS);
+        $this->confirmNewPassword = self::readStringParam(self::PARAM_CONFIRMNEWPASS);
+        $this->newEmail = self::readEmailParam(self::PARAM_NEWEMAIL);
     }
 
-    protected function ValidateParams(): void
+    protected function validateParams(): void
     {
         // And validate the params
-        self::ValidateStringParam($this->nick, self::MSG_AUTH_FAIL);
-        self::ValidateStringParam($this->oldPassword, self::MSG_AUTH_FAIL);
-        self::ValidateStringParam($this->newPassword, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
-        self::ValidateEmailValue($this->newEmail);
+        self::validateStringParam($this->nick, self::MSG_AUTH_FAIL);
+        self::validateStringParam($this->oldPassword, self::MSG_AUTH_FAIL);
+        self::validateStringParam($this->newPassword, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
+        self::validateEmailValue($this->newEmail);
 
         // Passwords must match
         if ($this->newPassword !== $this->confirmNewPassword) {
@@ -92,7 +92,7 @@ class MigrateUserHandler extends BaseHandler
         }
     }
 
-    protected function HandleRequestImpl(ForumDb $db): void
+    protected function handleRequestImpl(ForumDb $db): void
     {
         // First: Check if there is a matching (real) user:
         $user = $db->LoadUserByNick($this->nick);
@@ -126,7 +126,7 @@ class MigrateUserHandler extends BaseHandler
             throw new InvalidArgumentException(self::MSG_EMAIL_NOT_UNIQUE, parent::MSGCODE_BAD_PARAM);
         }
         // check that the new email is not blacklisted
-        self::ValidateEmailAgainstBlacklist($this->newEmail, $db, $this->logger);
+        self::validateEmailAgainstBlacklist($this->newEmail, $db, $this->logger);
         // And prepare to migrate
         $confirmCode = $db->RequestConfirmUserCode(
             $user,
@@ -145,22 +145,22 @@ class MigrateUserHandler extends BaseHandler
         }
     }
 
-    public function GetNick(): ?string
+    public function getNick(): ?string
     {
         return $this->nick;
     }
 
-    public function GetNewEmail(): ?string
+    public function getNewEmail(): ?string
     {
         return $this->newEmail;
     }
 
-    public function SetLogger(Logger $logger): void
+    public function setLogger(Logger $logger): void
     {
         $this->logger = $logger;
     }
 
-    public function SetMailer(Mailer $mailer): void
+    public function setMailer(Mailer $mailer): void
     {
         $this->mailer = $mailer;
     }

@@ -17,7 +17,7 @@ require_once __DIR__ . '/../model/ForumDb.php';
  */
 class DeactivatedUserList
 {
-    public function RenderHtmlDiv(ForumDb $db): string
+    public function renderHtmlDiv(ForumDb $db): string
     {
         $haveSome = false;
         $query = 'SELECT d.iduser AS deactivated_id, '

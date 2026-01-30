@@ -41,8 +41,8 @@ try {
         // Try to submit passed post data
         try {
             $postEntryHandler = new PostEntryHandler();
-            $postEntryHandler->HandleRequest($db);
-            $newPostId = $postEntryHandler->GetNewPostId();
+            $postEntryHandler->handleRequest($db);
+            $newPostId = $postEntryHandler->getNewPostId();
             // posting succeeded
             session_destroy();
             header('Location: showentry.php?idpost=' . $newPostId);
@@ -52,13 +52,13 @@ try {
             // requested to migrate move on to migrate user page
             if ($ex->GetMessage() === PostEntryHandler::MSG_MIGRATION_REQUIRED) {
                 // If we know that we need to migrate, we can also pass in some values for email and nick
-                $user = $db->LoadUserByNick($postEntryHandler->GetNick());
+                $user = $db->LoadUserByNick($postEntryHandler->getNick());
                 // Remember the current post data
                 // But clear the last set exception, as that will hold
                 // a stacktrace with some pdo object
-                $postEntryHandler->ClearLastException();
+                $postEntryHandler->clearLastException();
                 $_SESSION['posthandler'] = $postEntryHandler;
-                header('Location: migrateuser.php?source=postentry.php&nick=' . urlencode($user->GetNick()) . '&email=' . urlencode($user->GetEmail()));
+                header('Location: migrateuser.php?source=postentry.php&nick=' . urlencode($user->getNick()) . '&email=' . urlencode($user->getEmail()));
                 exit;
             }
         }
@@ -67,7 +67,7 @@ try {
         if (isset($_SESSION['posthandler'])) {
             $postEntryHandler = $_SESSION['posthandler'];
             unset($_SESSION['posthandler']);
-            $parentPostId = $postEntryHandler->GetParentPostId();
+            $parentPostId = $postEntryHandler->getParentPostId();
             if ($parentPostId > 0) {
                 $parentPost = $db->LoadPost($parentPostId);
             }
@@ -126,8 +126,8 @@ try {
         <hr>
         <?php
 try {
-    if ($postEntryHandler && $postEntryHandler->HasException()) {
-        $postException = $postEntryHandler->GetLastException();
+    if ($postEntryHandler && $postEntryHandler->hasException()) {
+        $postException = $postEntryHandler->getLastException();
         echo '<div id="status" class="fullwidthcenter" style="color: red;">'
             . '<span class="fbold">Fehler: </span>'
             . $postException->GetMessage()

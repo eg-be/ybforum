@@ -55,22 +55,22 @@ class UpdateEmailHandler extends BaseHandler
         $this->newEmail = null;
     }
 
-    protected function ReadParams(): void
+    protected function readParams(): void
     {
         // Read params
-        $this->newEmail = self::ReadEmailParam(self::PARAM_NEWEMAIL);
+        $this->newEmail = self::readEmailParam(self::PARAM_NEWEMAIL);
     }
 
-    protected function ValidateParams(): void
+    protected function validateParams(): void
     {
-        self::ValidateEmailValue($this->newEmail);
+        self::validateEmailValue($this->newEmail);
         // Email must be different from current email
-        if ($this->user->GetEmail() === $this->newEmail) {
+        if ($this->user->getEmail() === $this->newEmail) {
             throw new InvalidArgumentException(self::MSG_EMAIL_NOT_DIFFERENT, parent::MSGCODE_BAD_PARAM);
         }
     }
 
-    protected function HandleRequestImpl(ForumDb $db): void
+    protected function handleRequestImpl(ForumDb $db): void
     {
         // Check that this email address is not already used within some other
         // account
@@ -90,18 +90,18 @@ class UpdateEmailHandler extends BaseHandler
         if (is_null($this->mailer)) {
             $this->mailer = new Mailer();
         }
-        if (!$this->mailer->SendUpdateEmailConfirmMessage($this->newEmail, $this->user->GetNick(), $confirmCode)) {
+        if (!$this->mailer->SendUpdateEmailConfirmMessage($this->newEmail, $this->user->getNick(), $confirmCode)) {
             $db->RemoveUpdateEmailCode($this->user);
             throw new InvalidArgumentException(self::MSG_SENDING_CONFIRMMAIL_FAILED, parent::MSGCODE_INTERNAL_ERROR);
         }
     }
 
-    public function GetNewEmail(): ?string
+    public function getNewEmail(): ?string
     {
         return $this->newEmail;
     }
 
-    public function SetMailer(Mailer $mailer): void
+    public function setMailer(Mailer $mailer): void
     {
         $this->mailer = $mailer;
     }

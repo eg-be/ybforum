@@ -18,7 +18,7 @@ require_once __DIR__ . '/../model/ForumDb.php';
  */
 class LogEntryList
 {
-    public function RenderHtmlDiv(ForumDb $db, int $maxIdLogValue = 0): string
+    public function renderHtmlDiv(ForumDb $db, int $maxIdLogValue = 0): string
     {
         $haveSome = false;
         $query = 'SELECT l.idlog AS idlog, '

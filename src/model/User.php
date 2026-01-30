@@ -70,10 +70,10 @@ class User
     public function GetMinimalUserInfoAsString(): string
     {
         $userStr = 'IdUser: ' . $this->GetId();
-        $userStr .= '; Nick: ' . $this->GetNick();
+        $userStr .= '; Nick: ' . $this->getNick();
         $userStr .= '; Email: ';
         if ($this->HasEmail()) {
-            $userStr .= $this->GetEmail();
+            $userStr .= $this->getEmail();
         } else {
             $userStr .= '<No Email set>';
         }
@@ -127,7 +127,7 @@ class User
     /**
      * @return string Field nick.
      */
-    public function GetNick(): string
+    public function getNick(): string
     {
         return $this->nick;
     }
@@ -143,7 +143,7 @@ class User
     /**
      * @return string or null. Field email.
      */
-    public function GetEmail(): ?string
+    public function getEmail(): ?string
     {
         return $this->email;
     }

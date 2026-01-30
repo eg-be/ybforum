@@ -50,7 +50,7 @@ class UserView
         }
     }
 
-    public function HandleActionsAndGetResultDiv(ForumDb $db, int $adminUserId): string
+    public function handleActionsAndGetResultDiv(ForumDb $db, int $adminUserId): string
     {
         try {
             $admin = $db->LoadUserById($adminUserId);
@@ -59,13 +59,13 @@ class UserView
             }
             $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
             if ($userActionValue === self::VALUE_ACTIVATE || $userActionValue === self::VALUE_DEACTIVATE) {
-                return $this->HandleActivateAction($db, $admin);
+                return $this->handleActivateAction($db, $admin);
             } elseif ($userActionValue === self::VALUE_SETADMIN || $userActionValue === self::VALUE_REMOVEADMIN) {
-                return $this->HandleAdminAction($db);
+                return $this->handleAdminAction($db);
             } elseif ($userActionValue === self::VALUE_MAKEDUMMY || $userActionValue === self::VALUE_CONFIRM_MAKE_DUMMY) {
-                return $this->HandleDummyAction($db);
+                return $this->handleDummyAction($db);
             } elseif ($userActionValue === self::VALUE_DELETE) {
-                return $this->HandleDeleteAction($db);
+                return $this->handleDeleteAction($db);
             } else {
                 return '';
             }
@@ -74,7 +74,7 @@ class UserView
         }
     }
 
-    private function HandleDummyAction(ForumDb $db): string
+    private function handleDummyAction(ForumDb $db): string
     {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if ($userActionValue === self::VALUE_MAKEDUMMY && $this->m_userId) {
@@ -83,10 +83,10 @@ class UserView
                     . 'wird der Stammposter (nahezu) unumkehrbar entfernt. Nur '
                     . 'sein Nick bleibt erhalten. Sicher dass der Stammposter '
                     . '<span class="fitalic">'
-                    . $user->GetNick()
+                    . $user->getNick()
                     . '</span> zu einem Dummy gemacht '
                     . 'werden soll?';
-            $htmlStr .= $this->GetConfirmTurnInfoDummyForm($user);
+            $htmlStr .= $this->getConfirmTurnInfoDummyForm($user);
             $htmlStr .= '</div>';
             return $htmlStr;
         } elseif ($userActionValue === self::VALUE_CONFIRM_MAKE_DUMMY && $this->m_userId) {
@@ -98,7 +98,7 @@ class UserView
         }
     }
 
-    private function HandleDeleteAction(ForumDb $db): string
+    private function handleDeleteAction(ForumDb $db): string
     {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if ($userActionValue === self::VALUE_DELETE && $this->m_userId) {
@@ -114,7 +114,7 @@ class UserView
         }
     }
 
-    private function HandleAdminAction(ForumDb $db): string
+    private function handleAdminAction(ForumDb $db): string
     {
         $user = null;
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
@@ -137,7 +137,7 @@ class UserView
         }
     }
 
-    private function HandleActivateAction(ForumDb $db, User $admin): string
+    private function handleActivateAction(ForumDb $db, User $admin): string
     {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_USERACTION, FILTER_UNSAFE_RAW);
         if ($userActionValue === self::VALUE_ACTIVATE && $this->m_userId) {
@@ -165,7 +165,7 @@ class UserView
         }
     }
 
-    private function LoadUser(ForumDb $db): ?User
+    private function loadUser(ForumDb $db): ?User
     {
         $user = null;
         if ($this->m_userId) {
@@ -178,7 +178,7 @@ class UserView
         return $user;
     }
 
-    private function GetTurnIntoDummyForm(User $user): string
+    private function getTurnIntoDummyForm(User $user): string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
                 . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
@@ -188,7 +188,7 @@ class UserView
         return $htmlStr;
     }
 
-    private function GetDeleteUserForm(User $user): string
+    private function getDeleteUserForm(User $user): string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
                 . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
@@ -198,17 +198,17 @@ class UserView
         return $htmlStr;
     }
 
-    private function GetConfirmTurnInfoDummyForm(User $user): string
+    private function getConfirmTurnInfoDummyForm(User $user): string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
                 . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
-        $htmlStr .= '<input type="submit" value="Stammposter ' . $user->GetNick() . ' zu einem Dummy machen Bestätigen"/>'
+        $htmlStr .= '<input type="submit" value="Stammposter ' . $user->getNick() . ' zu einem Dummy machen Bestätigen"/>'
                 . '<input type="hidden" name="' . self::PARAM_USERACTION . '" value="' . self::VALUE_CONFIRM_MAKE_DUMMY . '"/>';
         $htmlStr .= '</form>';
         return $htmlStr;
     }
 
-    private function GetToggleActiveForm(User $user): string
+    private function getToggleActiveForm(User $user): string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
                 . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
@@ -227,7 +227,7 @@ class UserView
         return $htmlStr;
     }
 
-    private function GetToggleAdminForm(User $user): string
+    private function getToggleAdminForm(User $user): string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
                 . '<input type="hidden" name="' . self::PARAM_USERID . '" value="' . $user->GetId() . '"/>';
@@ -246,12 +246,12 @@ class UserView
         return $htmlStr;
     }
 
-    public function RenderHtmlDiv(ForumDb $db): string
+    public function renderHtmlDiv(ForumDb $db): string
     {
         if (!$this->m_userId && !$this->m_email && !$this->m_nick) {
             return '<div></div>';
         }
-        $user = $this->LoadUser($db);
+        $user = $this->loadUser($db);
         if (!$user) {
             if ($this->m_userId) {
                 return '<div class="fitalic noTableEntries">Kein Stammposter gefunden mit BenutzerId ' . $this->m_userId . '</div>';
@@ -264,18 +264,18 @@ class UserView
 
         $htmlStr = '<div><table class="actiontable">';
         $htmlStr .= '<tr><td>Id:</td><td>' . $user->GetId() . '</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Stammpostername:</td><td>' . htmlspecialchars($user->GetNick()) . '</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Email:</td><td>' . ($user->HasEmail() ? htmlspecialchars($user->GetEmail()) : '') . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Stammpostername:</td><td>' . htmlspecialchars($user->getNick()) . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Email:</td><td>' . ($user->HasEmail() ? htmlspecialchars($user->getEmail()) : '') . '</td><td></td></tr>';
         $htmlStr .= '<tr><td>Registriert seit:</td><td>' . $user->GetRegistrationTimestamp()->format('d.m.Y H:i:s') . '</td><td></td></tr>';
         $htmlStr .= '<tr><td>Registrierungsnachricht:</td><td>' . $user->GetRegistrationMsg() . '</td><td></td></tr>';
         $htmlStr .= '<tr><td>Email bestätigt am:</td><td>' . ($user->GetConfirmationTimestamp() ? $user->GetConfirmationTimestamp()->format('d.m.Y H:i:s') : '') . '</td><td></td></tr>';
         $htmlStr .= '<tr><td>Aktiv:</td><td>' . ($user->IsActive() ? 'Ja' : 'Nein')
                 . '</td><td>'
-                . $this->GetToggleActiveForm($user)
+                . $this->getToggleActiveForm($user)
                 . '</td></tr>';
         $htmlStr .= '<tr><td>Admin:</td><td>' . ($user->IsAdmin() ? 'Ja' : 'Nein')
                 . '</td><td>'
-                . $this->GetToggleAdminForm($user)
+                . $this->getToggleAdminForm($user)
                 . '</td></tr>';
         $htmlStr .= '<tr><td>Dummy:</td><td>' . ($user->IsDummyUser() ? 'Ja' : 'Nein') . '</td><td></td></tr>';
         $htmlStr .= '<tr><td>Hat neues Passwort</td><td>' . ($user->HasPassword() ? 'Ja' : 'Nein') . '</td><td></td></tr>';
@@ -283,9 +283,9 @@ class UserView
         $postByUserCount = $db->GetPostByUserCount($user);
         $htmlStr .= '<tr><td>Anzahl Posts</td><td>' . $postByUserCount . '</td><td>';
         if ($postByUserCount > 0 && !$user->IsDummyUser()) {
-            $htmlStr .= $this->GetTurnIntoDummyForm($user);
+            $htmlStr .= $this->getTurnIntoDummyForm($user);
         } elseif ($postByUserCount == 0) {
-            $htmlStr .= $this->GetDeleteUserForm($user);
+            $htmlStr .= $this->getDeleteUserForm($user);
         }
         $htmlStr .= '</td></tr>';
         $htmlStr .= '</table></div>';

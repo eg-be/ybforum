@@ -32,12 +32,12 @@ class PostView
         }
     }
 
-    public function HandleActionsAndGetResultDiv(ForumDb $db): string
+    public function handleActionsAndGetResultDiv(ForumDb $db): string
     {
         try {
             $userActionValue = filter_input(INPUT_POST, self::PARAM_POSTACTION, FILTER_UNSAFE_RAW);
             if ($userActionValue === self::VALUE_SHOW || $userActionValue === self::VALUE_HIDE) {
-                return $this->HandleHideShowAction($db);
+                return $this->handleHideShowAction($db);
             } else {
                 return '';
             }
@@ -46,7 +46,7 @@ class PostView
         }
     }
 
-    private function HandleHideShowAction(ForumDb $db): string
+    private function handleHideShowAction(ForumDb $db): string
     {
         $userActionValue = filter_input(INPUT_POST, self::PARAM_POSTACTION, FILTER_UNSAFE_RAW);
         if ($userActionValue === self::VALUE_SHOW && $this->m_postId) {
@@ -60,7 +60,7 @@ class PostView
     }
 
 
-    private function GetToggleHiddenForm(Post $post): string
+    private function getToggleHiddenForm(Post $post): string
     {
         $htmlStr = '<form method="post" action="" accept-charset="utf-8">'
                 . '<input type="hidden" name="' . self::PARAM_POSTID . '" value="' . $post->GetId() . '"/>';
@@ -75,7 +75,7 @@ class PostView
         return $htmlStr;
     }
 
-    public function RenderHtmlDiv(ForumDb $db): string
+    public function renderHtmlDiv(ForumDb $db): string
     {
         if (!$this->m_postId) {
             return '<div></div>';
@@ -91,7 +91,7 @@ class PostView
             $htmlStr .= '<tr><td>Id:</td><td><a href="../showentry.php?idpost=' . $post->GetId() . '">' . $post->GetId() . '</a></td><td></td></tr>';
         }
         if ($post->HasParentPost()) {
-            $parentPost = $db->LoadPost($post->GetParentPostId());
+            $parentPost = $db->LoadPost($post->getParentPostId());
             if (!$parentPost->IsHidden()) {
                 $htmlStr .= '<tr><td>Parent:</td><td><a href="../showentry.php?idpost=' . $parentPost->GetId() . '">' . $parentPost->GetId() . '</a></td><td></td></tr>';
             } else {
@@ -100,15 +100,15 @@ class PostView
         }
         $htmlStr .= '<tr><td>Datum:</td><td>' . $post->GetPostTimestamp()->format('d.m.Y H:i:s') . '</td><td></td></tr>';
         $htmlStr .= '<tr><td>Ausgeblendet:</td><td>' . ($post->IsHidden() ? 'Ja' : 'Nein') . '</td><td>'
-                . $this->GetToggleHiddenForm($post)
+                . $this->getToggleHiddenForm($post)
                 . '</td></tr>';
-        $htmlStr .= '<tr><td>Stammpostername:</td><td>' . htmlspecialchars($post->GetNick()) . ' (' . $post->GetUserId() . ')</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Titel:</td><td>' . htmlspecialchars($post->GetTitle()) . '</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Inhalt:</td><td style="white-space: pre-wrap;">' . ($post->HasContent() ? htmlspecialchars($post->GetContent()) : '<Kein Inhalt>') . '</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Email:</td><td>' . ($post->HasEmail() ? htmlspecialchars($post->GetEmail()) : '<null>') . '</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Link Url:</td><td>' . ($post->HasLinkUrl() ? htmlspecialchars($post->GetLinkUrl()) : '<null>') . '</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Link Text:</td><td>' . ($post->HasLinkText() ? htmlspecialchars($post->GetLinkText()) : '<null>') . '</td><td></td></tr>';
-        $htmlStr .= '<tr><td>Bild Url:</td><td>' . ($post->HasImgUrl() ? htmlspecialchars($post->GetImgUrl()) : '<null>') . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Stammpostername:</td><td>' . htmlspecialchars($post->getNick()) . ' (' . $post->GetUserId() . ')</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Titel:</td><td>' . htmlspecialchars($post->getTitle()) . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Inhalt:</td><td style="white-space: pre-wrap;">' . ($post->HasContent() ? htmlspecialchars($post->getContent()) : '<Kein Inhalt>') . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Email:</td><td>' . ($post->HasEmail() ? htmlspecialchars($post->getEmail()) : '<null>') . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Link Url:</td><td>' . ($post->HasLinkUrl() ? htmlspecialchars($post->getLinkUrl()) : '<null>') . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Link Text:</td><td>' . ($post->HasLinkText() ? htmlspecialchars($post->getLinkText()) : '<null>') . '</td><td></td></tr>';
+        $htmlStr .= '<tr><td>Bild Url:</td><td>' . ($post->HasImgUrl() ? htmlspecialchars($post->getImgUrl()) : '<null>') . '</td><td></td></tr>';
         $htmlStr .= '<tr><td>IP:</td><td>' . $post->GetIpAddress() . '</td><td></td></tr>';
         $htmlStr .= '</table></div>';
         return $htmlStr;

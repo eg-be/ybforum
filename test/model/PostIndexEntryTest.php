@@ -106,11 +106,11 @@ final class PostIndexEntryTest extends BaseTest
         );
         static::assertEquals(11, $topPost->GetPostId());
         static::assertEquals(111, $topPost->GetThreadId());
-        static::assertNull($topPost->GetParentPostId());
+        static::assertNull($topPost->getParentPostId());
         static::assertEquals(0, $topPost->GetIndent());
-        static::assertEquals('title', $topPost->GetTitle());
+        static::assertEquals('title', $topPost->getTitle());
         static::assertTrue($topPost->HasContent());
-        static::assertEquals('user', $topPost->GetNick());
+        static::assertEquals('user', $topPost->getNick());
         static::assertFalse($topPost->IsHidden());
         static::assertEquals(new DateTime('2020-03-30 14:30:05'), $topPost->GetPostTimestamp());
     }

@@ -101,7 +101,7 @@ class Post
     /**
      * @return null or int. field parent_idpost.
      */
-    public function GetParentPostId(): ?int
+    public function getParentPostId(): ?int
     {
         return $this->parent_idpost;
     }
@@ -117,7 +117,7 @@ class Post
     /**
      * @return string Non empty field title.
      */
-    public function GetTitle(): string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -125,7 +125,7 @@ class Post
     /**
      * @return string Non empty nick (field user_table.nick) who wrote this post.
      */
-    public function GetNick(): string
+    public function getNick(): string
     {
         return $this->nick;
     }
@@ -157,7 +157,7 @@ class Post
     /**
      * @return string or null. Field content.
      */
-    public function GetContent(): ?string
+    public function getContent(): ?string
     {
         assert($this->HasContent());
         return $this->content;
@@ -191,7 +191,7 @@ class Post
     /**
      * @return string or null. Field link_url.
      */
-    public function GetLinkUrl(): ?string
+    public function getLinkUrl(): ?string
     {
         assert($this->HasLinkUrl());
         return $this->link_url;
@@ -208,7 +208,7 @@ class Post
     /**
      * @return string or null. Field link_text.
      */
-    public function GetLinkText(): ?string
+    public function getLinkText(): ?string
     {
         assert($this->HasLinkText());
         return $this->link_text;
@@ -225,7 +225,7 @@ class Post
     /**
      * @return string or null. Field img_url.
      */
-    public function GetImgUrl(): ?string
+    public function getImgUrl(): ?string
     {
         assert($this->HasImgUrl());
         return $this->img_url;
@@ -242,7 +242,7 @@ class Post
     /**
      * @return string or email Field email.
      */
-    public function GetEmail(): ?string
+    public function getEmail(): ?string
     {
         assert($this->HasEmail());
         return $this->email;

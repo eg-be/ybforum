@@ -74,37 +74,37 @@ class PostEntryHandler extends BaseHandler
         $this->newPostId = null;
     }
 
-    protected function ReadParams(): void
+    protected function readParams(): void
     {
-        $this->parentPostId = self::ReadIntParam(self::PARAM_PARENTPOSTID);
-        $this->nick = self::ReadStringParam(self::PARAM_NICK);
-        $this->password = self::ReadStringParam(self::PARAM_PASS);
-        $this->title = self::ReadStringParam(self::PARAM_TITLE);
-        $this->content = self::ReadStringParam(self::PARAM_CONTENT);
+        $this->parentPostId = self::readIntParam(self::PARAM_PARENTPOSTID);
+        $this->nick = self::readStringParam(self::PARAM_NICK);
+        $this->password = self::readStringParam(self::PARAM_PASS);
+        $this->title = self::readStringParam(self::PARAM_TITLE);
+        $this->content = self::readStringParam(self::PARAM_CONTENT);
         // Read optional values as plain-text and validate them later
         // so that we can send them back to the user on failure
-        $this->email = self::ReadStringParam(self::PARAM_EMAIL);
-        $this->linkUrl = self::ReadStringParam(self::PARAM_LINKURL);
-        $this->linkText = self::ReadStringParam(self::PARAM_LINKTEXT);
-        $this->imgUrl = self::ReadStringParam(self::PARAM_IMGURL);
+        $this->email = self::readStringParam(self::PARAM_EMAIL);
+        $this->linkUrl = self::readStringParam(self::PARAM_LINKURL);
+        $this->linkText = self::readStringParam(self::PARAM_LINKTEXT);
+        $this->imgUrl = self::readStringParam(self::PARAM_IMGURL);
     }
 
-    protected function ValidateParams(): void
+    protected function validateParams(): void
     {
         // validate what we cannot accept null values for:
-        self::ValidateIntParam($this->parentPostId, parent::MSG_GENERIC_INVALID);
-        self::ValidateStringParam($this->nick, self::MSG_AUTH_FAIL);
-        self::ValidateStringParam($this->password, self::MSG_AUTH_FAIL);
-        self::ValidateStringParam($this->title, self::MSG_TITLE_TOO_SHORT, YbForumConfig::MIN_TITLE_LENGTH);
+        self::validateIntParam($this->parentPostId, parent::MSG_GENERIC_INVALID);
+        self::validateStringParam($this->nick, self::MSG_AUTH_FAIL);
+        self::validateStringParam($this->password, self::MSG_AUTH_FAIL);
+        self::validateStringParam($this->title, self::MSG_TITLE_TOO_SHORT, YbForumConfig::MIN_TITLE_LENGTH);
 
         // If the user passed an optional value that does not meet the specs,
         // notify the user (instead of discarding silently)
         if ($this->email) {
-            self::ValidateEmailValue($this->email, 'Der Wert ' . $this->email
+            self::validateEmailValue($this->email, 'Der Wert ' . $this->email
                     . ' ist keine gültige Mailadresse.');
         }
         if ($this->linkUrl) {
-            self::ValidateHttpUrlValue($this->linkUrl, 'Der Wert ' . $this->linkUrl
+            self::validateHttpUrlValue($this->linkUrl, 'Der Wert ' . $this->linkUrl
                     . ' ist kein gültiger Link. Links müssen mit https://'
                     . ' (oder http://) beginnen.');
         }
@@ -116,7 +116,7 @@ class PostEntryHandler extends BaseHandler
             );
         }
         if ($this->imgUrl) {
-            self::ValidateHttpUrlValue($this->imgUrl, 'Der Wert ' . $this->imgUrl
+            self::validateHttpUrlValue($this->imgUrl, 'Der Wert ' . $this->imgUrl
                     . ' ist keine gültige Bild URL. Bild URLs müssen mit https://'
                     . ' (oder http://) beginnen und auf eine Bilddatei'
                     . ' verweisen', true);
@@ -127,7 +127,7 @@ class PostEntryHandler extends BaseHandler
      * Build a message containing all values of this post
      * @return string
      */
-    private function GetExtendedLogMsg(): string
+    private function getExtendedLogMsg(): string
     {
         $extMsg = 'Title: ' . $this->title;
         if ($this->content) {
@@ -149,7 +149,7 @@ class PostEntryHandler extends BaseHandler
     }
 
 
-    protected function HandleRequestImpl(ForumDb $db): void
+    protected function handleRequestImpl(ForumDb $db): void
     {
         if (is_null($this->logger)) {
             $this->logger = new Logger($db);
@@ -183,7 +183,7 @@ class PostEntryHandler extends BaseHandler
                     $this->logger->LogMessage(
                         LogType::LOG_EXT_POST_DISCARDED,
                         $authFailMsg,
-                        $this->GetExtendedLogMsg()
+                        $this->getExtendedLogMsg()
                     );
                 }
             }
@@ -221,62 +221,62 @@ class PostEntryHandler extends BaseHandler
         }
     }
 
-    public function GetTitle(): ?string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function GetNick(): ?string
+    public function getNick(): ?string
     {
         return $this->nick;
     }
 
-    public function GetPassword(): ?string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function GetContent(): ?string
+    public function getContent(): ?string
     {
         return $this->content;
     }
 
-    public function GetEmail(): ?string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    public function GetLinkUrl(): ?string
+    public function getLinkUrl(): ?string
     {
         return $this->linkUrl;
     }
 
-    public function GetLinkText(): ?string
+    public function getLinkText(): ?string
     {
         return $this->linkText;
     }
 
-    public function GetImgUrl(): ?string
+    public function getImgUrl(): ?string
     {
         return $this->imgUrl;
     }
 
-    public function GetParentPostId(): ?int
+    public function getParentPostId(): ?int
     {
         return $this->parentPostId;
     }
 
-    public function GetNewPostId(): ?int
+    public function getNewPostId(): ?int
     {
         return $this->newPostId;
     }
 
-    public function SetLogger(Logger $logger): void
+    public function setLogger(Logger $logger): void
     {
         $this->logger = $logger;
     }
 
-    public function SetConfigWrapper(ConfigWrapper $config): void
+    public function setConfigWrapper(ConfigWrapper $config): void
     {
         $this->config = $config;
     }

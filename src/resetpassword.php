@@ -42,8 +42,8 @@ require_once __DIR__ . '/pageparts/ResetPasswordForm.php';
         // evaluate the type
         try {
             // Get the correct handler, it must be a ConfirmResetPasswordHandler
-            $handler = ConfirmHandlerFactory::CreateHandler();
-            if ($handler->GetType() != ConfirmHandler::VALUE_TYPE_RESETPASS) {
+            $handler = ConfirmHandlerFactory::createHandler();
+            if ($handler->getType() != ConfirmHandler::VALUE_TYPE_RESETPASS) {
                 throw new InvalidArgumentException(
                     ConfirmResetPasswordHandler::MSG_CODE_UNKNOWN,
                     BaseHandler::MSGCODE_BAD_PARAM
@@ -52,7 +52,7 @@ require_once __DIR__ . '/pageparts/ResetPasswordForm.php';
 
             // let the handler validate the code
             $db = new ForumDb(false);
-            $handler->HandleRequest($db);
+            $handler->handleRequest($db);
 
             // If this is a POST request, we might have data to update
             // the password, else simply display the form
@@ -65,12 +65,12 @@ require_once __DIR__ . '/pageparts/ResetPasswordForm.php';
                 try {
                     $user = $handler->GetUser();
                     $updatePasswordHandler = new UpdatePasswordHandler($user);
-                    $updatePasswordHandler->HandleRequest($db);
+                    $updatePasswordHandler->handleRequest($db);
                     // changing succeeded, show the success state
                     // and remove the code from the database
                     $db->RemoveResetPasswordCode($user);
                     echo '<div class="fbold successcolor">';
-                    echo $handler->GetSuccessText();
+                    echo $handler->getSuccessText();
                     echo ' Dieses Fenster kann jetzt geschlossen werden.';
                     echo '</div>';
                 } catch (InvalidArgumentException $ex) {
@@ -83,7 +83,7 @@ require_once __DIR__ . '/pageparts/ResetPasswordForm.php';
             }
             if ($showForm) {
                 $resetPassForm = new ResetPasswordForm($handler);
-                echo $resetPassForm->RenderHtmlDiv();
+                echo $resetPassForm->renderHtmlDiv();
             }
         } catch (InvalidArgumentException $ex) {
             echo '<div class="failcolor">'

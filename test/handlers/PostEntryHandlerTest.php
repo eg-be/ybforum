@@ -27,8 +27,8 @@ final class PostEntryHandlerTest extends TestCase
         $this->logger = $this->createMock(Logger::class);
         $this->config = static::createStub(ConfigWrapper::class);
         $this->peh = new PostEntryHandler();
-        $this->peh->SetLogger($this->logger);
-        $this->peh->SetConfigWrapper($this->config);
+        $this->peh->setLogger($this->logger);
+        $this->peh->setConfigWrapper($this->config);
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
         // must always reset all previously set $_POST entries
@@ -37,16 +37,16 @@ final class PostEntryHandlerTest extends TestCase
 
     public function testConstruct(): void
     {
-        static::assertNull($this->peh->GetTitle());
-        static::assertNull($this->peh->GetNick());
-        static::assertNull($this->peh->GetPassword());
-        static::assertNull($this->peh->GetContent());
-        static::assertNull($this->peh->GetEmail());
-        static::assertNull($this->peh->GetLinkUrl());
-        static::assertNull($this->peh->GetLinkText());
-        static::assertNull($this->peh->GetImgUrl());
-        static::assertNull($this->peh->GetParentPostId());
-        static::assertNull($this->peh->GetNewPostId());
+        static::assertNull($this->peh->getTitle());
+        static::assertNull($this->peh->getNick());
+        static::assertNull($this->peh->getPassword());
+        static::assertNull($this->peh->getContent());
+        static::assertNull($this->peh->getEmail());
+        static::assertNull($this->peh->getLinkUrl());
+        static::assertNull($this->peh->getLinkText());
+        static::assertNull($this->peh->getImgUrl());
+        static::assertNull($this->peh->getParentPostId());
+        static::assertNull($this->peh->getNewPostId());
     }
 
     public static function providerTestValidateRequiredParams(): array
@@ -73,7 +73,7 @@ final class PostEntryHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($failMessage);
         $this->expectExceptionCode(PostEntryHandler::MSGCODE_BAD_PARAM);
-        $this->peh->HandleRequest($this->db);
+        $this->peh->handleRequest($this->db);
     }
 
     public function testValidateEmail(): void
@@ -88,7 +88,7 @@ final class PostEntryHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Der Wert foobar ist keine gültige Mailadresse.');
         $this->expectExceptionCode(PostEntryHandler::MSGCODE_BAD_PARAM);
-        $this->peh->HandleRequest($this->db);
+        $this->peh->handleRequest($this->db);
     }
 
     public function testValidateHttpUrl(): void
@@ -103,7 +103,7 @@ final class PostEntryHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Der Wert foobar ist kein gültiger Link');
         $this->expectExceptionCode(PostEntryHandler::MSGCODE_BAD_PARAM);
-        $this->peh->HandleRequest($this->db);
+        $this->peh->handleRequest($this->db);
     }
 
     public static function providerValidateHttpUrlAndTextRequired(): array
@@ -129,7 +129,7 @@ final class PostEntryHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Wird ein URL Link angegeben muss auch ein Linktext angegeben werden (und umgekehrt).');
         $this->expectExceptionCode(PostEntryHandler::MSGCODE_BAD_PARAM);
-        $this->peh->HandleRequest($this->db);
+        $this->peh->handleRequest($this->db);
     }
 
     public function testValidateImgUrl(): void
@@ -144,7 +144,7 @@ final class PostEntryHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Der Wert ftp://foobar/bla.jpg ist keine gültige Bild URL.');
         $this->expectExceptionCode(PostEntryHandler::MSGCODE_BAD_PARAM);
-        $this->peh->HandleRequest($this->db);
+        $this->peh->handleRequest($this->db);
     }
 
     public function testPostEntry_migrationRequired(): void
@@ -169,7 +169,7 @@ final class PostEntryHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(PostEntryHandler::MSG_MIGRATION_REQUIRED);
         $this->expectExceptionCode(PostEntryHandler::MSGCODE_AUTH_FAIL);
-        $this->peh->HandleRequest($this->db);
+        $this->peh->handleRequest($this->db);
     }
 
     public function testPostEntry_authFailed(): void
@@ -188,7 +188,7 @@ final class PostEntryHandlerTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(PostEntryHandler::MSGCODE_AUTH_FAIL);
-        $this->peh->HandleRequest($this->db);
+        $this->peh->handleRequest($this->db);
     }
 
     public static function providerAuthFailReasons(): array
@@ -230,7 +230,7 @@ final class PostEntryHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(PostEntryHandler::MSGCODE_AUTH_FAIL);
 
-        $this->peh->HandleRequest($this->db);
+        $this->peh->handleRequest($this->db);
     }
 
     #[DataProvider('providerAuthFailReasons')]
@@ -267,7 +267,7 @@ final class PostEntryHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(PostEntryHandler::MSGCODE_AUTH_FAIL);
 
-        $this->peh->HandleRequest($this->db);
+        $this->peh->handleRequest($this->db);
     }
 
     #[DataProvider('providerAuthFailReasons')]
@@ -298,7 +298,7 @@ final class PostEntryHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(PostEntryHandler::MSGCODE_AUTH_FAIL);
 
-        $this->peh->HandleRequest($this->db);
+        $this->peh->handleRequest($this->db);
     }
 
     public function testPostEntry_paramValuesStored(): void
@@ -320,18 +320,18 @@ final class PostEntryHandlerTest extends TestCase
             ForumDb::AUTH_FAIL_REASON_KEY => ForumDb::AUTH_FAIL_REASON_PASSWORD_INVALID,
         ]);
         try {
-            $this->peh->HandleRequest($this->db);
+            $this->peh->handleRequest($this->db);
         } catch (InvalidArgumentException $ex) {
         }
 
-        static::assertSame('abc', $this->peh->GetTitle());
-        static::assertSame('foo', $this->peh->GetNick());
-        static::assertSame('bar', $this->peh->GetPassword());
-        static::assertSame('hello wold', $this->peh->GetContent());
-        static::assertSame('hans@wurst.com', $this->peh->GetEmail());
-        static::assertSame('http://foo.bar.com', $this->peh->GetLinkUrl());
-        static::assertSame('foo-bar-link', $this->peh->GetLinkText());
-        static::assertSame('https://funny.com/img.jpg', $this->peh->GetImgUrl());
+        static::assertSame('abc', $this->peh->getTitle());
+        static::assertSame('foo', $this->peh->getNick());
+        static::assertSame('bar', $this->peh->getPassword());
+        static::assertSame('hello wold', $this->peh->getContent());
+        static::assertSame('hans@wurst.com', $this->peh->getEmail());
+        static::assertSame('http://foo.bar.com', $this->peh->getLinkUrl());
+        static::assertSame('foo-bar-link', $this->peh->getLinkText());
+        static::assertSame('https://funny.com/img.jpg', $this->peh->getImgUrl());
     }
 
     public function testPostEntry_newThread(): void
@@ -367,7 +367,7 @@ final class PostEntryHandlerTest extends TestCase
                 'https://funny.com/img.jpg',
                 '13.13.13.13'
             );
-        $this->peh->HandleRequest($this->db);
+        $this->peh->handleRequest($this->db);
     }
 
     public function testPostEntry_reply(): void
@@ -404,6 +404,6 @@ final class PostEntryHandlerTest extends TestCase
                 'https://funny.com/img.jpg',
                 '13.13.13.13'
             );
-        $this->peh->HandleRequest($this->db);
+        $this->peh->handleRequest($this->db);
     }
 }

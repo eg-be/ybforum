@@ -15,7 +15,7 @@ declare(strict_types=1);
  */
 class Statistics
 {
-    public function RenderHtmlDiv(ForumDb $db): string
+    public function renderHtmlDiv(ForumDb $db): string
     {
         $htmlStr = '<div>Total Threads: ' . $db->GetThreadCount() . '</div>';
         $htmlStr .= '<div>Total Posts: ' . $db->GetPostCount() . '</div>';

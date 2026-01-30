@@ -36,9 +36,9 @@ require_once __DIR__ . '/ConfirmResetPasswordHandler.php';
  */
 class ConfirmHandlerFactory
 {
-    public static function CreateHandler(): ConfirmHandler
+    public static function createHandler(): ConfirmHandler
     {
-        $type = BaseHandler::ReadRawParamFromGetOrPost(ConfirmHandler::PARAM_TYPE);
+        $type = BaseHandler::readRawParamFromGetOrPost(ConfirmHandler::PARAM_TYPE);
 
         if ($type === ConfirmHandler::VALUE_TYPE_CONFIRM_USER) {
             return new ConfirmUserHandler();

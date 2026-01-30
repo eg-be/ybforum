@@ -57,16 +57,16 @@ class UpdatePasswordHandler extends BaseHandler
         $this->confirmNewPassword = null;
     }
 
-    protected function ReadParams(): void
+    protected function readParams(): void
     {
         // Read params
-        $this->newPassword = self::ReadStringParam(self::PARAM_NEWPASS);
-        $this->confirmNewPassword = self::ReadStringParam(self::PARAM_CONFIRMNEWPASS);
+        $this->newPassword = self::readStringParam(self::PARAM_NEWPASS);
+        $this->confirmNewPassword = self::readStringParam(self::PARAM_CONFIRMNEWPASS);
     }
 
-    protected function ValidateParams(): void
+    protected function validateParams(): void
     {
-        self::ValidateStringParam($this->newPassword, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
+        self::validateStringParam($this->newPassword, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
         // passwords must match
         if ($this->newPassword !== $this->confirmNewPassword) {
             throw new InvalidArgumentException(
@@ -76,7 +76,7 @@ class UpdatePasswordHandler extends BaseHandler
         }
     }
 
-    protected function HandleRequestImpl(ForumDb $db): void
+    protected function handleRequestImpl(ForumDb $db): void
     {
         if (is_null($this->logger)) {
             $this->logger = new Logger($db);
@@ -98,7 +98,7 @@ class UpdatePasswordHandler extends BaseHandler
             $db->ConfirmUser(
                 $this->user,
                 $hashedPassword,
-                $this->user->GetEmail(),
+                $this->user->getEmail(),
                 true,
                 $this->clientIpAddress
             );
@@ -111,7 +111,7 @@ class UpdatePasswordHandler extends BaseHandler
         }
     }
 
-    public function SetLogger(Logger $logger): void
+    public function setLogger(Logger $logger): void
     {
         $this->logger = $logger;
     }

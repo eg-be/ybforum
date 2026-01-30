@@ -69,13 +69,13 @@ class RegisterUserHandler extends BaseHandler
         $this->m_captchaVerifier = null;
     }
 
-    protected function ReadParams(): void
+    protected function readParams(): void
     {
-        $this->nick = self::ReadStringParam(self::PARAM_NICK);
-        $this->email = self::ReadEmailParam(self::PARAM_EMAIL);
-        $this->password = self::ReadStringParam(self::PARAM_PASS);
-        $this->confirmpassword = self::ReadStringParam(self::PARAM_CONFIRMPASS);
-        $this->regMsg = self::ReadStringParam(self::PARAM_REGMSG);
+        $this->nick = self::readStringParam(self::PARAM_NICK);
+        $this->email = self::readEmailParam(self::PARAM_EMAIL);
+        $this->password = self::readStringParam(self::PARAM_PASS);
+        $this->confirmpassword = self::readStringParam(self::PARAM_CONFIRMPASS);
+        $this->regMsg = self::readStringParam(self::PARAM_REGMSG);
 
         if (CaptchaV3Config::CAPTCHA_VERIFY) {
             $this->m_captchaVerifier = new CaptchaV3Verifier(
@@ -86,12 +86,12 @@ class RegisterUserHandler extends BaseHandler
         }
     }
 
-    protected function ValidateParams(): void
+    protected function validateParams(): void
     {
         // Validate where we cannot accept null values:
-        self::ValidateStringParam($this->nick, self::MSG_NICK_TOO_SHORT, YbForumConfig::MIN_NICK_LENGTH);
-        self::ValidateEmailValue($this->email);
-        self::ValidateStringParam($this->password, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
+        self::validateStringParam($this->nick, self::MSG_NICK_TOO_SHORT, YbForumConfig::MIN_NICK_LENGTH);
+        self::validateEmailValue($this->email);
+        self::validateStringParam($this->password, self::MSG_PASSWORD_TOO_SHORT, YbForumConfig::MIN_PASSWWORD_LENGTH);
 
         // passwords must match
         if ($this->confirmpassword !== $this->password) {
@@ -107,7 +107,7 @@ class RegisterUserHandler extends BaseHandler
         }
     }
 
-    protected function HandleRequestImpl(ForumDb $db): void
+    protected function handleRequestImpl(ForumDb $db): void
     {
         if (is_null($this->logger)) {
             $this->logger = new Logger($db);
@@ -117,7 +117,7 @@ class RegisterUserHandler extends BaseHandler
         if ($userByNick) {
             $this->logger->LogMessage(
                 LogType::LOG_OPERATION_FAILED_NICK_NOT_UNIQUE,
-                'Requested Nick: ' . $this->nick . ' already used in: ' . $userByNick->GetNick() . ' (' . $userByNick->GetId() . ')'
+                'Requested Nick: ' . $this->nick . ' already used in: ' . $userByNick->getNick() . ' (' . $userByNick->GetId() . ')'
             );
             throw new InvalidArgumentException(
                 self::MSG_NICK_NOT_UNIQUE,
@@ -133,7 +133,7 @@ class RegisterUserHandler extends BaseHandler
             );
         }
         // Check that email is not blacklisted
-        self::ValidateEmailAgainstBlacklist($this->email, $db, $this->logger);
+        self::validateEmailAgainstBlacklist($this->email, $db, $this->logger);
 
         // Create the user and request a confirmation code
         $user = $db->CreateNewUser(
@@ -163,37 +163,37 @@ class RegisterUserHandler extends BaseHandler
         }
     }
 
-    public function GetNick(): ?string
+    public function getNick(): ?string
     {
         return $this->nick;
     }
 
-    public function GetEmail(): ?string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    public function GetRegMsg(): ?string
+    public function getRegMsg(): ?string
     {
         return $this->regMsg;
     }
 
-    public function GetPassword(): ?string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function GetConfirmPassword(): ?string
+    public function getConfirmPassword(): ?string
     {
         return $this->confirmpassword;
     }
 
-    public function SetMailer(Mailer $mailer): void
+    public function setMailer(Mailer $mailer): void
     {
         $this->mailer = $mailer;
     }
 
-    public function SetLogger(Logger $logger): void
+    public function setLogger(Logger $logger): void
     {
         $this->logger = $logger;
     }

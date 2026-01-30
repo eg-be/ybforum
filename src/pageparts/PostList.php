@@ -49,12 +49,12 @@ class PostList
             $htmlStr .= '<p class="nomargin"><a ';
             $htmlStr .= 'href="showentry.php?idpost='
                 . $indexEntry->GetPostId() . '">';
-            $htmlStr .= $indexEntry->GetTitle();
+            $htmlStr .= $indexEntry->getTitle();
             if (!$indexEntry->HasContent()) {
                 $htmlStr .= ' (o.T.)';
             }
             $htmlStr .= '</a> - <span class="fbold">';
-            $htmlStr .= $indexEntry->GetNick();
+            $htmlStr .= $indexEntry->getNick();
             $htmlStr .= '</span> - ';
             $htmlStr .= $indexEntry->GetPostTimestamp()->format('d.m.Y H:i:s');
             $htmlStr .= '</p>';

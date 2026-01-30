@@ -27,8 +27,8 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->logger = $this->createMock(Logger::class);
         $this->mailer = $this->createMock(Mailer::class);
         $this->rph = new ResetPasswordHandler();
-        $this->rph->SetLogger($this->logger);
-        $this->rph->SetMailer($this->mailer);
+        $this->rph->setLogger($this->logger);
+        $this->rph->setMailer($this->mailer);
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
         // must always reset all previously set $_POST entries
@@ -37,8 +37,8 @@ final class ResetPasswordHandlerTest extends TestCase
 
     public function testConstruct(): void
     {
-        static::assertNull($this->rph->GetNick());
-        static::assertNull($this->rph->GetEmail());
+        static::assertNull($this->rph->getNick());
+        static::assertNull($this->rph->getEmail());
     }
 
     public static function providerTestResetByNickOrEmail(): array
@@ -76,7 +76,7 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->mailer->expects($this->once())->method('SendResetPasswordMessage')
         ->with('foo@bar.com', 'foo', 'confirm-code');
 
-        $this->rph->HandleRequest($this->db);
+        $this->rph->handleRequest($this->db);
     }
 
     public static function providerTestReset_failsIfNickNorMailFound(): array
@@ -101,7 +101,7 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->expectExceptionMessage(ResetPasswordHandler::MSG_UNKNOWN_EMAIL_OR_NICK);
         $this->expectExceptionCode(ResetPasswordHandler::MSGCODE_BAD_PARAM);
 
-        $this->rph->HandleRequest($this->db);
+        $this->rph->handleRequest($this->db);
     }
 
     public function testReset_failsIfUserHasNoMail(): void
@@ -120,7 +120,7 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->expectExceptionMessage(ResetPasswordHandler::MSG_USER_HAS_NO_EMAIL);
         $this->expectExceptionCode(ResetPasswordHandler::MSGCODE_BAD_PARAM);
 
-        $this->rph->HandleRequest($this->db);
+        $this->rph->handleRequest($this->db);
     }
 
     public function testReset_failsIfUserIsDummy(): void
@@ -140,7 +140,7 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->expectExceptionMessage(ResetPasswordHandler::MSG_DUMMY_USER);
         $this->expectExceptionCode(ResetPasswordHandler::MSGCODE_BAD_PARAM);
 
-        $this->rph->HandleRequest($this->db);
+        $this->rph->handleRequest($this->db);
     }
 
     public function testReset_failsIfUserIsInactive(): void
@@ -161,7 +161,7 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->expectExceptionMessage(ResetPasswordHandler::MSG_USER_INACTIVE);
         $this->expectExceptionCode(ResetPasswordHandler::MSGCODE_BAD_PARAM);
 
-        $this->rph->HandleRequest($this->db);
+        $this->rph->handleRequest($this->db);
     }
 
     public function testReset_IfUserIsInactiveButNeedsMigration(): void
@@ -187,7 +187,7 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->mailer->expects($this->once())->method('SendResetPasswordMessage')
         ->with('foo@bar.com', 'foo', 'confirm-code');
 
-        $this->rph->HandleRequest($this->db);
+        $this->rph->handleRequest($this->db);
     }
 
     public function testReset_removeResetPasswordCodeIfMailingFails(): void
@@ -222,6 +222,6 @@ final class ResetPasswordHandlerTest extends TestCase
         $this->expectExceptionMessage(ResetPasswordHandler::MSG_SENDING_CONFIRMMAIL_FAILED);
         $this->expectExceptionCode(ResetPasswordHandler::MSGCODE_INTERNAL_ERROR);
 
-        $this->rph->HandleRequest($this->db);
+        $this->rph->handleRequest($this->db);
     }
 }

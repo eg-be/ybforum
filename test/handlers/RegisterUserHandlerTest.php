@@ -27,8 +27,8 @@ final class RegisterUserHandlerTest extends TestCase
         $this->mailer = $this->createMock(Mailer::class);
         $this->logger = $this->createMock(Logger::class);
         $this->ruh = new RegisterUserHandler();
-        $this->ruh->SetMailer($this->mailer);
-        $this->ruh->SetLogger($this->logger);
+        $this->ruh->setMailer($this->mailer);
+        $this->ruh->setLogger($this->logger);
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
         $_SERVER['REQUEST_URI'] = 'phpunit';
@@ -38,11 +38,11 @@ final class RegisterUserHandlerTest extends TestCase
 
     public function testConstruct(): void
     {
-        static::assertNull($this->ruh->GetNick());
-        static::assertNull($this->ruh->GetEmail());
-        static::assertNull($this->ruh->GetRegMsg());
-        static::assertNull($this->ruh->GetPassword());
-        static::assertNull($this->ruh->GetConfirmPassword());
+        static::assertNull($this->ruh->getNick());
+        static::assertNull($this->ruh->getEmail());
+        static::assertNull($this->ruh->getRegMsg());
+        static::assertNull($this->ruh->getPassword());
+        static::assertNull($this->ruh->getConfirmPassword());
     }
 
     public static function providerTestValidateRequiredParams(): array
@@ -68,7 +68,7 @@ final class RegisterUserHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($failMessage);
         $this->expectExceptionCode(RegisterUserHandler::MSGCODE_BAD_PARAM);
-        $this->ruh->HandleRequest($this->db);
+        $this->ruh->handleRequest($this->db);
     }
 
     public function testPasswordsMustMatch(): void
@@ -80,7 +80,7 @@ final class RegisterUserHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(RegisterUserHandler::MSG_PASSWORDS_NOT_MATCH);
         $this->expectExceptionCode(RegisterUserHandler::MSGCODE_BAD_PARAM);
-        $this->ruh->HandleRequest($this->db);
+        $this->ruh->handleRequest($this->db);
     }
 
     public function testRegisterUser_nickNotUnique(): void
@@ -96,7 +96,7 @@ final class RegisterUserHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(RegisterUserHandler::MSG_NICK_NOT_UNIQUE);
         $this->expectExceptionCode(RegisterUserHandler::MSGCODE_BAD_PARAM);
-        $this->ruh->HandleRequest($this->db);
+        $this->ruh->handleRequest($this->db);
     }
 
     public function testRegisterUser_emailNotUnique(): void
@@ -112,7 +112,7 @@ final class RegisterUserHandlerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(RegisterUserHandler::MSG_EMAIL_NOT_UNIQUE);
         $this->expectExceptionCode(RegisterUserHandler::MSGCODE_BAD_PARAM);
-        $this->ruh->HandleRequest($this->db);
+        $this->ruh->handleRequest($this->db);
     }
 
     public function testRegisterUser_emailTestedForBlacklist(): void
@@ -134,7 +134,7 @@ final class RegisterUserHandlerTest extends TestCase
                 'This address is blocked(Mail: a@bar.com)'
             );
 
-        $this->ruh->HandleRequest($this->db);
+        $this->ruh->handleRequest($this->db);
     }
 
     public function testRegisterUser_userCreatedConfirmCodeSent(): void
@@ -158,7 +158,7 @@ final class RegisterUserHandlerTest extends TestCase
         $this->mailer->expects($this->once())->method('SendRegisterUserConfirmMessage')
             ->with('a@bar.com', 'nickname', 'the-confirm-code');
 
-        $this->ruh->HandleRequest($this->db);
+        $this->ruh->handleRequest($this->db);
     }
 
     public function testRegisterUser_confirmCodeSendFailsUserDeleted(): void
@@ -192,6 +192,6 @@ final class RegisterUserHandlerTest extends TestCase
         $this->expectExceptionMessage(RegisterUserHandler::MSG_SENDING_CONFIRMMAIL_FAILED);
         $this->expectExceptionCode(RegisterUserHandler::MSGCODE_INTERNAL_ERROR);
 
-        $this->ruh->HandleRequest($this->db);
+        $this->ruh->handleRequest($this->db);
     }
 }

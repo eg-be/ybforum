@@ -26,7 +26,7 @@ class PendingConfirmationUserList
 
     public function __construct() {}
 
-    public function HandleActionsAndGetResultDiv(ForumDb $db): string
+    public function handleActionsAndGetResultDiv(ForumDb $db): string
     {
         try {
             $resultDiv = '';
@@ -44,11 +44,11 @@ class PendingConfirmationUserList
                 if ($confirmReason == ForumDb::CONFIRM_SOURCE_NEWUSER) {
                     $db->DeleteUser($user);
                     $resultDiv = '<div class="actionSucceeded">Registerungs-Eintrag für Benutzer '
-                            . $user->GetNick() . ' (' . $user->GetId() . ') '
+                            . $user->getNick() . ' (' . $user->GetId() . ') '
                             . 'entfernt (inkl. Benutzereintrag)</div>';
                 } else {
                     $resultDiv = '<div class="actionSucceeded">Migrations-Eintrag für Benutzer '
-                            . $user->GetNick() . ' (' . $user->GetId() . ') '
+                            . $user->getNick() . ' (' . $user->GetId() . ') '
                             . 'entfernt</div>';
                 }
             } elseif ($user && $userActionValue === self::VALUE_DELETE_AND_BLOCK) {
@@ -58,16 +58,16 @@ class PendingConfirmationUserList
                 $confirmReason = $db->GetConfirmReason($user);
                 $db->RemoveConfirmUserCode($user);
                 if ($confirmReason == ForumDb::CONFIRM_SOURCE_NEWUSER) {
-                    $db->AddBlacklist($user->GetEmail(), 'Blocked from admin');
+                    $db->AddBlacklist($user->getEmail(), 'Blocked from admin');
                     $db->DeleteUser($user);
                     $resultDiv = '<div class="actionSucceeded">Registerungs-Eintrag für Benutzer '
-                            . $user->GetNick() . ' (' . $user->GetId() . ') '
+                            . $user->getNick() . ' (' . $user->GetId() . ') '
                             . 'entfernt (inkl. Benutzereintrag), '
-                            . 'Mailadresse ' . $user->GetEmail()
+                            . 'Mailadresse ' . $user->getEmail()
                             . ' blockiert</div>';
                 } else {
                     $resultDiv = '<div class="actionSucceeded">Migrations-Eintrag für Benutzer '
-                            . $user->GetNick() . ' (' . $user->GetId() . ') '
+                            . $user->getNick() . ' (' . $user->GetId() . ') '
                             . 'entfernt</div>';
                 }
             } elseif ($user && $userActionValue === self::VALUE_CONFIRM) {
@@ -90,7 +90,7 @@ class PendingConfirmationUserList
                 $db->RemoveConfirmUserCode($user);
                 $db->ConfirmUser($user, $password, $email, $activate);
                 $resultDiv = '<div class="actionSucceeded">Benutzer '
-                        . $user->GetNick() . ' (' . $user->GetId() . ')'
+                        . $user->getNick() . ' (' . $user->GetId() . ')'
                         . 'bestätigt (Aktiviert: '
                         . ($activate ? 'Ja' : 'Nein') . ')</div>';
             }
@@ -100,7 +100,7 @@ class PendingConfirmationUserList
         }
     }
 
-    public function RenderHtmlDiv(ForumDb $db): string
+    public function renderHtmlDiv(ForumDb $db): string
     {
         $haveSome = false;
         $query = 'SELECT cut.iduser AS iduser, u.nick AS nick, '

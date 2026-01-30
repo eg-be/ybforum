@@ -58,7 +58,7 @@ class SearchResult
     /**
      * @return string Field title.
      */
-    public function GetTitle(): string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -66,7 +66,7 @@ class SearchResult
     /**
      * @return string Non empty nick (field user_table.nick) who wrote this post.
      */
-    public function GetNick(): string
+    public function getNick(): string
     {
         return $this->nick;
     }

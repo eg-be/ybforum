@@ -58,8 +58,8 @@ class CaptchaV3Verifier
         $this->m_requiredScore = $requiredScore;
         $this->m_action = $action;
 
-        $this->m_clientIp = BaseHandler::ReadClientIpParam();
-        $this->m_captchaResponse = BaseHandler::ReadStringParam(self::PARAM_CAPTCHA);
+        $this->m_clientIp = BaseHandler::readClientIpParam();
+        $this->m_captchaResponse = BaseHandler::readStringParam(self::PARAM_CAPTCHA);
 
         if (is_null($httpRequest)) {
             $this->m_httpRequest = new CurlHttpRequest();

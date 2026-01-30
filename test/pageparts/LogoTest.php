@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../src/pageparts/Logo.php';
  */
 final class LogoTest extends TestCase
 {
-    public function testRenderHtmlDiv(): void
+    public function testrenderHtmlDiv(): void
     {
         $logo = new Logo();
         $html = $logo->renderHtmlDiv();

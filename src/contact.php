@@ -37,7 +37,7 @@ try {
         $contactHandler = new ContactHandler();
         try {
             $db = new ForumDb();
-            $contactHandler->HandleRequest($db);
+            $contactHandler->handleRequest($db);
         } catch (InvalidArgumentException $ex) {
             // do some output of the error later
         }
@@ -91,10 +91,10 @@ try {
         Bitte gib eine <span class="fbold">gültige Mailadresse</span> an, ansonsten kann die Anfrage nicht beantwortet werden.
         </div>
         <?php
-if ($contactHandler && $contactHandler->HasException()) {
+if ($contactHandler && $contactHandler->hasException()) {
     echo '<div class="failcolor fullwidthcenter">'
             . '<span class="fbold">Fehler: </span>'
-            . $contactHandler->GetLastException()->GetMessage()
+            . $contactHandler->getLastException()->GetMessage()
             . '</div>';
 }
 ?>
@@ -105,9 +105,9 @@ if ($contactHandler && $contactHandler->HasException()) {
 $emailValueRepeat = '';
 $msgValue = '';
 if ($contactHandler) {
-    $emailValue = $contactHandler->GetEmail();
-    $emailValueRepeat = $contactHandler->GetEmailRepeat();
-    $msgValue = $contactHandler->GetMsg();
+    $emailValue = $contactHandler->getEmail();
+    $emailValueRepeat = $contactHandler->getEmailRepeat();
+    $msgValue = $contactHandler->getMsg();
 }
 ?>
                 <table style="margin: auto;">
@@ -148,7 +148,7 @@ if ($contactHandler) {
             </form>
         </div>
         <?php
-        if ($contactHandler && !$contactHandler->HasException()) {
+        if ($contactHandler && !$contactHandler->hasException()) {
             echo
             '<div class="fbold fullwidthcenter successcolor">Die Nachricht wurde gesendet.
             </div>';

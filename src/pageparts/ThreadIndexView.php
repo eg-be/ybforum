@@ -77,12 +77,12 @@ class ThreadIndexView
                     $htmlStr .= $indent . 'em"><a ';
                     $htmlStr .= 'href="showentry.php?idpost='
                         . $ti->GetPostId() . '">';
-                    $htmlStr .= $ti->GetTitle();
+                    $htmlStr .= $ti->getTitle();
                     if (!$ti->HasContent()) {
                         $htmlStr .= ' (o.T.)';
                     }
                     $htmlStr .= '</a> - <span class="fbold">';
-                    $htmlStr .= $ti->GetNick();
+                    $htmlStr .= $ti->getNick();
                     $htmlStr .= '</span> - ';
                     $htmlStr .= $ti->GetPostTimestamp()->format('d.m.Y H:i:s');
                     $htmlStr .= '</p>';

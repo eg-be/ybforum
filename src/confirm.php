@@ -44,23 +44,23 @@ require_once __DIR__ . '/pageparts/ConfirmForm.php';
         <?php
         try {
             // Get the correct handler
-            $handler = ConfirmHandlerFactory::CreateHandler();
+            $handler = ConfirmHandlerFactory::createHandler();
 
             // let the handler handle the request
             $db = new ForumDb(false);
             // If this is GET request, the handler will only simulate
             // but fail with a correct exception if something is wrong
-            $handler->HandleRequest($db);
+            $handler->handleRequest($db);
             if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'GET') {
                 // A GET request is probably a click on a link in a mail
                 // output a form telling the user click the confirm button
                 // to avoid getting confirmed by evil bots
                 $confirmForm = new ConfirmForm($handler);
-                echo $confirmForm->RenderHtmlDiv();
+                echo $confirmForm->renderHtmlDiv();
             } else {
                 // A POST request is something that was triggered by the form
                 echo '<div class="fbold successcolor">';
-                echo $handler->GetSuccessText();
+                echo $handler->getSuccessText();
                 echo ' Dieses Fenster kann jetzt geschlossen werden.';
                 echo '</div>';
             }

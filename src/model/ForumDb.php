@@ -374,10 +374,10 @@ class ForumDb extends PDO
         assert(!empty($clientIpAddress));
 
         if (!$user->IsActive()) {
-            throw new InvalidArgumentException('User ' . $user->GetNick() . ' is not active');
+            throw new InvalidArgumentException('User ' . $user->getNick() . ' is not active');
         }
         if ($user->IsDummyUser()) {
-            throw new InvalidArgumentException('User ' . $user->GetNick() . ' is a dummy');
+            throw new InvalidArgumentException('User ' . $user->getNick() . ' is a dummy');
         }
         $query = 'CALL insert_thread(:iduser, '
                 . ':title, :content, :ip_address, '
@@ -432,10 +432,10 @@ class ForumDb extends PDO
         $this->validateNonEmpty([$title, $clientIpAddress]);
         $this->validateNotWhitespaceOnly([$content, $email, $linkUrl, $linkText, $imgUrl, $clientIpAddress ]);
         if (!$user->IsActive()) {
-            throw new InvalidArgumentException('User ' . $user->GetNick() . ' is not active');
+            throw new InvalidArgumentException('User ' . $user->getNick() . ' is not active');
         }
         if ($user->IsDummyUser()) {
-            throw new InvalidArgumentException('User ' . $user->GetNick() . ' is a dummy');
+            throw new InvalidArgumentException('User ' . $user->getNick() . ' is a dummy');
         }
         $parentPost = $this->LoadPost($parentPostId);
         if (!$parentPost) {
@@ -752,7 +752,7 @@ class ForumDb extends PDO
         $logger->LogMessageWithUserId(
             LogType::LOG_PASS_RESET_CODE_CREATED,
             $user,
-            'Mailaddress of user: ' . $user->GetEmail()
+            'Mailaddress of user: ' . $user->getEmail()
         );
 
 
@@ -1203,7 +1203,7 @@ class ForumDb extends PDO
         $logger->LogMessageWithUserId(
             LogType::LOG_USER_TURNED_INTO_DUMMY,
             $user,
-            'Previous values: email: ' . $user->GetEmail()
+            'Previous values: email: ' . $user->getEmail()
                 . '; active: ' . ($user->IsActive() ? '1' : '0')
                 . '; admin: ' . ($user->IsAdmin() ? '1' : '0')
                 . '; confirmation_ts: ' . ($user->IsConfirmed() ? $user->GetConfirmationTimestamp()->format('d.m.Y H:i:s') : 'null')
@@ -1635,7 +1635,7 @@ class ForumDb extends PDO
         while ($indexEntry = $stmt->fetchObject(PostIndexEntry::class)) {
             // check if entry with indent + 1 are direct ancestors of our post:
             if ($indexEntry->GetIndent() === $ourPostIndent + 1) {
-                $childOfOurPost = ($indexEntry->GetParentPostId() === $ourPostId);
+                $childOfOurPost = ($indexEntry->getParentPostId() === $ourPostId);
             }
             if ($childOfOurPost) {
                 // we are leaving if we have reached the same indent again

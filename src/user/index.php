@@ -65,7 +65,7 @@ try {
     if (filter_input(INPUT_GET, 'updatepassword', FILTER_VALIDATE_INT) > 0) {
         $updatePasswordHandler = new UpdatePasswordHandler($user);
         try {
-            $updatePasswordHandler->HandleRequest($db);
+            $updatePasswordHandler->handleRequest($db);
         } catch (InvalidArgumentException $ex) {
             // show some error later
         }
@@ -75,7 +75,7 @@ try {
     if (filter_input(INPUT_GET, 'updateemail', FILTER_VALIDATE_INT) > 0) {
         $updateEmailHandler = new UpdateEmailHandler($user);
         try {
-            $updateEmailHandler->HandleRequest($db);
+            $updateEmailHandler->handleRequest($db);
         } catch (InvalidArgumentException $ex) {
             // show some error later
         }
@@ -105,7 +105,7 @@ try {
             ErrorHandler::OnException($ex);
         }
 ?>
-        <div class="fullwidthcenter generictitle">Stammposter-Bereich von <span class="fitalic"><?php echo $user->GetNick(); ?></span></div>
+        <div class="fullwidthcenter generictitle">Stammposter-Bereich von <span class="fitalic"><?php echo $user->getNick(); ?></span></div>
         <hr>
         <div class="fullwidthcenter">
             [ <a href="index.php?logout=1">Logout</a> ]
@@ -122,8 +122,8 @@ try {
             </form>
             <?php
     if ($updatePasswordHandler) {
-        if ($updatePasswordHandler->HasException()) {
-            $ex = $updatePasswordHandler->GetLastException();
+        if ($updatePasswordHandler->hasException()) {
+            $ex = $updatePasswordHandler->getLastException();
             echo '<div class="fullwidthcenter failcolor"><span class="fbold">Fehler: </span>' . $ex->getMessage() . '</div>';
         } else {
             echo '<div class="fullwidthcenter successcolor fbold">Passwort aktualisiert</div>';
@@ -135,7 +135,7 @@ try {
                     <tr><td colspan="2" class="genericsmalltitle" style="padding-top: 2em">Mailadresse aktualisieren</td></tr>
                     <tr>
                         <td class="fbold">Aktuelle Mailadresse:</td>
-                        <td class="fitalic"><?php echo $user->GetEmail(); ?></td>
+                        <td class="fitalic"><?php echo $user->getEmail(); ?></td>
                     </tr>
                     <tr>
                         <td class="fbold">Neue Mailadresse:</td>
@@ -152,13 +152,13 @@ echo $validFor->format('%h Stunden'); ?>
             </div>
             <?php
             if ($updateEmailHandler) {
-                if ($updateEmailHandler->HasException()) {
-                    $ex = $updateEmailHandler->GetLastException();
+                if ($updateEmailHandler->hasException()) {
+                    $ex = $updateEmailHandler->getLastException();
                     echo '<div class="fullwidthcenter failcolor"><span class="fbold">Fehler: </span>' . $ex->getMessage() . '</div>';
                 } else {
                     echo
                     '<div class="fbold successcolor fullwidthcenter">Ein Bestätigungslink wurde dir an die Mailadresse
-                    <span class="fbold fitalic" id="confirm_mailaddress">' . $updateEmailHandler->GetNewEmail() . '</span> gesendet.
+                    <span class="fbold fitalic" id="confirm_mailaddress">' . $updateEmailHandler->getNewEmail() . '</span> gesendet.
                     Bitte besuche den Link um diese Mailadresse zu aktivieren.
                     </div>';
                 }

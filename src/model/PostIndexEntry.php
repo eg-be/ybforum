@@ -75,7 +75,7 @@ class PostIndexEntry
     /**
      * @return ?int Field parent_idpost: id of parent post, or null if no parent
      */
-    public function GetParentPostId(): ?int
+    public function getParentPostId(): ?int
     {
         return $this->parent_idpost;
     }
@@ -91,7 +91,7 @@ class PostIndexEntry
     /**
      * @return string Field title.
      */
-    public function GetTitle(): string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -107,7 +107,7 @@ class PostIndexEntry
     /**
      * @return string Non empty nick (field user_table.nick) who wrote this post.
      */
-    public function GetNick(): string
+    public function getNick(): string
     {
         return $this->nick;
     }

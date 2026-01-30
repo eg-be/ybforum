@@ -29,8 +29,8 @@ final class UpdatePasswordHandlerTest extends TestCase
         $this->user->method('GetNick')->willReturn('foo');
         $this->user->method('GetEmail')->willReturn('foo@bar.com');
         $this->uph = new UpdatePasswordHandler($this->user);
-        $this->uph->SetLogger($this->logger);
-        //$this->ueh->SetMailer($this->mailer);
+        $this->uph->setLogger($this->logger);
+        //$this->ueh->setMailer($this->mailer);
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
         // must always reset all previously set $_POST entries
@@ -46,7 +46,7 @@ final class UpdatePasswordHandlerTest extends TestCase
         $this->expectExceptionMessage(UpdatePasswordHandler::MSG_PASSWORDS_NOT_MATCH);
         $this->expectExceptionCode(UpdatePasswordHandler::MSGCODE_BAD_PARAM);
 
-        $this->uph->HandleRequest($this->db);
+        $this->uph->handleRequest($this->db);
     }
 
     public function testUpdatePassword_failsIfNewPasswordTooShort(): void
@@ -60,7 +60,7 @@ final class UpdatePasswordHandlerTest extends TestCase
         $this->expectExceptionMessage(UpdatePasswordHandler::MSG_PASSWORD_TOO_SHORT);
         $this->expectExceptionCode(UpdatePasswordHandler::MSGCODE_BAD_PARAM);
 
-        $this->uph->HandleRequest($this->db);
+        $this->uph->handleRequest($this->db);
     }
 
     public function testUpdatePassword_failsIfUserIsInactive(): void
@@ -81,7 +81,7 @@ final class UpdatePasswordHandlerTest extends TestCase
         $this->expectExceptionMessage(UpdatePasswordHandler::MSG_USER_INACTIVE);
         $this->expectExceptionCode(UpdatePasswordHandler::MSGCODE_BAD_PARAM);
 
-        $this->uph->HandleRequest($this->db);
+        $this->uph->handleRequest($this->db);
     }
 
     public function testUpdatePassword_ifUserIsInactiveButNeedsMigration(): void
@@ -100,7 +100,7 @@ final class UpdatePasswordHandlerTest extends TestCase
         $this->db->expects($this->once())->method('ConfirmUser')
             ->with($this->user);
 
-        $this->uph->HandleRequest($this->db);
+        $this->uph->handleRequest($this->db);
     }
 
     public function testUpdatePassword_ifUserIsActive(): void
@@ -116,7 +116,7 @@ final class UpdatePasswordHandlerTest extends TestCase
         $this->db->expects($this->once())->method('UpdateUserPassword')
             ->with($this->user, $password);
 
-        $this->uph->HandleRequest($this->db);
+        $this->uph->handleRequest($this->db);
     }
 
 }

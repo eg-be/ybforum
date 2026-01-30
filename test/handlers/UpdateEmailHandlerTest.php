@@ -29,7 +29,7 @@ final class UpdateEmailHandlerTest extends TestCase
         $this->user->method('GetNick')->willReturn('foo');
         $this->user->method('GetEmail')->willReturn('foo@bar.com');
         $this->ueh = new UpdateEmailHandler($this->user);
-        $this->ueh->SetMailer($this->mailer);
+        $this->ueh->setMailer($this->mailer);
         // dont know why we need to set this here, as it is already defined in bootstrap.php
         $_SERVER['REMOTE_ADDR'] = '13.13.13.13';
         // must always reset all previously set $_POST entries
@@ -44,7 +44,7 @@ final class UpdateEmailHandlerTest extends TestCase
         $this->expectExceptionMessage(UpdateEmailHandler::MSG_EMAIL_NOT_DIFFERENT);
         $this->expectExceptionCode(UpdateEmailHandler::MSGCODE_BAD_PARAM);
 
-        $this->ueh->HandleRequest($this->db);
+        $this->ueh->handleRequest($this->db);
     }
 
     public function testUpdateEmail_failsIfNewMailUsedInOtherAccount(): void
@@ -58,7 +58,7 @@ final class UpdateEmailHandlerTest extends TestCase
         $this->expectExceptionMessage(UpdateEmailHandler::MSG_EMAIL_NOT_UNIQUE);
         $this->expectExceptionCode(UpdateEmailHandler::MSGCODE_BAD_PARAM);
 
-        $this->ueh->HandleRequest($this->db);
+        $this->ueh->handleRequest($this->db);
     }
 
     public function testUpdateEmail(): void
@@ -76,7 +76,7 @@ final class UpdateEmailHandlerTest extends TestCase
         $this->mailer->expects($this->once())->method('SendUpdateEmailConfirmMessage')
             ->with('new@bar.com', 'foo', 'confirm-code');
 
-        $this->ueh->HandleRequest($this->db);
+        $this->ueh->handleRequest($this->db);
     }
 
     public function test_removeUpdateEmailCodeIfMailingFails(): void
@@ -103,6 +103,6 @@ final class UpdateEmailHandlerTest extends TestCase
         $this->expectExceptionMessage(UpdateEmailHandler::MSG_SENDING_CONFIRMMAIL_FAILED);
         $this->expectExceptionCode(UpdateEmailHandler::MSGCODE_INTERNAL_ERROR);
 
-        $this->ueh->HandleRequest($this->db);
+        $this->ueh->handleRequest($this->db);
     }
 }

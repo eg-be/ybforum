@@ -51,7 +51,7 @@ try {
                 $logger = new Logger($db);
                 if ($user->NeedsMigration()) {
                     $logger->LogMessageWithUserId(LogType::LOG_OPERATION_FAILED_MIGRATION_REQUIRED, $user);
-                    header('Location: migrateuser.php?source=stammposter.php&nick=' . urlencode($user->GetNick()) . '&email=' . urlencode($user->GetEmail()));
+                    header('Location: migrateuser.php?source=stammposter.php&nick=' . urlencode($user->getNick()) . '&email=' . urlencode($user->getEmail()));
                     exit;
                 }
                 $logger->LogMessageWithUserId(LogType::LOG_STAMMPOSTER_LOGIN, $user);
@@ -67,7 +67,7 @@ try {
             // Requires a writeable db
             $db = new ForumDb(false);
             $resetPasswordHandler = new ResetPasswordHandler();
-            $resetPasswordHandler->HandleRequest($db);
+            $resetPasswordHandler->handleRequest($db);
         } catch (InvalidArgumentException $ex) {
             // show some error later
         }
@@ -147,8 +147,8 @@ try {
             </form>
             <?php
 if ($resetPasswordHandler) {
-    if ($resetPasswordHandler->HasException()) {
-        $ex = $resetPasswordHandler->GetLastException();
+    if ($resetPasswordHandler->hasException()) {
+        $ex = $resetPasswordHandler->getLastException();
         echo '<div class="fullwidthcenter" style="color: red"><span style="font-weight: bold;">Fehler: </span>' . $ex->GetMessage() . '</div>';
     } else {
         echo '<div class="fullwidthcenter" style="color: #33cc33">Eine Mail mit einem Link zum zurücksetzen des Passwortes wurde an die hinterlegte Adresse gesendet.</div>';

@@ -44,8 +44,8 @@ class SearchResultsView
         $searchString = null;
         $searchNick = null;
         if ($this->m_sh) {
-            $searchString = $this->m_sh->GetSearchString();
-            $searchNick = $this->m_sh->GetSearchNick();
+            $searchString = $this->m_sh->getSearchString();
+            $searchNick = $this->m_sh->getSearchNick();
         }
         $html = '<form id="' . $id . '" style="display: inline-block;" method="post" action="search.php?search=1" accept-charset="utf-8">';
         $html .= '<input type="hidden" name="'
@@ -66,7 +66,7 @@ class SearchResultsView
                 . SearchHandler::PARAM_SORT_ORDER . '" value="'
                 . $sortOrder->value
                 . '"/>';
-        if ($this->m_sh->GetNoReplies()) {
+        if ($this->m_sh->getNoReplies()) {
             $html .= '<input type="hidden" name="'
                     . SearchHandler::PARAM_NO_REPLIES . '" value="'
                     . SearchHandler::PARAM_NO_REPLIES
@@ -79,30 +79,30 @@ class SearchResultsView
     public function RenderResultsNavigationDiv(): string
     {
         $html = '<div>';
-        if (!$this->m_sh->IsFirstRecordBlock()) {
+        if (!$this->m_sh->isFirstRecordBlock()) {
             $html .= $this->GetHiddenSearchForm(
                 'form_previous_results',
-                $this->m_sh->GetPreviousOffset(),
-                $this->m_sh->GetSortField(),
-                $this->m_sh->GetSortOrder()
+                $this->m_sh->getPreviousOffset(),
+                $this->m_sh->getSortField(),
+                $this->m_sh->getSortOrder()
             );
             $html .= '<a class="fbold" href="#" '
                     . 'onclick="document.getElementById(\'form_previous_results\').submit()">'
-                    . '&lt;-- Vorherige ' . $this->m_sh->GetLimit()
+                    . '&lt;-- Vorherige ' . $this->m_sh->getLimit()
                     . ' Resultate &lt;--</a>';
         }
 
 
-        if ($this->m_sh->MoreRecordsAvailable()) {
+        if ($this->m_sh->moreRecordsAvailable()) {
             $html .= $this->GetHiddenSearchForm(
                 'form_next_results',
-                $this->m_sh->GetNextOffset(),
-                $this->m_sh->GetSortField(),
-                $this->m_sh->GetSortOrder()
+                $this->m_sh->getNextOffset(),
+                $this->m_sh->getSortField(),
+                $this->m_sh->getSortOrder()
             );
             $html .= '<a class="fbold" style="float: right;" href="#" '
                     . 'onclick="document.getElementById(\'form_next_results\').submit()">'
-                    . '--&gt; Nächste ' . $this->m_sh->GetLimit()
+                    . '--&gt; Nächste ' . $this->m_sh->getLimit()
                     . ' Resultate --&gt;</a>';
         }
         $html .= '</div>';
@@ -113,8 +113,8 @@ class SearchResultsView
     {
         $html = '<div style="padding-bottom: 1em; padding-top: 1em;">';
         $html .= '<span class="fbold">Sortieren nach: </span>';
-        $currentSortField = $this->m_sh->GetSortField();
-        $validSortFields = $this->m_sh->GetValidSortFields();
+        $currentSortField = $this->m_sh->getSortField();
+        $validSortFields = $this->m_sh->getValidSortFields();
         foreach ($validSortFields as $sortField) {
             $isCurrentfield = $currentSortField === $sortField;
             $id = 'form_sort_' . $sortField->value;
@@ -127,7 +127,7 @@ class SearchResultsView
                 // determine an icon showing the current sort
                 // arrow down for DESC, arrow up for ASC
                 // and reverse the sort order, on click
-                if ($this->m_sh->GetSortOrder() == SortOrder::ORDER_DESC) {
+                if ($this->m_sh->getSortOrder() == SortOrder::ORDER_DESC) {
                     $currentSortSymbol = '&#8595;';
                     $sortOrder = SortOrder::ORDER_ASC;
                 } else {
@@ -154,12 +154,12 @@ class SearchResultsView
     public function RenderResultsDiv(): string
     {
         $html = '<div>';
-        $results = $this->m_sh->GetResults();
+        $results = $this->m_sh->getResults();
         foreach ($results as $res) {
             $html .= '<p class="nomargin">';
             $html .= '<a href="showentry.php?idpost=' . $res->GetPostId() . '">';
-            $html .= htmlspecialchars($res->GetTitle()) . '</a>';
-            $html .= ' - <span class="fbold">' . htmlspecialchars($res->GetNick()) . '</span>';
+            $html .= htmlspecialchars($res->getTitle()) . '</a>';
+            $html .= ' - <span class="fbold">' . htmlspecialchars($res->getNick()) . '</span>';
             $html .= ' - ' . $res->GetPostTimestamp()->format('d.m.Y H:i:s');
             $html .= '</p>';
         }

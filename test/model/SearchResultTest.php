@@ -26,16 +26,16 @@ final class SearchResultTest extends BaseTest
         static::assertEquals(99, $someResult->GetPostId());
     }
 
-    public function testGetTitle(): void
+    public function testgetTitle(): void
     {
         $someResult = self::mockSearchResult(99, 'nick', 'title', '2020-03-30 14:50:00', null);
-        static::assertEquals('title', $someResult->GetTitle());
+        static::assertEquals('title', $someResult->getTitle());
     }
 
-    public function testGetNick(): void
+    public function testgetNick(): void
     {
         $someResult = self::mockSearchResult(99, 'nick', 'title', '2020-03-30 14:50:00', null);
-        static::assertEquals('nick', $someResult->GetNick());
+        static::assertEquals('nick', $someResult->getNick());
     }
 
     public function testGetPostTimestamp(): void

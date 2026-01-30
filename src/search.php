@@ -41,7 +41,7 @@ try {
         // Try to search using the posted search data
         try {
             $searchHandler = new SearchHandler();
-            $searchHandler->HandleRequest($db);
+            $searchHandler->handleRequest($db);
             // searching succeeeded
         } catch (InvalidArgumentException $ex) {
             // Searching failed. Reshow the form with some error later
@@ -83,8 +83,8 @@ try {
         <hr>
         <?php
 // render an error from a previous search run
-if ($searchHandler && $searchHandler->HasException()) {
-    $searchException = $searchHandler->GetLastException();
+if ($searchHandler && $searchHandler->hasException()) {
+    $searchException = $searchHandler->getLastException();
     echo '<div id="status" class="fullwidthcenter" style="color: red;">'
         . '<span class="fbold">Fehler: </span>'
         . $searchException->GetMessage()
@@ -100,7 +100,7 @@ echo $searchForm->RenderHtmlForm();
         </div>
         <?php
 // If we have some pending results, render them
-if ($searchHandler && $searchHandler->HasResults()) {
+if ($searchHandler && $searchHandler->hasResults()) {
     $searchResultsView = new SearchResultsView($searchHandler);
     echo $searchResultsView->RenderResultsNavigationDiv();
     echo $searchResultsView->RenderSortDiv();
